@@ -26,6 +26,8 @@ interface FamilyUser {
   vacationStartDate?: string | null;
   vacationEndDate?: string | null;
   isParticipant?: number;
+  taskView?: 'all' | 'mine' | 'mineOnly';
+  kidMode?: number | boolean;
 }
 
 interface VacationConfig {
@@ -123,6 +125,8 @@ export function Settings({
   const [coinAdjustMsg, setCoinAdjustMsg] = useState<Record<number, string>>({});
   const [memberVacation, setMemberVacation] = useState<Record<number, boolean>>({});
   const [memberParticipant, setMemberParticipant] = useState<Record<number, boolean>>({});
+  const [memberView, setMemberView] = useState<Record<number, { taskView: 'all' | 'mine' | 'mineOnly'; kidMode: boolean }>>({});
+  const [hidePrivateRooms, setHidePrivateRooms] = useState(true);
   const [vacationEnabled, setVacationEnabled] = useState(!!vacationConfig?.vacationMode);
   const [vacationEndDate, setVacationEndDate] = useState(vacationConfig?.vacationEndDate ?? null);
   const [registrationEnabled, setRegistrationEnabled] = useState(true);
@@ -197,6 +201,11 @@ export function Settings({
     api.getRegistrationConfig()
       .then((cfg) => setRegistrationEnabled(cfg.registrationEnabled))
       .catch(() => {});
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    api.getKidsConfig().then((cfg) => setHidePrivateRooms(!!cfg.hidePrivateRooms)).catch(() => {});
   }, [isAdmin]);
 
   useEffect(() => {
@@ -744,6 +753,25 @@ export function Settings({
         {isAdmin && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <rect x="3" y="8" width="14" height="9" rx="2" stroke="var(--warm-text-light)" strokeWidth="1.5" />
+              <path d="M6.5 8V6a3.5 3.5 0 017 0v2" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.hidePrivateRooms')}</div>
+              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.hidePrivateRoomsDesc')}</div>
+            </div>
+            <Toggle
+              checked={hidePrivateRooms}
+              onChange={async (val) => {
+                setHidePrivateRooms(val);
+                await api.updateKidsConfig({ hidePrivateRooms: val }).catch(() => setHidePrivateRooms(!val));
+              }}
+            />
+          </div>
+        )}
+        {isAdmin && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M10 1l2.5 5.5L18 7.5l-4 4 1 5.5L10 14.5 4.5 17l1-5.5-4-4 5.5-1z" fill="var(--warm-text-light)" />
             </svg>
             <div style={{ flex: 1 }}>
@@ -1122,6 +1150,36 @@ export function Settings({
                   />
                 </div>
               )}
+              {isAdmin && u.id !== user.id && (() => {
+                const view = memberView[u.id] ?? { taskView: u.taskView ?? 'all', kidMode: !!u.kidMode };
+                const saveView = async (next: { taskView: 'all' | 'mine' | 'mineOnly'; kidMode: boolean }) => {
+                  setMemberView((prev) => ({ ...prev, [u.id]: next }));
+                  await api.updateUserView(u.id, next).catch(() => setMemberView((prev) => ({ ...prev, [u.id]: view })));
+                };
+                return (
+                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--warm-border)', display: 'grid', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 1 160px' }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.taskView')}</div>
+                        <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 500, marginTop: 2 }}>{t('settings.taskViewDesc')}</div>
+                      </div>
+                      <select className="tq-input" value={view.taskView} style={{ width: 'auto', cursor: 'pointer', fontSize: 12 }}
+                        onChange={(e) => saveView({ ...view, taskView: e.target.value as 'all' | 'mine' | 'mineOnly' })}>
+                        <option value="all">{t('settings.taskViewAll')}</option>
+                        <option value="mine">{t('settings.taskViewMine')}</option>
+                        <option value="mineOnly">{t('settings.taskViewMineOnly')}</option>
+                      </select>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.kidMode')}</div>
+                        <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 500, marginTop: 2 }}>{t('settings.kidModeDesc')}</div>
+                      </div>
+                      <Toggle checked={view.kidMode} onChange={(val) => saveView({ ...view, kidMode: val })} />
+                    </div>
+                  </div>
+                );
+              })()}
               {isAdmin && u.role !== 'admin' && memberEditOpen[u.id] && (
                 <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--warm-border)', display: 'grid', gap: 8 }}>
                   <select className="tq-input" value={memberProfile[u.id]?.language || 'en'} onChange={(e) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], language: e.target.value } }))} style={{ cursor: 'pointer' }}>

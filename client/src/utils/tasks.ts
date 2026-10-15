@@ -63,3 +63,13 @@ export function matchesQuery(query: string, fields: Array<string | null | undefi
   const haystack = normalizeForSearch(fields.filter(Boolean).join(' \u0000 '));
   return words.every((w) => haystack.includes(w));
 }
+
+/** Can this person do the task? Mirrors the server's assignment rules (room owner or task assignees,
+ * "any child" tasks, otherwise open to anyone). */
+export function isTaskForUser(task: { effectiveAssignedUserIds?: number[]; assignedToChildren?: boolean }, userId: number, role?: string): boolean {
+  const ids = task.effectiveAssignedUserIds || [];
+  if (ids.length > 0) return ids.includes(userId);
+  if (task.assignedToChildren) return role === 'child';
+  return true;
+}
+

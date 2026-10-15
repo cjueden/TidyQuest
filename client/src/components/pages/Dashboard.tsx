@@ -7,7 +7,9 @@ import { getRoomIcon } from '../icons/RoomIcons';
 import { TaskIcon } from '../icons/TaskIcons';
 import { getHealthColor } from '../../utils/health';
 import { useTranslation } from '../../hooks/useTranslation';
-import { taskCoins } from '../../utils/tasks';
+import { isTaskForUser, taskCoins } from '../../utils/tasks';
+import { useTaskView } from '../../hooks/useTaskView';
+import { AllMineToggle } from '../shared/AllMineToggle';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { api } from '../../hooks/useApi';
 
@@ -63,6 +65,8 @@ interface CurrentUser {
   currentStreak: number;
   avatarColor: string;
   lastActiveDate?: string | null;
+  taskView?: 'all' | 'mine' | 'mineOnly';
+  kidMode?: number | boolean;
 }
 
 interface ActivityEntry {
@@ -196,16 +200,12 @@ const Dashboard: React.FC<DashboardProps> = ({
   const allScheduledTasks = scheduledUpcoming ?? nextTasks;
   const allOnDemandTasks = onDemandQuests ?? todaysQuests.filter(q => q.onDemand);
   const [adminModalQuest, setAdminModalQuest] = useState<Quest | null>(null);
-  const [taskFilter, setTaskFilter] = useState<'all' | 'mine'>(() => {
-    try { return (localStorage.getItem('tq-task-filter') as 'all' | 'mine') || 'all'; }
-    catch { return 'all'; }
-  });
-  useEffect(() => { localStorage.setItem('tq-task-filter', taskFilter); }, [taskFilter]);
+  // All / Mine: a parent can make someone start on Mine or lock it (Kid mode always shows Mine)
+  const { filter: taskFilter, setFilter: setTaskFilter, locked: filterLocked } = useTaskView(currentUser);
+  const kidMode = !!currentUser.kidMode;
   const filterQuests = (quests: Quest[]) => {
     if (taskFilter === 'all') return quests;
-    return quests.filter(q =>
-      !q.effectiveAssignedUserIds?.length || q.effectiveAssignedUserIds.includes(currentUser.id)
-    );
+    return quests.filter(q => isTaskForUser(q, currentUser.id, currentUser.role));
   };
   const readyTasks = filterQuests(allReadyTasks);
   const scheduledTasks = filterQuests(allScheduledTasks);
@@ -234,7 +234,9 @@ const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
     localStorage.setItem(LS_KEY, JSON.stringify([...hiddenCards]));
   }, [hiddenCards]);
-  const isVisible = (id: string) => !hiddenCards.has(id);
+  // Kid mode keeps Home to the essentials: their quests and what they finished today
+  const KID_CARDS = new Set(['todaysQuests', 'completedToday']);
+  const isVisible = (id: string) => kidMode ? KID_CARDS.has(id) : !hiddenCards.has(id);
   const toggleCard = (id: string) => setHiddenCards(prev => {
     const next = new Set(prev);
     next.has(id) ? next.delete(id) : next.add(id);
@@ -293,7 +295,31 @@ const Dashboard: React.FC<DashboardProps> = ({
 
     <div className="dashboard-grid">
 
+        {/* Kid mode: coins, streak and this week's goal, big and up front */}
+        {kidMode && gamificationEnabled && (
+          <div className="tq-card tq-card-padded kid-hero" style={{ gridColumn: '1 / -1', background: 'var(--warm-streak-bg)', borderColor: 'var(--warm-streak-border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 36, fontWeight: 900, color: 'var(--warm-streak-text)' }}>
+                <span style={{ transform: 'scale(1.6)', display: 'inline-flex', marginRight: 6 }}><CoinIcon /></span>{currentUser.coins.toLocaleString()}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 22, fontWeight: 800, color: 'var(--warm-streak-text)' }}>
+                <FireIcon /> {currentUser.currentStreak}
+              </div>
+            </div>
+            {myGoal && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 15, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 6 }}>
+                  <span>{myGoal.completed ? `🎉 ${t('dashboard.goalCompleted')}` : t('dashboard.myGoal')}</span>
+                  <span>{myGoal.currentCoins} / {myGoal.goalCoins}</span>
+                </div>
+                <HealthBar value={myGoal.progress} height={14} showLabel={false} />
+              </div>
+            )}
+          </div>
+        )}
+
         {/* House Health Card */}
+        {!kidMode && (
         <div
           className="tq-card tq-card-padded dashboard-hero"
           style={{
@@ -360,6 +386,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
         </div>
+        )}
 
         {/* Today's Quests Card — full width, sections: Ready to Complete / On Demand */}
         {isVisible('todaysQuests') && <div className="tq-card tq-card-padded">
@@ -367,19 +394,9 @@ const Dashboard: React.FC<DashboardProps> = ({
             <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: 0 }}>
               {t('dashboard.todaysQuests')}
             </h3>
-            <div style={{ display: 'flex', gap: 0, borderRadius: 99, overflow: 'hidden', border: '1.5px solid var(--warm-border)' }}>
-              {(['all', 'mine'] as const).map((f) => (
-                <button key={f} onClick={() => setTaskFilter(f)}
-                  style={{
-                    padding: '4px 12px', fontSize: 11, fontWeight: 700, fontFamily: 'Nunito', cursor: 'pointer',
-                    border: 'none', background: taskFilter === f ? 'var(--warm-accent)' : 'var(--warm-bg-subtle)',
-                    color: taskFilter === f ? '#fff' : 'var(--warm-text-light)',
-                    transition: 'all 0.15s ease',
-                  }}>
-                  {f === 'all' ? t('dashboard.allTasks') : t('dashboard.myTasks')}
-                </button>
-              ))}
-            </div>
+            {!filterLocked && (
+              <AllMineToggle value={taskFilter} onChange={setTaskFilter} allLabel={t('dashboard.allTasks')} mineLabel={t('dashboard.myTasks')} />
+            )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
@@ -422,11 +439,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                 else onCompleteTask(q.id);
               };
               return (
-                <div key={q.id} {...openTaskProps(q)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', cursor: onOpenTask ? 'pointer' : undefined }}>
+                <div key={q.id} {...openTaskProps(q)} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', cursor: onOpenTask ? 'pointer' : undefined }}>
                   <div style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: q.roomColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${q.roomAccent}44` }}>
                     <TaskIcon iconKey={q.iconKey} size={24} />
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ flex: '1 1 160px', minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text)' }}>{taskName(q.name, q.translationKey)}</div>
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
                       {roomDisplayName(q.roomName, roomTypeById.get(q.roomId) || '')}
@@ -436,7 +453,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <div style={{ marginTop: 5 }}><HealthBar value={q.health} height={6} showLabel={false} /></div>
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={btnDisabled} className={btnDisabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
-                    style={{ padding: '8px 14px', fontSize: 12, ...(btnDisabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
+                    style={{ marginLeft: 'auto', padding: '8px 14px', fontSize: 12, ...(btnDisabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
                     {btnDisabled ? btnLabel : <><CheckIcon /> {btnLabel}</>}
                   </button>
                 </div>
@@ -466,11 +483,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                     else onCompleteTask(q.id);
                   };
                   return (
-                    <div key={q.id} {...openTaskProps(q)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', cursor: onOpenTask ? 'pointer' : undefined }}>
+                    <div key={q.id} {...openTaskProps(q)} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', cursor: onOpenTask ? 'pointer' : undefined }}>
                       <div style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: q.roomColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${q.roomAccent}44` }}>
                         <TaskIcon iconKey={q.iconKey} size={24} />
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ flex: '1 1 160px', minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text)' }}>{taskName(q.name, q.translationKey)}</div>
                         <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
                           {roomDisplayName(q.roomName, roomTypeById.get(q.roomId) || '')}
@@ -484,7 +501,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         {questDetails(q)}
                       </div>
                       <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={notMine} className={notMine ? 'tq-btn' : 'tq-btn tq-btn-primary'}
-                        style={{ padding: '8px 14px', fontSize: 12, ...(notMine ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
+                        style={{ marginLeft: 'auto', padding: '8px 14px', fontSize: 12, ...(notMine ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
                         {notMine ? t('app.notAssigned') : <><CheckIcon /> {t('roomDetail.done')}</>}
                       </button>
                     </div>

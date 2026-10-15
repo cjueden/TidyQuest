@@ -331,6 +331,7 @@ function AppContent() {
           language={user.language}
           gamificationEnabled={gamificationEnabled}
           onNavigate={(path) => navigate(path)}
+          mineOnlyFor={user.taskView === 'mineOnly' || user.kidMode ? user : null}
         />
       )}
 
@@ -393,7 +394,7 @@ function AppContent() {
         onToggle={() => setSidebarCollapsed(prev => !prev)}
       />
 
-      <main style={{ marginLeft: sidebarCollapsed ? 60 : 240, flex: 1, padding: '28px 36px', maxWidth: 1320, backgroundColor: 'var(--warm-bg)', transition: 'margin-left 0.3s ease' }} className="main-content">
+      <main style={{ marginLeft: sidebarCollapsed ? 60 : 240, flex: 1, padding: '28px 36px', maxWidth: 1320, backgroundColor: 'var(--warm-bg)', transition: 'margin-left 0.3s ease' }} className={`main-content${user.kidMode ? ' kid-mode' : ''}`}>
         <Routes>
           <Route path="/" element={
             <>
@@ -444,6 +445,7 @@ function AppContent() {
                   void refreshRooms();
                 }}
                 onRoomsChanged={refreshRooms}
+                viewer={user}
               />
             </>
           } />
@@ -463,6 +465,8 @@ function AppContent() {
                 language={user.language}
                 gamificationEnabled={gamificationEnabled}
                 loading={!roomsLoaded}
+                taskView={user.taskView}
+                kidMode={user.kidMode}
                 onOpenTask={(roomId, taskId) => navigate(`/rooms/${roomId}?task=${taskId}`)}
               />
             </>
@@ -471,7 +475,7 @@ function AppContent() {
           <Route path="/calendar" element={
             <>
               <PageHeader title={t('nav.calendar')} subtitle={t('app.calendarSubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <Calendar tasks={allTasks} language={user.language} onOpenTask={(roomId, taskId) => navigate(`/rooms/${roomId}?task=${taskId}`)} />
+              <Calendar tasks={allTasks} viewer={user} language={user.language} onOpenTask={(roomId, taskId) => navigate(`/rooms/${roomId}?task=${taskId}`)} />
             </>
           } />
 
@@ -642,7 +646,7 @@ function RoomDetailWrapper({ rooms, roomsLoaded, user, users, coinsByEffort, gam
   return (
     <>
       <PageHeader title={roomDisplayName(room.name, room.roomType)} subtitle={`${room.tasks?.length || 0} ${t('rooms.tasksTracked')}`} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} gamificationEnabled={gamificationEnabled} />
-      <RoomDetail room={room} language={user?.language} isAdmin={user?.role === 'admin'} currentUserId={user?.id} currentUserRole={user?.role} users={users} coinsByEffort={coinsByEffort} onCompleteTask={onCompleteTask} onBack={() => navigate('/rooms')} focusTaskId={focusTaskId} onRefresh={onRefresh} onAchievementsUnlocked={onAchievementsUnlocked} />
+      <RoomDetail room={room} language={user?.language} isAdmin={user?.role === 'admin'} currentUserId={user?.id} currentUserRole={user?.role} users={users} coinsByEffort={coinsByEffort} onCompleteTask={onCompleteTask} onBack={() => navigate('/rooms')} focusTaskId={focusTaskId} onlyMine={user?.taskView === 'mineOnly' || !!user?.kidMode} onRefresh={onRefresh} onAchievementsUnlocked={onAchievementsUnlocked} />
     </>
   );
 }

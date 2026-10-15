@@ -8,7 +8,11 @@ import type Database from 'better-sqlite3';
 const NEW_TABLES: string[] = [];
 
 /** Columns added to existing tables (ignored when they already exist). */
-const NEW_COLUMNS: string[] = [];
+const NEW_COLUMNS: string[] = [
+  // Per-person views set by a parent: taskView 'all' | 'mine' (starts on Mine) | 'mineOnly' (locked)
+  `ALTER TABLE users ADD COLUMN taskView TEXT NOT NULL DEFAULT 'all'`,
+  `ALTER TABLE users ADD COLUMN kidMode INTEGER NOT NULL DEFAULT 0`,
+];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */
 export const BACKUP_TABLES: Array<{ key: string; table: string }> = [];

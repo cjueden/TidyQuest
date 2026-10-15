@@ -7,13 +7,13 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { DEFAULT_COINS_BY_EFFORT, normalizeCoinsByEffortConfig } from '../utils/health';
 import { NotificationTypeSettings, sendTelegramMessageDetailed, sendNtfyMessageDetailed } from '../utils/notifications';
-import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, isStrictModeEnabled } from '../utils/adminHelpers';
+import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, isHidePrivateRoomsEnabled, isStrictModeEnabled } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
 
 const router = Router();
 router.use(authMiddleware);
 
-const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant';
+const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode';
 
 function normalizeNotificationTime(value: string | undefined): string | null {
   if (value === undefined) return null;
@@ -330,6 +330,22 @@ router.put('/:id/goal', (req: AuthRequest, res: Response) => {
   }
   const updated = db.prepare(`SELECT ${USER_SELECT} FROM users WHERE id = ?`).get(targetId);
   res.json(updated);
+});
+
+// What a person sees: All/Mine default or lock, and Kid mode. Parents only, so kids can't unlock themselves.
+router.put('/:id/view', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const targetId = parseInt(req.params.id as string);
+  if (!db.prepare('SELECT id FROM users WHERE id = ?').get(targetId)) return res.status(404).json({ error: 'User not found' });
+  const { taskView, kidMode } = req.body as { taskView?: string; kidMode?: boolean };
+  if (taskView !== undefined) {
+    if (!['all', 'mine', 'mineOnly'].includes(taskView)) return res.status(400).json({ error: 'taskView must be all, mine or mineOnly' });
+    db.prepare('UPDATE users SET taskView = ? WHERE id = ?').run(taskView, targetId);
+  }
+  if (kidMode !== undefined) {
+    db.prepare('UPDATE users SET kidMode = ? WHERE id = ?').run(kidMode ? 1 : 0, targetId);
+  }
+  res.json(db.prepare(`SELECT ${USER_SELECT} FROM users WHERE id = ?`).get(targetId));
 });
 
 router.put('/:id/participant', (req: AuthRequest, res: Response) => {
@@ -682,6 +698,19 @@ router.put('/vacation-config', (req: AuthRequest, res: Response) => {
 
   const v = getGlobalVacation();
   res.json({ vacationMode: v.isVacation, vacationStartDate: v.startDate, vacationEndDate: v.endDate });
+});
+
+router.get('/kids-config', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  res.json({ hidePrivateRooms: isHidePrivateRoomsEnabled() });
+});
+
+router.put('/kids-config', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const { hidePrivateRooms } = req.body as { hidePrivateRooms?: boolean };
+  if (typeof hidePrivateRooms !== 'boolean') return res.status(400).json({ error: 'hidePrivateRooms must be a boolean' });
+  db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('hidePrivateRooms', ?)").run(hidePrivateRooms ? '1' : '0');
+  res.json({ hidePrivateRooms });
 });
 
 router.get('/strict-mode-config', (req: AuthRequest, res: Response) => {

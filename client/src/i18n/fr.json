@@ -267,7 +267,16 @@
       "reject": "Refuser",
       "noPendingValidations": "Aucune validation en attente.",
       "goalReward": "Bonus de complétion",
-      "goalRewardDesc": "Coins bonus accordés quand cet objectif est atteint"
+      "goalRewardDesc": "Coins bonus accordés quand cet objectif est atteint",
+      "hidePrivateRooms": "Masquer aux enfants les pièces privées des autres",
+      "hidePrivateRoomsDesc": "Les enfants ne verront pas les pièces qui appartiennent à quelqu'un d'autre.",
+      "taskView": "Affichage des tâches",
+      "taskViewDesc": "Ce qu'il voit dans Accueil, Pièces, Tâches et Calendrier.",
+      "taskViewAll": "Toutes (au choix)",
+      "taskViewMine": "Commence sur les miennes",
+      "taskViewMineOnly": "Seulement les siennes",
+      "kidMode": "Mode enfant",
+      "kidModeDesc": "Gros boutons, moins de cartes, pièces et objectif en premier."
     },
     "nav": {
       "home": "Accueil",

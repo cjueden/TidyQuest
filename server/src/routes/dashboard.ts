@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth } from '../utils/health';
-import { getGlobalVacation, getUserVacation, resolveVacation } from '../utils/adminHelpers';
+import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, resolveVacation } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
 
 const router = Router();
@@ -12,11 +12,13 @@ router.get('/', (req: AuthRequest, res: Response) => {
   // Refresh the cached goal first so it rolls over to the current week (and completes) on its own
   const myPrimaryGoal = syncPrimaryGoal(req.userId!);
   const user = db.prepare(
-    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, language FROM users WHERE id = ?'
+    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, language, taskView, kidMode FROM users WHERE id = ?'
   ).get(req.userId) as any;
   const vacation = getGlobalVacation();
 
-  const rooms = db.prepare('SELECT * FROM rooms ORDER BY sortOrder, id').all() as any[];
+  // Kids don't see other people's private rooms (when the setting is on)
+  const hiddenRooms = hiddenRoomIdsFor(req.userId);
+  const rooms = (db.prepare('SELECT * FROM rooms ORDER BY sortOrder, id').all() as any[]).filter((r) => !hiddenRooms.has(r.id));
   const allTasks: any[] = [];
 
   // Fetch all tasks in one query and group by roomId to avoid N+1

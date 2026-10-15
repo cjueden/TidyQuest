@@ -243,6 +243,11 @@ export const api = {
   updateUserParticipant: (userId: number, isParticipant: boolean) =>
     apiFetch<any>(`/users/${userId}/participant`, { method: 'PUT', body: JSON.stringify({ isParticipant }) }),
 
+  updateUserView: (userId: number, data: { taskView?: 'all' | 'mine' | 'mineOnly'; kidMode?: boolean }) =>
+    apiFetch<{ id: number; taskView: 'all' | 'mine' | 'mineOnly'; kidMode: number }>(`/users/${userId}/view`, { method: 'PUT', body: JSON.stringify(data) }),
+  getKidsConfig: () => apiFetch<{ hidePrivateRooms: boolean }>('/users/kids-config'),
+  updateKidsConfig: (data: { hidePrivateRooms: boolean }) =>
+    apiFetch<{ hidePrivateRooms: boolean }>('/users/kids-config', { method: 'PUT', body: JSON.stringify(data) }),
   getStrictModeConfig: () =>
     apiFetch<{ strictMode: boolean }>('/users/strict-mode-config'),
   updateStrictModeConfig: (data: { strictMode: boolean }) =>

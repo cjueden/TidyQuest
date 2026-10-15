@@ -267,7 +267,16 @@
       "reject": "Rechazar",
       "noPendingValidations": "No hay validaciones pendientes.",
       "goalReward": "Bono de completado",
-      "goalRewardDesc": "Monedas bonus cuando se alcanza este objetivo"
+      "goalRewardDesc": "Monedas bonus cuando se alcanza este objetivo",
+      "hidePrivateRooms": "Ocultar a los niños las habitaciones privadas de otros",
+      "hidePrivateRoomsDesc": "Los niños no verán habitaciones que pertenecen a otra persona.",
+      "taskView": "Vista de tareas",
+      "taskViewDesc": "Lo que ve en Inicio, Habitaciones, Tareas y Calendario.",
+      "taskViewAll": "Todas (elige)",
+      "taskViewMine": "Empieza en Mías",
+      "taskViewMineOnly": "Solo las suyas",
+      "kidMode": "Modo niño",
+      "kidModeDesc": "Botones grandes, menos tarjetas, monedas y meta primero."
     },
     "nav": {
       "home": "Inicio",

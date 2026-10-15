@@ -912,3 +912,16 @@ html[data-theme='night'] option {
   }
 }
 
+/* Kid mode: bigger, easier targets on the task lists */
+.kid-mode [data-task-id] {
+  padding: 16px !important;
+}
+.kid-mode [data-task-id] .tq-btn {
+  font-size: 15px !important;
+  padding: 12px 18px !important;
+  border-radius: 14px !important;
+}
+.kid-mode [data-task-id] > div:nth-child(2) > div:first-child {
+  font-size: 16px !important;
+}
+

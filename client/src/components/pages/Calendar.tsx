@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { TaskIcon } from '../icons/TaskIcons';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
-import { getNextDueDate } from '../../utils/tasks';
+import { getNextDueDate, isTaskForUser } from '../../utils/tasks';
+import { useTaskView } from '../../hooks/useTaskView';
+import { AllMineToggle } from '../shared/AllMineToggle';
 
 interface CalendarTask {
   id: number;
@@ -17,6 +19,8 @@ interface CalendarTask {
   iconKey?: string;
   onDemand?: boolean;
   isSeasonal?: boolean;
+  effectiveAssignedUserIds?: number[];
+  assignedToChildren?: boolean;
 }
 
 interface Completion {
@@ -28,8 +32,9 @@ interface Completion {
   roomId: number;
   roomName: string;
   roomType?: string;
+  userId: number;
   displayName: string;
-  participants?: Array<{ displayName: string }>;
+  participants?: Array<{ id: number; displayName: string }>;
 }
 
 interface CalendarProps {
@@ -37,11 +42,13 @@ interface CalendarProps {
   language?: string;
   /** Open a task in its room, scrolled to and highlighted */
   onOpenTask?: (roomId: number, taskId: number) => void;
+  /** The person looking: drives the All / Mine switch */
+  viewer?: { id: number; role?: string; taskView?: 'all' | 'mine' | 'mineOnly'; kidMode?: number | boolean };
 }
 
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
-export function Calendar({ tasks, language, onOpenTask }: CalendarProps) {
+export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps) {
   const { taskName, t, roomDisplayName } = useTranslation(language);
   const localeMap: Record<string, string> = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT' };
   const locale = localeMap[language || 'en'] || 'en-US';
@@ -50,6 +57,8 @@ export function Calendar({ tasks, language, onOpenTask }: CalendarProps) {
   const [selected, setSelected] = useState<number | null>(today.getDate());
   const [completions, setCompletions] = useState<Completion[]>([]);
   const latest = useRef(0);
+  const { filter: viewFilter, setFilter: setViewFilter, locked: viewLocked } = useTaskView(viewer, 'tq-calendar-filter');
+  const mine = viewer && viewFilter === 'mine';
   const { year, month } = view;
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -74,23 +83,24 @@ export function Calendar({ tasks, language, onOpenTask }: CalendarProps) {
   const completionsByDay = useMemo(() => {
     const map = new Map<string, Completion[]>();
     for (const c of completions) {
+      if (mine && c.userId !== viewer!.id && !c.participants?.some((p) => p.id === viewer!.id)) continue;
       const k = dayKey(new Date(c.completedAt));
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(c);
     }
     return map;
-  }, [completions]);
+  }, [completions, mine, viewer]);
 
   // Each scheduled task's next due date (overdue ones count as due today)
   const upcoming = useMemo(() => tasks
-    .filter((task) => !task.onDemand && !task.isSeasonal)
+    .filter((task) => !task.onDemand && !task.isSeasonal && (!mine || isTaskForUser(task, viewer!.id, viewer!.role)))
     .map((task) => {
       const due = getNextDueDate(task.lastCompletedAt, task.frequencyDays);
       const dueDate = new Date(Math.max(due.getTime(), todayStart));
       const dueInDays = Math.max(0, Math.round((new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate()).getTime() - todayStart) / 86400000));
       return { ...task, dueDate, dueInDays };
     })
-    .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()), [tasks, todayStart]);
+    .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()), [tasks, todayStart, mine, viewer]);
 
   const dueByDay = useMemo(() => {
     const map = new Map<string, typeof upcoming>();
@@ -134,6 +144,11 @@ export function Calendar({ tasks, language, onOpenTask }: CalendarProps) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
         {/* Calendar Grid */}
         <div className="tq-card tq-card-padded">
+          {viewer && !viewLocked && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+              <AllMineToggle value={viewFilter} onChange={setViewFilter} allLabel={t('dashboard.allTasks')} mineLabel={t('dashboard.myTasks')} />
+            </div>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 20 }}>
             <button style={navBtn} onClick={() => goMonth(-1)} aria-label={t('calendar.prevMonth')}>‹</button>
             <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--warm-text)', textAlign: 'center' }}>

@@ -45,6 +45,21 @@ export function getCoinsByEffortConfig(): Record<number, number> {
   }
 }
 
+/** Kids don't see other people's private rooms (rooms assigned to someone else). On unless turned off. */
+export function isHidePrivateRoomsEnabled(): boolean {
+  const row = db.prepare("SELECT value FROM app_settings WHERE key = 'hidePrivateRooms'").get() as { value?: string } | undefined;
+  return row?.value !== '0';
+}
+
+/** Room ids hidden from this viewer: other people's private rooms, for children, when the setting is on. */
+export function hiddenRoomIdsFor(userId: number | undefined): Set<number> {
+  if (!userId || !isHidePrivateRoomsEnabled()) return new Set();
+  const viewer = db.prepare('SELECT role FROM users WHERE id = ?').get(userId) as { role?: string } | undefined;
+  if (viewer?.role !== 'child') return new Set();
+  const rows = db.prepare('SELECT id FROM rooms WHERE assignedUserId IS NOT NULL AND assignedUserId != ?').all(userId) as { id: number }[];
+  return new Set(rows.map((r) => r.id));
+}
+
 export function isStrictModeEnabled(): boolean {
   const row = db.prepare("SELECT value FROM app_settings WHERE key = 'strictMode'").get() as { value?: string } | undefined;
   return row?.value === '1';

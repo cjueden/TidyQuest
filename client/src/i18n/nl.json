@@ -267,7 +267,16 @@
       "pendingValidationsDesc": "Klusjes goedkeuren of afkeuren die door de kinderen zijn afgevinkt.",
       "approve": "Goedkeuren",
       "reject": "Afkeuren",
-      "noPendingValidations": "Geen klusjes die wachten op controle."
+      "noPendingValidations": "Geen klusjes die wachten op controle.",
+      "hidePrivateRooms": "Privékamers van anderen verbergen voor kinderen",
+      "hidePrivateRoomsDesc": "Kinderen zien geen kamers die van iemand anders zijn.",
+      "taskView": "Klusjesweergave",
+      "taskViewDesc": "Wat ze zien op Home, Kamers, Klusjes en de Kalender.",
+      "taskViewAll": "Alles (zelf kiezen)",
+      "taskViewMine": "Begint bij Mijn klusjes",
+      "taskViewMineOnly": "Alleen eigen",
+      "kidMode": "Kindermodus",
+      "kidModeDesc": "Grotere knoppen, minder kaarten, munten en doel bovenaan."
     },
     "nav": {
       "home": "Home",

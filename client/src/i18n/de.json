@@ -267,7 +267,16 @@
       "reject": "Ablehnen",
       "noPendingValidations": "Keine ausstehenden Freigaben.",
       "goalReward": "Abschlussbonus",
-      "goalRewardDesc": "Bonus-Coins bei Erreichen dieses Ziels"
+      "goalRewardDesc": "Bonus-Coins bei Erreichen dieses Ziels",
+      "hidePrivateRooms": "Private Räume anderer vor Kindern verbergen",
+      "hidePrivateRoomsDesc": "Kinder sehen keine Räume, die jemand anderem gehören.",
+      "taskView": "Aufgabenansicht",
+      "taskViewDesc": "Was angezeigt wird auf Start, Räume, Aufgaben und Kalender.",
+      "taskViewAll": "Alle (selbst wählen)",
+      "taskViewMine": "Startet bei Meine",
+      "taskViewMineOnly": "Nur eigene",
+      "kidMode": "Kindermodus",
+      "kidModeDesc": "Größere Knöpfe, weniger Karten, Münzen und Ziel ganz oben."
     },
     "nav": {
       "home": "Startseite",

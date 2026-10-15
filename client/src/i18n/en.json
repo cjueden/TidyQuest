@@ -267,7 +267,16 @@
       "pendingValidationsDesc": "Approve or reject tasks completed by children while Strict Mode is enabled.",
       "approve": "Approve",
       "reject": "Reject",
-      "noPendingValidations": "No pending validations."
+      "noPendingValidations": "No pending validations.",
+      "hidePrivateRooms": "Hide other people's private rooms from kids",
+      "hidePrivateRoomsDesc": "Kids won't see rooms that belong to someone else, like Mom's Quests.",
+      "taskView": "Task view",
+      "taskViewDesc": "What they see on Home, Rooms, Tasks and the Calendar.",
+      "taskViewAll": "All (they choose)",
+      "taskViewMine": "Starts on Mine",
+      "taskViewMineOnly": "Only theirs",
+      "kidMode": "Kid mode",
+      "kidModeDesc": "Bigger buttons, fewer cards, coins and goal up front."
     },
     "nav": {
       "home": "Home",

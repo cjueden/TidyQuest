@@ -4,7 +4,7 @@ import { TaskIcon } from '../icons/TaskIcons';
 import { CoinIcon } from '../icons/UIIcons';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
-import { formatNextDue, getNextDueDate, isTaskDue, matchesQuery, taskCoins } from '../../utils/tasks';
+import { formatNextDue, getNextDueDate, isTaskDue, isTaskForUser, matchesQuery, taskCoins } from '../../utils/tasks';
 
 export interface ListTask {
   id: number;
@@ -49,29 +49,28 @@ interface TaskListProps {
   gamificationEnabled?: boolean;
   /** True until the rooms have loaded once, so an empty list isn't shown as "no matches" */
   loading?: boolean;
+  /** Set by a parent: starts on Mine, or is locked to Mine (Kid mode too) */
+  taskView?: 'all' | 'mine' | 'mineOnly';
+  kidMode?: number | boolean;
   onOpenTask: (roomId: number, taskId: number) => void;
 }
 
 type Status = '' | 'due' | 'upcoming' | 'ondemand';
 type Sort = 'due' | 'name' | 'room' | 'coins';
 
-/** Can this user do the task? Mirrors the server's assignment rules. */
-function isFor(task: ListTask, userId: number, role: string | undefined): boolean {
-  const ids = task.effectiveAssignedUserIds || [];
-  if (ids.length > 0) return ids.includes(userId);
-  if (task.assignedToChildren) return role === 'child';
-  return true;
-}
+const isFor = isTaskForUser;
 
 function isOpenToAnyone(task: ListTask): boolean {
   return !(task.effectiveAssignedUserIds?.length) && !task.assignedToChildren;
 }
 
-export function TaskList({ rooms, users, currentUserId, coinsByEffort, language, gamificationEnabled = true, loading = false, onOpenTask }: TaskListProps) {
+export function TaskList({ rooms, users, currentUserId, coinsByEffort, language, gamificationEnabled = true, loading = false, taskView, kidMode, onOpenTask }: TaskListProps) {
   const { t, taskName, roomDisplayName } = useTranslation(language);
   const [params, setParams] = useSearchParams();
   const q = params.get('q') || '';
-  const person = params.get('person') || '';
+  const personLocked = taskView === 'mineOnly' || !!kidMode;
+  const defaultPerson = personLocked || taskView === 'mine' ? 'mine' : 'all';
+  const person = personLocked ? 'mine' : (params.get('person') || defaultPerson);
   const roomFilter = params.get('room') || '';
   const status = (params.get('status') || '') as Status;
   const sort = (params.get('sort') || 'due') as Sort;
@@ -88,7 +87,7 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
     else next.delete(key);
     setParams(next, { replace: true });
   };
-  const hasFilters = !!(q || person || roomFilter || status);
+  const hasFilters = !!(q || person !== defaultPerson || roomFilter || status);
 
   const roleById = useMemo(() => new Map(users.map((u) => [u.id, u.role])), [users]);
   const nameById = useMemo(() => new Map(users.map((u) => [u.id, u.displayName])), [users]);
@@ -105,7 +104,7 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
       if (roomFilter && String(room.id) !== roomFilter) return false;
       if (person === 'mine' && !isFor(task, currentUserId, roleById.get(currentUserId))) return false;
       if (person === 'open' && !isOpenToAnyone(task)) return false;
-      if (person && person !== 'mine' && person !== 'open') {
+      if (!['all', 'mine', 'open'].includes(person)) {
         const uid = Number(person);
         if (!isFor(task, uid, roleById.get(uid)) || isOpenToAnyone(task)) return false;
       }
@@ -148,8 +147,8 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
           style={{ width: '100%', fontSize: 15 }}
         />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          <select className="tq-input-compact" style={selectStyle} value={person} onChange={(e) => setParam('person', e.target.value)}>
-            <option value="">{t('taskList.everyone')}</option>
+          <select className="tq-input-compact" style={selectStyle} value={person} disabled={personLocked} onChange={(e) => setParam('person', e.target.value === defaultPerson ? '' : e.target.value)}>
+            <option value="all">{t('taskList.everyone')}</option>
             <option value="mine">{t('taskList.mine')}</option>
             <option value="open">{t('taskList.openToAnyone')}</option>
             {people.map((u) => <option key={u.id} value={String(u.id)}>{u.displayName}</option>)}

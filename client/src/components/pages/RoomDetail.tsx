@@ -7,7 +7,7 @@ import { getRoomIcon } from '../icons/RoomIcons';
 import { TaskIcon, TASK_ICON_OPTIONS } from '../icons/TaskIcons';
 import { CheckIcon, BackIcon, PlusIcon, CoinIcon } from '../icons/UIIcons';
 import { getRoomHealth } from '../../utils/health';
-import { getNextDueDate, formatNextDue } from '../../utils/tasks';
+import { getNextDueDate, formatNextDue, isTaskForUser } from '../../utils/tasks';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
@@ -91,6 +91,8 @@ interface RoomDetailProps {
   onAchievementsUnlocked?: (ids: string[]) => void;
   /** Task to scroll to and briefly highlight (from search or the task list) */
   focusTaskId?: number;
+  /** The viewer is locked to Mine (or in Kid mode): only show their tasks */
+  onlyMine?: boolean;
 }
 
 function FrequencyPicker({ value, unit, onChange, t }: {
@@ -136,7 +138,7 @@ function EffortPicker({ effort, onChange }: { effort: number; onChange: (e: numb
   );
 }
 
-export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onAchievementsUnlocked, focusTaskId }: RoomDetailProps) {
+export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onAchievementsUnlocked, focusTaskId, onlyMine }: RoomDetailProps) {
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const [editingTask, setEditingTask] = useState<number | null>(null);
@@ -198,7 +200,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const taskCoins = (task: Task) =>
     task.customCoins != null && task.customCoins > 0 ? task.customCoins : (coinsByEffort?.[task.effort] ?? task.effort * 5);
 
-  const sortedTasks = [...room.tasks].sort((a, b) => {
+  const sortedTasks = [...room.tasks].filter((task) => !onlyMine || currentUserId === undefined || isTaskForUser(task, currentUserId, currentUserRole)).sort((a, b) => {
     let cmp = 0;
     switch (sortKey) {
       case 'name': cmp = a.name.localeCompare(b.name); break;

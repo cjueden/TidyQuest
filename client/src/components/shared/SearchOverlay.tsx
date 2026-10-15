@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { TaskIcon } from '../icons/TaskIcons';
 import { CoinIcon } from '../icons/UIIcons';
 import { useTranslation } from '../../hooks/useTranslation';
-import { matchesQuery } from '../../utils/tasks';
+import { isTaskForUser, matchesQuery } from '../../utils/tasks';
 import type { ListRoom } from '../pages/TaskList';
 
 interface SearchReward {
@@ -20,6 +20,8 @@ interface SearchOverlayProps {
   language?: string;
   gamificationEnabled?: boolean;
   onNavigate: (path: string) => void;
+  /** Locked to Mine (or Kid mode): only find this person's tasks */
+  mineOnlyFor?: { id: number; role?: string } | null;
 }
 
 const MAX_TASKS = 6;
@@ -46,7 +48,7 @@ export function SearchIcon({ size = 18 }: { size?: number }) {
   );
 }
 
-export function SearchOverlay({ onClose, rooms, rewards, language, gamificationEnabled = true, onNavigate }: SearchOverlayProps) {
+export function SearchOverlay({ onClose, rooms, rewards, language, gamificationEnabled = true, onNavigate, mineOnlyFor }: SearchOverlayProps) {
   const { t, taskName, roomDisplayName } = useTranslation(language);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
@@ -64,6 +66,7 @@ export function SearchOverlay({ onClose, rooms, rewards, language, gamificationE
     for (const room of rooms) {
       const roomName = roomDisplayName(room.name, room.roomType);
       for (const task of room.tasks) {
+        if (mineOnlyFor && !isTaskForUser(task, mineOnlyFor.id, mineOnlyFor.role)) continue;
         const name = taskName(task.name, task.translationKey);
         if (matchesQuery(query, [name, task.notes, roomName])) {
           taskHits.push({ key: `t${task.id}`, section: 'tasks', path: `/rooms/${room.id}?task=${task.id}`, title: name, subtitle: roomName, iconKey: task.iconKey, color: room.color });
@@ -84,7 +87,7 @@ export function SearchOverlay({ onClose, rooms, rewards, language, gamificationE
       ? [{ key: 'more', section: 'more', path: `/tasks?q=${encodeURIComponent(query.trim())}`, title: t('search.seeAllTasks').replace('{n}', String(taskHits.length)) }]
       : [];
     return { hits: [...taskHits.slice(0, MAX_TASKS), ...more, ...roomHits, ...rewardHits], taskTotal: taskHits.length };
-  }, [query, rooms, rewards, gamificationEnabled, t, taskName, roomDisplayName]);
+  }, [query, rooms, rewards, gamificationEnabled, t, taskName, roomDisplayName, mineOnlyFor]);
 
   const go = (hit: Hit | undefined) => {
     if (!hit) return;

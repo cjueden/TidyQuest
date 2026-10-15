@@ -267,7 +267,16 @@
       "reject": "Rifiuta",
       "noPendingValidations": "Nessuna validazione in attesa.",
       "goalReward": "Bonus completamento",
-      "goalRewardDesc": "Monete bonus quando questo obiettivo viene raggiunto"
+      "goalRewardDesc": "Monete bonus quando questo obiettivo viene raggiunto",
+      "hidePrivateRooms": "Nascondi ai bambini le stanze private degli altri",
+      "hidePrivateRoomsDesc": "I bambini non vedranno le stanze che appartengono a qualcun altro.",
+      "taskView": "Vista compiti",
+      "taskViewDesc": "Cosa vede in Home, Stanze, Compiti e Calendario.",
+      "taskViewAll": "Tutti (sceglie)",
+      "taskViewMine": "Parte da I miei",
+      "taskViewMineOnly": "Solo i suoi",
+      "kidMode": "Modalità bambino",
+      "kidModeDesc": "Pulsanti grandi, meno schede, monete e obiettivo in primo piano."
     },
     "nav": {
       "home": "Home",

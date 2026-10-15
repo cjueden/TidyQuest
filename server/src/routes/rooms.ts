@@ -3,7 +3,7 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth } from '../utils/health';
 import { suggestTaskIcon } from '../utils/taskIcons';
-import { ensureAdmin, getGlobalVacation, getUserVacation, resolveVacation } from '../utils/adminHelpers';
+import { ensureAdmin, getGlobalVacation, getUserVacation, hiddenRoomIdsFor, resolveVacation } from '../utils/adminHelpers';
 
 const router = Router();
 
@@ -127,7 +127,9 @@ router.use(authMiddleware);
 
 // List all rooms with computed health (single JOIN query — no N+1)
 router.get('/', (req: AuthRequest, res: Response) => {
-  const rooms = db.prepare('SELECT * FROM rooms ORDER BY sortOrder, id').all() as any[];
+  // Kids don't see other people's private rooms (when the setting is on)
+  const hiddenRooms = hiddenRoomIdsFor(req.userId);
+  const rooms = (db.prepare('SELECT * FROM rooms ORDER BY sortOrder, id').all() as any[]).filter((r) => !hiddenRooms.has(r.id));
   const vacation = getGlobalVacation();
 
   // Fetch all tasks in one query, then group by roomId
