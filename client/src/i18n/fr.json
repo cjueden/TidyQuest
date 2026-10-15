@@ -325,7 +325,10 @@
       "tomorrow": "Demain",
       "upcomingDueDates": "Échéances à venir",
       "inDays": "dans {days}j",
-      "allCaughtUp": "Tout est à jour ! Aucune tâche imminente."
+      "allCaughtUp": "Tout est à jour ! Aucune tâche imminente.",
+      "prevMonth": "Mois précédent",
+      "nextMonth": "Mois suivant",
+      "nothingThisDay": "Rien de prévu ni de fait ce jour-là."
     },
     "period": {
       "week": "Semaine",

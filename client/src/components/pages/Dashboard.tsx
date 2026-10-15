@@ -7,6 +7,7 @@ import { getRoomIcon } from '../icons/RoomIcons';
 import { TaskIcon } from '../icons/TaskIcons';
 import { getHealthColor } from '../../utils/health';
 import { useTranslation } from '../../hooks/useTranslation';
+import { taskCoins } from '../../utils/tasks';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { api } from '../../hooks/useApi';
 
@@ -49,6 +50,8 @@ interface Quest {
   completedTodayBy?: { userId: number; displayName: string; avatarColor: string } | null;
   /** The viewer's own completions of this task still waiting for a parent (Strict Mode) */
   myPendingCount?: number;
+  notes?: string | null;
+  customCoins?: number | null;
 }
 
 interface CurrentUser {
@@ -130,6 +133,9 @@ interface DashboardProps {
   onCompleteTask: (taskId: number) => void;
   onRefresh?: () => void;
   onNavigateToRoom: (roomId: number) => void;
+  /** Open a task in its room, scrolled to and highlighted */
+  onOpenTask?: (roomId: number, taskId: number) => void;
+  coinsByEffort?: Record<number, number>;
   onNavigateToActivity: () => void;
   onRewardRequestAction: (id: number, status: 'approved' | 'rejected') => void | Promise<void>;
   gamificationEnabled?: boolean;
@@ -146,12 +152,37 @@ const Dashboard: React.FC<DashboardProps> = ({
   onCompleteTask,
   onRefresh,
   onNavigateToRoom,
+  onOpenTask,
+  coinsByEffort,
   onNavigateToActivity,
   onRewardRequestAction,
   gamificationEnabled = true,
   leaderboardPeriod = 'week',
 }) => {
   const { taskName, roomDisplayName, timeAgo, t } = useTranslation(language);
+
+  // Task rows open the task in its room; the Done button inside stops the tap from bubbling
+  const openTaskProps = (q: Quest) => onOpenTask ? {
+    'data-task-id': q.id,
+    role: 'button',
+    tabIndex: 0,
+    onClick: () => onOpenTask(q.roomId, q.id),
+    onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' && e.target === e.currentTarget) onOpenTask(q.roomId, q.id); },
+  } : {};
+  const questDetails = (q: Quest) => (
+    <>
+      {q.notes && (
+        <div className="quest-notes" style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 600, marginTop: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere' }}>
+          {q.notes}
+        </div>
+      )}
+      {gamificationEnabled && (
+        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)', display: 'inline-flex', alignItems: 'center', gap: 3, marginTop: 3 }}>
+          <CoinIcon />{taskCoins(q, coinsByEffort)}
+        </div>
+      )}
+    </>
+  );
   const { houseHealth, rooms, todaysQuests, nextTasks, readyToComplete, scheduledUpcoming, onDemandQuests, completedToday = [], myGoal, childrenGoals = [], pendingRewardRequests = [], currentUser, recentActivity, badges } = data;
 
   const BADGE_COLORS: Record<string, string> = {
@@ -391,7 +422,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 else onCompleteTask(q.id);
               };
               return (
-                <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)' }}>
+                <div key={q.id} {...openTaskProps(q)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', cursor: onOpenTask ? 'pointer' : undefined }}>
                   <div style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: q.roomColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${q.roomAccent}44` }}>
                     <TaskIcon iconKey={q.iconKey} size={24} />
                   </div>
@@ -401,9 +432,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                       {roomDisplayName(q.roomName, roomTypeById.get(q.roomId) || '')}
                       {q.lastCompletedAt ? ` \u00B7 ${timeAgo(q.lastCompletedAt)}` : ''}
                     </div>
+                    {questDetails(q)}
                     <div style={{ marginTop: 5 }}><HealthBar value={q.health} height={6} showLabel={false} /></div>
                   </div>
-                  <button onClick={handleDone} disabled={btnDisabled} className={btnDisabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
+                  <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={btnDisabled} className={btnDisabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
                     style={{ padding: '8px 14px', fontSize: 12, ...(btnDisabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
                     {btnDisabled ? btnLabel : <><CheckIcon /> {btnLabel}</>}
                   </button>
@@ -434,7 +466,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     else onCompleteTask(q.id);
                   };
                   return (
-                    <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)' }}>
+                    <div key={q.id} {...openTaskProps(q)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', cursor: onOpenTask ? 'pointer' : undefined }}>
                       <div style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: q.roomColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${q.roomAccent}44` }}>
                         <TaskIcon iconKey={q.iconKey} size={24} />
                       </div>
@@ -449,8 +481,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                             ⏳ {t('app.waitingCount').replace('{n}', String(pending))}
                           </div>
                         )}
+                        {questDetails(q)}
                       </div>
-                      <button onClick={handleDone} disabled={notMine} className={notMine ? 'tq-btn' : 'tq-btn tq-btn-primary'}
+                      <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={notMine} className={notMine ? 'tq-btn' : 'tq-btn tq-btn-primary'}
                         style={{ padding: '8px 14px', fontSize: 12, ...(notMine ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
                         {notMine ? t('app.notAssigned') : <><CheckIcon /> {t('roomDetail.done')}</>}
                       </button>
@@ -476,7 +509,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {(isExpanded('scheduled') ? scheduledTasks : scheduledTasks.slice(0, LIMIT)).map((q) => (
-                <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 14, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)' }}>
+                <div key={q.id} {...openTaskProps(q)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 14, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', cursor: onOpenTask ? 'pointer' : undefined }}>
                   <div style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: q.roomColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${q.roomAccent}44` }}>
                     <TaskIcon iconKey={q.iconKey} size={20} />
                   </div>

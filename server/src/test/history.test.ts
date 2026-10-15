@@ -83,4 +83,16 @@ describe('Activity history filters', () => {
     const { admin } = await setup();
     expect((await history(admin.token, { userId: 'abc', from: 'not-a-date' })).total).toBe(4);
   });
+
+  it('returns up to 2000 rows for a bounded date range (the calendar month), but caps open queries at 100', async () => {
+    const { admin, kid } = await setup();
+    const task = (db.prepare("SELECT id FROM tasks WHERE name = 'Mow the Lawn'").get() as { id: number }).id;
+    const insert = db.prepare("INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status) VALUES (?, ?, ?, 1, 'approved')");
+    for (let i = 0; i < 150; i++) insert.run(task, kid.user.id, at(-20 - i / 100));
+    const ranged = await history(admin.token, { limit: 2000, from: at(-30), to: at(0) });
+    expect(ranged.history.length).toBeGreaterThan(100);
+    const open = await history(admin.token, { limit: 2000 });
+    expect(open.history).toHaveLength(100);
+  });
 });
+

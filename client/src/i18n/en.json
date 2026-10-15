@@ -325,7 +325,10 @@
       "tomorrow": "Tomorrow",
       "upcomingDueDates": "Upcoming Due Dates",
       "inDays": "in {days}d",
-      "allCaughtUp": "All caught up! No tasks due soon."
+      "allCaughtUp": "All caught up! No tasks due soon.",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month",
+      "nothingThisDay": "Nothing due or done this day."
     },
     "period": {
       "week": "Week",

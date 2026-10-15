@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { HealthBar } from '../shared/HealthBar';
 import { RingGauge } from '../shared/RingGauge';
 import { EffortDots } from '../shared/EffortDots';
@@ -274,8 +275,17 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     const assignedUserPercentages = editForm.assignmentMode === 'custom' ? editForm.assignmentPercentages : undefined;
     const nameChanged = editForm.name.trim() !== editForm.originalName.trim();
     await api.updateTask(editingTask, { ...(nameChanged ? { name: editForm.name } : {}), notes: editForm.notes, frequencyDays, effort: editForm.effort, ...(editForm.healthChanged ? { health: editForm.health } : {}), iconKey: editForm.iconKey, onDemand: editForm.onDemand, showInDashboard: editForm.showInDashboard, assignmentMode: editForm.assignmentMode, assignedUserPercentages, customCoins: editForm.customCoins !== '' ? Number(editForm.customCoins) : null, allowEarlyCompletion: editForm.allowEarlyCompletion, ...assignmentPayload });
+    const editedId = editingTask;
     setEditingTask(null);
     onRefresh?.();
+    // Bring the edited task back into view once the list has reloaded (it may have re-sorted)
+    setTimeout(() => {
+      const el = document.querySelector(`[data-task-id="${editedId}"]`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('task-focus-flash');
+      setTimeout(() => el.classList.remove('task-focus-flash'), 2000);
+    }, 500);
   };
 
   // Determine if Done button should be disabled for a task
@@ -463,7 +473,10 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
 
         {sortedTasks.map((task) => (
           <div key={task.id} data-task-id={task.id}>
-            {editingTask === task.id ? (
+            {/* Edit opens in a pop-up (a bottom sheet on phones) so the list doesn't jump around */}
+            {editingTask === task.id && createPortal(
+              <div className="tq-modal-overlay task-edit-overlay" onClick={() => setEditingTask(null)}>
+              <div className="tq-card tq-modal tq-modal-wide task-edit-sheet" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()} style={{ overflowY: 'auto', padding: 12 }}>
               <div style={{
                 padding: '16px 8px', borderBottom: '1px solid var(--warm-border-subtle)',
                 backgroundColor: 'var(--warm-bg-warm)', borderRadius: 12,
@@ -473,7 +486,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)', minWidth: 70 }}>{t('roomDetail.name')}</label>
                     <input value={editForm.name}
                       onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))}
-                      autoFocus
+                      autoFocus={!window.matchMedia('(pointer: coarse)').matches}
                       className="tq-input"
                       style={{ flex: 1, fontWeight: 700 }} />
                   </div>
@@ -703,7 +716,10 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   })()}
                 </div>
               </div>
-            ) : (
+              </div>
+              </div>,
+              document.body
+            )}
               <div className="room-task-row" style={{
                 display: 'grid', gridTemplateColumns: '1fr 150px 100px 85px 70px 110px 150px 220px',
                 gap: 12, padding: '16px 8px', alignItems: 'center',
@@ -875,7 +891,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   })()}
                 </div>
               </div>
-            )}
+
           </div>
         ))}
         </div>{/* end room-table-scroll */}

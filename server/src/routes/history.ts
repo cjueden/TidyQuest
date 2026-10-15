@@ -6,7 +6,6 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get('/', (req: AuthRequest, res: Response) => {
-  const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
   const offset = parseInt(req.query.offset as string) || 0;
 
   // Optional filters: userId, roomId, from/to (ISO timestamps, to is exclusive), q (task name)
@@ -16,6 +15,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const from = isIso(req.query.from) ? new Date(req.query.from as string).toISOString() : null;
   const to = isIso(req.query.to) ? new Date(req.query.to as string).toISOString() : null;
   const q = typeof req.query.q === 'string' ? req.query.q.trim().slice(0, 100) : '';
+  // A bounded date range (the calendar asks for a whole month) may fetch more rows at once
+  const limit = Math.min(parseInt(req.query.limit as string) || 20, from && to ? 2000 : 100);
 
   const where: string[] = ["tc.status = 'approved'"];
   const params: (string | number)[] = [];

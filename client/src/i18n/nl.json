@@ -325,7 +325,10 @@
       "tomorrow": "Morgen",
       "upcomingDueDates": "Klusjes die eraan komen",
       "inDays": "over {days}d",
-      "allCaughtUp": "Helemaal bijgewerkt! Geen klusjes voor de boeg."
+      "allCaughtUp": "Helemaal bijgewerkt! Geen klusjes voor de boeg.",
+      "prevMonth": "Vorige maand",
+      "nextMonth": "Volgende maand",
+      "nothingThisDay": "Niets te doen of gedaan op deze dag."
     },
     "period": {
       "week": "Week",

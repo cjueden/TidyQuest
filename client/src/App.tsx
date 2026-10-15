@@ -38,7 +38,6 @@ function AppContent() {
   const [pointsPeriod, setPointsPeriod] = useState<'all' | 'week' | 'month' | 'year'>('all');
   const [pointsLeaderboard, setPointsLeaderboard] = useState<any[]>([]);
   const [leaderboardPeriod, setLeaderboardPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('week');
-  const [completions, setCompletions] = useState<any[]>([]);
   const [coinsByEffort, setCoinsByEffort] = useState<Record<number, number>>({ 1: 5, 2: 10, 3: 15, 4: 20, 5: 25 });
   const [achievementsData, setAchievementsData] = useState<any>(null);
   const [rewardsData, setRewardsData] = useState<{ rewards: any[]; mine: any[] }>({ rewards: [], mine: [] });
@@ -84,10 +83,9 @@ function AppContent() {
     if (dashboardLoadInFlight.current) return dashboardLoadInFlight.current;
     const p = (async () => {
       try {
-        const [dash, lb, hist, users, coinCfg, ach, roomsData] = await Promise.all([
+        const [dash, lb, users, coinCfg, ach, roomsData] = await Promise.all([
           api.dashboard(),
           api.leaderboard(leaderboardPeriod),
-          api.history(50, 0),
           api.getUsers(),
           api.getCoinsConfig(),
           api.achievements(),
@@ -100,7 +98,6 @@ function AppContent() {
         setLeaderboard(lb);
         setFamily(lb);
         setFamilySettings(users);
-        setCompletions(hist.history || []);
         setCoinsByEffort(coinCfg.coinsByEffort || { 1: 5, 2: 10, 3: 15, 4: 20, 5: 25 });
         setAchievementsData(ach);
       } catch { /* not logged in */ }
@@ -412,6 +409,8 @@ function AppContent() {
                   onCompleteTask={handleCompleteTask}
                   onRefresh={loadDashboard}
                   onNavigateToRoom={(id) => navigate(`/rooms/${id}`)}
+                  onOpenTask={(roomId, taskId) => navigate(`/rooms/${roomId}?task=${taskId}`)}
+                  coinsByEffort={coinsByEffort}
                   onNavigateToActivity={() => navigate('/activity')}
                   onRewardRequestAction={async (id, status) => {
                     await api.updateRedemptionStatus(id, status);
@@ -472,7 +471,7 @@ function AppContent() {
           <Route path="/calendar" element={
             <>
               <PageHeader title={t('nav.calendar')} subtitle={t('app.calendarSubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <Calendar completions={completions} tasks={allTasks} language={user.language} />
+              <Calendar tasks={allTasks} language={user.language} onOpenTask={(roomId, taskId) => navigate(`/rooms/${roomId}?task=${taskId}`)} />
             </>
           } />
 

@@ -325,7 +325,10 @@
       "tomorrow": "Morgen",
       "upcomingDueDates": "Bevorstehende Fälligkeiten",
       "inDays": "in {days}T",
-      "allCaughtUp": "Alles erledigt! Keine Aufgaben in Kürze fällig."
+      "allCaughtUp": "Alles erledigt! Keine Aufgaben in Kürze fällig.",
+      "prevMonth": "Vorheriger Monat",
+      "nextMonth": "Nächster Monat",
+      "nothingThisDay": "An diesem Tag war nichts fällig oder erledigt."
     },
     "period": {
       "week": "Woche",

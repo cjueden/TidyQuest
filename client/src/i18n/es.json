@@ -325,7 +325,10 @@
       "tomorrow": "Mañana",
       "upcomingDueDates": "Próximas fechas límite",
       "inDays": "en {days}d",
-      "allCaughtUp": "¡Todo al día! No hay tareas próximas."
+      "allCaughtUp": "¡Todo al día! No hay tareas próximas.",
+      "prevMonth": "Mes anterior",
+      "nextMonth": "Mes siguiente",
+      "nothingThisDay": "Nada pendiente ni hecho este día."
     },
     "period": {
       "week": "Semana",
