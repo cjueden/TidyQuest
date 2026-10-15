@@ -8,6 +8,7 @@ import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { DEFAULT_COINS_BY_EFFORT, normalizeCoinsByEffortConfig } from '../utils/health';
 import { NotificationTypeSettings, sendTelegramMessageDetailed, sendNtfyMessageDetailed } from '../utils/notifications';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, isStrictModeEnabled } from '../utils/adminHelpers';
+import { syncPrimaryGoal } from '../utils/goals';
 
 const router = Router();
 router.use(authMiddleware);
@@ -41,55 +42,6 @@ function readNotificationTypesSetting(): NotificationTypeSettings {
   } catch {
     return { taskDue: true, rewardRequest: true, achievementUnlocked: true };
   }
-}
-
-function syncPrimaryGoal(userId: number) {
-  const nowIso = new Date().toISOString();
-
-  // Auto-complete any active goals where coins >= target
-  const activeGoals = db.prepare(
-    `SELECT id, goalCoins, rewardCoins, startAt, endAt, createdAt FROM user_goals WHERE userId = ? AND status = 'active'`
-  ).all(userId) as { id: number; goalCoins: number; rewardCoins: number; startAt: string | null; endAt: string | null; createdAt: string }[];
-  for (const g of activeGoals) {
-    // Use startAt if set, otherwise fall back to createdAt so that goals without an
-    // explicit start date only count coins earned after the goal was created — prevents
-    // goals from auto-completing instantly when the user already has enough coins.
-    const from = g.startAt || g.createdAt || '1970-01-01T00:00:00.000Z';
-    const to = g.endAt || '9999-12-31T23:59:59.999Z';
-    const row = db.prepare(
-      "SELECT COALESCE(SUM(coinsEarned), 0) as total FROM task_completions WHERE userId = ? AND status = 'approved' AND completedAt >= ? AND completedAt <= ?"
-    ).get(userId, from, to) as { total: number };
-    if (row.total >= g.goalCoins) {
-      db.prepare("UPDATE user_goals SET status = 'completed', completedAt = ? WHERE id = ?").run(nowIso, g.id);
-      // Award bonus coins if configured
-      if (g.rewardCoins > 0) {
-        db.prepare('UPDATE users SET coins = coins + ? WHERE id = ?').run(g.rewardCoins, userId);
-      }
-    }
-  }
-
-  // Find the next active goal to sync as primary
-  const primary = db.prepare(
-    `SELECT goalCoins, startAt, endAt
-     FROM user_goals
-     WHERE userId = ? AND status = 'active'
-     ORDER BY
-       CASE
-         WHEN (startAt IS NULL OR startAt <= ?) AND (endAt IS NULL OR endAt >= ?) THEN 0
-         ELSE 1
-       END,
-       COALESCE(startAt, createdAt) ASC,
-       id DESC
-     LIMIT 1`
-  ).get(userId, nowIso, nowIso) as { goalCoins: number; startAt: string | null; endAt: string | null } | undefined;
-
-  if (!primary) {
-    db.prepare('UPDATE users SET goalCoins = NULL, goalStartAt = NULL, goalEndAt = NULL WHERE id = ?').run(userId);
-    return;
-  }
-
-  db.prepare('UPDATE users SET goalCoins = ?, goalStartAt = ?, goalEndAt = ? WHERE id = ?')
-    .run(primary.goalCoins, primary.startAt || null, primary.endAt || null, userId);
 }
 
 // Setup multer for avatar uploads
