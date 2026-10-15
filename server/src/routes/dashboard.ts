@@ -3,11 +3,14 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth } from '../utils/health';
 import { getGlobalVacation, getUserVacation, resolveVacation } from '../utils/adminHelpers';
+import { syncPrimaryGoal } from '../utils/goals';
 
 const router = Router();
 router.use(authMiddleware);
 
 router.get('/', (req: AuthRequest, res: Response) => {
+  // Refresh the cached goal first so it rolls over to the current week (and completes) on its own
+  const myPrimaryGoal = syncPrimaryGoal(req.userId!);
   const user = db.prepare(
     'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, language FROM users WHERE id = ?'
   ).get(req.userId) as any;
@@ -175,18 +178,19 @@ router.get('/', (req: AuthRequest, res: Response) => {
   }
 
   const myCurrentCoins = user.goalCoins ? getGoalCoinsWithinPeriod(user) : user.coins;
-  const myGoalStatus = user.goalCoins ? (db.prepare(
-    "SELECT status FROM user_goals WHERE userId = ? AND goalCoins = ? ORDER BY CASE WHEN status = 'active' THEN 0 ELSE 1 END, id DESC LIMIT 1"
-  ).get(user.id, user.goalCoins) as { status: string } | undefined)?.status || 'active' : null;
   const myGoal = user.goalCoins ? {
     goalCoins: user.goalCoins,
     currentCoins: myCurrentCoins,
     goalStartAt: user.goalStartAt || null,
     goalEndAt: user.goalEndAt || null,
     progress: Math.min(100, Math.round((myCurrentCoins / user.goalCoins) * 100)),
-    completed: myGoalStatus === 'completed',
+    completed: myPrimaryGoal?.status === 'completed',
   } : null;
 
+  if (user.role === 'admin') {
+    const listed = db.prepare("SELECT id FROM users WHERE (role != 'admin' OR isParticipant = 1) AND id != ?").all(user.id) as { id: number }[];
+    for (const c of listed) syncPrimaryGoal(c.id);
+  }
   const childrenGoals = user.role === 'admin'
     ? db.prepare(
       "SELECT id, displayName, role, coins, goalCoins, goalStartAt, goalEndAt, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users WHERE role != 'admin' OR isParticipant = 1 ORDER BY displayName"

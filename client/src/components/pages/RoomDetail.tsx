@@ -192,6 +192,10 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const health = getRoomHealth(room.tasks);
   const RoomIcon = getRoomIcon(room.roomType);
 
+  // Same rule the server uses when paying out: a custom amount wins over the effort default
+  const taskCoins = (task: Task) =>
+    task.customCoins != null && task.customCoins > 0 ? task.customCoins : (coinsByEffort?.[task.effort] ?? task.effort * 5);
+
   const sortedTasks = [...room.tasks].sort((a, b) => {
     let cmp = 0;
     switch (sortKey) {
@@ -199,7 +203,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       case 'health': cmp = a.health - b.health; break;
       case 'effort': cmp = a.effort - b.effort; break;
       case 'frequency': cmp = a.frequencyDays - b.frequencyDays; break;
-      case 'coins': cmp = (coinsByEffort?.[a.effort] ?? a.effort * 5) - (coinsByEffort?.[b.effort] ?? b.effort * 5); break;
+      case 'coins': cmp = taskCoins(a) - taskCoins(b); break;
       case 'assigned': cmp = (a.assignedUsers?.length ?? 0) - (b.assignedUsers?.length ?? 0); break;
       case 'dueDate': cmp = getNextDueDate(a.lastCompletedAt, a.frequencyDays).getTime() - getNextDueDate(b.lastCompletedAt, b.frequencyDays).getTime(); break;
     }
@@ -733,7 +737,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                 </div>
                 <div className="room-task-effort"><EffortDots effort={task.effort} /></div>
                 <div className="room-task-coins" style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-accent)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <CoinIcon />{coinsByEffort?.[task.effort] ?? task.effort * 5}
+                  <CoinIcon />{taskCoins(task)}
                 </div>
                 {task.onDemand
                   ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>—</div>
