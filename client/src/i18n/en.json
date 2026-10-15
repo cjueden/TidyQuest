@@ -276,7 +276,8 @@
       "taskViewMine": "Starts on Mine",
       "taskViewMineOnly": "Only theirs",
       "kidMode": "Kid mode",
-      "kidModeDesc": "Bigger buttons, fewer cards, coins and goal up front."
+      "kidModeDesc": "Bigger buttons, fewer cards, coins and goal up front.",
+      "notificationTypeChoreApproval": "Chore waiting for approval"
     },
     "nav": {
       "home": "Home",
@@ -782,6 +783,23 @@
       "countOne": "1 task",
       "clear": "Clear filters",
       "noMatches": "No tasks match these filters."
+    },
+    "approvals": {
+      "title": "Waiting for approval",
+      "selectAll": "Select all",
+      "approveSelected": "Approve {n}",
+      "rejectSelected": "Reject {n}",
+      "approveAll": "Approve all ({n})",
+      "proofPhoto": "Proof photo"
+    },
+    "proof": {
+      "addProof": "Add a note or photo",
+      "title": "Finish with a note or photo",
+      "note": "Note (optional)",
+      "notePlaceholder": "e.g. Got 94% on the math test",
+      "photo": "Photo (optional)",
+      "submit": "Done",
+      "photoFailed": "Saved, but the photo didn't upload."
     }
   }
 }

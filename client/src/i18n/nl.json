@@ -276,7 +276,8 @@
       "taskViewMine": "Begint bij Mijn klusjes",
       "taskViewMineOnly": "Alleen eigen",
       "kidMode": "Kindermodus",
-      "kidModeDesc": "Grotere knoppen, minder kaarten, munten en doel bovenaan."
+      "kidModeDesc": "Grotere knoppen, minder kaarten, munten en doel bovenaan.",
+      "notificationTypeChoreApproval": "Klusje wacht op goedkeuring"
     },
     "nav": {
       "home": "Home",
@@ -782,6 +783,23 @@
       "countOne": "1 klusje",
       "clear": "Filters wissen",
       "noMatches": "Geen klusjes voldoen aan deze filters."
+    },
+    "approvals": {
+      "title": "Wacht op goedkeuring",
+      "selectAll": "Alles selecteren",
+      "approveSelected": "{n} goedkeuren",
+      "rejectSelected": "{n} afwijzen",
+      "approveAll": "Alles goedkeuren ({n})",
+      "proofPhoto": "Bewijsfoto"
+    },
+    "proof": {
+      "addProof": "Notitie of foto toevoegen",
+      "title": "Afronden met een notitie of foto",
+      "note": "Notitie (optioneel)",
+      "notePlaceholder": "bijv. 94% voor de wiskundetoets",
+      "photo": "Foto (optioneel)",
+      "submit": "Klaar",
+      "photoFailed": "Opgeslagen, maar de foto is niet geüpload."
     }
   }
 }

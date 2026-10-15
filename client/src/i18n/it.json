@@ -276,7 +276,8 @@
       "taskViewMine": "Parte da I miei",
       "taskViewMineOnly": "Solo i suoi",
       "kidMode": "Modalità bambino",
-      "kidModeDesc": "Pulsanti grandi, meno schede, monete e obiettivo in primo piano."
+      "kidModeDesc": "Pulsanti grandi, meno schede, monete e obiettivo in primo piano.",
+      "notificationTypeChoreApproval": "Compito in attesa di approvazione"
     },
     "nav": {
       "home": "Home",
@@ -782,6 +783,23 @@
       "countOne": "1 compito",
       "clear": "Azzera filtri",
       "noMatches": "Nessun compito corrisponde a questi filtri."
+    },
+    "approvals": {
+      "title": "In attesa di approvazione",
+      "selectAll": "Seleziona tutto",
+      "approveSelected": "Approva {n}",
+      "rejectSelected": "Rifiuta {n}",
+      "approveAll": "Approva tutto ({n})",
+      "proofPhoto": "Foto di prova"
+    },
+    "proof": {
+      "addProof": "Aggiungi una nota o una foto",
+      "title": "Concludi con una nota o una foto",
+      "note": "Nota (facoltativa)",
+      "notePlaceholder": "es. 94% nella verifica di matematica",
+      "photo": "Foto (facoltativa)",
+      "submit": "Fatto",
+      "photoFailed": "Salvato, ma la foto non è stata caricata."
     }
   }
 }

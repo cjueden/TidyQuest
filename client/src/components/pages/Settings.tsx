@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { UserAvatar } from '../shared/UserAvatar';
 import { EffortDots } from '../shared/EffortDots';
 import { Toggle } from '../shared/Toggle';
+import { PendingApprovals } from '../shared/PendingApprovals';
 import { BellIcon, DownloadIcon, UploadIcon, LockIcon, CoinIcon } from '../icons/UIIcons';
 import { AVATAR_PRESETS } from '../icons/AvatarPresets';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -47,6 +48,8 @@ interface PendingCompletion {
   roomId: number;
   roomName: string;
   displayName: string;
+  note?: string | null;
+  photoUrl?: string | null;
 }
 
 interface SettingsProps {
@@ -137,7 +140,7 @@ export function Settings({
   const [notifChatId, setNotifChatId] = useState('');
   const [notifToken, setNotifToken] = useState('');
   const [notifTime, setNotifTime] = useState('09:00');
-  const [notifTypes, setNotifTypes] = useState({ taskDue: true, rewardRequest: true, achievementUnlocked: true });
+  const [notifTypes, setNotifTypes] = useState<{ taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean }>({ taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true });
   const [notifHasToken, setNotifHasToken] = useState(false);
   const [notifMsg, setNotifMsg] = useState('');
   const [ntfyEnabled, setNtfyEnabled] = useState(false);
@@ -531,6 +534,10 @@ export function Settings({
                     <input type="checkbox" checked={notifTypes.achievementUnlocked} onChange={(e) => setNotifTypes((prev) => ({ ...prev, achievementUnlocked: e.target.checked }))} style={{ marginRight: 6 }} />
                     {t('settings.notificationTypeAchievementUnlocked')}
                   </label>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                    <input type="checkbox" checked={notifTypes.choreApproval !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, choreApproval: e.target.checked }))} style={{ marginRight: 6 }} />
+                    {t('settings.notificationTypeChoreApproval')}
+                  </label>
                 </div>
 
                 {/* Telegram sub-toggle */}
@@ -810,38 +817,10 @@ export function Settings({
         <div className="tq-card settings-admin-card" style={{ padding: 24 }}>
           <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-text)', margin: '0 0 12px' }}>{t('settings.pendingValidations')}</h3>
           <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.pendingValidationsDesc')}</div>
-          <div style={{ display: 'grid', gap: 8 }}>
-            {pendingCompletions.map((pc) => (
-              <div key={pc.id} style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.1fr 110px auto auto', gap: 8, alignItems: 'center', border: '1px solid var(--warm-border)', borderRadius: 10, padding: '8px 10px', backgroundColor: 'var(--warm-bg-subtle)' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)' }}>{pc.displayName}</div>
-                <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{pc.taskName}</div>
-                <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{formatDate(pc.completedAt)}</div>
-                <button
-                  className="tq-btn tq-btn-secondary"
-                  style={{ padding: '5px 10px', fontSize: 11 }}
-                  onClick={async () => {
-                    await api.approveCompletion(pc.id);
-                    await loadPendingCompletions();
-                  }}
-                >
-                  {t('settings.approve')}
-                </button>
-                <button
-                  className="tq-btn"
-                  style={{ padding: '5px 10px', fontSize: 11, backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}
-                  onClick={async () => {
-                    await api.rejectPendingCompletion(pc.id);
-                    await loadPendingCompletions();
-                  }}
-                >
-                  {t('settings.reject')}
-                </button>
-              </div>
-            ))}
-            {pendingCompletions.length === 0 && (
-              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.noPendingValidations')}</div>
-            )}
-          </div>
+          <PendingApprovals items={pendingCompletions} language={user.language} gamificationEnabled={gamificationEnabled} onChanged={loadPendingCompletions} />
+          {pendingCompletions.length === 0 && (
+            <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.noPendingValidations')}</div>
+          )}
         </div>
       )}
 

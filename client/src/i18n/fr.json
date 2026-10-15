@@ -276,7 +276,8 @@
       "taskViewMine": "Commence sur les miennes",
       "taskViewMineOnly": "Seulement les siennes",
       "kidMode": "Mode enfant",
-      "kidModeDesc": "Gros boutons, moins de cartes, pièces et objectif en premier."
+      "kidModeDesc": "Gros boutons, moins de cartes, pièces et objectif en premier.",
+      "notificationTypeChoreApproval": "Tâche en attente de validation"
     },
     "nav": {
       "home": "Accueil",
@@ -782,6 +783,23 @@
       "countOne": "1 tâche",
       "clear": "Effacer les filtres",
       "noMatches": "Aucune tâche ne correspond à ces filtres."
+    },
+    "approvals": {
+      "title": "En attente de validation",
+      "selectAll": "Tout sélectionner",
+      "approveSelected": "Valider {n}",
+      "rejectSelected": "Refuser {n}",
+      "approveAll": "Tout valider ({n})",
+      "proofPhoto": "Photo de preuve"
+    },
+    "proof": {
+      "addProof": "Ajouter une note ou une photo",
+      "title": "Terminer avec une note ou une photo",
+      "note": "Note (facultatif)",
+      "notePlaceholder": "ex. 94 % au contrôle de maths",
+      "photo": "Photo (facultatif)",
+      "submit": "Terminé",
+      "photoFailed": "Enregistré, mais la photo n'a pas été envoyée."
     }
   }
 }

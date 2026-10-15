@@ -1,4 +1,8 @@
 import { Router, Response } from 'express';
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
+import multer from 'multer';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth, getCoinsForEffort } from '../utils/health';
@@ -6,6 +10,23 @@ import { suggestTaskIcon } from '../utils/taskIcons';
 import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '../utils/achievementNotifications';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
+import { isNotificationTypeEnabled, sendNotification } from '../utils/notifications';
+
+// Proof photos kids can attach to a completion (served at /api/proofs)
+export const proofsDir = path.join(__dirname, '..', '..', '..', 'data', 'proofs');
+if (!fs.existsSync(proofsDir)) fs.mkdirSync(proofsDir, { recursive: true });
+const proofUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, proofsDir),
+    filename: (_req, file, cb) => {
+      const ext = ['.jpg', '.jpeg', '.png', '.webp', '.heic'].includes(path.extname(file.originalname).toLowerCase())
+        ? path.extname(file.originalname).toLowerCase() : '.jpg';
+      cb(null, `proof-${crypto.randomBytes(12).toString('hex')}${ext}`);
+    },
+  }),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
+});
 
 const router = Router();
 router.use(authMiddleware);
@@ -40,18 +61,19 @@ function applyApprovedCompletion(
   coins: number,
   now: string,
   gamificationOn: boolean = true,
-  options?: { completionId?: number; approvedByUserId?: number; approvedAt?: string }
-) {
+  options?: { completionId?: number; approvedByUserId?: number; approvedAt?: string; note?: string | null }
+): number {
   const approvedByUserId = options?.approvedByUserId ?? effectiveUserId;
   const approvedAt = options?.approvedAt ?? now;
+  let completionId = options?.completionId ?? 0;
   if (options?.completionId) {
     db.prepare(
       "UPDATE task_completions SET status = 'approved', approvedByUserId = ?, approvedAt = ? WHERE id = ?"
     ).run(approvedByUserId, approvedAt, options.completionId);
   } else {
-    db.prepare(
-      'INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, approvedByUserId, approvedAt) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    ).run(taskId, effectiveUserId, now, coins, 'approved', approvedByUserId, approvedAt);
+    completionId = Number(db.prepare(
+      'INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, approvedByUserId, approvedAt, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(taskId, effectiveUserId, now, coins, 'approved', approvedByUserId, approvedAt, options?.note ?? null).lastInsertRowid);
   }
 
   const taskAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ?').all(taskId) as { userId: number }[];
@@ -107,6 +129,36 @@ function applyApprovedCompletion(
     }
 
   }
+  return completionId;
+}
+
+/** Approve one waiting completion: pay it out, move the rotation on. Returns an error code or null. */
+function approvePendingCompletion(completionId: number, adminId: number): string | null {
+  const completion = db.prepare('SELECT id, taskId, userId, completedAt, coinsEarned, status FROM task_completions WHERE id = ?').get(completionId) as any;
+  if (!completion) return 'not_found';
+  if (completion.status !== 'pending') return 'completion_not_pending';
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(completion.taskId) as any;
+  if (!task) return 'task_not_found';
+  const gamifRow = db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined;
+  const gamificationOn = gamifRow ? gamifRow.value !== '0' : true;
+  applyApprovedCompletion(task, completion.taskId, completion.userId, completion.coinsEarned, completion.completedAt, gamificationOn, {
+    completionId: completion.id,
+    approvedByUserId: adminId,
+    approvedAt: new Date().toISOString(),
+  });
+  // The turn moves on once the parent approves (it used to stay stuck under Strict Mode)
+  advanceRotation(task, completion.userId);
+  if (gamificationOn) void notifyAchievementUnlocksForUser(completion.userId);
+  return null;
+}
+
+/** Reject one waiting completion (it's removed; no coins). Returns an error code or null. */
+function rejectPendingCompletion(completionId: number): string | null {
+  const completion = db.prepare('SELECT id, status FROM task_completions WHERE id = ?').get(completionId) as { id: number; status: string } | undefined;
+  if (!completion) return 'not_found';
+  if (completion.status !== 'pending') return 'completion_not_pending';
+  db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
+  return null;
 }
 
 // List tasks for a room
@@ -623,27 +675,33 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     }
   }
 
-  const targetUser = db.prepare('SELECT role FROM users WHERE id = ?').get(effectiveUserId) as { role?: string } | undefined;
+  // Optional proof note (a photo can be attached afterwards with POST /completions/:id/photo)
+  const note = typeof req.body.note === 'string' && req.body.note.trim() ? req.body.note.trim().slice(0, 500) : null;
+
+  const targetUser = db.prepare('SELECT role, displayName FROM users WHERE id = ?').get(effectiveUserId) as { role?: string; displayName?: string } | undefined;
   // requireApproval: integrations such as Home Assistant act for a child with a parent's login, so the
   // completion must still go through Strict Mode (upstream #142). In-app "who did it?" stays instant.
   const actingForChild = !!onBehalfOfUserId && req.body.requireApproval === true;
   const strictNeedsApproval = isStrictModeEnabled() && targetUser?.role === 'child' && (!isAdminOrMember || actingForChild);
 
   if (strictNeedsApproval) {
-    db.prepare(
-      "INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status) VALUES (?, ?, ?, ?, 'pending')"
-    ).run(task.id, effectiveUserId, now, coins);
-    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true });
+    const pendingId = Number(db.prepare(
+      "INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, note) VALUES (?, ?, ?, ?, 'pending', ?)"
+    ).run(task.id, effectiveUserId, now, coins, note).lastInsertRowid);
+    if (isNotificationTypeEnabled('choreApproval')) {
+      void sendNotification(`✅ ${targetUser?.displayName ?? 'Someone'} finished "${task.name}" and it's waiting for your approval.`);
+    }
+    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId });
   }
 
-  applyApprovedCompletion(task, task.id, effectiveUserId, coins, now, gamificationOn);
+  const completionId = applyApprovedCompletion(task, task.id, effectiveUserId, coins, now, gamificationOn, { note });
   advanceRotation(task, effectiveUserId);
 
   const newAchievements = gamificationOn ? checkAndRecordNewAchievements(effectiveUserId) : [];
   if (newAchievements.length > 0) {
     void notifyAchievementUnlocksForUser(effectiveUserId);
   }
-  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements });
+  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, completionId });
 });
 
 router.get('/completions/pending', (req: AuthRequest, res: Response) => {
@@ -652,7 +710,7 @@ router.get('/completions/pending', (req: AuthRequest, res: Response) => {
   }
 
   const pending = db.prepare(`
-    SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned,
+    SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl,
            t.name AS taskName, t.translationKey, t.roomId, t.assignmentMode, t.effort,
            r.name AS roomName, r.roomType,
            u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -667,35 +725,14 @@ router.get('/completions/pending', (req: AuthRequest, res: Response) => {
   res.json({ pending });
 });
 
+const PENDING_ERRORS: Record<string, number> = { not_found: 404, task_not_found: 404, completion_not_pending: 409 };
+
 router.post('/completions/:completionId/approve', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
-
-  const completion = db.prepare(
-    `SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.status, t.assignmentMode
-     FROM task_completions tc
-     JOIN tasks t ON t.id = tc.taskId
-     WHERE tc.id = ?`
-  ).get(req.params.completionId) as any;
-
-  if (!completion) return res.status(404).json({ error: 'Completion not found' });
-  if (completion.status !== 'pending') return res.status(409).json({ error: 'completion_not_pending' });
-
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(completion.taskId) as any;
-  if (!task) return res.status(404).json({ error: 'Task not found' });
-
-  const gamifRowApprove = db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined;
-  const gamifOnApprove = gamifRowApprove ? gamifRowApprove.value !== '0' : true;
-  applyApprovedCompletion(task, completion.taskId, completion.userId, completion.coinsEarned, completion.completedAt, gamifOnApprove, {
-    completionId: completion.id,
-    approvedByUserId: req.userId,
-    approvedAt: new Date().toISOString(),
-  });
-  // The turn moves on once the parent approves (it used to stay stuck under Strict Mode)
-  advanceRotation(task, completion.userId);
-  if (gamifOnApprove) void notifyAchievementUnlocksForUser(completion.userId);
-
+  const error = approvePendingCompletion(Number(req.params.completionId), req.userId!);
+  if (error) return res.status(PENDING_ERRORS[error]).json({ error: error === 'not_found' ? 'Completion not found' : error === 'task_not_found' ? 'Task not found' : error });
   res.json({ success: true });
 });
 
@@ -703,15 +740,46 @@ router.delete('/completions/:completionId/reject', (req: AuthRequest, res: Respo
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
-
-  const completion = db.prepare(
-    'SELECT id, status FROM task_completions WHERE id = ?'
-  ).get(req.params.completionId) as { id: number; status: string } | undefined;
-  if (!completion) return res.status(404).json({ error: 'Completion not found' });
-  if (completion.status !== 'pending') return res.status(409).json({ error: 'completion_not_pending' });
-
-  db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
+  const error = rejectPendingCompletion(Number(req.params.completionId));
+  if (error) return res.status(PENDING_ERRORS[error]).json({ error: error === 'not_found' ? 'Completion not found' : error });
   res.json({ success: true });
+});
+
+// Approve or reject several waiting completions at once (report card day). Skips ones already handled.
+function batchIds(body: any): number[] | null {
+  const ids = body?.ids;
+  if (!Array.isArray(ids) || ids.length === 0 || ids.length > 500) return null;
+  const nums = ids.map(Number).filter((n) => Number.isInteger(n) && n > 0);
+  return nums.length === ids.length ? nums : null;
+}
+
+router.post('/completions/approve-batch', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const ids = batchIds(req.body);
+  if (!ids) return res.status(400).json({ error: 'ids must be a non-empty array of completion ids' });
+  const results = db.transaction(() => ids.map((id) => ({ id, error: approvePendingCompletion(id, req.userId!) })))();
+  res.json({ approved: results.filter((r) => !r.error).map((r) => r.id), skipped: results.filter((r) => r.error) });
+});
+
+router.post('/completions/reject-batch', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const ids = batchIds(req.body);
+  if (!ids) return res.status(400).json({ error: 'ids must be a non-empty array of completion ids' });
+  const results = db.transaction(() => ids.map((id) => ({ id, error: rejectPendingCompletion(id) })))();
+  res.json({ rejected: results.filter((r) => !r.error).map((r) => r.id), skipped: results.filter((r) => r.error) });
+});
+
+// Attach a proof photo to a completion: the person who did it (or a parent)
+router.post('/completions/:completionId/photo', proofUpload.single('photo'), (req: AuthRequest, res: Response) => {
+  const file = (req as any).file as { filename: string; path: string } | undefined;
+  const completion = db.prepare('SELECT id, userId FROM task_completions WHERE id = ?').get(req.params.completionId) as { id: number; userId: number } | undefined;
+  const discard = () => { if (file) fs.rmSync(file.path, { force: true }); };
+  if (!completion) { discard(); return res.status(404).json({ error: 'Completion not found' }); }
+  if (completion.userId !== req.userId && !ensureAdmin(req.userId)) { discard(); return res.status(403).json({ error: 'forbidden' }); }
+  if (!file) return res.status(400).json({ error: 'photo (an image file) is required' });
+  const photoUrl = `/api/proofs/${file.filename}`;
+  db.prepare('UPDATE task_completions SET photoUrl = ? WHERE id = ?').run(photoUrl, completion.id);
+  res.json({ photoUrl });
 });
 
 // Cancel (undo) a task completion — admin only

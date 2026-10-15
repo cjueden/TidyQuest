@@ -7,6 +7,7 @@ import { PageHeader } from './components/layout/PageHeader';
 import { ConfettiEffect } from './components/shared/ConfettiEffect';
 import { SearchOverlay } from './components/shared/SearchOverlay';
 import { SearchContext } from './components/shared/searchContext';
+import type { Proof } from './components/shared/ProofModal';
 import { AchievementUnlockToast } from './components/ui/AchievementUnlockToast';
 import Dashboard from './components/pages/Dashboard';
 import { RoomsList } from './components/pages/RoomsList';
@@ -207,9 +208,16 @@ function AppContent() {
     localStorage.setItem('tidyquest-sidebar-collapsed', String(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
-  const handleCompleteTask = async (taskId: number) => {
+  const handleCompleteTask = async (taskId: number, proof?: Proof) => {
     try {
-      const result = await api.completeTask(taskId);
+      const result = await api.completeTask(taskId, undefined, proof?.note ? { note: proof.note } : {});
+      if (proof?.file && result.completionId) {
+        // The chore is already recorded; a failed photo upload shouldn't undo that
+        await api.uploadCompletionPhoto(result.completionId, proof.file).catch(() => {
+          setTaskErrorMsg(t('proof.photoFailed'));
+          setTimeout(() => setTaskErrorMsg(null), 3500);
+        });
+      }
       if (result.pendingApproval) {
         setConfetti(false);
         setTaskErrorMsg(t('app.pendingApproval'));
@@ -451,7 +459,7 @@ function AppContent() {
           } />
 
           <Route path="/rooms/:id" element={
-            <RoomDetailWrapper rooms={rooms} roomsLoaded={roomsLoaded} user={user} users={familySettings} coinsByEffort={coinsByEffort} gamificationEnabled={gamificationEnabled} onCompleteTask={handleCompleteTask} onRefresh={() => { refreshRooms(); loadDashboard(); }} onAchievementsUnlocked={setUnlockedAchievements} />
+            <RoomDetailWrapper rooms={rooms} roomsLoaded={roomsLoaded} strictMode={!!dashboardData?.strictMode} user={user} users={familySettings} coinsByEffort={coinsByEffort} gamificationEnabled={gamificationEnabled} onCompleteTask={handleCompleteTask} onRefresh={() => { refreshRooms(); loadDashboard(); }} onAchievementsUnlocked={setUnlockedAchievements} />
           } />
 
           <Route path="/tasks" element={
@@ -619,7 +627,7 @@ function AppContent() {
   );
 }
 
-function RoomDetailWrapper({ rooms, roomsLoaded, user, users, coinsByEffort, gamificationEnabled, onCompleteTask, onRefresh, onAchievementsUnlocked }: { rooms: any[]; roomsLoaded: boolean; user: any; users?: any[]; coinsByEffort: Record<number, number>; gamificationEnabled: boolean; onCompleteTask: (id: number) => void; onRefresh: () => void; onAchievementsUnlocked?: (ids: string[]) => void }) {
+function RoomDetailWrapper({ rooms, roomsLoaded, strictMode, user, users, coinsByEffort, gamificationEnabled, onCompleteTask, onRefresh, onAchievementsUnlocked }: { rooms: any[]; roomsLoaded: boolean; strictMode?: boolean; user: any; users?: any[]; coinsByEffort: Record<number, number>; gamificationEnabled: boolean; onCompleteTask: (id: number, proof?: Proof) => void; onRefresh: () => void; onAchievementsUnlocked?: (ids: string[]) => void }) {
   const navigate = useNavigate();
   const { t, roomDisplayName } = useTranslation(user?.language || 'en');
   const { id: idParam } = useParams<{ id: string }>();
@@ -646,7 +654,7 @@ function RoomDetailWrapper({ rooms, roomsLoaded, user, users, coinsByEffort, gam
   return (
     <>
       <PageHeader title={roomDisplayName(room.name, room.roomType)} subtitle={`${room.tasks?.length || 0} ${t('rooms.tasksTracked')}`} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} gamificationEnabled={gamificationEnabled} />
-      <RoomDetail room={room} language={user?.language} isAdmin={user?.role === 'admin'} currentUserId={user?.id} currentUserRole={user?.role} users={users} coinsByEffort={coinsByEffort} onCompleteTask={onCompleteTask} onBack={() => navigate('/rooms')} focusTaskId={focusTaskId} onlyMine={user?.taskView === 'mineOnly' || !!user?.kidMode} onRefresh={onRefresh} onAchievementsUnlocked={onAchievementsUnlocked} />
+      <RoomDetail room={room} language={user?.language} isAdmin={user?.role === 'admin'} currentUserId={user?.id} currentUserRole={user?.role} users={users} coinsByEffort={coinsByEffort} onCompleteTask={onCompleteTask} onBack={() => navigate('/rooms')} focusTaskId={focusTaskId} strictMode={strictMode} onlyMine={user?.taskView === 'mineOnly' || !!user?.kidMode} onRefresh={onRefresh} onAchievementsUnlocked={onAchievementsUnlocked} />
     </>
   );
 }

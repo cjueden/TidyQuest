@@ -76,7 +76,20 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const total = filtered.length;
   const history = filtered.slice(offset, offset + limit);
 
-  res.json({ history, total, limit, offset });
+  // The viewer's own completions still waiting for a parent, shown above the list
+  const pending = offset === 0
+    ? db.prepare(`
+      SELECT tc.id, tc.completedAt, tc.coinsEarned, tc.taskId, tc.note, tc.photoUrl,
+             t.name AS taskName, t.translationKey, t.roomId, r.name AS roomName, r.roomType
+      FROM task_completions tc
+      JOIN tasks t ON tc.taskId = t.id
+      JOIN rooms r ON t.roomId = r.id
+      WHERE tc.status = 'pending' AND tc.userId = ?
+      ORDER BY tc.completedAt DESC
+      LIMIT 50`).all(req.userId)
+    : [];
+
+  res.json({ history, total, limit, offset, pending });
 });
 
 export default router;

@@ -26,6 +26,8 @@ interface HistoryProps {
 export function History({ language, isAdmin, users = [], rooms = [] }: HistoryProps) {
   const { taskName, t, roomDisplayName, timeAgo } = useTranslation(language);
   const [history, setHistory] = useState<any[]>([]);
+  // The viewer's own chores still waiting for a parent (Strict Mode)
+  const [pending, setPending] = useState<Array<{ id: number; completedAt: string; coinsEarned: number; taskName: string; translationKey?: string; roomName: string; roomType?: string; note?: string | null; photoUrl?: string | null }>>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [confirmCancel, setConfirmCancel] = useState<number | null>(null);
@@ -49,6 +51,7 @@ export function History({ language, isAdmin, users = [], rooms = [] }: HistoryPr
     }).then((data) => {
       if (requestId !== latestRequest.current) return; // a newer filter change already won
       setHistory(data.history);
+      if (offset === 0) setPending(data.pending || []);
       setTotal(data.total);
     });
   };
@@ -105,6 +108,23 @@ export function History({ language, isAdmin, users = [], rooms = [] }: HistoryPr
             <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={clearFilters}>{t('history.clearFilters')}</button>
           )}
         </div>
+        {pending.length > 0 && (
+          <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {pending.map((p) => (
+              <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 14, border: '1.5px dashed var(--warm-streak-border)', backgroundColor: 'var(--warm-accent-light)' }}>
+                <span style={{ fontSize: 18 }}>⏳</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text)' }}>{taskName(p.taskName, p.translationKey)}</div>
+                  <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
+                    {roomDisplayName(p.roomName, p.roomType || '')} · {timeAgo(p.completedAt)} · {t('app.waitingForApproval')}
+                  </div>
+                  {p.note && <div style={{ fontSize: 11, color: 'var(--warm-text-secondary)', fontWeight: 600, overflowWrap: 'anywhere' }}>“{p.note}”</div>}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 800, color: 'var(--warm-text-light)' }}>+{p.coinsEarned} <CoinIcon /></div>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="history-table-scroll">
           <div className="history-header" style={{
             display: 'grid', gridTemplateColumns: isAdmin ? '44px 1fr 120px 100px 80px 60px' : '44px 1fr 120px 100px 80px',

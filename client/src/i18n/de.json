@@ -276,7 +276,8 @@
       "taskViewMine": "Startet bei Meine",
       "taskViewMineOnly": "Nur eigene",
       "kidMode": "Kindermodus",
-      "kidModeDesc": "Größere Knöpfe, weniger Karten, Münzen und Ziel ganz oben."
+      "kidModeDesc": "Größere Knöpfe, weniger Karten, Münzen und Ziel ganz oben.",
+      "notificationTypeChoreApproval": "Aufgabe wartet auf Freigabe"
     },
     "nav": {
       "home": "Startseite",
@@ -782,6 +783,23 @@
       "countOne": "1 Aufgabe",
       "clear": "Filter zurücksetzen",
       "noMatches": "Keine Aufgaben passen zu diesen Filtern."
+    },
+    "approvals": {
+      "title": "Wartet auf Freigabe",
+      "selectAll": "Alle auswählen",
+      "approveSelected": "{n} freigeben",
+      "rejectSelected": "{n} ablehnen",
+      "approveAll": "Alle freigeben ({n})",
+      "proofPhoto": "Beweisfoto"
+    },
+    "proof": {
+      "addProof": "Notiz oder Foto hinzufügen",
+      "title": "Mit Notiz oder Foto abschließen",
+      "note": "Notiz (optional)",
+      "notePlaceholder": "z. B. 94 % in der Mathearbeit",
+      "photo": "Foto (optional)",
+      "submit": "Fertig",
+      "photoFailed": "Gespeichert, aber das Foto wurde nicht hochgeladen."
     }
   }
 }

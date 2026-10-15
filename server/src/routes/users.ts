@@ -30,17 +30,18 @@ function normalizeNotificationTypes(value: unknown): NotificationTypeSettings | 
     taskDue: toBool(raw.taskDue, true),
     rewardRequest: toBool(raw.rewardRequest, true),
     achievementUnlocked: toBool(raw.achievementUnlocked, true),
+    choreApproval: toBool(raw.choreApproval, true),
   };
 }
 
 function readNotificationTypesSetting(): NotificationTypeSettings {
   const rawTypes = (db.prepare("SELECT value FROM app_settings WHERE key = 'notificationTypes'").get() as any)?.value
     || (db.prepare("SELECT value FROM app_settings WHERE key = 'telegramNotificationTypes'").get() as any)?.value || '';
-  if (!rawTypes) return { taskDue: true, rewardRequest: true, achievementUnlocked: true };
+  if (!rawTypes) return { taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true };
   try {
-    return normalizeNotificationTypes(JSON.parse(rawTypes)) || { taskDue: true, rewardRequest: true, achievementUnlocked: true };
+    return normalizeNotificationTypes(JSON.parse(rawTypes)) || { taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true };
   } catch {
-    return { taskDue: true, rewardRequest: true, achievementUnlocked: true };
+    return { taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true };
   }
 }
 

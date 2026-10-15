@@ -276,7 +276,8 @@
       "taskViewMine": "Empieza en Mías",
       "taskViewMineOnly": "Solo las suyas",
       "kidMode": "Modo niño",
-      "kidModeDesc": "Botones grandes, menos tarjetas, monedas y meta primero."
+      "kidModeDesc": "Botones grandes, menos tarjetas, monedas y meta primero.",
+      "notificationTypeChoreApproval": "Tarea esperando aprobación"
     },
     "nav": {
       "home": "Inicio",
@@ -782,6 +783,23 @@
       "countOne": "1 tarea",
       "clear": "Borrar filtros",
       "noMatches": "Ninguna tarea coincide con estos filtros."
+    },
+    "approvals": {
+      "title": "Esperando aprobación",
+      "selectAll": "Seleccionar todo",
+      "approveSelected": "Aprobar {n}",
+      "rejectSelected": "Rechazar {n}",
+      "approveAll": "Aprobar todo ({n})",
+      "proofPhoto": "Foto de prueba"
+    },
+    "proof": {
+      "addProof": "Añadir una nota o foto",
+      "title": "Terminar con una nota o foto",
+      "note": "Nota (opcional)",
+      "notePlaceholder": "p. ej. Saqué 94 % en el examen de mates",
+      "photo": "Foto (opcional)",
+      "submit": "Hecho",
+      "photoFailed": "Guardado, pero la foto no se subió."
     }
   }
 }

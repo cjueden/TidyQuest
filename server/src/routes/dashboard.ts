@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth } from '../utils/health';
-import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, resolveVacation } from '../utils/adminHelpers';
+import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, isStrictModeEnabled, resolveVacation } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
 
 const router = Router();
@@ -213,6 +213,21 @@ router.get('/', (req: AuthRequest, res: Response) => {
     })
     : [];
 
+  // Chores waiting for a parent's approval (Strict Mode), newest first
+  const pendingCompletions = user.role === 'admin'
+    ? db.prepare(`
+      SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl,
+             t.name AS taskName, t.translationKey, t.roomId, t.iconKey, r.name AS roomName, r.roomType, r.color AS roomColor,
+             u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
+      FROM task_completions tc
+      JOIN tasks t ON tc.taskId = t.id
+      JOIN rooms r ON t.roomId = r.id
+      JOIN users u ON tc.userId = u.id
+      WHERE tc.status = 'pending'
+      ORDER BY tc.completedAt DESC
+      LIMIT 100`).all()
+    : [];
+
   const pendingRewardRequests = user.role === 'admin'
     ? db.prepare(
       `SELECT rr.id, rr.costCoins, rr.redeemedAt, rr.status, r.title, u.displayName
@@ -254,6 +269,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     myGoal,
     childrenGoals,
     pendingRewardRequests,
+    pendingCompletions,
+    strictMode: isStrictModeEnabled(),
     currentUser: user,
     recentActivity,
     badges,

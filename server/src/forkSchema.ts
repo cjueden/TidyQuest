@@ -12,6 +12,9 @@ const NEW_COLUMNS: string[] = [
   // Per-person views set by a parent: taskView 'all' | 'mine' (starts on Mine) | 'mineOnly' (locked)
   `ALTER TABLE users ADD COLUMN taskView TEXT NOT NULL DEFAULT 'all'`,
   `ALTER TABLE users ADD COLUMN kidMode INTEGER NOT NULL DEFAULT 0`,
+  // Optional proof a kid attaches when finishing a chore
+  `ALTER TABLE task_completions ADD COLUMN note TEXT`,
+  `ALTER TABLE task_completions ADD COLUMN photoUrl TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

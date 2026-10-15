@@ -11,6 +11,7 @@ import { getNextDueDate, formatNextDue, isTaskForUser } from '../../utils/tasks'
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
+import { ProofModal, type Proof } from '../shared/ProofModal';
 
 const FREQ_UNITS = [
   { label: 'hours', toDays: 1 / 24 },
@@ -85,7 +86,9 @@ interface RoomDetailProps {
   currentUserRole?: 'admin' | 'member' | 'child';
   users?: Array<{ id: number; displayName: string; role: string; avatarColor: string; avatarType?: string; avatarPreset?: string; avatarPhotoUrl?: string }>;
   coinsByEffort?: Record<number, number>;
-  onCompleteTask: (taskId: number) => void;
+  onCompleteTask: (taskId: number, proof?: Proof) => void;
+  /** Strict Mode is on: kids can attach a note or photo when finishing */
+  strictMode?: boolean;
   onBack: () => void;
   onRefresh?: () => void;
   onAchievementsUnlocked?: (ids: string[]) => void;
@@ -138,7 +141,7 @@ function EffortPicker({ effort, onChange }: { effort: number; onChange: (e: numb
   );
 }
 
-export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onAchievementsUnlocked, focusTaskId, onlyMine }: RoomDetailProps) {
+export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const [editingTask, setEditingTask] = useState<number | null>(null);
@@ -164,6 +167,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const [sortKey, setSortKey] = useState<SortKey>('health');
   const [sortAsc, setSortAsc] = useState(true);
   const focusedOnce = useRef<number | null>(null);
+  const [proofTask, setProofTask] = useState<Task | null>(null);
+  const canAddProof = !!strictMode && currentUserRole === 'child';
 
   // Opened from search or the task list: bring that task into view and flash it once
   useEffect(() => {
@@ -874,6 +879,10 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   {(() => {
                     const btn = getDoneButtonState(task);
                     return (
+                      <>
+                      {canAddProof && !btn.disabled && (
+                        <button onClick={() => setProofTask(task)} className="tq-btn tq-btn-secondary tq-btn-sm" title={t('proof.addProof')} aria-label={t('proof.addProof')}>📎</button>
+                      )}
                       <button
                         onClick={() => !btn.disabled && handleComplete(task)}
                         disabled={btn.disabled}
@@ -889,6 +898,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       >
                         {btn.disabled ? btn.label : <><CheckIcon /> {btn.label}</>}
                       </button>
+                      </>
                     );
                   })()}
                 </div>
@@ -1145,6 +1155,14 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
         ) : null}
       </div>
     </div>
+    {proofTask && (
+      <ProofModal
+        taskTitle={translateTask(proofTask.name, proofTask.translationKey)}
+        language={language}
+        onClose={() => setProofTask(null)}
+        onSubmit={async (proof) => { onCompleteTask(proofTask.id, proof); setProofTask(null); }}
+      />
+    )}
     {adminModalTask && (
       <AdminCompleteModal
         task={adminModalTask}

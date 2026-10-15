@@ -10,6 +10,8 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { isTaskForUser, taskCoins } from '../../utils/tasks';
 import { useTaskView } from '../../hooks/useTaskView';
 import { AllMineToggle } from '../shared/AllMineToggle';
+import { PendingApprovals, type PendingItem } from '../shared/PendingApprovals';
+import { ProofModal, type Proof } from '../shared/ProofModal';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { api } from '../../hooks/useApi';
 
@@ -127,6 +129,9 @@ interface DashboardProps {
     myGoal?: { goalCoins: number; currentCoins: number; progress: number; goalStartAt?: string | null; goalEndAt?: string | null; completed?: boolean } | null;
     childrenGoals?: Array<{ id: number; displayName: string; role: string; coins: number; currentCoins?: number; goalCoins: number | null; progress: number | null; goalStartAt?: string | null; goalEndAt?: string | null }>;
     pendingRewardRequests?: Array<{ id: number; title: string; displayName: string; costCoins: number; redeemedAt: string; status: 'requested' | 'approved' | 'rejected' }>;
+    /** Chores waiting for a parent (admins only) */
+    pendingCompletions?: PendingItem[];
+    strictMode?: boolean;
     currentUser: CurrentUser;
     recentActivity: ActivityEntry[];
     badges?: Record<number, string | null>;
@@ -134,7 +139,7 @@ interface DashboardProps {
   family: FamilyMember[];
   users?: Array<{ id: number; displayName: string; role: string; avatarColor: string; avatarType?: string; avatarPreset?: string; avatarPhotoUrl?: string }>;
   language?: string;
-  onCompleteTask: (taskId: number) => void;
+  onCompleteTask: (taskId: number, proof?: Proof) => void;
   onRefresh?: () => void;
   onNavigateToRoom: (roomId: number) => void;
   /** Open a task in its room, scrolled to and highlighted */
@@ -203,6 +208,14 @@ const Dashboard: React.FC<DashboardProps> = ({
   // All / Mine: a parent can make someone start on Mine or lock it (Kid mode always shows Mine)
   const { filter: taskFilter, setFilter: setTaskFilter, locked: filterLocked } = useTaskView(currentUser);
   const kidMode = !!currentUser.kidMode;
+  // Strict Mode: kids can finish a chore with a note or photo for the parent who approves it
+  const [proofQuest, setProofQuest] = useState<Quest | null>(null);
+  const canAddProof = !!data.strictMode && currentUser.role === 'child';
+  const proofButton = (q: Quest, enabled: boolean) => canAddProof && enabled ? (
+    <button onClick={(e) => { e.stopPropagation(); setProofQuest(q); }} className="tq-btn tq-btn-secondary"
+      title={t('proof.addProof')} aria-label={t('proof.addProof')} style={{ padding: '8px 10px', fontSize: 14 }}>📎</button>
+  ) : null;
+  const pendingCompletions = data.pendingCompletions ?? [];
   const filterQuests = (quests: Quest[]) => {
     if (taskFilter === 'all') return quests;
     return quests.filter(q => isTaskForUser(q, currentUser.id, currentUser.role));
@@ -223,6 +236,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     { id: 'myGoal', label: t('dashboard.myGoal') },
     { id: 'childrenGoals', label: t('dashboard.childrenGoals') },
     { id: 'rewardRequests', label: t('dashboard.rewardRequestsTitle') },
+    { id: 'pendingApprovals', label: t('approvals.title') },
     { id: 'leaderboard', label: t('app.leaderboardTitle') },
     { id: 'recentActivity', label: t('dashboard.recentActivity') },
   ];
@@ -388,6 +402,19 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
         )}
 
+        {/* Chores waiting for approval (parents, Strict Mode) */}
+        {currentUser.role === 'admin' && isVisible('pendingApprovals') && pendingCompletions.length > 0 && (
+          <div className="tq-card tq-card-padded" style={{ gridColumn: '1 / -1' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: 0 }}>{t('approvals.title')}</h3>
+              <span style={{ fontSize: 11, fontWeight: 800, backgroundColor: 'var(--warm-badge-bg)', color: 'var(--warm-badge-text)', padding: '4px 12px', borderRadius: 99 }}>
+                {pendingCompletions.length}
+              </span>
+            </div>
+            <PendingApprovals items={pendingCompletions} language={language} gamificationEnabled={gamificationEnabled} onChanged={() => onRefresh?.()} />
+          </div>
+        )}
+
         {/* Today's Quests Card — full width, sections: Ready to Complete / On Demand */}
         {isVisible('todaysQuests') && <div className="tq-card tq-card-padded">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -452,10 +479,13 @@ const Dashboard: React.FC<DashboardProps> = ({
                     {questDetails(q)}
                     <div style={{ marginTop: 5 }}><HealthBar value={q.health} height={6} showLabel={false} /></div>
                   </div>
+                  <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                  {proofButton(q, !btnDisabled)}
                   <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={btnDisabled} className={btnDisabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
-                    style={{ marginLeft: 'auto', padding: '8px 14px', fontSize: 12, ...(btnDisabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
+                    style={{ padding: '8px 14px', fontSize: 12, ...(btnDisabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
                     {btnDisabled ? btnLabel : <><CheckIcon /> {btnLabel}</>}
                   </button>
+                  </span>
                 </div>
               );
             })}
@@ -500,10 +530,13 @@ const Dashboard: React.FC<DashboardProps> = ({
                         )}
                         {questDetails(q)}
                       </div>
+                      <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                      {proofButton(q, !notMine)}
                       <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={notMine} className={notMine ? 'tq-btn' : 'tq-btn tq-btn-primary'}
-                        style={{ marginLeft: 'auto', padding: '8px 14px', fontSize: 12, ...(notMine ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
+                        style={{ padding: '8px 14px', fontSize: 12, ...(notMine ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
                         {notMine ? t('app.notAssigned') : <><CheckIcon /> {t('roomDetail.done')}</>}
                       </button>
+                      </span>
                     </div>
                   );
                 })}
@@ -973,6 +1006,14 @@ const Dashboard: React.FC<DashboardProps> = ({
           ))}
         </div>}
     </div>
+    {proofQuest && (
+      <ProofModal
+        taskTitle={taskName(proofQuest.name, proofQuest.translationKey)}
+        language={language}
+        onClose={() => setProofQuest(null)}
+        onSubmit={async (proof) => { onCompleteTask(proofQuest.id, proof); setProofQuest(null); }}
+      />
+    )}
     {adminModalQuest && (
       <AdminCompleteModal
         task={adminModalQuest}

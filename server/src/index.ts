@@ -33,6 +33,8 @@ export function createApp() {
   // Serve uploaded avatars
   const avatarsDir = path.join(__dirname, '..', '..', 'data', 'avatars');
   app.use('/api/avatars', express.static(avatarsDir));
+  // Proof photos attached to completions (random, unguessable file names, like avatars)
+  app.use('/api/proofs', express.static(path.join(__dirname, '..', '..', 'data', 'proofs')));
 
   // API routes
   app.use('/api/auth', authRoutes);

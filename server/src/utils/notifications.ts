@@ -11,6 +11,8 @@ export interface NotificationTypeSettings {
   taskDue: boolean;
   rewardRequest: boolean;
   achievementUnlocked: boolean;
+  /** A child finished a chore and it's waiting for a parent (Strict Mode) */
+  choreApproval: boolean;
 }
 
 function getSetting(key: string): string {
@@ -31,6 +33,7 @@ const DEFAULT_NOTIFICATION_TYPES: NotificationTypeSettings = {
   taskDue: true,
   rewardRequest: true,
   achievementUnlocked: true,
+  choreApproval: true,
 };
 
 export function getNotificationTypeSettings(): NotificationTypeSettings {
@@ -42,6 +45,7 @@ export function getNotificationTypeSettings(): NotificationTypeSettings {
       taskDue: parsed.taskDue !== false,
       rewardRequest: parsed.rewardRequest !== false,
       achievementUnlocked: parsed.achievementUnlocked !== false,
+      choreApproval: parsed.choreApproval !== false,
     };
   } catch {
     return DEFAULT_NOTIFICATION_TYPES;

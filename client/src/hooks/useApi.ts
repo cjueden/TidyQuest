@@ -74,10 +74,29 @@ export const api = {
     apiFetch<any>(`/tasks/${id}/duplicate`, { method: 'POST' }),
   resetTask: (id: number) =>
     apiFetch<{ success: boolean; completionsRemoved: number; coinsDeducted: number; lastCompletedAt: string }>(`/tasks/${id}/reset`, { method: 'POST' }),
-  completeTask: (id: number, onBehalfOfUserId?: number) =>
-    apiFetch<{ coinsEarned: number; health: number; pendingApproval?: boolean; newAchievements?: string[] }>(`/tasks/${id}/complete`, {
-      method: 'POST', body: JSON.stringify(onBehalfOfUserId ? { onBehalfOfUserId } : {}),
+  completeTask: (id: number, onBehalfOfUserId?: number, extra: { note?: string } = {}) =>
+    apiFetch<{ coinsEarned: number; health: number; pendingApproval?: boolean; newAchievements?: string[]; completionId?: number }>(`/tasks/${id}/complete`, {
+      method: 'POST', body: JSON.stringify({ ...(onBehalfOfUserId ? { onBehalfOfUserId } : {}), ...extra }),
     }),
+  approveCompletionsBatch: (ids: number[]) =>
+    apiFetch<{ approved: number[]; skipped: Array<{ id: number; error: string }> }>('/completions/approve-batch', { method: 'POST', body: JSON.stringify({ ids }) }),
+  rejectCompletionsBatch: (ids: number[]) =>
+    apiFetch<{ rejected: number[]; skipped: Array<{ id: number; error: string }> }>('/completions/reject-batch', { method: 'POST', body: JSON.stringify({ ids }) }),
+  uploadCompletionPhoto: async (completionId: number, file: File) => {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append('photo', file);
+    const res = await fetch(`${API_BASE}/completions/${completionId}/photo`, {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body: formData,
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(error.error || 'Upload failed');
+    }
+    return res.json() as Promise<{ photoUrl: string }>;
+  },
   getOverdueTasks: () =>
     apiFetch<any[]>('/tasks/overdue'),
 
@@ -160,7 +179,7 @@ export const api = {
       chatId: string;
       hasToken: boolean;
       notificationTime: string;
-      notificationTypes: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean };
+      notificationTypes: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean };
       ntfyEnabled: boolean;
       ntfyServerUrl: string;
       ntfyTopic: string;
@@ -172,7 +191,7 @@ export const api = {
     botToken?: string;
     chatId?: string;
     notificationTime?: string;
-    notificationTypes?: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean };
+    notificationTypes?: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean };
     ntfyEnabled?: boolean;
     ntfyServerUrl?: string;
     ntfyTopic?: string;
@@ -184,7 +203,7 @@ export const api = {
       chatId: string;
       hasToken: boolean;
       notificationTime: string;
-      notificationTypes: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean };
+      notificationTypes: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean };
       ntfyEnabled: boolean;
       ntfyServerUrl: string;
       ntfyTopic: string;
