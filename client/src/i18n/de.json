@@ -300,7 +300,9 @@
       "pendingApproval": "Erledigung gesendet. Warten auf Admin-Freigabe.",
       "doneBy": "Erledigt von {name}",
       "childrenGroup": "Kinder",
-      "tasksSubtitle": "Alle Aufgaben aus allen Räumen"
+      "tasksSubtitle": "Alle Aufgaben aus allen Räumen",
+      "waitingForApproval": "Wartet auf Freigabe",
+      "waitingCount": "{n} warten auf Freigabe"
     },
     "admin": {
       "whoDidThisTask": "Wer hat diese Aufgabe erledigt?",

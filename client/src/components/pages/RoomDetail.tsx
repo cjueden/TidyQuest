@@ -67,6 +67,7 @@ interface Task {
   assignmentMode?: 'first' | 'shared' | 'custom' | 'rotating';
   rotationCurrentUserId?: number | null;
   customCoins?: number | null;
+  myPendingCount?: number;
   allowEarlyCompletion?: boolean;
   sharedCompletions?: Array<{ userId: number; displayName: string; completionId: number }>;
 }
@@ -286,6 +287,13 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
           return { disabled: true, label: t('app.notAssigned') };
         }
       }
+    }
+
+    // Strict Mode: my earlier tap is still waiting for a parent
+    const pending = task.myPendingCount ?? 0;
+    if (pending > 0 && currentUserRole !== 'admin' && currentUserRole !== 'member') {
+      if (!task.onDemand) return { disabled: true, label: t('app.waitingForApproval') };
+      return { disabled: false, label: `${t('roomDetail.done')} · ⏳ ${pending}` };
     }
 
     // Rotating mode: disabled if it's not the current user's turn

@@ -498,6 +498,17 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
   });
 });
 
+/** Rotating tasks: hand the next turn to the assignee after the one who just finished. */
+function advanceRotation(task: any, completedByUserId: number) {
+  if (task.assignmentMode !== 'rotating') return;
+  const rotationAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ? ORDER BY userId ASC').all(task.id) as { userId: number }[];
+  if (rotationAssignees.length > 1) {
+    const currentIdx = rotationAssignees.findIndex(a => a.userId === (task.rotationCurrentUserId ?? completedByUserId));
+    const nextIdx = (currentIdx + 1) % rotationAssignees.length;
+    db.prepare('UPDATE tasks SET rotationCurrentUserId = ? WHERE id = ?').run(rotationAssignees[nextIdx].userId, task.id);
+  }
+}
+
 // Complete task
 router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as any;
@@ -613,7 +624,10 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   }
 
   const targetUser = db.prepare('SELECT role FROM users WHERE id = ?').get(effectiveUserId) as { role?: string } | undefined;
-  const strictNeedsApproval = isStrictModeEnabled() && targetUser?.role === 'child' && !isAdminOrMember;
+  // requireApproval: integrations such as Home Assistant act for a child with a parent's login, so the
+  // completion must still go through Strict Mode (upstream #142). In-app "who did it?" stays instant.
+  const actingForChild = !!onBehalfOfUserId && req.body.requireApproval === true;
+  const strictNeedsApproval = isStrictModeEnabled() && targetUser?.role === 'child' && (!isAdminOrMember || actingForChild);
 
   if (strictNeedsApproval) {
     db.prepare(
@@ -623,16 +637,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   }
 
   applyApprovedCompletion(task, task.id, effectiveUserId, coins, now, gamificationOn);
-
-  // Advance rotation to next assignee after successful completion
-  if (task.assignmentMode === 'rotating') {
-    const rotationAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ? ORDER BY userId ASC').all(task.id) as { userId: number }[];
-    if (rotationAssignees.length > 1) {
-      const currentIdx = rotationAssignees.findIndex(a => a.userId === (task.rotationCurrentUserId ?? effectiveUserId));
-      const nextIdx = (currentIdx + 1) % rotationAssignees.length;
-      db.prepare('UPDATE tasks SET rotationCurrentUserId = ? WHERE id = ?').run(rotationAssignees[nextIdx].userId, task.id);
-    }
-  }
+  advanceRotation(task, effectiveUserId);
 
   const newAchievements = gamificationOn ? checkAndRecordNewAchievements(effectiveUserId) : [];
   if (newAchievements.length > 0) {
@@ -687,6 +692,8 @@ router.post('/completions/:completionId/approve', (req: AuthRequest, res: Respon
     approvedByUserId: req.userId,
     approvedAt: new Date().toISOString(),
   });
+  // The turn moves on once the parent approves (it used to stay stuck under Strict Mode)
+  advanceRotation(task, completion.userId);
   if (gamifOnApprove) void notifyAchievementUnlocksForUser(completion.userId);
 
   res.json({ success: true });

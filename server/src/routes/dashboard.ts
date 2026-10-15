@@ -46,6 +46,12 @@ router.get('/', (req: AuthRequest, res: Response) => {
     sharedCompletionsByTask.get(c.taskId)!.push({ userId: c.userId, displayName: c.displayName });
   }
 
+  // The viewer's own completions still waiting for a parent, per task (Strict Mode)
+  const myPendingByTask = new Map(
+    (db.prepare("SELECT taskId, COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'pending' GROUP BY taskId")
+      .all(req.userId) as { taskId: number; n: number }[]).map((r) => [r.taskId, r.n])
+  );
+
   // Batch-fetch all task assignees
   const allTaskAssignees = db.prepare(
     `SELECT ta.taskId, ta.userId, ta.coinPercentage, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -87,7 +93,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
           coinPercentage: a.coinPercentage ?? 0,
         })),
         assignmentMode: t.assignmentMode || 'first',
-        effectiveAssignedUserIds: taskAssigneesForTask.map((a: any) => a.userId),
+        effectiveAssignedUserIds: effectiveIds,
+        myPendingCount: myPendingByTask.get(t.id) || 0,
         sharedCompletions: sharedCompletionsByTask.get(t.id) || [],
         completedTodayBy: completedTodayByTask.get(t.id) || null,
         health,

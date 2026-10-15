@@ -300,7 +300,9 @@
       "pendingApproval": "Tarea enviada. Esperando aprobación del admin.",
       "doneBy": "Hecho por {name}",
       "childrenGroup": "Niños",
-      "tasksSubtitle": "Todas las tareas de todas las habitaciones"
+      "tasksSubtitle": "Todas las tareas de todas las habitaciones",
+      "waitingForApproval": "Esperando aprobación",
+      "waitingCount": "{n} esperando aprobación"
     },
     "admin": {
       "whoDidThisTask": "¿Quién completó esta tarea?",

@@ -300,7 +300,9 @@
       "pendingApproval": "Completion submitted. Waiting for admin approval.",
       "doneBy": "Done by {name}",
       "childrenGroup": "Children",
-      "tasksSubtitle": "Every task in every room"
+      "tasksSubtitle": "Every task in every room",
+      "waitingForApproval": "Waiting for approval",
+      "waitingCount": "{n} waiting for approval"
     },
     "admin": {
       "whoDidThisTask": "Who completed this task?",

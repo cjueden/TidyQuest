@@ -300,7 +300,9 @@
       "pendingApproval": "Ingezonden! Wachten op goedkeuring van papa of mama.",
       "doneBy": "Gedaan door {name}",
       "childrenGroup": "Kinderen",
-      "tasksSubtitle": "Alle klusjes uit alle kamers"
+      "tasksSubtitle": "Alle klusjes uit alle kamers",
+      "waitingForApproval": "Wacht op goedkeuring",
+      "waitingCount": "{n} wachten op goedkeuring"
     },
     "admin": {
       "whoDidThisTask": "Wie heeft dit klusje gedaan?",

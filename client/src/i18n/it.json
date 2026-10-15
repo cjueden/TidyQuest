@@ -300,7 +300,9 @@
       "pendingApproval": "Compito inviato. In attesa di approvazione admin.",
       "doneBy": "Fatto da {name}",
       "childrenGroup": "Bambini",
-      "tasksSubtitle": "Tutti i compiti di tutte le stanze"
+      "tasksSubtitle": "Tutti i compiti di tutte le stanze",
+      "waitingForApproval": "In attesa di approvazione",
+      "waitingCount": "{n} in attesa di approvazione"
     },
     "admin": {
       "whoDidThisTask": "Chi ha completato questo compito?",

@@ -217,7 +217,8 @@ function AppContent() {
         setConfetti(false);
         setTaskErrorMsg(t('app.pendingApproval'));
         setTimeout(() => setTaskErrorMsg(null), 3500);
-        await refreshRooms();
+        // Home and the room page both show "waiting for approval" once they reload
+        await Promise.all([refreshRooms(), loadDashboard()]);
         return;
       }
       if (result.newAchievements && result.newAchievements.length > 0) {
@@ -443,12 +444,13 @@ function AppContent() {
                   await api.updateRoom(roomId, { name });
                   void refreshRooms();
                 }}
+                onRoomsChanged={refreshRooms}
               />
             </>
           } />
 
           <Route path="/rooms/:id" element={
-            <RoomDetailWrapper rooms={rooms} user={user} users={familySettings} coinsByEffort={coinsByEffort} gamificationEnabled={gamificationEnabled} onCompleteTask={handleCompleteTask} onRefresh={() => { refreshRooms(); loadDashboard(); }} onAchievementsUnlocked={setUnlockedAchievements} />
+            <RoomDetailWrapper rooms={rooms} roomsLoaded={roomsLoaded} user={user} users={familySettings} coinsByEffort={coinsByEffort} gamificationEnabled={gamificationEnabled} onCompleteTask={handleCompleteTask} onRefresh={() => { refreshRooms(); loadDashboard(); }} onAchievementsUnlocked={setUnlockedAchievements} />
           } />
 
           <Route path="/tasks" element={
@@ -614,7 +616,7 @@ function AppContent() {
   );
 }
 
-function RoomDetailWrapper({ rooms, user, users, coinsByEffort, gamificationEnabled, onCompleteTask, onRefresh, onAchievementsUnlocked }: { rooms: any[]; user: any; users?: any[]; coinsByEffort: Record<number, number>; gamificationEnabled: boolean; onCompleteTask: (id: number) => void; onRefresh: () => void; onAchievementsUnlocked?: (ids: string[]) => void }) {
+function RoomDetailWrapper({ rooms, roomsLoaded, user, users, coinsByEffort, gamificationEnabled, onCompleteTask, onRefresh, onAchievementsUnlocked }: { rooms: any[]; roomsLoaded: boolean; user: any; users?: any[]; coinsByEffort: Record<number, number>; gamificationEnabled: boolean; onCompleteTask: (id: number) => void; onRefresh: () => void; onAchievementsUnlocked?: (ids: string[]) => void }) {
   const navigate = useNavigate();
   const { t, roomDisplayName } = useTranslation(user?.language || 'en');
   const { id: idParam } = useParams<{ id: string }>();
@@ -623,6 +625,9 @@ function RoomDetailWrapper({ rooms, user, users, coinsByEffort, gamificationEnab
   const id = parseInt(idParam || '0');
   const room = rooms.find((r) => r.id === id);
 
+  if (!room && !roomsLoaded) {
+    return <div style={{ padding: 40, textAlign: 'center', color: '#B0A090', fontWeight: 600 }}>{t('common.loading')}</div>;
+  }
   if (!room) {
     return (
       <div style={{ padding: 40, textAlign: 'center', color: '#B0A090', fontWeight: 600 }}>

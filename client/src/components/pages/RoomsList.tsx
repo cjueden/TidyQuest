@@ -84,9 +84,11 @@ interface RoomsListProps {
   onDeleteRoom: (roomId: number) => Promise<void>;
   onAssignRoom?: (roomId: number, assignedUserId: number | null, force?: boolean) => Promise<void>;
   onRenameRoom?: (roomId: number, name: string) => Promise<void>;
+  /** Reload the rooms after a change made here (e.g. moving a room to another zone) */
+  onRoomsChanged?: () => Promise<void> | void;
 }
 
-export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCreateRoom, onDeleteRoom, onAssignRoom, onRenameRoom }: RoomsListProps) {
+export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCreateRoom, onDeleteRoom, onAssignRoom, onRenameRoom, onRoomsChanged }: RoomsListProps) {
   const { taskName, t, roomName: translateRoomName, roomDisplayName } = useTranslation(language);
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
@@ -404,10 +406,10 @@ export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCre
                             {zoneMenuRoomId === room.id && (
                               <div style={{ position: 'absolute', right: 0, top: '100%', zIndex: 100, background: 'var(--warm-card)', border: '1.5px solid var(--warm-border)', borderRadius: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.14)', minWidth: 150, overflow: 'hidden' }}>
                                 {room.zoneId && (
-                                  <button onClick={async () => { await api.updateRoom(room.id, { zoneId: null }); setZoneMenuRoomId(null); window.location.reload(); }} style={{ width: '100%', textAlign: 'left', padding: '9px 14px', fontSize: 12, fontWeight: 600, color: 'var(--warm-text-muted)', background: 'none', border: 'none', borderBottom: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}>{t('rooms.removeFromZone')}</button>
+                                  <button onClick={async () => { await api.updateRoom(room.id, { zoneId: null }); setZoneMenuRoomId(null); await onRoomsChanged?.(); }} style={{ width: '100%', textAlign: 'left', padding: '9px 14px', fontSize: 12, fontWeight: 600, color: 'var(--warm-text-muted)', background: 'none', border: 'none', borderBottom: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}>{t('rooms.removeFromZone')}</button>
                                 )}
                                 {zones.map(z => (
-                                  <button key={z.id} onClick={async () => { await api.updateRoom(room.id, { zoneId: z.id }); setZoneMenuRoomId(null); window.location.reload(); }} style={{ width: '100%', textAlign: 'left', padding: '9px 14px', fontSize: 12, fontWeight: room.zoneId === z.id ? 800 : 600, color: room.zoneId === z.id ? 'var(--warm-accent)' : 'var(--warm-text)', background: 'none', border: 'none', borderBottom: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}>🏷️ {z.name}</button>
+                                  <button key={z.id} onClick={async () => { await api.updateRoom(room.id, { zoneId: z.id }); setZoneMenuRoomId(null); await onRoomsChanged?.(); }} style={{ width: '100%', textAlign: 'left', padding: '9px 14px', fontSize: 12, fontWeight: room.zoneId === z.id ? 800 : 600, color: room.zoneId === z.id ? 'var(--warm-accent)' : 'var(--warm-text)', background: 'none', border: 'none', borderBottom: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}>🏷️ {z.name}</button>
                                 ))}
                               </div>
                             )}

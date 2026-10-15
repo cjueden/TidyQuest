@@ -47,6 +47,8 @@ interface Quest {
   assignmentMode?: 'first' | 'shared';
   sharedCompletions?: Array<{ userId: number; displayName: string }>;
   completedTodayBy?: { userId: number; displayName: string; avatarColor: string } | null;
+  /** The viewer's own completions of this task still waiting for a parent (Strict Mode) */
+  myPendingCount?: number;
 }
 
 interface CurrentUser {
@@ -373,10 +375,15 @@ const Dashboard: React.FC<DashboardProps> = ({
                   btnLabel = t('app.doneBy').replace('{name}', q.completedTodayBy.displayName);
                 }
               } else if (!isAdminOrMember) {
-                if (q.effectiveAssignedUserId !== null && q.effectiveAssignedUserId !== undefined && q.effectiveAssignedUserId !== currentUser.id) {
+                const ids = q.effectiveAssignedUserIds ?? [];
+                if (ids.length > 0 && !ids.includes(currentUser.id)) {
                   btnDisabled = true;
                   btnLabel = t('app.notAssigned');
                 }
+              }
+              if (!isAdminOrMember && (q.myPendingCount ?? 0) > 0) {
+                btnDisabled = true;
+                btnLabel = t('app.waitingForApproval');
               }
               const handleDone = () => {
                 if (btnDisabled) return;
@@ -418,7 +425,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {(isExpanded('ondemand') ? onDemandTasks : onDemandTasks.slice(0, LIMIT)).map((q) => {
                   const isAdminOrMember = currentUser.role === 'admin' || currentUser.role === 'member';
                   const hasAssignees = (q.effectiveAssignedUserIds && q.effectiveAssignedUserIds.length > 0) || q.assignedToChildren;
+                  const ids = q.effectiveAssignedUserIds ?? [];
+                  const notMine = !isAdminOrMember && ids.length > 0 && !ids.includes(currentUser.id);
+                  const pending = q.myPendingCount ?? 0;
                   const handleDone = () => {
+                    if (notMine) return;
                     if (isAdminOrMember && hasAssignees) setAdminModalQuest(q);
                     else onCompleteTask(q.id);
                   };
@@ -433,9 +444,15 @@ const Dashboard: React.FC<DashboardProps> = ({
                           {roomDisplayName(q.roomName, roomTypeById.get(q.roomId) || '')}
                           {q.lastCompletedAt ? ` \u00B7 ${timeAgo(q.lastCompletedAt)}` : ''}
                         </div>
+                        {pending > 0 && (
+                          <div style={{ fontSize: 11, color: 'var(--warm-accent)', fontWeight: 700, marginTop: 2 }}>
+                            ⏳ {t('app.waitingCount').replace('{n}', String(pending))}
+                          </div>
+                        )}
                       </div>
-                      <button onClick={handleDone} className="tq-btn tq-btn-primary" style={{ padding: '8px 14px', fontSize: 12, backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }}>
-                        <CheckIcon /> {t('roomDetail.done')}
+                      <button onClick={handleDone} disabled={notMine} className={notMine ? 'tq-btn' : 'tq-btn tq-btn-primary'}
+                        style={{ padding: '8px 14px', fontSize: 12, ...(notMine ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
+                        {notMine ? t('app.notAssigned') : <><CheckIcon /> {t('roomDetail.done')}</>}
                       </button>
                     </div>
                   );
