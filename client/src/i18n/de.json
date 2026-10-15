@@ -279,7 +279,8 @@
       "settings": "Einstellungen",
       "profile": "Profil",
       "tagline": "Dein Zuhause aufleveln",
-      "achievements": "Erfolge"
+      "achievements": "Erfolge",
+      "tasks": "Aufgaben"
     },
     "app": {
       "roomsConfigured": "Räume konfiguriert",
@@ -298,7 +299,8 @@
       "notAssigned": "Diese Aufgabe ist dir nicht zugewiesen",
       "pendingApproval": "Erledigung gesendet. Warten auf Admin-Freigabe.",
       "doneBy": "Erledigt von {name}",
-      "childrenGroup": "Kinder"
+      "childrenGroup": "Kinder",
+      "tasksSubtitle": "Alle Aufgaben aus allen Räumen"
     },
     "admin": {
       "whoDidThisTask": "Wer hat diese Aufgabe erledigt?",
@@ -352,7 +354,13 @@
       "statusPending": "Ausstehend",
       "statusApproved": "Freigegeben",
       "statusRejected": "Abgelehnt",
-      "statusCancelled": "Storniert"
+      "statusCancelled": "Storniert",
+      "searchPlaceholder": "Belohnungen suchen…",
+      "canAfford": "Kann ich mir leisten",
+      "sortPriceLow": "Preis: aufsteigend",
+      "sortPriceHigh": "Preis: absteigend",
+      "sortName": "Name A–Z",
+      "noMatches": "Keine passenden Belohnungen."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +406,16 @@
       "previous": "Zurück",
       "next": "Weiter",
       "of": "von",
-      "cancel": "Abschluss rückgängig machen"
+      "cancel": "Abschluss rückgängig machen",
+      "everyone": "Alle",
+      "allRooms": "Alle Räume",
+      "anyTime": "Jederzeit",
+      "today": "Heute",
+      "thisWeek": "Diese Woche",
+      "thisMonth": "Diesen Monat",
+      "searchPlaceholder": "Aufgaben suchen…",
+      "noMatches": "Keine Aktivität passt zu diesen Filtern.",
+      "clearFilters": "Filter zurücksetzen"
     },
     "roomDetail": {
       "name": "Name",
@@ -723,6 +740,34 @@
       "shelf": "Regal",
       "drawer": "Schublade",
       "closet": "Kleiderschrank"
+    },
+    "search": {
+      "button": "Suchen",
+      "placeholder": "Aufgaben, Räume und Belohnungen suchen…",
+      "tasks": "Aufgaben",
+      "rooms": "Räume",
+      "rewards": "Belohnungen",
+      "noResults": "Keine Treffer für „{q}“",
+      "seeAllTasks": "Alle {n} passenden Aufgaben anzeigen",
+      "hint": "Drücke / um von jeder Seite aus zu suchen"
+    },
+    "taskList": {
+      "searchPlaceholder": "Aufgaben, Notizen oder Räume suchen…",
+      "everyone": "Alle",
+      "mine": "Meine",
+      "openToAnyone": "Für alle offen",
+      "allRooms": "Alle Räume",
+      "statusAll": "Jeder Status",
+      "dueNow": "Jetzt fällig",
+      "upcoming": "Demnächst",
+      "sortDue": "Sortieren: Fälligkeit",
+      "sortName": "Sortieren: Name",
+      "sortRoom": "Sortieren: Raum",
+      "sortCoins": "Sortieren: Münzen",
+      "count": "{n} Aufgaben",
+      "countOne": "1 Aufgabe",
+      "clear": "Filter zurücksetzen",
+      "noMatches": "Keine Aufgaben passen zu diesen Filtern."
     }
   }
 }

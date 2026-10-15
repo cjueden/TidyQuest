@@ -279,7 +279,8 @@
       "settings": "Instellingen",
       "profile": "Profiel",
       "tagline": "Maak van je huis een game!",
-      "achievements": "Medailles"
+      "achievements": "Medailles",
+      "tasks": "Klusjes"
     },
     "app": {
       "roomsConfigured": "kamers ingesteld",
@@ -298,7 +299,8 @@
       "notAssigned": "Dit klusje is niet aan jou toegewezen",
       "pendingApproval": "Ingezonden! Wachten op goedkeuring van papa of mama.",
       "doneBy": "Gedaan door {name}",
-      "childrenGroup": "Kinderen"
+      "childrenGroup": "Kinderen",
+      "tasksSubtitle": "Alle klusjes uit alle kamers"
     },
     "admin": {
       "whoDidThisTask": "Wie heeft dit klusje gedaan?",
@@ -352,7 +354,13 @@
       "statusPending": "Wachten op toestemming",
       "statusApproved": "Goedgekeurd! 🎉",
       "statusRejected": "Niet goedgekeurd",
-      "statusCancelled": "Geannuleerd"
+      "statusCancelled": "Geannuleerd",
+      "searchPlaceholder": "Zoek beloningen…",
+      "canAfford": "Kan ik betalen",
+      "sortPriceLow": "Prijs: laag naar hoog",
+      "sortPriceHigh": "Prijs: hoog naar laag",
+      "sortName": "Naam A–Z",
+      "noMatches": "Geen beloningen gevonden."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +406,16 @@
       "previous": "Vorige",
       "next": "Volgende",
       "of": "van",
-      "cancel": "Klusje ongedaan maken"
+      "cancel": "Klusje ongedaan maken",
+      "everyone": "Iedereen",
+      "allRooms": "Alle kamers",
+      "anyTime": "Altijd",
+      "today": "Vandaag",
+      "thisWeek": "Deze week",
+      "thisMonth": "Deze maand",
+      "searchPlaceholder": "Zoek klusjes…",
+      "noMatches": "Geen activiteit voldoet aan deze filters.",
+      "clearFilters": "Filters wissen"
     },
     "roomDetail": {
       "name": "Naam",
@@ -723,6 +740,34 @@
       "shelf": "Plank",
       "drawer": "La",
       "closet": "Kledingkast"
+    },
+    "search": {
+      "button": "Zoeken",
+      "placeholder": "Zoek klusjes, kamers en beloningen…",
+      "tasks": "Klusjes",
+      "rooms": "Kamers",
+      "rewards": "Beloningen",
+      "noResults": "Niets gevonden voor ‘{q}’",
+      "seeAllTasks": "Bekijk alle {n} gevonden klusjes",
+      "hint": "Druk op / om vanaf elke pagina te zoeken"
+    },
+    "taskList": {
+      "searchPlaceholder": "Zoek klusjes, notities of kamers…",
+      "everyone": "Iedereen",
+      "mine": "Mijn klusjes",
+      "openToAnyone": "Voor iedereen open",
+      "allRooms": "Alle kamers",
+      "statusAll": "Elke status",
+      "dueNow": "Nu te doen",
+      "upcoming": "Binnenkort",
+      "sortDue": "Sorteren: vervaldatum",
+      "sortName": "Sorteren: naam",
+      "sortRoom": "Sorteren: kamer",
+      "sortCoins": "Sorteren: munten",
+      "count": "{n} klusjes",
+      "countOne": "1 klusje",
+      "clear": "Filters wissen",
+      "noMatches": "Geen klusjes voldoen aan deze filters."
     }
   }
 }

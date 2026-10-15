@@ -279,7 +279,8 @@
       "settings": "Ajustes",
       "profile": "Perfil",
       "tagline": "Sube de nivel tu casa",
-      "achievements": "Logros"
+      "achievements": "Logros",
+      "tasks": "Tareas"
     },
     "app": {
       "roomsConfigured": "habitaciones configuradas",
@@ -298,7 +299,8 @@
       "notAssigned": "Esta tarea no te está asignada",
       "pendingApproval": "Tarea enviada. Esperando aprobación del admin.",
       "doneBy": "Hecho por {name}",
-      "childrenGroup": "Niños"
+      "childrenGroup": "Niños",
+      "tasksSubtitle": "Todas las tareas de todas las habitaciones"
     },
     "admin": {
       "whoDidThisTask": "¿Quién completó esta tarea?",
@@ -352,7 +354,13 @@
       "statusPending": "Pendiente",
       "statusApproved": "Aprobada",
       "statusRejected": "Rechazada",
-      "statusCancelled": "Cancelada"
+      "statusCancelled": "Cancelada",
+      "searchPlaceholder": "Buscar recompensas…",
+      "canAfford": "Me alcanza",
+      "sortPriceLow": "Precio: de menor a mayor",
+      "sortPriceHigh": "Precio: de mayor a menor",
+      "sortName": "Nombre A–Z",
+      "noMatches": "Ninguna recompensa coincide."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +406,16 @@
       "previous": "Anterior",
       "next": "Siguiente",
       "of": "de",
-      "cancel": "Cancelar compleción"
+      "cancel": "Cancelar compleción",
+      "everyone": "Todos",
+      "allRooms": "Todas las habitaciones",
+      "anyTime": "Cualquier fecha",
+      "today": "Hoy",
+      "thisWeek": "Esta semana",
+      "thisMonth": "Este mes",
+      "searchPlaceholder": "Buscar tareas…",
+      "noMatches": "Ninguna actividad coincide con estos filtros.",
+      "clearFilters": "Borrar filtros"
     },
     "roomDetail": {
       "name": "Nombre",
@@ -723,6 +740,34 @@
       "shelf": "Estante",
       "drawer": "Cajón",
       "closet": "Armario"
+    },
+    "search": {
+      "button": "Buscar",
+      "placeholder": "Buscar tareas, habitaciones y recompensas…",
+      "tasks": "Tareas",
+      "rooms": "Habitaciones",
+      "rewards": "Recompensas",
+      "noResults": "Nada coincide con «{q}»",
+      "seeAllTasks": "Ver las {n} tareas que coinciden",
+      "hint": "Pulsa / para buscar desde cualquier página"
+    },
+    "taskList": {
+      "searchPlaceholder": "Buscar tareas, notas o habitaciones…",
+      "everyone": "Todos",
+      "mine": "Mías",
+      "openToAnyone": "Abiertas a todos",
+      "allRooms": "Todas las habitaciones",
+      "statusAll": "Cualquier estado",
+      "dueNow": "Pendientes ahora",
+      "upcoming": "Próximas",
+      "sortDue": "Ordenar: vencimiento",
+      "sortName": "Ordenar: nombre",
+      "sortRoom": "Ordenar: habitación",
+      "sortCoins": "Ordenar: monedas",
+      "count": "{n} tareas",
+      "countOne": "1 tarea",
+      "clear": "Borrar filtros",
+      "noMatches": "Ninguna tarea coincide con estos filtros."
     }
   }
 }

@@ -1,4 +1,8 @@
+import { useContext } from 'react';
 import { FireIcon, CoinIcon, PointsIcon } from '../icons/UIIcons';
+import { SearchContext } from '../shared/searchContext';
+import { SearchIcon } from '../shared/SearchOverlay';
+import { useTranslation } from '../../hooks/useTranslation';
 import type { User } from '../../hooks/useAuth';
 
 interface PageHeaderProps {
@@ -15,6 +19,8 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, subtitle, user, rightContent, onCoinsClick, onStreakClick, onPointsClick, userPoints, pointsPeriodLabel, gamificationEnabled = true }: PageHeaderProps) {
+  const openSearch = useContext(SearchContext);
+  const { t } = useTranslation(user.language);
   return (
     <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
       <div>
@@ -26,6 +32,22 @@ export function PageHeader({ title, subtitle, user, rightContent, onCoinsClick, 
         </p>
       </div>
       <div className="page-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        {openSearch && (
+          <button
+            onClick={openSearch}
+            aria-label={t('search.button')}
+            title={`${t('search.button')} (/)`}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              backgroundColor: 'var(--warm-accent-light)', borderRadius: 14, padding: '8px 14px',
+              border: '1.5px solid var(--warm-streak-border)', cursor: 'pointer',
+              color: 'var(--warm-streak-text)', fontFamily: 'Nunito', fontSize: 14, fontWeight: 800,
+            }}
+          >
+            <SearchIcon size={17} />
+            <span className="search-button-label">{t('search.button')}</span>
+          </button>
+        )}
         {rightContent}
         {gamificationEnabled && (
         <>

@@ -279,7 +279,8 @@
       "settings": "Paramètres",
       "profile": "Profil",
       "tagline": "Fais évoluer ta maison",
-      "achievements": "Succès"
+      "achievements": "Succès",
+      "tasks": "Tâches"
     },
     "app": {
       "roomsConfigured": "pièces configurées",
@@ -298,7 +299,8 @@
       "notAssigned": "Cette tâche ne t'est pas attribuée",
       "pendingApproval": "Tâche envoyée. En attente d'approbation admin.",
       "doneBy": "Fait par {name}",
-      "childrenGroup": "Enfants"
+      "childrenGroup": "Enfants",
+      "tasksSubtitle": "Toutes les tâches de toutes les pièces"
     },
     "admin": {
       "whoDidThisTask": "Qui a fait cette tâche ?",
@@ -352,7 +354,13 @@
       "statusPending": "En attente",
       "statusApproved": "Approuvée",
       "statusRejected": "Refusée",
-      "statusCancelled": "Annulée"
+      "statusCancelled": "Annulée",
+      "searchPlaceholder": "Rechercher une récompense…",
+      "canAfford": "À ma portée",
+      "sortPriceLow": "Prix croissant",
+      "sortPriceHigh": "Prix décroissant",
+      "sortName": "Nom A–Z",
+      "noMatches": "Aucune récompense ne correspond."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +406,16 @@
       "previous": "Précédent",
       "next": "Suivant",
       "of": "sur",
-      "cancel": "Annuler la complétion"
+      "cancel": "Annuler la complétion",
+      "everyone": "Tout le monde",
+      "allRooms": "Toutes les pièces",
+      "anyTime": "Toutes les dates",
+      "today": "Aujourd'hui",
+      "thisWeek": "Cette semaine",
+      "thisMonth": "Ce mois-ci",
+      "searchPlaceholder": "Rechercher une tâche…",
+      "noMatches": "Aucune activité ne correspond à ces filtres.",
+      "clearFilters": "Effacer les filtres"
     },
     "roomDetail": {
       "name": "Nom",
@@ -723,6 +740,34 @@
       "shelf": "Étagère",
       "drawer": "Tiroir",
       "closet": "Placard"
+    },
+    "search": {
+      "button": "Rechercher",
+      "placeholder": "Rechercher des tâches, pièces et récompenses…",
+      "tasks": "Tâches",
+      "rooms": "Pièces",
+      "rewards": "Récompenses",
+      "noResults": "Aucun résultat pour « {q} »",
+      "seeAllTasks": "Voir les {n} tâches correspondantes",
+      "hint": "Appuyez sur / pour rechercher depuis n'importe quelle page"
+    },
+    "taskList": {
+      "searchPlaceholder": "Rechercher une tâche, une note ou une pièce…",
+      "everyone": "Tout le monde",
+      "mine": "Les miennes",
+      "openToAnyone": "Ouvertes à tous",
+      "allRooms": "Toutes les pièces",
+      "statusAll": "Tous les statuts",
+      "dueNow": "À faire maintenant",
+      "upcoming": "À venir",
+      "sortDue": "Tri : échéance",
+      "sortName": "Tri : nom",
+      "sortRoom": "Tri : pièce",
+      "sortCoins": "Tri : récompense",
+      "count": "{n} tâches",
+      "countOne": "1 tâche",
+      "clear": "Effacer les filtres",
+      "noMatches": "Aucune tâche ne correspond à ces filtres."
     }
   }
 }

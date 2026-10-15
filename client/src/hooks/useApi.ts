@@ -85,7 +85,13 @@ export const api = {
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
 
   // History
-  history: (limit = 20, offset = 0) => apiFetch<any>(`/history?limit=${limit}&offset=${offset}`),
+  history: (limit = 20, offset = 0, filters: { userId?: number; roomId?: number; from?: string; to?: string; q?: string } = {}) => {
+    const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== '') params.set(key, String(value));
+    }
+    return apiFetch<any>(`/history?${params}`);
+  },
 
   // Users
   getUsers: () => apiFetch<any[]>('/users'),

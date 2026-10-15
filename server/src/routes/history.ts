@@ -9,6 +9,21 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
   const offset = parseInt(req.query.offset as string) || 0;
 
+  // Optional filters: userId, roomId, from/to (ISO timestamps, to is exclusive), q (task name)
+  const filterUserId = parseInt(req.query.userId as string) || null;
+  const filterRoomId = parseInt(req.query.roomId as string) || null;
+  const isIso = (v: unknown) => typeof v === 'string' && !Number.isNaN(new Date(v).getTime());
+  const from = isIso(req.query.from) ? new Date(req.query.from as string).toISOString() : null;
+  const to = isIso(req.query.to) ? new Date(req.query.to as string).toISOString() : null;
+  const q = typeof req.query.q === 'string' ? req.query.q.trim().slice(0, 100) : '';
+
+  const where: string[] = ["tc.status = 'approved'"];
+  const params: (string | number)[] = [];
+  if (filterRoomId) { where.push('t.roomId = ?'); params.push(filterRoomId); }
+  if (from) { where.push('tc.completedAt >= ?'); params.push(from); }
+  if (to) { where.push('tc.completedAt < ?'); params.push(to); }
+  if (q) { where.push("t.name LIKE ? ESCAPE '\\'"); params.push(`%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`); }
+
   const rawHistory = db.prepare(`
     SELECT tc.id, tc.completedAt, tc.coinsEarned, tc.taskId,
            t.name as taskName, t.translationKey, t.roomId, t.assignmentMode,
@@ -18,9 +33,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
     JOIN tasks t ON tc.taskId = t.id
     JOIN rooms r ON t.roomId = r.id
     JOIN users u ON tc.userId = u.id
-    WHERE tc.status = 'approved'
+    WHERE ${where.join(' AND ')}
     ORDER BY tc.completedAt DESC
-  `).all() as any[];
+  `).all(...params) as any[];
 
   // Group shared-mode completions by (taskId, date) into a single entry with all participants
   const grouped: any[] = [];
@@ -52,8 +67,13 @@ router.get('/', (req: AuthRequest, res: Response) => {
     }
   }
 
-  const total = grouped.length;
-  const history = grouped.slice(offset, offset + limit);
+  // Person filter runs after grouping so a shared completion still shows all its participants
+  const filtered = filterUserId
+    ? grouped.filter((h) => h.userId === filterUserId || h.participants?.some((p: any) => p.id === filterUserId))
+    : grouped;
+
+  const total = filtered.length;
+  const history = filtered.slice(offset, offset + limit);
 
   res.json({ history, total, limit, offset });
 });

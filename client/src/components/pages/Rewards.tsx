@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { CoinIcon } from '../icons/UIIcons';
+import { matchesQuery } from '../../utils/tasks';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface Reward {
@@ -45,6 +47,11 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
   const [spendFx, setSpendFx] = useState<{ amount: number; key: number } | null>(null);
   const [refundFx, setRefundFx] = useState<{ amount: number; key: number } | null>(null);
   const previousStatuses = useRef<Record<number, string>>({});
+  const [searchParams] = useSearchParams();
+  // Search opens this page with ?q=<reward title> to show that reward
+  const [query, setQuery] = useState(() => searchParams.get('q') || '');
+  const [affordableOnly, setAffordableOnly] = useState(false);
+  const [sort, setSort] = useState<'priceLow' | 'priceHigh' | 'name'>('priceLow');
 
   const pendingReward = useMemo(() => rewards.find((r) => r.id === pendingRewardId) || null, [pendingRewardId, rewards]);
 
@@ -74,6 +81,12 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
     if (k) return t(`rewardsPreset.${k}.desc`);
     return r.description || t('rewards.noDescription');
   };
+
+  const visibleRewards = rewards
+    .filter((r) => (!affordableOnly || userCoins >= r.costCoins) && matchesQuery(query, [rewardTitle(r), rewardDesc(r)]))
+    .sort((a, b) => sort === 'name'
+      ? rewardTitle(a).localeCompare(rewardTitle(b))
+      : (sort === 'priceHigh' ? b.costCoins - a.costCoins : a.costCoins - b.costCoins));
 
   const confirmRedeem = async () => {
     if (!pendingReward) return;
@@ -168,8 +181,33 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
 
       <div className="tq-card rewards-catalog-card tq-card-padded">
         <h3 className="tq-card-title">{t('rewards.catalog')}</h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12, alignItems: 'center' }}>
+          <input
+            type="search"
+            className="tq-input"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('rewards.searchPlaceholder')}
+            aria-label={t('rewards.searchPlaceholder')}
+            style={{ flex: '2 1 220px', minWidth: 0 }}
+          />
+          <select className="tq-input-compact" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}
+            style={{ flex: '1 1 150px', padding: '8px 10px', fontSize: 13, cursor: 'pointer', minWidth: 0 }}>
+            <option value="priceLow">{t('rewards.sortPriceLow')}</option>
+            <option value="priceHigh">{t('rewards.sortPriceHigh')}</option>
+            <option value="name">{t('rewards.sortName')}</option>
+          </select>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: 'var(--warm-text-muted)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <input type="checkbox" checked={affordableOnly} onChange={(e) => setAffordableOnly(e.target.checked)}
+              style={{ width: 16, height: 16, accentColor: 'var(--warm-accent)', cursor: 'pointer' }} />
+            {t('rewards.canAfford')}
+          </label>
+        </div>
+        {visibleRewards.length === 0 && (
+          <div className="tq-empty-state" style={{ padding: '16px 4px' }}>{t('rewards.noMatches')}</div>
+        )}
         <div className="rewards-catalog-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10 }}>
-          {rewards.map((r) => {
+          {visibleRewards.map((r) => {
             const canBuy = userCoins >= r.costCoins;
             return (
               <div key={r.id} style={{ border: '1.5px solid var(--warm-border)', borderRadius: 14, padding: 12, backgroundColor: 'var(--warm-bg-subtle)' }}>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HealthBar } from '../shared/HealthBar';
 import { RingGauge } from '../shared/RingGauge';
 import { EffortDots } from '../shared/EffortDots';
@@ -6,6 +6,7 @@ import { getRoomIcon } from '../icons/RoomIcons';
 import { TaskIcon, TASK_ICON_OPTIONS } from '../icons/TaskIcons';
 import { CheckIcon, BackIcon, PlusIcon, CoinIcon } from '../icons/UIIcons';
 import { getRoomHealth } from '../../utils/health';
+import { getNextDueDate, formatNextDue } from '../../utils/tasks';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
@@ -41,47 +42,6 @@ function healthColor(value: number): string {
   if (value >= 70) return 'var(--health-green)';
   if (value >= 40) return 'var(--health-yellow)';
   return 'var(--health-red)';
-}
-
-function getNextDueDate(lastCompletedAt: string | null, frequencyDays: number): Date {
-  if (!lastCompletedAt) return new Date();
-  const last = new Date(lastCompletedAt);
-  return new Date(last.getTime() + frequencyDays * 24 * 60 * 60 * 1000);
-}
-
-function formatNextDue(lastCompletedAt: string | null, frequencyDays: number, t: (k: string) => string, language?: string, health?: number): { text: string; color: string } {
-  const nextDue = getNextDueDate(lastCompletedAt, frequencyDays);
-  const now = new Date();
-
-  // Time-based countdown for tasks due within the next 24 hours
-  const diffMs = nextDue.getTime() - now.getTime();
-  // Only show overdue when health is truly 0 (aligns with server-side calculation)
-  if (diffMs < 0 && (health === undefined || health <= 0)) return { text: t('roomDetail.overdue'), color: 'var(--health-red)' };
-  if (diffMs < 0) return { text: t('roomDetail.inMinutes').replace('{m}', '1'), color: 'var(--health-yellow)' };
-
-  const diffMinutes = Math.ceil(diffMs / (60 * 1000));
-  const diffHours = Math.floor(diffMs / (60 * 60 * 1000));
-  const remainingMinutes = Math.floor((diffMs % (60 * 60 * 1000)) / (60 * 1000));
-
-  if (diffMinutes < 60) {
-    return { text: t('roomDetail.inMinutes').replace('{m}', `${Math.max(1, diffMinutes)}`), color: 'var(--health-yellow)' };
-  }
-  if (diffHours < 24) {
-    const text = remainingMinutes > 0
-      ? t('roomDetail.inHoursMinutes').replace('{h}', `${diffHours}`).replace('{m}', `${remainingMinutes}`)
-      : t('roomDetail.inHours').replace('{h}', `${diffHours}`);
-    return { text, color: 'var(--health-yellow)' };
-  }
-
-  // Day-based display for tasks due further out
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const dueStart = new Date(nextDue.getFullYear(), nextDue.getMonth(), nextDue.getDate());
-  const diffDays = Math.round((dueStart.getTime() - todayStart.getTime()) / (24 * 60 * 60 * 1000));
-  if (diffDays <= 1) return { text: t('roomDetail.tomorrow'), color: 'var(--health-yellow)' };
-  const localeMap: Record<string, string> = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT' };
-  const locale = localeMap[language || 'en'] || 'en-US';
-  const text = nextDue.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-  return { text, color: diffDays <= 7 ? 'var(--health-yellow)' : 'var(--health-green)' };
 }
 
 type SortKey = 'name' | 'health' | 'effort' | 'frequency' | 'coins' | 'assigned' | 'dueDate';
@@ -127,6 +87,8 @@ interface RoomDetailProps {
   onBack: () => void;
   onRefresh?: () => void;
   onAchievementsUnlocked?: (ids: string[]) => void;
+  /** Task to scroll to and briefly highlight (from search or the task list) */
+  focusTaskId?: number;
 }
 
 function FrequencyPicker({ value, unit, onChange, t }: {
@@ -172,7 +134,7 @@ function EffortPicker({ effort, onChange }: { effort: number; onChange: (e: numb
   );
 }
 
-export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onAchievementsUnlocked }: RoomDetailProps) {
+export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onAchievementsUnlocked, focusTaskId }: RoomDetailProps) {
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const [editingTask, setEditingTask] = useState<number | null>(null);
@@ -197,6 +159,19 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const [newTaskShowInDashboard, setNewTaskShowInDashboard] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>('health');
   const [sortAsc, setSortAsc] = useState(true);
+  const focusedOnce = useRef<number | null>(null);
+
+  // Opened from search or the task list: bring that task into view and flash it once
+  useEffect(() => {
+    if (!focusTaskId || focusedOnce.current === focusTaskId) return;
+    const el = document.querySelector(`[data-task-id="${focusTaskId}"]`);
+    if (!el) return;
+    focusedOnce.current = focusTaskId;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('task-focus-flash');
+    const timer = setTimeout(() => el.classList.remove('task-focus-flash'), 2500);
+    return () => { clearTimeout(timer); el.classList.remove('task-focus-flash'); };
+  }, [focusTaskId, room.tasks.length]);
 
   const [adminModalTask, setAdminModalTask] = useState<Task | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -475,7 +450,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
         </div>
 
         {sortedTasks.map((task) => (
-          <div key={task.id}>
+          <div key={task.id} data-task-id={task.id}>
             {editingTask === task.id ? (
               <div style={{
                 padding: '16px 8px', borderBottom: '1px solid var(--warm-border-subtle)',

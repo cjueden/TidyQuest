@@ -263,7 +263,7 @@
       "ntfyDisabledHint": "Enable ntfy to configure push notifications.",
       "ntfyTestSent": "ntfy test notification sent.",
       "ntfyTestFailed": "Failed to send ntfy test notification.",
-"pendingValidations": "Pending Task Validations",
+      "pendingValidations": "Pending Task Validations",
       "pendingValidationsDesc": "Approve or reject tasks completed by children while Strict Mode is enabled.",
       "approve": "Approve",
       "reject": "Reject",
@@ -279,7 +279,8 @@
       "settings": "Settings",
       "profile": "Profile",
       "tagline": "Level up your home",
-      "achievements": "Achievements"
+      "achievements": "Achievements",
+      "tasks": "Tasks"
     },
     "app": {
       "roomsConfigured": "rooms configured",
@@ -298,7 +299,8 @@
       "notAssigned": "This task is not assigned to you",
       "pendingApproval": "Completion submitted. Waiting for admin approval.",
       "doneBy": "Done by {name}",
-      "childrenGroup": "Children"
+      "childrenGroup": "Children",
+      "tasksSubtitle": "Every task in every room"
     },
     "admin": {
       "whoDidThisTask": "Who completed this task?",
@@ -352,7 +354,13 @@
       "statusPending": "Pending",
       "statusApproved": "Approved",
       "statusRejected": "Rejected",
-      "statusCancelled": "Cancelled"
+      "statusCancelled": "Cancelled",
+      "searchPlaceholder": "Search rewards…",
+      "canAfford": "I can afford",
+      "sortPriceLow": "Price: low to high",
+      "sortPriceHigh": "Price: high to low",
+      "sortName": "Name A–Z",
+      "noMatches": "No rewards match."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +406,16 @@
       "previous": "Previous",
       "next": "Next",
       "of": "of",
-      "cancel": "Cancel completion"
+      "cancel": "Cancel completion",
+      "everyone": "Everyone",
+      "allRooms": "All rooms",
+      "anyTime": "Any time",
+      "today": "Today",
+      "thisWeek": "This week",
+      "thisMonth": "This month",
+      "searchPlaceholder": "Search tasks…",
+      "noMatches": "No activity matches these filters.",
+      "clearFilters": "Clear filters"
     },
     "roomDetail": {
       "name": "Name",
@@ -723,6 +740,34 @@
       "shelf": "Shelf",
       "drawer": "Drawer",
       "closet": "Closet"
+    },
+    "search": {
+      "button": "Search",
+      "placeholder": "Search tasks, rooms and rewards…",
+      "tasks": "Tasks",
+      "rooms": "Rooms",
+      "rewards": "Rewards",
+      "noResults": "Nothing matches “{q}”",
+      "seeAllTasks": "See all {n} matching tasks",
+      "hint": "Press / to search from any page"
+    },
+    "taskList": {
+      "searchPlaceholder": "Search tasks, notes or rooms…",
+      "everyone": "Everyone",
+      "mine": "Mine",
+      "openToAnyone": "Open to anyone",
+      "allRooms": "All rooms",
+      "statusAll": "Any status",
+      "dueNow": "Due now",
+      "upcoming": "Upcoming",
+      "sortDue": "Sort: due date",
+      "sortName": "Sort: name",
+      "sortRoom": "Sort: room",
+      "sortCoins": "Sort: coins",
+      "count": "{n} tasks",
+      "countOne": "1 task",
+      "clear": "Clear filters",
+      "noMatches": "No tasks match these filters."
     }
   }
 }

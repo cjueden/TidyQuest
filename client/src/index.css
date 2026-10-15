@@ -887,3 +887,14 @@ html[data-theme='night'] option {
     display: none !important;
   }
 }
+
+/* Task opened from search or the task list (RoomDetail adds this briefly) */
+[data-task-id] {
+  border-radius: 12px;
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.task-focus-flash {
+  box-shadow: 0 0 0 2px var(--warm-accent);
+  background-color: var(--warm-accent-light);
+}

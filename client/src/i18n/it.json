@@ -279,7 +279,8 @@
       "settings": "Impostazioni",
       "profile": "Profilo",
       "tagline": "Porta la tua casa al livello successivo",
-      "achievements": "Obiettivi"
+      "achievements": "Obiettivi",
+      "tasks": "Compiti"
     },
     "app": {
       "roomsConfigured": "stanze configurate",
@@ -298,7 +299,8 @@
       "notAssigned": "Questo compito non ti è assegnato",
       "pendingApproval": "Compito inviato. In attesa di approvazione admin.",
       "doneBy": "Fatto da {name}",
-      "childrenGroup": "Bambini"
+      "childrenGroup": "Bambini",
+      "tasksSubtitle": "Tutti i compiti di tutte le stanze"
     },
     "admin": {
       "whoDidThisTask": "Chi ha completato questo compito?",
@@ -352,7 +354,13 @@
       "statusPending": "In attesa",
       "statusApproved": "Approvata",
       "statusRejected": "Rifiutata",
-      "statusCancelled": "Annullata"
+      "statusCancelled": "Annullata",
+      "searchPlaceholder": "Cerca ricompense…",
+      "canAfford": "Posso permettermelo",
+      "sortPriceLow": "Prezzo: crescente",
+      "sortPriceHigh": "Prezzo: decrescente",
+      "sortName": "Nome A–Z",
+      "noMatches": "Nessuna ricompensa corrisponde."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +406,16 @@
       "previous": "Precedente",
       "next": "Successivo",
       "of": "di",
-      "cancel": "Annulla completamento"
+      "cancel": "Annulla completamento",
+      "everyone": "Tutti",
+      "allRooms": "Tutte le stanze",
+      "anyTime": "Qualsiasi data",
+      "today": "Oggi",
+      "thisWeek": "Questa settimana",
+      "thisMonth": "Questo mese",
+      "searchPlaceholder": "Cerca compiti…",
+      "noMatches": "Nessuna attività corrisponde a questi filtri.",
+      "clearFilters": "Azzera filtri"
     },
     "roomDetail": {
       "name": "Nome",
@@ -723,6 +740,34 @@
       "shelf": "Scaffale",
       "drawer": "Cassetto",
       "closet": "Armadio"
+    },
+    "search": {
+      "button": "Cerca",
+      "placeholder": "Cerca compiti, stanze e ricompense…",
+      "tasks": "Compiti",
+      "rooms": "Stanze",
+      "rewards": "Ricompense",
+      "noResults": "Nessun risultato per «{q}»",
+      "seeAllTasks": "Vedi tutti i {n} compiti trovati",
+      "hint": "Premi / per cercare da qualsiasi pagina"
+    },
+    "taskList": {
+      "searchPlaceholder": "Cerca compiti, note o stanze…",
+      "everyone": "Tutti",
+      "mine": "I miei",
+      "openToAnyone": "Aperti a tutti",
+      "allRooms": "Tutte le stanze",
+      "statusAll": "Qualsiasi stato",
+      "dueNow": "Da fare ora",
+      "upcoming": "In arrivo",
+      "sortDue": "Ordina: scadenza",
+      "sortName": "Ordina: nome",
+      "sortRoom": "Ordina: stanza",
+      "sortCoins": "Ordina: monete",
+      "count": "{n} compiti",
+      "countOne": "1 compito",
+      "clear": "Azzera filtri",
+      "noMatches": "Nessun compito corrisponde a questi filtri."
     }
   }
 }

@@ -55,6 +55,18 @@ export function RoomsIcon({ active }: NavIconProps) {
   );
 }
 
+export function TasksIcon({ active }: NavIconProps) {
+  const stroke = active ? "var(--warm-accent)" : "var(--warm-text-light)";
+  return (
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+      <rect x="3" y="3" width="20" height="20" rx="5" fill={active ? "var(--warm-accent)" : "none"} stroke={stroke} strokeWidth="2" />
+      <path d="M7.5 9l1.5 1.5L11.5 8" stroke={active ? "#fff" : stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7.5 16l1.5 1.5L11.5 15" stroke={active ? "#fff" : stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 9.5h4.5M14 16.5h4.5" stroke={active ? "#fff" : stroke} strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function TrophyIcon({ active }: NavIconProps) {
   return (
     <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
