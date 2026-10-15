@@ -71,4 +71,17 @@ describe('Backup export and import', () => {
     await agent.post('/api/import').set(auth(admin.token)).send(backup).expect(200);
     expect(db.prepare('SELECT id FROM zones WHERE id = ?').get(zone)).toBeTruthy();
   });
+
+  it("imports an export from the original app, whose rooms point at zones it doesn't include", async () => {
+    const { admin } = await family();
+    const zone = (await agent.post('/api/zones').set(auth(admin.token)).send({ name: 'Outside' })).body.id as number;
+    const room = (await agent.post('/api/rooms').set(auth(admin.token)).send({ name: 'Yard', roomType: 'other' })).body.id as number;
+    await agent.put(`/api/rooms/${room}`).set(auth(admin.token)).send({ zoneId: zone });
+    const backup = (await agent.get('/api/export').set(auth(admin.token))).body;
+    delete backup.zones;
+    db.prepare('DELETE FROM zones').run();
+    await agent.post('/api/import').set(auth(admin.token)).send(backup).expect(200);
+    expect((db.prepare('SELECT zoneId FROM rooms WHERE id = ?').get(room) as any).zoneId).toBeNull();
+  });
 });
+

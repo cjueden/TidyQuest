@@ -38,7 +38,17 @@ function columnsOf(table: string): ColumnInfo[] {
  */
 function insertRows(table: string, rows: any[], skip: string[] = []) {
   const cols = columnsOf(table).filter((c) => !skip.includes(c.name));
-  for (const row of rows) {
+  // Optional links to rows the backup doesn't contain (e.g. a room's zone, when an older backup has
+  // no zones) are cleared instead of failing the whole import on a foreign key.
+  const optionalLinks = (db.prepare(`PRAGMA foreign_key_list(${table})`).all() as { table: string; from: string; to: string | null }[])
+    .filter((fk) => !cols.find((c) => c.name === fk.from)?.notnull);
+  for (const original of rows) {
+    const row = { ...original };
+    for (const fk of optionalLinks) {
+      if (row[fk.from] == null) continue;
+      const exists = db.prepare(`SELECT 1 FROM ${fk.table} WHERE ${fk.to ?? 'id'} = ?`).get(row[fk.from]);
+      if (!exists) row[fk.from] = null;
+    }
     const present = cols.filter((c) => row[c.name] !== undefined && !(row[c.name] === null && c.notnull && c.dflt_value !== null));
     if (present.length === 0) continue;
     const values = present.map((c) => (typeof row[c.name] === 'boolean' ? (row[c.name] ? 1 : 0) : row[c.name]));
