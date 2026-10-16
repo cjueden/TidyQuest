@@ -25,6 +25,8 @@ import { Rewards } from './components/pages/Rewards';
 import { useTranslation } from './hooks/useTranslation';
 import { localeFor } from './utils/locale';
 import { isTheme, type Theme } from './utils/themes';
+import { activeSeason, useSeasonPreview } from './utils/seasons';
+import { SeasonGreeting, SeasonParticles, SeasonStrip } from './components/shared/SeasonalDecor';
 
 function AppContent() {
   const { user, loading, login, register, logout, refreshUser } = useAuth();
@@ -57,6 +59,10 @@ function AppContent() {
       await refreshUser();
     }
   };
+  // Seasonal styling (utils/seasons.ts): the holiday showing now, or the one a parent is previewing
+  const seasonPreview = useSeasonPreview();
+  const season = activeSeason({ enabled: !!dashboardData && dashboardData.features?.seasonal !== false, off: dashboardData?.holidaysOff ?? [], preview: seasonPreview });
+  const seasonColors = season && user?.holidayColors !== 0 ? season : null;
   const [vacationConfig, setVacationConfig] = useState<{ vacationMode: boolean; vacationStartDate: string | null; vacationEndDate: string | null } | null>(null);
   const vacationUpdatePending = useRef(false);
   const dashboardLoadInFlight = useRef<Promise<void> | null>(null);
@@ -206,6 +212,15 @@ function AppContent() {
   }, [theme]);
 
   useEffect(() => {
+    const html = document.documentElement;
+    const set = (name: string, value: string | null) => (value ? html.setAttribute(name, value) : html.removeAttribute(name));
+    set('data-season', season?.id ?? null);
+    set('data-season-colors', seasonColors?.id ?? null);
+    set('data-season-dark', seasonColors?.dark ? '1' : null);
+    if (season) html.style.setProperty('--season-pattern', season.pattern); else html.style.removeProperty('--season-pattern');
+  }, [season, seasonColors]);
+
+  useEffect(() => {
     document.title = 'TidyQuest';
   }, []);
 
@@ -339,7 +354,8 @@ function AppContent() {
   return (
     <SearchContext.Provider value={openSearch}>
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--warm-bg)' }}>
-      <ConfettiEffect show={confetti} />
+      <ConfettiEffect show={confetti} season={season} />
+      {season && <SeasonParticles season={season} />}
 
       {searchOpen && (
         <SearchOverlay
@@ -417,10 +433,12 @@ function AppContent() {
       />
 
       <main style={{ marginLeft: sidebarCollapsed ? 60 : 240, flex: 1, padding: '28px 36px', maxWidth: 1320, backgroundColor: 'var(--warm-bg)', transition: 'margin-left 0.3s ease' }} className={`main-content${user.kidMode ? ' kid-mode' : ''}`}>
+        {season && <SeasonStrip season={season} previewing={!!seasonPreview} language={user.language} />}
         <Routes>
           <Route path="/" element={
             <>
               <PageHeader title={t('nav.home')} subtitle={today} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
+              {season && <SeasonGreeting season={season} language={user.language} />}
               {dashboardData && (
                 <Dashboard
                   data={dashboardData}

@@ -141,7 +141,9 @@
       "save": "Guardar",
       "saved": "Guardado",
       "logout": "Cerrar sesión",
-      "themeDesc": "Tus colores, en cada dispositivo donde inicies sesión."
+      "themeDesc": "Tus colores, en cada dispositivo donde inicies sesión.",
+      "holidayColors": "Colores de fiesta",
+      "holidayColorsDesc": "En las fiestas, usar sus colores en lugar de tu tema. Las decoraciones se ven igualmente."
     },
     "settings": {
       "title": "Ajustes",
@@ -1261,7 +1263,26 @@
       "levels": "Niveles",
       "levelsDesc": "De Novato a Campeón TidyQuest, según las monedas ganadas.",
       "nextBadge": "Próxima insignia",
-      "nextBadgeDesc": "La insignia más cercana por conseguir, en Inicio y Logros."
+      "nextBadgeDesc": "La insignia más cercana por conseguir, en Inicio y Logros.",
+      "seasonal": "Decoración de temporada",
+      "seasonalDesc": "La app se disfraza en las fiestas: colores, decoraciones y una cuenta atrás en Inicio."
+    },
+    "seasons": {
+      "halloween": "Halloween",
+      "thanksgiving": "Acción de Gracias",
+      "christmas": "Navidad",
+      "halloweenGreeting": "¡Feliz Halloween! 👻",
+      "thanksgivingGreeting": "¡Feliz Día de Acción de Gracias! 🦃",
+      "christmasGreeting": "¡Feliz Navidad! 🎅",
+      "daysUntil": "Faltan {n} días para {name}",
+      "tomorrow": "¡{name} es mañana!",
+      "today": "¡Hoy es {name}!",
+      "after": "¡Esperamos que hayáis pasado un {name} estupendo!",
+      "day": "día",
+      "days": "días",
+      "preview": "Vista previa",
+      "previewing": "Vista previa: {name}",
+      "stop": "Parar"
     }
   }
 }

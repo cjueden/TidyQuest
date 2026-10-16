@@ -17,7 +17,7 @@ router.use(authMiddleware);
 
 export const THEMES = ['orange', 'blue', 'rose', 'mint', 'grape', 'sunny', 'night', 'ocean'];
 
-const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme';
+const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme, holidayColors';
 
 function normalizeNotificationTime(value: string | undefined): string | null {
   if (value === undefined) return null;
@@ -144,7 +144,7 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
     return res.status(403).json({ error: 'Cannot modify another user' });
   }
 
-  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday, theme } = req.body;
+  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday, theme, holidayColors } = req.body;
 
   const updates: string[] = [];
   const values: any[] = [];
@@ -159,6 +159,8 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
     if (theme !== null && theme !== '' && !THEMES.includes(theme)) return res.status(400).json({ error: 'invalid_theme' });
     updates.push('theme = ?'); values.push(theme || null);
   }
+  // Holiday colors over the theme during seasonal styling (on by default)
+  if (holidayColors !== undefined) { updates.push('holidayColors = ?'); values.push(holidayColors ? 1 : 0); }
   // Birthday as 'MM-DD' (empty clears it)
   if (birthday !== undefined) {
     const b = typeof birthday === 'string' ? birthday.trim() : '';

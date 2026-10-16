@@ -2,13 +2,13 @@ import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
-import { FEATURES, getFeatures, rescueMultiplier } from '../utils/features';
+import { FEATURES, HOLIDAYS, getFeatures, holidaysOff, rescueMultiplier } from '../utils/features';
 
 /** Settings → Features: switch optional extras on or off for the whole family. */
 const router = Router();
 router.use(authMiddleware);
 
-const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier() });
+const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier(), holidaysOff: holidaysOff() });
 
 router.get('/', (_req: AuthRequest, res: Response) => res.json(view()));
 
@@ -26,6 +26,12 @@ router.put('/', (req: AuthRequest, res: Response) => {
     const m = Number(req.body.rescueMultiplier);
     if (!(m >= 1.5 && m <= 5)) return res.status(400).json({ error: 'invalid_multiplier' });
     db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('rescueMultiplier', ?)").run(String(m));
+  }
+  // Seasonal styling: holidays switched off one by one
+  const hOff = req.body?.holidaysOff;
+  if (hOff !== undefined) {
+    if (!Array.isArray(hOff) || hOff.some((h) => !(HOLIDAYS as readonly string[]).includes(h))) return res.status(400).json({ error: 'invalid_holiday' });
+    db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('holidaysOff', ?)").run(JSON.stringify([...new Set(hOff)]));
   }
   res.json(view());
 });

@@ -25,7 +25,7 @@ describe('Settings → Features', () => {
     // The test setup starts with the Rescue Mission off; turn it on at 3×
     expect((await agent.put('/api/features').set(auth(kid.token)).send({ features: { rescue: true } })).status).toBe(403);
     const on = (await agent.put('/api/features').set(auth(admin.token)).send({ features: { rescue: true }, rescueMultiplier: 3 })).body;
-    expect(on).toEqual({ features: { rescue: true, usual: true, forgot: true, todos: true, boardAwards: true, levels: true, nextBadge: true }, rescueMultiplier: 3 });
+    expect(on).toEqual({ features: { rescue: true, usual: true, forgot: true, todos: true, boardAwards: true, levels: true, nextBadge: true, seasonal: true }, rescueMultiplier: 3, holidaysOff: [] });
     expect((await agent.get('/api/features').set(auth(kid.token))).body.rescueMultiplier).toBe(3);
     let d = (await agent.get('/api/dashboard').set(auth(kid.token))).body;
     expect(d.rescueMission).toMatchObject({ taskId: chore, multiplier: 3 });
@@ -43,5 +43,25 @@ describe('Settings → Features', () => {
     expect([board.awardsEnabled, board.awards, board.trophies.weeks]).toEqual([false, [], []]);
     const ach = (await agent.get('/api/achievements').set(auth(kid.token))).body.me;
     expect([ach.level, ach.nextBadge]).toEqual([null, null]);
+  });
+
+  it('switches seasonal styling and single holidays off, and lets each person keep their own colors', async () => {
+    const admin = await createAdmin(agent);
+    const kid = await createUser(agent, admin.token, { username: 'kid', displayName: 'Kid', password: 'pass123', role: 'child' });
+    let d = (await agent.get('/api/dashboard').set(auth(kid.token))).body;
+    expect([d.features.seasonal, d.holidaysOff]).toEqual([true, []]);
+
+    expect((await agent.put('/api/features').set(auth(kid.token)).send({ holidaysOff: ['halloween'] })).status).toBe(403);
+    expect((await agent.put('/api/features').set(auth(admin.token)).send({ holidaysOff: ['groundhog'] })).body.error).toBe('invalid_holiday');
+    const v = (await agent.put('/api/features').set(auth(admin.token)).send({ holidaysOff: ['christmas', 'christmas'] })).body;
+    expect(v.holidaysOff).toEqual(['christmas']);
+    await agent.put('/api/features').set(auth(admin.token)).send({ features: { seasonal: false } }).expect(200);
+    d = (await agent.get('/api/dashboard').set(auth(kid.token))).body;
+    expect([d.features.seasonal, d.holidaysOff]).toEqual([false, ['christmas']]);
+
+    // Holiday colors are on by default; a kid can keep their own theme instead
+    expect((await agent.get('/api/auth/me').set(auth(kid.token))).body.holidayColors).toBe(1);
+    const me = (await agent.put(`/api/users/${kid.user.id}/profile`).set(auth(kid.token)).send({ holidayColors: false })).body;
+    expect(me.holidayColors).toBe(0);
   });
 });

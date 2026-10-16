@@ -186,6 +186,8 @@ const NEW_COLUMNS: string[] = [
   // Reward categories (free text) and the parents' manual order ("Featured"; 0 = not placed yet)
   `ALTER TABLE rewards ADD COLUMN category TEXT`,
   `ALTER TABLE rewards ADD COLUMN sortOrder INTEGER NOT NULL DEFAULT 0`,
+  // Seasonal styling: 0 = keep your own theme's colors during holidays (decorations still show)
+  `ALTER TABLE users ADD COLUMN holidayColors INTEGER NOT NULL DEFAULT 1`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

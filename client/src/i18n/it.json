@@ -141,7 +141,9 @@
       "save": "Salva",
       "saved": "Salvato",
       "logout": "Esci",
-      "themeDesc": "I tuoi colori, su ogni dispositivo dove accedi."
+      "themeDesc": "I tuoi colori, su ogni dispositivo dove accedi.",
+      "holidayColors": "Colori delle feste",
+      "holidayColorsDesc": "Durante le feste, usa i loro colori al posto del tuo tema. Le decorazioni si vedono comunque."
     },
     "settings": {
       "title": "Impostazioni",
@@ -1261,7 +1263,26 @@
       "levels": "Livelli",
       "levelsDesc": "Da Principiante a Campione TidyQuest, in base alle monete.",
       "nextBadge": "Prossimo distintivo",
-      "nextBadgeDesc": "Il distintivo più vicino da ottenere, in Home e Traguardi."
+      "nextBadgeDesc": "Il distintivo più vicino da ottenere, in Home e Traguardi.",
+      "seasonal": "Stile delle feste",
+      "seasonalDesc": "L'app si veste a festa: colori, decorazioni e un conto alla rovescia nella Home."
+    },
+    "seasons": {
+      "halloween": "Halloween",
+      "thanksgiving": "Thanksgiving",
+      "christmas": "Natale",
+      "halloweenGreeting": "Buon Halloween! 👻",
+      "thanksgivingGreeting": "Buon Thanksgiving! 🦃",
+      "christmasGreeting": "Buon Natale! 🎅",
+      "daysUntil": "Mancano {n} giorni a {name}",
+      "tomorrow": "{name} è domani!",
+      "today": "Oggi è {name}!",
+      "after": "Speriamo che abbiate passato un bellissimo {name}!",
+      "day": "giorno",
+      "days": "giorni",
+      "preview": "Anteprima",
+      "previewing": "Anteprima: {name}",
+      "stop": "Ferma"
     }
   }
 }
