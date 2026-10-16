@@ -97,6 +97,36 @@ export interface TaskBatchChanges {
   frequencyDays?: number;
 }
 
+export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder';
+
+export interface NotifySettings {
+  morningTime: string;
+  eveningTime: string;
+  recapDay: number;
+  recapTime: string;
+  quietStart: string;
+  quietEnd: string;
+  schoolHoursEnabled: boolean;
+  schoolStart: string;
+  schoolEnd: string;
+  haUrl: string;
+  hasHaToken: boolean;
+  haFamilyService: string;
+}
+
+export interface NotifyPerson {
+  id: number;
+  displayName: string;
+  role: string;
+  language: string;
+  ntfyTopic: string;
+  telegramChatId: string;
+  haNotifyService: string;
+  prefs: Record<NotifyKind, boolean>;
+  /** Their own channels that are set up */
+  channels: string[];
+}
+
 export interface CustomBadge {
   id: number;
   title: string;
@@ -259,6 +289,15 @@ export const api = {
 
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
+  // Notifications to people (Settings → Notifications)
+  getNotifySettings: () => apiFetch<NotifySettings>('/notify/settings'),
+  updateNotifySettings: (data: Partial<NotifySettings> & { haToken?: string }) => apiFetch<NotifySettings>('/notify/settings', { method: 'PUT', body: JSON.stringify(data) }),
+  getNotifyPeople: () => apiFetch<NotifyPerson[]>('/notify/people'),
+  getNotifyPerson: (id: number) => apiFetch<NotifyPerson>(`/notify/people/${id}`),
+  updateNotifyPerson: (id: number, data: { ntfyTopic?: string; telegramChatId?: string; haNotifyService?: string; prefs?: Partial<Record<NotifyKind, boolean>> }) =>
+    apiFetch<NotifyPerson>(`/notify/people/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  testNotifyPerson: (id: number) => apiFetch<{ results: Array<{ channel: string; ok: boolean; error?: string }> }>(`/notify/people/${id}/test`, { method: 'POST' }),
+  getNotifyLog: () => apiFetch<Array<{ id: number; sentAt: string; userId: number | null; displayName: string | null; channel: string; kind: string; message: string; ok: number; error: string | null }>>('/notify/log'),
   // Badges parents make (Settings → Badges)
   getCustomBadges: () => apiFetch<{ badges: Array<CustomBadge & { earnedBy: number }>; builtinBonusCoins: number }>('/achievements/custom'),
   createCustomBadge: (data: CustomBadgeInput) => apiFetch<CustomBadge>('/achievements/custom', { method: 'POST', body: JSON.stringify(data) }),

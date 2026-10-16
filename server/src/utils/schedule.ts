@@ -167,7 +167,7 @@ export function scheduleFields(task: ScheduledTask & Parameters<typeof rotationT
   };
 }
 
-type ScheduleColumn = 'seasonStartMonth' | 'seasonEndMonth' | 'scheduleWeekdays' | 'rotationPeriod';
+type ScheduleColumn = 'seasonStartMonth' | 'seasonEndMonth' | 'scheduleWeekdays' | 'rotationPeriod' | 'reminderTime' | 'reminderDayBefore';
 export type ScheduleInput = { error: string } | { values: Partial<Record<ScheduleColumn, number | string | null>> };
 
 const blank = (v: unknown) => v === undefined || v === null || v === '';
@@ -196,6 +196,13 @@ export function readScheduleInput(body: any): ScheduleInput {
     }
     values.scheduleWeekdays = mask;
   }
+  // A reminder at a set time ('HH:MM', empty = none) on the due day, or the day before
+  if (body && 'reminderTime' in body) {
+    const v = blank(body.reminderTime) ? null : String(body.reminderTime).trim();
+    if (v !== null && !/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) return { error: 'invalid_reminder_time' };
+    values.reminderTime = v;
+  }
+  if (body && 'reminderDayBefore' in body) values.reminderDayBefore = body.reminderDayBefore ? 1 : 0;
   if (body && 'rotationPeriod' in body) {
     const p = blank(body.rotationPeriod) ? 'completion' : body.rotationPeriod;
     if (p !== 'completion' && p !== 'week') return { error: 'invalid_rotation_period' };

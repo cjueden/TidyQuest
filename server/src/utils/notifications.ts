@@ -16,7 +16,17 @@ export interface NotificationTypeSettings {
   choreApproval: boolean;
   /** A double coins event started, or has an hour left */
   coinBoost: boolean;
+  /** To a kid: a chore or reward approved or turned down, coins added or taken away */
+  outcome: boolean;
+  /** Morning "today's chores" for kids, Sunday recap for parents */
+  summary: boolean;
+  /** Evening: what's still undone, a streak about to break, close to the weekly goal */
+  nudge: boolean;
+  /** Per-task reminders at a set time, then again, then to a parent */
+  reminder: boolean;
 }
+
+export const NOTIFICATION_KINDS: Array<keyof NotificationTypeSettings> = ['taskDue', 'rewardRequest', 'achievementUnlocked', 'choreApproval', 'coinBoost', 'outcome', 'summary', 'nudge', 'reminder'];
 
 function getSetting(key: string): string {
   const row = db.prepare('SELECT value FROM app_settings WHERE key = ?').get(key) as { value?: string } | undefined;
@@ -32,26 +42,14 @@ export function getTelegramSettings(): TelegramSettings {
   };
 }
 
-const DEFAULT_NOTIFICATION_TYPES: NotificationTypeSettings = {
-  taskDue: true,
-  rewardRequest: true,
-  achievementUnlocked: true,
-  choreApproval: true,
-  coinBoost: true,
-};
+const DEFAULT_NOTIFICATION_TYPES = Object.fromEntries(NOTIFICATION_KINDS.map((k) => [k, true])) as unknown as NotificationTypeSettings;
 
 export function getNotificationTypeSettings(): NotificationTypeSettings {
   const raw = getSetting('notificationTypes') || getSetting('telegramNotificationTypes');
   if (!raw) return DEFAULT_NOTIFICATION_TYPES;
   try {
     const parsed = JSON.parse(raw) as Partial<NotificationTypeSettings>;
-    return {
-      taskDue: parsed.taskDue !== false,
-      rewardRequest: parsed.rewardRequest !== false,
-      achievementUnlocked: parsed.achievementUnlocked !== false,
-      choreApproval: parsed.choreApproval !== false,
-      coinBoost: parsed.coinBoost !== false,
-    };
+    return Object.fromEntries(NOTIFICATION_KINDS.map((k) => [k, parsed[k] !== false])) as unknown as NotificationTypeSettings;
   } catch {
     return DEFAULT_NOTIFICATION_TYPES;
   }
@@ -224,14 +222,9 @@ export function isAnyProviderEnabled(): boolean {
   return (tg.enabled && !!tg.botToken && !!tg.chatId) || (ntfy.enabled && !!ntfy.topic);
 }
 
-export async function sendDueTaskNotificationsIfNeeded(
-  now: Date = new Date(),
-  sendFn: (message: string) => Promise<boolean> = async (message) => {
-    const r = await sendNotification(message);
-    return (r.telegram ?? false) || (r.ntfy ?? false);
-  },
-): Promise<void> {
-  if (!isAnyProviderEnabled()) return;
+/** "Due today" at the set time, to each task's people (utils/notifyMessages.ts). Once per task per day. */
+export async function sendDueTaskNotificationsIfNeeded(now: Date = new Date()): Promise<void> {
+  if (getSetting('notificationsEnabled') !== '1') return;
   if (!isNotificationTypeEnabled('taskDue')) return;
 
   const currentMinute = `${toLocalIsoDay(now)} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -244,38 +237,15 @@ export async function sendDueTaskNotificationsIfNeeded(
 
   const today = toLocalIsoDay(now);
   const tasks = db.prepare(
-    `SELECT t.id, t.name, t.frequencyDays, t.lastCompletedAt, t.seasonStartMonth, t.seasonEndMonth, t.scheduleWeekdays, r.name as roomName
-     FROM tasks t
-     LEFT JOIN rooms r ON r.id = t.roomId
-     WHERE t.isSeasonal = 0`
-  ).all() as Array<{
-    id: number;
-    name: string;
-    frequencyDays: number;
-    lastCompletedAt: string | null;
-    seasonStartMonth: number | null;
-    seasonEndMonth: number | null;
-    scheduleWeekdays: number | null;
-    roomName: string | null;
-  }>;
-
+    `SELECT t.*, r.name AS roomName FROM tasks t LEFT JOIN rooms r ON r.id = t.roomId WHERE t.isSeasonal = 0 AND t.onDemand = 0`
+  ).all() as any[];
+  // Loaded lazily: notifyMessages imports this module
+  const { notifyTaskDue } = await import('./notifyMessages');
   for (const task of tasks) {
     if (isSeasonalNow(task, now)) continue; // outside its season
-    const dueDate = getDueIsoDay(task, now);
-    if (dueDate !== today) continue;
-
-    const alreadySent = db.prepare(
-      'SELECT id FROM task_due_notifications WHERE taskId = ? AND dueDate = ?'
-    ).get(task.id, today) as { id: number } | undefined;
-    if (alreadySent) continue;
-
-    const sent = await sendFn(
-      `Task due today: "${task.name}"${task.roomName ? ` (${task.roomName})` : ''}.`
-    );
-    if (!sent) continue;
-
-    db.prepare(
-      'INSERT OR IGNORE INTO task_due_notifications (taskId, dueDate) VALUES (?, ?)'
-    ).run(task.id, today);
+    if (getDueIsoDay(task, now) !== today) continue;
+    if (db.prepare('SELECT id FROM task_due_notifications WHERE taskId = ? AND dueDate = ?').get(task.id, today)) continue;
+    db.prepare('INSERT OR IGNORE INTO task_due_notifications (taskId, dueDate) VALUES (?, ?)').run(task.id, today);
+    await notifyTaskDue(task, today);
   }
 }

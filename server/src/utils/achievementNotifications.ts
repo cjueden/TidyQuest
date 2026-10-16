@@ -1,7 +1,6 @@
 import db from '../database';
 import { achievementsFor, badgeInfo } from './achievementStats';
-import { isNotificationTypeEnabled, sendNotification } from './notifications';
-import { tr } from './i18n';
+import { notifyBadge } from './notifyMessages';
 
 /**
  * Synchronously checks which achievements are newly unlocked for a user,
@@ -19,15 +18,6 @@ export function checkAndRecordNewAchievements(userId: number): string[] {
  * Calls checkAndRecordNewAchievements internally.
  */
 export async function notifyAchievementUnlocksForUser(userId: number): Promise<void> {
-  if (!isNotificationTypeEnabled('achievementUnlocked')) {
-    checkAndRecordNewAchievements(userId);
-    return;
-  }
   const newIds = checkAndRecordNewAchievements(userId);
-  if (newIds.length === 0) return;
-  const user = db.prepare('SELECT displayName FROM users WHERE id = ?').get(userId) as { displayName: string } | undefined;
-  const name = user?.displayName || 'User';
-  for (const badge of badgeInfo(userId, newIds)) {
-    await sendNotification(`🏆 ${name} unlocked an achievement: ${badge.titleKey ? tr('en', badge.titleKey) : badge.title ?? badge.id}`);
-  }
+  for (const badge of badgeInfo(userId, newIds)) await notifyBadge(userId, badge);
 }

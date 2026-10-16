@@ -10,6 +10,7 @@ import { TrashAdmin } from '../shared/TrashAdmin';
 import { FamilyGoalAdmin } from '../shared/FamilyGoalAdmin';
 import { BirthdayInput } from '../shared/BirthdayInput';
 import { CustomBadgesAdmin } from '../shared/CustomBadgesAdmin';
+import { NotificationLog, NotifyScheduleAdmin, PeopleNotifyAdmin } from '../shared/NotifyAdmin';
 import { CsvTransfer } from '../shared/CsvTransfer';
 import { UndoToast, type UndoState } from '../shared/UndoToast';
 import { byFeatured, rulesSummary } from '../../utils/rewardRules';
@@ -169,7 +170,7 @@ export function Settings({
   const [notifChatId, setNotifChatId] = useState('');
   const [notifToken, setNotifToken] = useState('');
   const [notifTime, setNotifTime] = useState('09:00');
-  const [notifTypes, setNotifTypes] = useState<{ taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean; coinBoost?: boolean }>({ taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true });
+  const [notifTypes, setNotifTypes] = useState<{ taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean; coinBoost?: boolean; outcome?: boolean; summary?: boolean; nudge?: boolean; reminder?: boolean }>({ taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true, outcome: true, summary: true, nudge: true, reminder: true });
   const [notifHasToken, setNotifHasToken] = useState(false);
   const [notifMsg, setNotifMsg] = useState('');
   const [ntfyEnabled, setNtfyEnabled] = useState(false);
@@ -596,6 +597,12 @@ export function Settings({
                     <input type="checkbox" checked={notifTypes.coinBoost !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, coinBoost: e.target.checked }))} style={{ marginRight: 6 }} />
                     {t('settings.notificationTypeCoinBoost')}
                   </label>
+                  {(['reminder', 'outcome', 'summary', 'nudge'] as const).map((k) => (
+                    <label key={k} style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                      <input type="checkbox" checked={notifTypes[k] !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, [k]: e.target.checked }))} style={{ marginRight: 6 }} />
+                      {t(`notifyAdmin.kind_${k}`)} <span style={{ fontWeight: 600, color: 'var(--warm-text-light)' }}>· {t(`notifyAdmin.kindDesc_${k}`)}</span>
+                    </label>
+                  ))}
                 </div>
 
                 {/* Telegram sub-toggle */}
@@ -879,6 +886,27 @@ export function Settings({
           {pendingCompletions.length === 0 && (
             <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.noPendingValidations')}</div>
           )}
+        </div>
+      )}
+
+      {isAdmin && notifMasterEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">👪 {t('notifyAdmin.peopleTitle')}</h3>
+          <PeopleNotifyAdmin language={user.language} />
+        </div>
+      )}
+
+      {isAdmin && notifMasterEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">⏰ {t('notifyAdmin.timingTitle')}</h3>
+          <NotifyScheduleAdmin language={user.language} />
+        </div>
+      )}
+
+      {isAdmin && notifMasterEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">📜 {t('notifyAdmin.logTitle')}</h3>
+          <NotificationLog language={user.language} />
         </div>
       )}
 

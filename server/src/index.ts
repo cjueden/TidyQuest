@@ -15,6 +15,8 @@ import achievementsRoutes from './routes/achievements';
 import rewardsRoutes from './routes/rewards';
 import { sendDueTaskNotificationsIfNeeded } from './utils/notifications';
 import { sendCoinBoostNotificationsIfNeeded } from './utils/boosts';
+import { runScheduledNotifications } from './utils/notifySchedule';
+import notifyRoutes from './routes/notify';
 import boostsRoutes from './routes/boosts';
 import csvRoutes from './routes/csv';
 import trashRoutes from './routes/trash';
@@ -55,6 +57,7 @@ export function createApp() {
   app.use('/api/boosts', boostsRoutes);
   app.use('/api/csv', csvRoutes);
   app.use('/api/trash', trashRoutes);
+  app.use('/api/notify', notifyRoutes);
 
   // 404 handler for unknown API routes
   app.use('/api/*', (_req, res) => {
@@ -81,9 +84,11 @@ if (require.main === module || !process.env.VITEST) {
     console.log(`TidyQuest server running on http://localhost:${PORT}`);
     void sendDueTaskNotificationsIfNeeded();
     void sendCoinBoostNotificationsIfNeeded();
+    void runScheduledNotifications();
     setInterval(() => {
       void sendDueTaskNotificationsIfNeeded();
       void sendCoinBoostNotificationsIfNeeded();
+      void runScheduledNotifications();
     }, 30000);
   });
 }

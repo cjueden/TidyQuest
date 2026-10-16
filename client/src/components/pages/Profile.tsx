@@ -4,6 +4,7 @@ import { AVATAR_PRESETS, AvatarPresetIcon } from '../icons/AvatarPresets';
 import { GlobeIcon } from '../icons/UIIcons';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
+import { MyNotifications } from '../shared/MyNotifications';
 import type { User } from '../../hooks/useAuth';
 
 const COLORS = [
@@ -282,6 +283,7 @@ export function Profile({ user, onSave, onLogout }: ProfileProps) {
           {t('profile.logout')}
         </button>
       </div>
+      <MyNotifications userId={user.id} language={user.language} />
     </div>
   );
 }
