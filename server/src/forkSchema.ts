@@ -201,6 +201,10 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE coin_boosts ADD COLUMN taskIds TEXT`,
   // A parent's note when approving a chore ("Great job!")
   `ALTER TABLE task_completions ADD COLUMN approvalNote TEXT`,
+  // Unlockables picked by each person: an avatar frame, a celebration style, a title ('level' or 'badge:<id>')
+  `ALTER TABLE users ADD COLUMN avatarFrame TEXT`,
+  `ALTER TABLE users ADD COLUMN celebration TEXT`,
+  `ALTER TABLE users ADD COLUMN title TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

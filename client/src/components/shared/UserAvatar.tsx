@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AvatarPresetIcon } from '../icons/AvatarPresets';
+import { BADGE_FRAME_EMOJI, BADGE_FRAME_RING, FRAME_RINGS, useCosmetic } from '../../utils/unlocks';
 
 interface UserAvatarProps {
   name: string;
@@ -10,7 +11,14 @@ interface UserAvatarProps {
   avatarPhotoUrl?: string | null;
 }
 
-const UserAvatar: React.FC<UserAvatarProps> = ({
+/** The person's unlocked frame (Unlockables): pass userId to use the one they picked, or frame to show one */
+interface FramedAvatarProps extends UserAvatarProps {
+  userId?: number | null;
+  frame?: string | null;
+  frameIcon?: string;
+}
+
+const AvatarCore: React.FC<UserAvatarProps> = ({
   name,
   color,
   size = 38,
@@ -84,6 +92,24 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
     >
       {letter}
     </div>
+  );
+};
+
+const UserAvatar: React.FC<FramedAvatarProps> = ({ userId, frame, frameIcon, ...props }) => {
+  const cosmetic = useCosmetic(userId);
+  const f = frame !== undefined ? frame : cosmetic?.frame ?? null;
+  const icon = frame !== undefined ? frameIcon : cosmetic?.frameIcon;
+  const ring = f ? (f.startsWith('badge:') ? BADGE_FRAME_RING : FRAME_RINGS[f]) : undefined;
+  if (!ring) return <AvatarCore {...props} />;
+  const size = props.size ?? 38;
+  const pad = size >= 60 ? 4 : size >= 30 ? 3 : 2;
+  return (
+    <span style={{ position: 'relative', display: 'inline-flex', padding: pad, borderRadius: '50%', background: ring, flexShrink: 0 }}>
+      <AvatarCore {...props} />
+      {icon && BADGE_FRAME_EMOJI[icon] && (
+        <span aria-hidden="true" style={{ position: 'absolute', right: -2, bottom: -2, fontSize: Math.max(10, size * 0.32), lineHeight: 1 }}>{BADGE_FRAME_EMOJI[icon]}</span>
+      )}
+    </span>
   );
 };
 

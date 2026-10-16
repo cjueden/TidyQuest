@@ -10,12 +10,14 @@ import { notifyCoinsAdjusted } from '../utils/notifyMessages';
 import { NOTIFICATION_KINDS, NotificationTypeSettings, sendTelegramMessageDetailed, sendNtfyMessageDetailed } from '../utils/notifications';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, isHidePrivateRoomsEnabled, isStrictModeEnabled } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
+import { UNLOCKABLE_THEMES, canUse } from '../utils/unlocks';
 import { currentLocalWeek } from '../utils/periods';
 
 const router = Router();
 router.use(authMiddleware);
 
-export const THEMES = ['orange', 'blue', 'rose', 'mint', 'grape', 'sunny', 'night', 'ocean'];
+// The 8 free themes, then the ones unlocked by levels (utils/unlocks.ts)
+export const THEMES = ['orange', 'blue', 'rose', 'mint', 'grape', 'sunny', 'night', 'ocean', ...UNLOCKABLE_THEMES];
 
 const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme, holidayColors';
 
@@ -157,6 +159,7 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
   // Color theme (follows the person to every device; empty clears it)
   if (theme !== undefined) {
     if (theme !== null && theme !== '' && !THEMES.includes(theme)) return res.status(400).json({ error: 'invalid_theme' });
+    if (theme && !canUse(userId, 'theme', theme)) return res.status(400).json({ error: 'locked' });
     updates.push('theme = ?'); values.push(theme || null);
   }
   // Holiday colors over the theme during seasonal styling (on by default)

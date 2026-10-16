@@ -285,7 +285,10 @@
       "themeMint": "Minze",
       "themeGrape": "Traube",
       "themeSunny": "Sonnig",
-      "themeOcean": "Ozean (dunkel)"
+      "themeOcean": "Ozean (dunkel)",
+      "themeForest": "Wald",
+      "themeGalaxy": "Galaxie",
+      "themeLava": "Lava"
     },
     "nav": {
       "home": "Startseite",
@@ -1308,6 +1311,36 @@
       "notePlaceholder": "Notiz hinzufügen (Super gemacht!)",
       "bonus": "Bonus",
       "none": "Keiner"
+    },
+    "unlocks": {
+      "title": "Freigeschaltet",
+      "desc": "Steig im Level auf und schalte Rahmen, Themes, Feiern und Titel frei.",
+      "frame": "Avatar-Rahmen",
+      "celebration": "Feier",
+      "titleLabel": "Titel",
+      "none": "Keiner",
+      "tryIt": "Ausprobieren",
+      "levelTitle": "Der Titel meines Levels",
+      "next": "Level {n} schaltet {thing} frei",
+      "badgeFrame": "{badge}-Rahmen",
+      "frame_bronze": "einen Bronze-Rahmen",
+      "frame_silver": "einen Silber-Rahmen",
+      "frame_gold": "einen Gold-Rahmen",
+      "frame_rainbow": "einen Regenbogen-Rahmen",
+      "celebration_coins": "Münzregen",
+      "celebration_fireworks": "Feuerwerk",
+      "theme_forest": "das Wald-Theme",
+      "theme_galaxy": "das Galaxie-Theme",
+      "theme_lava": "das Lava-Theme",
+      "title_title": "Titel",
+      "frameName_bronze": "Bronze",
+      "frameName_silver": "Silber",
+      "frameName_gold": "Gold",
+      "frameName_rainbow": "Regenbogen",
+      "celebrationName_confetti": "Konfetti",
+      "celebrationName_coins": "Münzen",
+      "celebrationName_fireworks": "Feuerwerk",
+      "badgeHint": "👑 💎 Jedes Kronen- oder Diamant-Abzeichen, das du verdienst, schaltet seinen eigenen Rahmen frei."
     }
   }
 }

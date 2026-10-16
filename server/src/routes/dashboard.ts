@@ -11,6 +11,7 @@ import { forgottenTasks, usualTasks } from '../utils/homeSections';
 import { rescueCandidates, todaysMission } from '../utils/rescue';
 import { getFeatures, holidaysOff, isFeatureOn } from '../utils/features';
 import { cheersFor } from '../utils/cheers';
+import { cosmetics, unlocksFor } from '../utils/unlocks';
 
 const router = Router();
 router.use(authMiddleware);
@@ -327,6 +328,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
     rescueChoices,
     features,
     holidaysOff: holidaysOff(),
+    // Everyone's frame, title and celebration (avatars and names), and what your next level unlocks
+    cosmetics: cosmetics(),
+    nextUnlock: unlocksFor(req.userId!).next,
     onDemandQuests,
     nextTasks,
     completedToday,

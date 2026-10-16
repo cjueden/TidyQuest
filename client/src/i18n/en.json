@@ -285,7 +285,10 @@
       "themeMint": "Mint",
       "themeGrape": "Grape",
       "themeSunny": "Sunny",
-      "themeOcean": "Ocean (dark)"
+      "themeOcean": "Ocean (dark)",
+      "themeForest": "Forest",
+      "themeGalaxy": "Galaxy",
+      "themeLava": "Lava"
     },
     "nav": {
       "home": "Home",
@@ -1308,6 +1311,36 @@
       "notePlaceholder": "Add a note (Great job!)",
       "bonus": "Bonus",
       "none": "None"
+    },
+    "unlocks": {
+      "title": "Unlocks",
+      "desc": "Level up to unlock avatar frames, themes, celebrations and titles.",
+      "frame": "Avatar frame",
+      "celebration": "Celebration",
+      "titleLabel": "Title",
+      "none": "None",
+      "tryIt": "Try it",
+      "levelTitle": "My level's title",
+      "next": "Level {n} unlocks {thing}",
+      "badgeFrame": "{badge} frame",
+      "frame_bronze": "a bronze frame",
+      "frame_silver": "a silver frame",
+      "frame_gold": "a gold frame",
+      "frame_rainbow": "a rainbow frame",
+      "celebration_coins": "coin celebrations",
+      "celebration_fireworks": "fireworks",
+      "theme_forest": "the Forest theme",
+      "theme_galaxy": "the Galaxy theme",
+      "theme_lava": "the Lava theme",
+      "title_title": "titles",
+      "frameName_bronze": "Bronze",
+      "frameName_silver": "Silver",
+      "frameName_gold": "Gold",
+      "frameName_rainbow": "Rainbow",
+      "celebrationName_confetti": "Confetti",
+      "celebrationName_coins": "Coins",
+      "celebrationName_fireworks": "Fireworks",
+      "badgeHint": "👑 💎 Each crown or diamond badge you earn unlocks its own frame."
     }
   }
 }

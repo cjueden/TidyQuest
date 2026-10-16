@@ -285,7 +285,10 @@
       "themeMint": "Munt",
       "themeGrape": "Druif",
       "themeSunny": "Zonnig",
-      "themeOcean": "Oceaan (donker)"
+      "themeOcean": "Oceaan (donker)",
+      "themeForest": "Bos",
+      "themeGalaxy": "Melkweg",
+      "themeLava": "Lava"
     },
     "nav": {
       "home": "Home",
@@ -1308,6 +1311,36 @@
       "notePlaceholder": "Notitie toevoegen (Goed gedaan!)",
       "bonus": "Bonus",
       "none": "Geen"
+    },
+    "unlocks": {
+      "title": "Ontgrendeld",
+      "desc": "Stijg in level om kaders, thema's, vieringen en titels te ontgrendelen.",
+      "frame": "Avatarkader",
+      "celebration": "Viering",
+      "titleLabel": "Titel",
+      "none": "Geen",
+      "tryIt": "Probeer",
+      "levelTitle": "De titel van mijn level",
+      "next": "Level {n} ontgrendelt {thing}",
+      "badgeFrame": "{badge}-kader",
+      "frame_bronze": "een bronzen kader",
+      "frame_silver": "een zilveren kader",
+      "frame_gold": "een gouden kader",
+      "frame_rainbow": "een regenboogkader",
+      "celebration_coins": "muntenregen",
+      "celebration_fireworks": "vuurwerk",
+      "theme_forest": "het thema Bos",
+      "theme_galaxy": "het thema Melkweg",
+      "theme_lava": "het thema Lava",
+      "title_title": "titels",
+      "frameName_bronze": "Brons",
+      "frameName_silver": "Zilver",
+      "frameName_gold": "Goud",
+      "frameName_rainbow": "Regenboog",
+      "celebrationName_confetti": "Confetti",
+      "celebrationName_coins": "Munten",
+      "celebrationName_fireworks": "Vuurwerk",
+      "badgeHint": "👑 💎 Elke kroon- of diamantbadge die je verdient, ontgrendelt een eigen kader."
     }
   }
 }

@@ -285,7 +285,10 @@
       "themeMint": "Menta",
       "themeGrape": "Uva",
       "themeSunny": "Soleado",
-      "themeOcean": "Océano (oscuro)"
+      "themeOcean": "Océano (oscuro)",
+      "themeForest": "Bosque",
+      "themeGalaxy": "Galaxia",
+      "themeLava": "Lava"
     },
     "nav": {
       "home": "Inicio",
@@ -1308,6 +1311,36 @@
       "notePlaceholder": "Añade una nota (¡Buen trabajo!)",
       "bonus": "Bonus",
       "none": "Ninguno"
+    },
+    "unlocks": {
+      "title": "Desbloqueos",
+      "desc": "Sube de nivel para desbloquear marcos, temas, celebraciones y títulos.",
+      "frame": "Marco del avatar",
+      "celebration": "Celebración",
+      "titleLabel": "Título",
+      "none": "Ninguno",
+      "tryIt": "Probar",
+      "levelTitle": "El título de mi nivel",
+      "next": "El nivel {n} desbloquea {thing}",
+      "badgeFrame": "Marco {badge}",
+      "frame_bronze": "un marco de bronce",
+      "frame_silver": "un marco de plata",
+      "frame_gold": "un marco de oro",
+      "frame_rainbow": "un marco arcoíris",
+      "celebration_coins": "lluvia de monedas",
+      "celebration_fireworks": "fuegos artificiales",
+      "theme_forest": "el tema Bosque",
+      "theme_galaxy": "el tema Galaxia",
+      "theme_lava": "el tema Lava",
+      "title_title": "los títulos",
+      "frameName_bronze": "Bronce",
+      "frameName_silver": "Plata",
+      "frameName_gold": "Oro",
+      "frameName_rainbow": "Arcoíris",
+      "celebrationName_confetti": "Confeti",
+      "celebrationName_coins": "Monedas",
+      "celebrationName_fireworks": "Fuegos artificiales",
+      "badgeHint": "👑 💎 Cada insignia de corona o diamante que ganes desbloquea su propio marco."
     }
   }
 }

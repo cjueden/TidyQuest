@@ -285,7 +285,10 @@
       "themeMint": "Menta",
       "themeGrape": "Uva",
       "themeSunny": "Solare",
-      "themeOcean": "Oceano (scuro)"
+      "themeOcean": "Oceano (scuro)",
+      "themeForest": "Foresta",
+      "themeGalaxy": "Galassia",
+      "themeLava": "Lava"
     },
     "nav": {
       "home": "Home",
@@ -1308,6 +1311,36 @@
       "notePlaceholder": "Aggiungi una nota (Ottimo lavoro!)",
       "bonus": "Bonus",
       "none": "Nessuno"
+    },
+    "unlocks": {
+      "title": "Sbloccati",
+      "desc": "Sali di livello per sbloccare cornici, temi, festeggiamenti e titoli.",
+      "frame": "Cornice dell'avatar",
+      "celebration": "Festeggiamento",
+      "titleLabel": "Titolo",
+      "none": "Nessuno",
+      "tryIt": "Prova",
+      "levelTitle": "Il titolo del mio livello",
+      "next": "Il livello {n} sblocca {thing}",
+      "badgeFrame": "Cornice {badge}",
+      "frame_bronze": "una cornice di bronzo",
+      "frame_silver": "una cornice d'argento",
+      "frame_gold": "una cornice d'oro",
+      "frame_rainbow": "una cornice arcobaleno",
+      "celebration_coins": "la pioggia di monete",
+      "celebration_fireworks": "i fuochi d'artificio",
+      "theme_forest": "il tema Foresta",
+      "theme_galaxy": "il tema Galassia",
+      "theme_lava": "il tema Lava",
+      "title_title": "i titoli",
+      "frameName_bronze": "Bronzo",
+      "frameName_silver": "Argento",
+      "frameName_gold": "Oro",
+      "frameName_rainbow": "Arcobaleno",
+      "celebrationName_confetti": "Coriandoli",
+      "celebrationName_coins": "Monete",
+      "celebrationName_fireworks": "Fuochi d'artificio",
+      "badgeHint": "👑 💎 Ogni badge corona o diamante che guadagni sblocca la sua cornice."
     }
   }
 }

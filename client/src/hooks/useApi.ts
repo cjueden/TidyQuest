@@ -114,6 +114,17 @@ export interface FeatureFlags {
   cheers: boolean;
 }
 
+/** Unlockables: what levels have unlocked for you and what you picked */
+export interface UnlocksView {
+  level: number;
+  items: Array<{ level: number; kind: 'frame' | 'theme' | 'celebration' | 'title'; id: string; unlocked: boolean }>;
+  badgeFrames: Array<{ id: string; titleKey: string; icon: string; unlocked: boolean }>;
+  titles: Array<{ id: string; titleKey?: string; text?: string }>;
+  titleLevel: number;
+  chosen: { frame: string | null; celebration: string; title: string | null; theme: string | null };
+  next: { level: number; kind: string; id: string } | null;
+}
+
 /** Cheers on one finished chore (counts in 👏 🎉 💪 ⭐ order, and the viewer's own) */
 export interface CheerSummary { counts: Array<{ emoji: string; count: number; names: string[] }>; mine: string | null }
 
@@ -494,6 +505,9 @@ export const api = {
     }> }>('/completions/pending'),
   approveCompletion: (completionId: number, extras?: { note?: string; bonus?: number }) =>
     apiFetch<{ success: boolean }>(`/completions/${completionId}/approve`, { method: 'POST', ...(extras ? { body: JSON.stringify(extras) } : {}) }),
+  getUnlocks: () => apiFetch<UnlocksView>('/unlocks'),
+  updateUnlocks: (data: { frame?: string | null; celebration?: string; title?: string | null }) =>
+    apiFetch<UnlocksView>('/unlocks', { method: 'PUT', body: JSON.stringify(data) }),
   cheer: (completionId: number, emoji: string) =>
     apiFetch<{ cheers: CheerSummary }>('/cheers', { method: 'POST', body: JSON.stringify({ completionId, emoji }) }),
   rejectPendingCompletion: (completionId: number) =>

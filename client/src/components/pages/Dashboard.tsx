@@ -90,6 +90,7 @@ interface CurrentUser {
 }
 
 interface ActivityEntry {
+  userId?: number;
   displayName: string;
   avatarColor: string;
   avatarType?: string;
@@ -159,6 +160,7 @@ interface DashboardProps {
     rescueChoices?: Array<{ id: number; name: string }>;
     /** Optional extras switched on or off in Settings → Features */
     features?: { todos?: boolean; cheers?: boolean };
+    nextUnlock?: { level: number; kind: string; id: string } | null;
     completedToday?: CompletedTodayEntry[];
     myLevel?: LevelInfo | null;
     nextBadge?: BadgeItem | null;
@@ -484,7 +486,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               </div>
             )}
             <div style={{ marginTop: 16 }}>
-              <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} big />
+              <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} big userId={currentUser.id} nextUnlock={data.nextUnlock} />
             </div>
           </div>
         )}
@@ -492,7 +494,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         {/* Level and the next badge (kid mode shows them in the card above) */}
         {!kidMode && gamificationEnabled && myLevel && (currentUser.role !== 'admin' || myLevel.coinsEarned > 0) && (
           <div className="tq-card" style={{ gridColumn: '1 / -1', padding: '12px 16px' }}>
-            <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} />
+            <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} userId={currentUser.id} nextUnlock={data.nextUnlock} />
           </div>
         )}
 
@@ -1067,7 +1069,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           <div style={{ display: 'grid', gap: 8 }}>
             {coinsSortedFamily.slice(0, 6).map((u) => (
               <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <UserAvatar name={u.displayName} color={u.avatarColor} size={28} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
+                <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={28} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
                 <div style={{ flex: 1, fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{u.displayName}</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 800, color: 'var(--warm-coin)' }}>
                   {formatCoins(u.coins)} <CoinIcon />
@@ -1207,7 +1209,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 #{i + 1}
               </div>
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <UserAvatar name={u.displayName} color={u.avatarColor} size={32} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
+                <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={32} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
                 {badges?.[u.id] && (
                   <span
                     title={t(`achievements.badge_${badges[u.id]}`)}
@@ -1278,7 +1280,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 borderBottom: i < 4 ? '1px solid var(--warm-border-subtle)' : 'none',
               }}
             >
-              <UserAvatar name={h.displayName} color={h.avatarColor} size={28} avatarType={h.avatarType as any} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
+              <UserAvatar userId={h.userId} name={h.displayName} color={h.avatarColor} size={28} avatarType={h.avatarType as any} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>
                   {taskName(h.taskName, h.translationKey)}
