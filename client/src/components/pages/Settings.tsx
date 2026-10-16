@@ -7,6 +7,7 @@ import { RewardRulesEditor } from '../shared/RewardRulesEditor';
 import { CoinBoostsAdmin } from '../shared/CoinBoostsAdmin';
 import { GoalRow } from '../shared/GoalRow';
 import { TrashAdmin } from '../shared/TrashAdmin';
+import { FamilyGoalAdmin } from '../shared/FamilyGoalAdmin';
 import { CsvTransfer } from '../shared/CsvTransfer';
 import { UndoToast, type UndoState } from '../shared/UndoToast';
 import { byFeatured, rulesSummary } from '../../utils/rewardRules';
@@ -908,6 +909,10 @@ export function Settings({
         <div className="tq-card tq-card-padded settings-admin-card">
           <h3 className="tq-card-title">{t('settings.goalsSection')}</h3>
           <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.goalsSectionDesc')}</div>
+          <div style={{ backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', borderRadius: 12, padding: '10px 12px', marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 6 }}>🤝 {t('board.familyGoalAdmin')}</div>
+            <FamilyGoalAdmin language={user.language} />
+          </div>
           <div style={{ display: 'grid', gap: 10 }}>
             {family
               .filter((u) => u.id !== user.id && u.role !== 'admin')

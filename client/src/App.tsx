@@ -36,10 +36,10 @@ function AppContent() {
   const [roomsLoaded, setRoomsLoaded] = useState(false);
   const [family, setFamily] = useState<any[]>([]);
   const [familySettings, setFamilySettings] = useState<any[]>([]);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [pointsPeriod, setPointsPeriod] = useState<'all' | 'week' | 'month' | 'year'>('all');
   const [pointsLeaderboard, setPointsLeaderboard] = useState<any[]>([]);
-  const [leaderboardPeriod, setLeaderboardPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('week');
+  // Home's family progress uses this week's coins (the Board page loads its own periods)
+  const [leaderboardPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('week');
   const [coinsByEffort, setCoinsByEffort] = useState<Record<number, number>>({ 1: 5, 2: 10, 3: 15, 4: 20, 5: 25 });
   const [achievementsData, setAchievementsData] = useState<any>(null);
   const [rewardsData, setRewardsData] = useState<{ rewards: any[]; mine: any[] }>({ rewards: [], mine: [] });
@@ -97,7 +97,6 @@ function AppContent() {
         if (dash.vacation && !vacationUpdatePending.current) setVacationConfig(dash.vacation);
         setRooms(roomsData);
         setRoomsLoaded(true);
-        setLeaderboard(lb);
         setFamily(lb);
         setFamilySettings(users);
         setCoinsByEffort(coinCfg.coinsByEffort || { 1: 5, 2: 10, 3: 15, 4: 20, 5: 25 });
@@ -250,12 +249,6 @@ function AppContent() {
       }
       setTimeout(() => setTaskErrorMsg(null), 3500);
     }
-  };
-
-  const handleLeaderboardPeriodChange = async (period: 'week' | 'month' | 'quarter' | 'year') => {
-    setLeaderboardPeriod(period);
-    const lb = await api.leaderboard(period);
-    setLeaderboard(lb);
   };
 
   const handleExport = async () => {
@@ -496,7 +489,7 @@ function AppContent() {
             gamificationEnabled ? (
             <>
               <PageHeader title={t('app.leaderboardTitle')} subtitle={t('app.leaderboardSubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <Leaderboard users={leaderboard} language={user.language} period={leaderboardPeriod} onPeriodChange={handleLeaderboardPeriodChange} />
+              <Leaderboard language={user.language} />
             </>
             ) : <Navigate to="/" replace />
           } />

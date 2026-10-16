@@ -97,6 +97,44 @@ export interface TaskBatchChanges {
   frequencyDays?: number;
 }
 
+export type BoardPeriod = 'week' | 'lastWeek' | 'month' | 'quarter' | 'year';
+export type BoardMode = 'coins' | 'goal' | 'improved';
+
+export interface BoardPerson {
+  id: number;
+  displayName: string;
+  avatarColor: string;
+  avatarType: string | null;
+  avatarPreset: string | null;
+  avatarPhotoUrl: string | null;
+  coins: number;
+  currentStreak: number;
+  /** Coins earned in the period */
+  points: number;
+  chores: number;
+  /** Coins in the same stretch of the period before */
+  comparePoints: number;
+  improvement: number;
+  goalTarget: number | null;
+  goalPct: number | null;
+  /** What the ranking uses in this mode (null: no goal) */
+  score: number | null;
+  rank: number;
+  prevRank: number | null;
+  /** Places gained (+) or lost (−) since the period before */
+  movement: number;
+}
+
+export interface BoardData {
+  period: BoardPeriod;
+  mode: BoardMode;
+  range: { startAt: string; endAt: string };
+  people: BoardPerson[];
+  awards: Array<{ key: 'earlyBird' | 'bountyHunter' | 'allRounder' | 'room'; userIds: number[]; value: number; roomId?: number; roomName?: string }>;
+  familyGoal: { target: number; prize: string; total: number; reached: boolean } | null;
+  trophies: { weeks: Array<{ weekStart: string; userIds: number[]; coins: number }>; wins: Record<number, number> };
+}
+
 function getToken(): string | null {
   return localStorage.getItem('tidyquest_token');
 }
@@ -206,6 +244,10 @@ export const api = {
 
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
+  getBoard: (period: BoardPeriod, mode: BoardMode) => apiFetch<BoardData>(`/leaderboard/board?period=${period}&mode=${mode}`),
+  getFamilyGoal: () => apiFetch<{ target: number; prize: string; progress: { total: number; target: number } | null }>('/leaderboard/family-goal'),
+  setFamilyGoal: (target: number, prize: string) =>
+    apiFetch<{ target: number; prize: string; progress: { total: number; target: number } | null }>('/leaderboard/family-goal', { method: 'PUT', body: JSON.stringify({ target, prize }) }),
 
   // History
   history: (limit = 20, offset = 0, filters: { userId?: number; roomId?: number; from?: string; to?: string; q?: string } = {}) => {
