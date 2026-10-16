@@ -277,7 +277,8 @@
       "taskViewMineOnly": "Solo i suoi",
       "kidMode": "Modalità bambino",
       "kidModeDesc": "Pulsanti grandi, meno schede, monete e obiettivo in primo piano.",
-      "notificationTypeChoreApproval": "Compito in attesa di approvazione"
+      "notificationTypeChoreApproval": "Compito in attesa di approvazione",
+      "notificationTypeCoinBoost": "Eventi monete doppie"
     },
     "nav": {
       "home": "Home",
@@ -587,7 +588,8 @@
       "add": "Aggiungi",
       "you": "tu",
       "showMore": "Mostra altri {n}",
-      "showLess": "Mostra meno"
+      "showLess": "Mostra meno",
+      "error": "Qualcosa è andato storto"
     },
     "units": {
       "hours": "ore",
@@ -800,6 +802,81 @@
       "photo": "Foto (facoltativa)",
       "submit": "Fatto",
       "photoFailed": "Salvato, ma la foto non è stata caricata."
+    },
+    "rewardRules": {
+      "whoCanSee": "Chi la vede",
+      "everyone": "Tutti",
+      "pricePerPerson": "Prezzo per persona (vuoto = prezzo normale)",
+      "limit": "Limita quante volte",
+      "periodEver": "in totale",
+      "periodDay": "al giorno",
+      "periodWeek": "a settimana",
+      "periodMonth": "al mese",
+      "scopePerson": "per ogni persona",
+      "scopeEveryone": "per tutta la famiglia",
+      "onOffer": "Disponibile",
+      "from": "Dal",
+      "until": "Al",
+      "rotating": "A rotazione",
+      "rotatingDesc": "Ogni settimana compaiono solo alcune ricompense a rotazione, scelte automaticamente.",
+      "shared": "Risparmio condiviso",
+      "sharedDesc": "Chiunque può contribuire; quando il salvadanaio è pieno, approva un genitore.",
+      "customPrices": "prezzi propri",
+      "per_ever": "in totale",
+      "per_day": "al giorno",
+      "per_week": "a settimana",
+      "per_month": "al mese",
+      "rules": "Regole",
+      "rotatingPerWeek": "Ricompense a rotazione a settimana:",
+      "usedUp": "Esaurita",
+      "usedUp_ever": "Già usata",
+      "usedUp_day": "Usata oggi — torna domani",
+      "usedUp_week": "Usata questa settimana — torna lunedì",
+      "usedUp_month": "Usata questo mese",
+      "left_ever": "Ancora {n}",
+      "left_day": "Ancora {n} oggi",
+      "left_week": "Ancora {n} questa settimana",
+      "left_month": "Ancora {n} questo mese",
+      "untilDate": "Fino al {date}",
+      "potSaved": "{saved} su {target} risparmiate",
+      "potWaiting": "Il salvadanaio è pieno — in attesa di un genitore",
+      "chipIn": "Contribuisci"
+    },
+    "boosts": {
+      "title": "Eventi monete doppie",
+      "desc": "Monete extra per un po', ad es. per preparare la casa per una festa. La famiglia riceve una notifica all'inizio.",
+      "live": "in corso",
+      "allRooms": "Tutte le stanze",
+      "titlePlaceholder": "es. Preparativi per la festa!",
+      "starts": "Inizio",
+      "ends": "Fine",
+      "rooms": "Stanze:",
+      "create": "Avvia un evento",
+      "left": "Ancora {time}"
+    },
+    "goals": {
+      "repeatWeekly": "Ogni settimana",
+      "bonus": "bonus",
+      "weeklyWinTitle": "Vittoria settimanale",
+      "weeklyWinTemplate": "Vittoria settimanale",
+      "bonusEarned": "di bonus guadagnate!",
+      "bonusWhenReached": "+{n} di bonus quando lo raggiungi"
+    },
+    "coins": {
+      "reasonPlaceholder": "Motivo (facoltativo)",
+      "adjusted": "Monete modificate",
+      "by": "da {name}"
+    },
+    "repeat": {
+      "limit": "Limite",
+      "limitDesc": "Quante volte ogni persona può fare questo compito al giorno o a settimana (vuoto = nessun limite)",
+      "perDay": "al giorno",
+      "perWeek": "a settimana",
+      "doneToday": "Fatto oggi",
+      "doneThisWeek": "Fatto questa settimana",
+      "today": "oggi",
+      "thisWeek": "questa settimana",
+      "limitReached": "L'hai già fatto tutte le volte consentite per ora."
     }
   }
 }

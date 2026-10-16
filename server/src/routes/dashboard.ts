@@ -4,6 +4,8 @@ import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth } from '../utils/health';
 import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, isStrictModeEnabled, resolveVacation } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
+import { repeatCountsFor } from '../utils/repeatLimits';
+import { getActiveBoosts } from '../utils/boosts';
 
 const router = Router();
 router.use(authMiddleware);
@@ -53,6 +55,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     (db.prepare("SELECT taskId, COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'pending' GROUP BY taskId")
       .all(req.userId) as { taskId: number; n: number }[]).map((r) => [r.taskId, r.n])
   );
+  // Anytime quests with a repeat limit: how many times the viewer did each this day/week
+  const myRepeatCounts = repeatCountsFor(req.userId, dbTasks);
 
   // Batch-fetch all task assignees
   const allTaskAssignees = db.prepare(
@@ -97,6 +101,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
         assignmentMode: t.assignmentMode || 'first',
         effectiveAssignedUserIds: effectiveIds,
         myPendingCount: myPendingByTask.get(t.id) || 0,
+        myRepeatCount: myRepeatCounts.get(t.id) || 0,
         sharedCompletions: sharedCompletionsByTask.get(t.id) || [],
         completedTodayBy: completedTodayByTask.get(t.id) || null,
         health,
@@ -194,21 +199,29 @@ router.get('/', (req: AuthRequest, res: Response) => {
     goalEndAt: user.goalEndAt || null,
     progress: Math.min(100, Math.round((myCurrentCoins / user.goalCoins) * 100)),
     completed: myPrimaryGoal?.status === 'completed',
+    goalId: myPrimaryGoal?.id ?? null,
+    title: myPrimaryGoal?.title ?? null,
+    rewardCoins: myPrimaryGoal?.rewardCoins ?? 0,
   } : null;
 
+  // Each child's current goal, so parents can see who reached it (and earned the bonus)
+  const childPrimaryGoals = new Map<number, ReturnType<typeof syncPrimaryGoal>>([[user.id, myPrimaryGoal]]);
   if (user.role === 'admin') {
     const listed = db.prepare("SELECT id FROM users WHERE (role != 'admin' OR isParticipant = 1) AND id != ?").all(user.id) as { id: number }[];
-    for (const c of listed) syncPrimaryGoal(c.id);
+    for (const c of listed) childPrimaryGoals.set(c.id, syncPrimaryGoal(c.id));
   }
   const childrenGoals = user.role === 'admin'
     ? db.prepare(
       "SELECT id, displayName, role, coins, goalCoins, goalStartAt, goalEndAt, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users WHERE role != 'admin' OR isParticipant = 1 ORDER BY displayName"
     ).all().map((c: any) => {
       const currentCoins = c.goalCoins ? getGoalCoinsWithinPeriod(c) : c.coins;
+      const primary = childPrimaryGoals.get(c.id);
       return {
         ...c,
         currentCoins,
         progress: c.goalCoins ? Math.min(100, Math.round((currentCoins / c.goalCoins) * 100)) : null,
+        goalCompleted: primary?.status === 'completed',
+        goalRewardCoins: primary?.rewardCoins ?? 0,
       };
     })
     : [];
@@ -271,6 +284,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     pendingRewardRequests,
     pendingCompletions,
     strictMode: isStrictModeEnabled(),
+    // Double coins events running now (Home shows a banner and the boosted amounts)
+    coinBoosts: getActiveBoosts().map(({ id, title, multiplier, startAt, endAt, roomIds }) => ({ id, title, multiplier, startAt, endAt, roomIds })),
     currentUser: user,
     recentActivity,
     badges,

@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
+import { ensureAdmin } from '../utils/adminHelpers';
 
 const router = Router();
 router.use(authMiddleware);
@@ -43,6 +44,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const seenSharedKeys = new Set<string>();
 
   for (const row of rawHistory) {
+    row.type = 'completion';
     if (row.assignmentMode === 'shared') {
       const key = `${row.taskId}:${row.completedAt.slice(0, 10)}`;
       if (seenSharedKeys.has(key)) continue;
@@ -73,8 +75,36 @@ router.get('/', (req: AuthRequest, res: Response) => {
     ? grouped.filter((h) => h.userId === filterUserId || h.participants?.some((p: any) => p.id === filterUserId))
     : grouped;
 
-  const total = filtered.length;
-  const history = filtered.slice(offset, offset + limit);
+  // Coin adjustments by a parent, merged in by date. Parents see everyone's; others only their own.
+  // They belong to no room, so a room filter leaves them out.
+  const viewerIsAdmin = ensureAdmin(req.userId);
+  let adjustments: any[] = [];
+  if (!filterRoomId && (viewerIsAdmin || !filterUserId || filterUserId === req.userId)) {
+    const aWhere: string[] = [];
+    const aParams: (string | number)[] = [];
+    if (!viewerIsAdmin) { aWhere.push('a.userId = ?'); aParams.push(req.userId!); }
+    if (filterUserId) { aWhere.push('a.userId = ?'); aParams.push(filterUserId); }
+    if (from) { aWhere.push('a.createdAt >= ?'); aParams.push(from); }
+    if (to) { aWhere.push('a.createdAt < ?'); aParams.push(to); }
+    if (q) { aWhere.push("a.reason LIKE ? ESCAPE '\\'"); aParams.push(`%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`); }
+    adjustments = db.prepare(`
+      SELECT 'adjustment' AS type, a.id, a.createdAt AS completedAt, a.amount AS coinsEarned, a.reason,
+             a.createdBy, c.displayName AS createdByName,
+             u.id as userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
+      FROM coin_adjustments a
+      JOIN users u ON a.userId = u.id
+      LEFT JOIN users c ON a.createdBy = c.id
+      ${aWhere.length ? `WHERE ${aWhere.join(' AND ')}` : ''}
+      ORDER BY a.createdAt DESC, a.id DESC
+    `).all(...aParams) as any[];
+  }
+  // Stable sort: completions keep their order among themselves
+  const merged = adjustments.length
+    ? [...filtered, ...adjustments].sort((a, b) => (a.completedAt < b.completedAt ? 1 : a.completedAt > b.completedAt ? -1 : 0))
+    : filtered;
+
+  const total = merged.length;
+  const history = merged.slice(offset, offset + limit);
 
   // The viewer's own completions still waiting for a parent, shown above the list
   const pending = offset === 0

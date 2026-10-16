@@ -1,5 +1,54 @@
 const API_BASE = '/api';
 
+export interface RewardPot {
+  saved: number;
+  target: number;
+  remaining: number;
+  contributors: Array<{ userId: number; displayName: string; amount: number }>;
+  awaitingApproval: boolean;
+}
+
+export interface RewardAvailability {
+  limit: number;
+  period: 'ever' | 'day' | 'week' | 'month';
+  scope: 'person' | 'everyone';
+  used: number;
+  remaining: number;
+  resetsAt: string | null;
+}
+
+export interface RewardRules {
+  visibleTo: number[];
+  prices: Record<number, number>;
+  limitCount: number | null;
+  limitPeriod: 'ever' | 'day' | 'week' | 'month';
+  limitScope: 'person' | 'everyone';
+  availableFrom: string | null;
+  availableUntil: string | null;
+  isRotating: boolean;
+  isShared: boolean;
+  pot: RewardPot | null;
+}
+
+export interface RewardRulesInput {
+  visibleTo?: number[];
+  prices?: Record<number, number | null>;
+  limit?: { count: number; period: string; scope: string } | null;
+  availableFrom?: string | null;
+  availableUntil?: string | null;
+  isRotating?: boolean;
+  isShared?: boolean;
+}
+
+export interface CoinBoost {
+  id: number;
+  title: string;
+  multiplier: number;
+  startAt: string;
+  endAt: string;
+  roomIds: number[] | null;
+}
+
 function getToken(): string | null {
   return localStorage.getItem('tidyquest_token');
 }
@@ -64,7 +113,7 @@ export const api = {
 
   // Tasks
   getTasks: (roomId: number) => apiFetch<any[]>(`/rooms/${roomId}/tasks`),
-  createTask: (roomId: number, data: { name: string; notes?: string; frequencyDays?: number; effort?: number; isSeasonal?: boolean; health?: number; iconKey?: string; translationKey?: string; onDemand?: boolean; showInDashboard?: boolean; assignedToChildren?: boolean; assignedUserIds?: number[]; assignmentMode?: 'first' | 'shared' | 'custom' | 'rotating'; assignedUserPercentages?: Record<number, number>; customCoins?: number | null; allowEarlyCompletion?: boolean }) =>
+  createTask: (roomId: number, data: { name: string; notes?: string; frequencyDays?: number; effort?: number; isSeasonal?: boolean; health?: number; iconKey?: string; translationKey?: string; onDemand?: boolean; showInDashboard?: boolean; assignedToChildren?: boolean; assignedUserIds?: number[]; assignmentMode?: 'first' | 'shared' | 'custom' | 'rotating'; assignedUserPercentages?: Record<number, number>; customCoins?: number | null; allowEarlyCompletion?: boolean; repeatLimit?: number | null; repeatPeriod?: 'day' | 'week' }) =>
     apiFetch<any>(`/rooms/${roomId}/tasks`, { method: 'POST', body: JSON.stringify(data) }),
   updateTask: (id: number, data: any) =>
     apiFetch<any>(`/tasks/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
@@ -127,10 +176,10 @@ export const api = {
   updateUserGoal: (userId: number, data: { goalCoins: number | null; goalStartAt?: string | null; goalEndAt?: string | null }) =>
     apiFetch<any>(`/users/${userId}/goal`, { method: 'PUT', body: JSON.stringify(data) }),
   getUserGoals: (userId: number) =>
-    apiFetch<Array<{ id: number; userId: number; title: string; goalCoins: number; startAt?: string | null; endAt?: string | null; createdAt: string }>>(`/users/${userId}/goals`),
-  createUserGoal: (userId: number, data: { title: string; goalCoins: number; startAt?: string | null; endAt?: string | null }) =>
+    apiFetch<Array<{ id: number; userId: number; title: string; goalCoins: number; startAt?: string | null; endAt?: string | null; createdAt: string; rewardCoins?: number; repeatWeekly?: number; status?: string }>>(`/users/${userId}/goals`),
+  createUserGoal: (userId: number, data: { title: string; goalCoins: number; startAt?: string | null; endAt?: string | null; rewardCoins?: number; repeatWeekly?: boolean }) =>
     apiFetch<any>(`/users/${userId}/goals`, { method: 'POST', body: JSON.stringify(data) }),
-  updateGoal: (goalId: number, data: { title: string; goalCoins: number; startAt?: string | null; endAt?: string | null }) =>
+  updateGoal: (goalId: number, data: { title: string; goalCoins: number; startAt?: string | null; endAt?: string | null; rewardCoins?: number; repeatWeekly?: boolean }) =>
     apiFetch<any>(`/users/goals/${goalId}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteGoal: (goalId: number) =>
     apiFetch<{ success: boolean }>(`/users/goals/${goalId}`, { method: 'DELETE' }),
@@ -179,7 +228,7 @@ export const api = {
       chatId: string;
       hasToken: boolean;
       notificationTime: string;
-      notificationTypes: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean };
+      notificationTypes: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean; coinBoost?: boolean };
       ntfyEnabled: boolean;
       ntfyServerUrl: string;
       ntfyTopic: string;
@@ -191,7 +240,7 @@ export const api = {
     botToken?: string;
     chatId?: string;
     notificationTime?: string;
-    notificationTypes?: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean };
+    notificationTypes?: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean; coinBoost?: boolean };
     ntfyEnabled?: boolean;
     ntfyServerUrl?: string;
     ntfyTopic?: string;
@@ -203,7 +252,7 @@ export const api = {
       chatId: string;
       hasToken: boolean;
       notificationTime: string;
-      notificationTypes: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean };
+      notificationTypes: { taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean; coinBoost?: boolean };
       ntfyEnabled: boolean;
       ntfyServerUrl: string;
       ntfyTopic: string;
@@ -214,7 +263,7 @@ export const api = {
   getRewards: () =>
     apiFetch<{ rewards: Array<{ id: number; title: string; description?: string | null; costCoins: number }>; mine: Array<{ id: number; title: string; costCoins: number; redeemedAt: string; status: string }> }>('/rewards'),
   getRewardsAdmin: () =>
-    apiFetch<{ rewards: any[]; redemptions: any[] }>('/rewards/admin'),
+    apiFetch<{ rewards: any[]; redemptions: any[]; rotatingPerWeek?: number; rotatingThisWeek?: number[] }>('/rewards/admin'),
   updateRedemptionStatus: (id: number, status: 'requested' | 'approved' | 'rejected') =>
     apiFetch<any>(`/rewards/redemptions/${id}`, { method: 'PUT', body: JSON.stringify({ status }) }),
   cancelRedemption: (id: number) =>
@@ -248,8 +297,20 @@ export const api = {
   rejectPendingCompletion: (completionId: number) =>
     apiFetch<{ success: boolean }>(`/completions/${completionId}/reject`, { method: 'DELETE' }),
 
-  adjustCoins: (userId: number, amount: number) =>
-    apiFetch<any>(`/users/${userId}/adjust-coins`, { method: 'POST', body: JSON.stringify({ amount }) }),
+  adjustCoins: (userId: number, amount: number, reason?: string) =>
+    apiFetch<any>(`/users/${userId}/adjust-coins`, { method: 'POST', body: JSON.stringify({ amount, ...(reason ? { reason } : {}) }) }),
+  // Reward rules (who sees it, prices, limits, dates, rotation, shared saving)
+  updateRewardRules: (id: number, data: RewardRulesInput) =>
+    apiFetch<RewardRules & { id: number }>(`/rewards/${id}/rules`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateRotationConfig: (rotatingPerWeek: number) =>
+    apiFetch<{ rotatingPerWeek: number; rotatingThisWeek: number[] }>('/rewards/rotation-config', { method: 'PUT', body: JSON.stringify({ rotatingPerWeek }) }),
+  contributeReward: (id: number, amount: number) =>
+    apiFetch<{ coins: number; pot: RewardPot; redemption: unknown }>(`/rewards/${id}/contribute`, { method: 'POST', body: JSON.stringify({ amount }) }),
+  // Double coins events
+  getBoosts: () => apiFetch<CoinBoost[]>('/boosts'),
+  createBoost: (data: { title: string; multiplier: number; startAt: string; endAt: string; roomIds?: number[] | null }) =>
+    apiFetch<CoinBoost>('/boosts', { method: 'POST', body: JSON.stringify(data) }),
+  deleteBoost: (id: number) => apiFetch<{ success: boolean }>(`/boosts/${id}`, { method: 'DELETE' }),
 
   getVacationConfig: () =>
     apiFetch<{ vacationMode: boolean; vacationStartDate: string | null; vacationEndDate: string | null }>('/users/vacation-config'),

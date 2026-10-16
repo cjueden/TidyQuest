@@ -240,6 +240,8 @@ function AppContent() {
         setTaskErrorMsg(t('app.alreadyDoneToday'));
       } else if (msg === 'already_done_by_other') {
         setTaskErrorMsg(t('app.alreadyDoneByOther'));
+      } else if (msg === 'repeat_limit_reached') {
+        setTaskErrorMsg(t('repeat.limitReached'));
       } else if (msg === 'not_assigned') {
         setTaskErrorMsg(t('app.notAssigned'));
       } else {
@@ -572,8 +574,9 @@ function AppContent() {
                 onChangeTheme={setTheme}
                 onExport={handleExport}
                 onImport={handleImport}
-                onAdjustCoins={async (userId: number, amount: number) => {
-                  await api.adjustCoins(userId, amount);
+                rooms={rooms}
+                onAdjustCoins={async (userId: number, amount: number, reason?: string) => {
+                  await api.adjustCoins(userId, amount, reason);
                   setFamilySettings(await api.getUsers());
                 }}
               />
@@ -605,6 +608,12 @@ function AppContent() {
                 }}
                 onRedeem={async (rewardId: number) => {
                   await api.redeemReward(rewardId);
+                  await refreshUser();
+                  await loadDashboard();
+                  await loadRewards();
+                }}
+                onContribute={async (rewardId: number, amount: number) => {
+                  await api.contributeReward(rewardId, amount);
                   await refreshUser();
                   await loadDashboard();
                   await loadRewards();

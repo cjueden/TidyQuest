@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { UserAvatar } from '../shared/UserAvatar';
 import { CoinIcon } from '../icons/UIIcons';
+import { formatCoins } from '../../utils/format';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 
@@ -140,12 +141,13 @@ export function History({ language, isAdmin, users = [], rooms = [] }: HistoryPr
           </div>
 
           {history.map((h) => {
+            const isAdjustment = h.type === 'adjustment';
             const isDuo = h.participants && h.participants.length > 1;
             const byName = isDuo
               ? h.participants.map((p: any) => p.displayName).join(' & ')
               : h.displayName;
             return (
-            <div key={h.id} className="history-row" style={{
+            <div key={`${h.type || 'completion'}-${h.id}`} className="history-row" style={{
               display: 'grid', gridTemplateColumns: isAdmin ? '44px 1fr 120px 100px 80px 60px' : '44px 1fr 120px 100px 80px',
               gap: 12, padding: '14px 8px', alignItems: 'center',
               borderBottom: '1px solid var(--warm-border-subtle)',
@@ -162,16 +164,30 @@ export function History({ language, isAdmin, users = [], rooms = [] }: HistoryPr
                 <UserAvatar name={h.displayName} color={h.avatarColor} size={34} avatarType={h.avatarType} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
               )}
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{taskName(h.taskName, h.translationKey)}</div>
-                <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('history.by')} {byName}</div>
-                <div className="history-mobile-meta">{roomDisplayName(h.roomName, h.roomType || '')} · {timeAgo(h.completedAt)}</div>
+                {isAdjustment ? (
+                  <>
+                    {/* A parent's coin adjustment or a goal bonus, from the coin ledger */}
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>🪙 {h.reason || t('coins.adjusted')}</div>
+                    <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
+                      {h.displayName}{h.createdByName ? ` · ${t('coins.by').replace('{name}', h.createdByName)}` : ''}
+                    </div>
+                    <div className="history-mobile-meta">{timeAgo(h.completedAt)}</div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{taskName(h.taskName, h.translationKey)}</div>
+                    <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('history.by')} {byName}</div>
+                    <div className="history-mobile-meta">{roomDisplayName(h.roomName, h.roomType || '')} · {timeAgo(h.completedAt)}</div>
+                  </>
+                )}
               </div>
-              <div className="history-col-room" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>{roomDisplayName(h.roomName, h.roomType || '')}</div>
+              <div className="history-col-room" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>{isAdjustment ? '—' : roomDisplayName(h.roomName, h.roomType || '')}</div>
               <div className="history-col-when" style={{ fontSize: 12, color: 'var(--warm-text-light)', fontWeight: 600 }}>{timeAgo(h.completedAt)}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end', fontSize: 13, fontWeight: 800, color: 'var(--warm-coin)' }}>
-                +{h.coinsEarned} <CoinIcon />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end', fontSize: 13, fontWeight: 800, color: h.coinsEarned < 0 ? 'var(--warm-danger)' : 'var(--warm-coin)' }}>
+                {h.coinsEarned < 0 ? '' : '+'}{formatCoins(h.coinsEarned)} <CoinIcon />
               </div>
-              {isAdmin && (
+              {isAdmin && isAdjustment && <div />}
+              {isAdmin && !isAdjustment && (
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   {confirmCancel === h.id ? (
                     <div style={{ display: 'flex', gap: 4 }}>

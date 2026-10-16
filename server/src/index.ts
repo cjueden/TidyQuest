@@ -14,6 +14,8 @@ import dataRoutes from './routes/data';
 import achievementsRoutes from './routes/achievements';
 import rewardsRoutes from './routes/rewards';
 import { sendDueTaskNotificationsIfNeeded } from './utils/notifications';
+import { sendCoinBoostNotificationsIfNeeded } from './utils/boosts';
+import boostsRoutes from './routes/boosts';
 
 export function createApp() {
   const app = express();
@@ -48,6 +50,7 @@ export function createApp() {
   app.use('/api', dataRoutes);
   app.use('/api/achievements', achievementsRoutes);
   app.use('/api/rewards', rewardsRoutes);
+  app.use('/api/boosts', boostsRoutes);
 
   // 404 handler for unknown API routes
   app.use('/api/*', (_req, res) => {
@@ -73,8 +76,10 @@ if (require.main === module || !process.env.VITEST) {
   app.listen(PORT, () => {
     console.log(`TidyQuest server running on http://localhost:${PORT}`);
     void sendDueTaskNotificationsIfNeeded();
+    void sendCoinBoostNotificationsIfNeeded();
     setInterval(() => {
       void sendDueTaskNotificationsIfNeeded();
+      void sendCoinBoostNotificationsIfNeeded();
     }, 30000);
   });
 }

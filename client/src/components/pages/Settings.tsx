@@ -3,11 +3,16 @@ import { UserAvatar } from '../shared/UserAvatar';
 import { EffortDots } from '../shared/EffortDots';
 import { Toggle } from '../shared/Toggle';
 import { PendingApprovals } from '../shared/PendingApprovals';
+import { RewardRulesEditor } from '../shared/RewardRulesEditor';
+import { CoinBoostsAdmin } from '../shared/CoinBoostsAdmin';
+import { GoalRow } from '../shared/GoalRow';
+import { rulesSummary } from '../../utils/rewardRules';
+import { formatCoins } from '../../utils/format';
 import { BellIcon, DownloadIcon, UploadIcon, LockIcon, CoinIcon } from '../icons/UIIcons';
 import { AVATAR_PRESETS } from '../icons/AvatarPresets';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { User } from '../../hooks/useAuth';
-import { api } from '../../hooks/useApi';
+import { api, type RewardRules } from '../../hooks/useApi';
 
 interface FamilyUser {
   id: number;
@@ -55,6 +60,8 @@ interface PendingCompletion {
 interface SettingsProps {
   user: User;
   family: FamilyUser[];
+  /** For choosing rooms in double coins events */
+  rooms?: Array<{ id: number; name: string }>;
   vacationConfig?: VacationConfig;
   onUpdateVacation?: (data: { vacationMode?: boolean; vacationEndDate?: string | null }) => Promise<void>;
   onUpdateRole: (userId: number, role: 'admin' | 'member' | 'child') => void;
@@ -69,7 +76,7 @@ interface SettingsProps {
   onChangeTheme: (theme: 'orange' | 'blue' | 'rose' | 'night') => void;
   onExport: () => void;
   onImport: () => void;
-  onAdjustCoins?: (userId: number, amount: number) => Promise<void>;
+  onAdjustCoins?: (userId: number, amount: number, reason?: string) => Promise<void>;
   gamificationEnabled?: boolean;
   onGamificationChange?: (enabled: boolean) => void;
 }
@@ -94,6 +101,7 @@ export function Settings({
   onExport,
   onImport,
   onAdjustCoins,
+  rooms = [],
   gamificationEnabled = true,
   onGamificationChange,
 }: SettingsProps) {
@@ -107,9 +115,13 @@ export function Settings({
   const [memberEditOpen, setMemberEditOpen] = useState<Record<number, boolean>>({});
   const [memberPassword, setMemberPassword] = useState<Record<number, string>>({});
   const [memberPasswordMsg, setMemberPasswordMsg] = useState<Record<number, string>>({});
-  const [memberGoals, setMemberGoals] = useState<Record<number, Array<{ id: number; title: string; goalCoins: number; rewardCoins?: number; startAt?: string | null; endAt?: string | null }>>>({});
+  const [memberGoals, setMemberGoals] = useState<Record<number, Array<{ id: number; title: string; goalCoins: number; rewardCoins?: number; repeatWeekly?: number; status?: string; startAt?: string | null; endAt?: string | null }>>>({});
+  const [goalRepeat, setGoalRepeat] = useState<Record<number, boolean>>({});
+  const [rulesOpenId, setRulesOpenId] = useState<number | null>(null);
+  const [rotatingPerWeek, setRotatingPerWeek] = useState('3');
+  const [coinReason, setCoinReason] = useState<Record<number, string>>({});
   const [goalDraft, setGoalDraft] = useState<Record<number, { title: string; goalCoins: string; rewardCoins: string; endAt: string }>>({});
-  const [rewardsAdmin, setRewardsAdmin] = useState<Array<{ id: number; title: string; description?: string | null; costCoins: number; isActive?: boolean; isPreset?: boolean }>>([]);
+  const [rewardsAdmin, setRewardsAdmin] = useState<Array<{ id: number; title: string; description?: string | null; costCoins: number; isActive?: boolean; isPreset?: boolean } & Partial<RewardRules>>>([]);
   const [rewardRequests, setRewardRequests] = useState<Array<{ id: number; title: string; displayName: string; costCoins: number; redeemedAt: string; status: string }>>([]);
   const [rewardDraft, setRewardDraft] = useState({ title: '', description: '', costCoins: '30' });
   const [editingRewardId, setEditingRewardId] = useState<number | null>(null);
@@ -140,7 +152,7 @@ export function Settings({
   const [notifChatId, setNotifChatId] = useState('');
   const [notifToken, setNotifToken] = useState('');
   const [notifTime, setNotifTime] = useState('09:00');
-  const [notifTypes, setNotifTypes] = useState<{ taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean }>({ taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true });
+  const [notifTypes, setNotifTypes] = useState<{ taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean; coinBoost?: boolean }>({ taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true });
   const [notifHasToken, setNotifHasToken] = useState(false);
   const [notifMsg, setNotifMsg] = useState('');
   const [ntfyEnabled, setNtfyEnabled] = useState(false);
@@ -250,6 +262,7 @@ export function Settings({
     if (!isAdmin) return;
     const data = await api.getRewardsAdmin();
     setRewardsAdmin(data.rewards || []);
+    if (typeof data.rotatingPerWeek === 'number') setRotatingPerWeek(String(data.rotatingPerWeek));
     setRewardRequests(data.redemptions || []);
   };
 
@@ -335,7 +348,9 @@ export function Settings({
       rewardCoins,
       startAt: null,
       endAt: d.endAt ? `${d.endAt}T23:59:59.999Z` : null,
-    } as any);
+      repeatWeekly: !!goalRepeat[u.id],
+    });
+    setGoalRepeat((prev) => ({ ...prev, [u.id]: false }));
     setGoalDraft((prev) => ({ ...prev, [u.id]: { title: '', goalCoins: '', rewardCoins: '', endAt: '' } }));
     await loadAdminGoals();
   };
@@ -537,6 +552,10 @@ export function Settings({
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
                     <input type="checkbox" checked={notifTypes.choreApproval !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, choreApproval: e.target.checked }))} style={{ marginRight: 6 }} />
                     {t('settings.notificationTypeChoreApproval')}
+                  </label>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                    <input type="checkbox" checked={notifTypes.coinBoost !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, coinBoost: e.target.checked }))} style={{ marginRight: 6 }} />
+                    {t('settings.notificationTypeCoinBoost')}
                   </label>
                 </div>
 
@@ -866,14 +885,7 @@ export function Settings({
                   <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 8 }}>{u.displayName}</div>
                   <div style={{ display: 'grid', gap: 6, marginBottom: 8 }}>
                     {(memberGoals[u.id] || []).map((g) => (
-                      <div key={g.id} className="goal-member-row" style={{ display: 'grid', gridTemplateColumns: '1.4fr 120px 120px auto', gap: 8, alignItems: 'center', padding: '6px 8px', borderRadius: 10, backgroundColor: 'var(--warm-bg-warm)', border: '1px solid var(--warm-border)' }}>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-text)' }}>{g.title}</div>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)', display: 'inline-flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}><CoinIcon /> {g.goalCoins}</div>
-                        <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700 }}>{formatDate(g.endAt)}</div>
-                        <button className="tq-btn tq-btn-sm" onClick={() => handleDeleteGoal(g.id, u.id)} style={{ backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}>
-                          {t('common.delete')}
-                        </button>
-                      </div>
+                      <GoalRow key={g.id} goal={g} language={user.language} formatDate={formatDate} onChanged={loadAdminGoals} onDelete={() => handleDeleteGoal(g.id, u.id)} />
                     ))}
                   </div>
                   {memberGoalMsg[u.id] && (
@@ -914,6 +926,18 @@ export function Settings({
                     />
                     <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => handleAddGoal(u)}>{t('settings.addGoal')}</button>
                   </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginTop: 6 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!goalRepeat[u.id]} onChange={(e) => setGoalRepeat((prev) => ({ ...prev, [u.id]: e.target.checked }))} style={{ accentColor: 'var(--warm-accent)' }} />
+                      {t('goals.repeatWeekly')}
+                    </label>
+                    {/* Template: a weekly win this week, reusing their last target and bonus */}
+                    <button className="tq-btn tq-btn-sm" onClick={() => {
+                      const last = (memberGoals[u.id] || [])[0];
+                      setGoalDraft((prev) => ({ ...prev, [u.id]: { title: t('goals.weeklyWinTitle'), goalCoins: String(last?.goalCoins ?? 100), rewardCoins: String(last?.rewardCoins ?? 20), endAt: '' } }));
+                      setGoalRepeat((prev) => ({ ...prev, [u.id]: true }));
+                    }}>⭐ {t('goals.weeklyWinTemplate')}</button>
+                  </div>
                 </div>
               ))}
           </div>
@@ -930,6 +954,11 @@ export function Settings({
             <input className="tq-input" type="number" min={1} value={rewardDraft.costCoins} onChange={(e) => setRewardDraft((p) => ({ ...p, costCoins: e.target.value }))} placeholder={t('settings.rewardCost')} />
             <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={handleSeedRewards}>{t('settings.addPresetRewards')}</button>
             <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={handleCreateReward}>{t('settings.create')}</button>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: 10, fontSize: 12, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+            {t('rewardRules.rotatingPerWeek')}
+            <input type="number" min={0} max={50} className="tq-input-compact" value={rotatingPerWeek} onChange={(e) => setRotatingPerWeek(e.target.value)} style={{ width: 60 }} />
+            <button className="tq-btn tq-btn-sm" onClick={async () => { await api.updateRotationConfig(Math.max(0, Math.round(Number(rotatingPerWeek) || 0))); await loadRewardsAdmin(); }}>{t('common.save')}</button>
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
             {rewardsAdmin.map((r) => (
@@ -959,7 +988,10 @@ export function Settings({
                   </>
                 ) : (
                   <>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)' }}>{rewardTitle(r)}</div>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)' }}>
+                      {rewardTitle(r)}
+                      {rulesSummary(r, family, t) && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-accent)' }}>{rulesSummary(r, family, t)}</div>}
+                    </div>
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{rewardDesc(r)}</div>
                   </>
                 )}
@@ -976,7 +1008,7 @@ export function Settings({
                     style={{ padding: '6px 8px', borderRadius: 8, border: '1.5px solid var(--warm-border)', fontFamily: 'Nunito', fontSize: 12 }}
                   />
                 ) : (
-                  <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-accent)', display: 'flex', alignItems: 'center', gap: 4 }}><CoinIcon /> {r.costCoins}</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-accent)', display: 'flex', alignItems: 'center', gap: 4 }}><CoinIcon /> {formatCoins(r.costCoins)}</div>
                 )}
                 {editingRewardId === r.id ? (
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
@@ -985,8 +1017,14 @@ export function Settings({
                   </div>
                 ) : (
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    <button className="tq-btn" onClick={() => setRulesOpenId(rulesOpenId === r.id ? null : r.id)} style={{ padding: '4px 8px', fontSize: 10 }}>{t('rewardRules.rules')}</button>
                     <button className="tq-btn" onClick={() => startRewardEdit(r)} style={{ padding: '4px 8px', fontSize: 10 }}>{t('common.edit')}</button>
                     <button className="tq-btn" onClick={async () => { await api.deleteReward(r.id); await loadRewardsAdmin(); }} style={{ padding: '4px 8px', fontSize: 10, backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}>{t('common.delete')}</button>
+                  </div>
+                )}
+                {rulesOpenId === r.id && (
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <RewardRulesEditor reward={r} family={family} language={user.language} onSaved={loadRewardsAdmin} />
                   </div>
                 )}
               </div>
@@ -1009,6 +1047,14 @@ export function Settings({
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {isAdmin && gamificationEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">{t('boosts.title')}</h3>
+          <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('boosts.desc')}</div>
+          <CoinBoostsAdmin rooms={rooms} language={user.language} />
         </div>
       )}
 
@@ -1200,7 +1246,7 @@ export function Settings({
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{memberPasswordMsg[u.id]}</div>
                   )}
                   {gamificationEnabled && <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('settings.coinsBalance')}: {u.coins}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('settings.coinsBalance')}: {formatCoins(u.coins)}</span>
                     <input
                       type="number"
                       className="tq-input-compact"
@@ -1209,15 +1255,25 @@ export function Settings({
                       placeholder={t('settings.adjustCoins')}
                       style={{ width: 80 }}
                     />
+                    <input
+                      className="tq-input-compact"
+                      value={coinReason[u.id] || ''}
+                      maxLength={200}
+                      onChange={(e) => setCoinReason((prev) => ({ ...prev, [u.id]: e.target.value }))}
+                      placeholder={t('coins.reasonPlaceholder')}
+                      style={{ flex: '1 1 140px', minWidth: 0 }}
+                    />
                     <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={async () => {
                       const amt = parseInt(coinAdjust[u.id] || '0');
                       if (!amt) return;
+                      const reason = (coinReason[u.id] || '').trim() || undefined;
                       if (onAdjustCoins) {
-                        await onAdjustCoins(u.id, amt);
+                        await onAdjustCoins(u.id, amt, reason);
                       } else {
-                        await api.adjustCoins(u.id, amt);
+                        await api.adjustCoins(u.id, amt, reason);
                       }
                       setCoinAdjust((prev) => ({ ...prev, [u.id]: '' }));
+                      setCoinReason((prev) => ({ ...prev, [u.id]: '' }));
                       setCoinAdjustMsg((prev) => ({ ...prev, [u.id]: `${amt > 0 ? '+' : ''}${amt} ✓` }));
                       setTimeout(() => setCoinAdjustMsg((prev) => ({ ...prev, [u.id]: '' })), 2000);
                     }}>{t('settings.adjustCoins')}</button>

@@ -11,6 +11,8 @@ import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
 import { isNotificationTypeEnabled, sendNotification } from '../utils/notifications';
+import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatLimits';
+import { boostMultiplierForRoom } from '../utils/boosts';
 
 // Proof photos kids can attach to a completion (served at /api/proofs)
 export const proofsDir = path.join(__dirname, '..', '..', '..', 'data', 'proofs');
@@ -279,16 +281,19 @@ router.post('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
 
   const resolvedCustomCoins = (customCoins !== undefined && customCoins !== null && customCoins !== '')
     ? Math.max(1, Math.round(Number(customCoins))) : null;
+  const repeat = parseRepeatLimit(req.body);
+  if (repeat.error) return res.status(400).json({ error: repeat.error });
 
   const result = db.prepare(
     `INSERT INTO tasks (roomId, name, notes, frequencyDays, effort, isSeasonal, lastCompletedAt, iconKey,
-      assignedToChildren, assignmentMode, onDemand, showInDashboard, customCoins, allowEarlyCompletion)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      assignedToChildren, assignmentMode, onDemand, showInDashboard, customCoins, allowEarlyCompletion, repeatLimit, repeatPeriod)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     req.params.roomId, name, notes || null, frequencyDays || 7, effort || 1, isSeasonal ? 1 : 0,
     lastCompletedAt, iconKey || suggestTaskIcon(name, null), resolvedAssignedToChildren,
     resolvedAssignmentMode, onDemand ? 1 : 0, showInDashboard ? 1 : 0,
-    resolvedCustomCoins, allowEarlyCompletion ? 1 : 0
+    resolvedCustomCoins, allowEarlyCompletion ? 1 : 0,
+    repeat.value?.repeatLimit ?? null, repeat.value?.repeatPeriod ?? null
   );
 
   const newTaskId = result.lastInsertRowid as number;
@@ -373,6 +378,12 @@ router.put('/tasks/:id', (req: AuthRequest, res: Response) => {
     setClauses.push('customCoins = ?'); params.push(resolved);
   }
   if (allowEarlyCompletion !== undefined) { setClauses.push('allowEarlyCompletion = ?'); params.push(allowEarlyCompletion ? 1 : 0); }
+  const repeat = parseRepeatLimit(req.body);
+  if (repeat.error) return res.status(400).json({ error: repeat.error });
+  if (repeat.value) {
+    setClauses.push('repeatLimit = ?', 'repeatPeriod = ?');
+    params.push(repeat.value.repeatLimit, repeat.value.repeatPeriod);
+  }
 
   // Validate custom mode percentages sum to 100
   if (resolvedMode === 'custom' && Array.isArray(assignedUserIds) && assignedUserIds.length > 0) {
@@ -488,12 +499,14 @@ router.post('/tasks/:id/duplicate', (req: AuthRequest, res: Response) => {
 
   const result = db.prepare(
     `INSERT INTO tasks (roomId, name, notes, frequencyDays, effort, isSeasonal, lastCompletedAt, iconKey,
-      assignedToChildren, assignmentMode, onDemand, showInDashboard, customCoins, allowEarlyCompletion, translationKey)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      assignedToChildren, assignmentMode, onDemand, showInDashboard, customCoins, allowEarlyCompletion, translationKey,
+      repeatLimit, repeatPeriod)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     task.roomId, task.name, task.notes, task.frequencyDays, task.effort, task.isSeasonal,
     null, task.iconKey, task.assignedToChildren, task.assignmentMode, task.onDemand,
-    task.showInDashboard, task.customCoins, task.allowEarlyCompletion, task.translationKey
+    task.showInDashboard, task.customCoins, task.allowEarlyCompletion, task.translationKey,
+    task.repeatLimit ?? null, task.repeatPeriod ?? null
   );
   const newTaskId = result.lastInsertRowid as number;
 
@@ -649,6 +662,15 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
         }
       }
     }
+  } else {
+    // Anytime quests skip the cooldowns above, but may be capped per person per day/week
+    const repeat = repeatLimitOf(task);
+    if (repeat) {
+      const count = countInPeriod(task.id, effectiveUserId, repeat.period, new Date(now));
+      if (count >= repeat.limit) {
+        return res.status(409).json({ error: 'repeat_limit_reached', limit: repeat.limit, period: repeat.period, count });
+      }
+    }
   }
 
   // Fetch assignees once — needed for coin splitting and lastCompletedAt logic
@@ -673,6 +695,10 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     } else {
       coins = baseCoins;
     }
+    // Double coins event running for this room: the boosted amount is stored on the completion,
+    // so a parent approving it later (Strict Mode) still pays the boost
+    const multiplier = boostMultiplierForRoom(task.roomId, new Date(now));
+    if (multiplier > 1) coins = Math.round(coins * multiplier);
   }
 
   // Optional proof note (a photo can be attached afterwards with POST /completions/:id/photo)

@@ -3,6 +3,7 @@ import { HomeIcon, RoomsIcon, TasksIcon, TrophyIcon, CalendarIcon, ActivityIcon,
 import { FireIcon, CoinIcon, SparkleIcon } from '../icons/UIIcons';
 import { UserAvatar } from '../shared/UserAvatar';
 import { useTranslation } from '../../hooks/useTranslation';
+import { formatCoins } from '../../utils/format';
 import type { User } from '../../hooks/useAuth';
 
 interface SidebarProps {
@@ -216,7 +217,7 @@ export function Sidebar({ user, isMobileOpen = false, onClose, gamificationEnabl
                 {gamificationEnabled && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
-                      <CoinIcon /> {user.coins}
+                      <CoinIcon /> {formatCoins(user.coins)}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
                       <FireIcon /> {user.currentStreak}d

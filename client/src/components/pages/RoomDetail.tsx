@@ -70,6 +70,10 @@ interface Task {
   rotationCurrentUserId?: number | null;
   customCoins?: number | null;
   myPendingCount?: number;
+  repeatLimit?: number | null;
+  repeatPeriod?: 'day' | 'week' | null;
+  /** The viewer's completions of this anytime quest in the current day/week */
+  myRepeatCount?: number;
   allowEarlyCompletion?: boolean;
   sharedCompletions?: Array<{ userId: number; displayName: string; completionId: number }>;
 }
@@ -145,7 +149,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const [editingTask, setEditingTask] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ name: '', originalName: '', notes: '', freqValue: 7, freqUnit: 'days', effort: 1, health: 100, healthChanged: false, iconKey: 'sparkle', onDemand: false, showInDashboard: false, assignmentType: 'none' as 'none' | 'users', assignmentUserIds: [] as number[], assignmentMode: 'first' as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages: {} as Record<number, number>, customCoins: '' as string | number, allowEarlyCompletion: false });
+  const [editForm, setEditForm] = useState({ name: '', originalName: '', notes: '', freqValue: 7, freqUnit: 'days', effort: 1, health: 100, healthChanged: false, iconKey: 'sparkle', onDemand: false, showInDashboard: false, assignmentType: 'none' as 'none' | 'users', assignmentUserIds: [] as number[], assignmentMode: 'first' as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages: {} as Record<number, number>, customCoins: '' as string | number, allowEarlyCompletion: false, repeatLimit: '', repeatPeriod: 'week' as 'day' | 'week' });
   const [taskMenuOpen, setTaskMenuOpen] = useState<number | null>(null);
   const [moveMenuTaskId, setMoveMenuTaskId] = useState<number | null>(null);
   const [allRooms, setAllRooms] = useState<Array<{ id: number; name: string; roomType: string }>>([]);
@@ -164,6 +168,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const [addTaskError, setAddTaskError] = useState('');
   const [newTaskOnDemand, setNewTaskOnDemand] = useState(false);
   const [newTaskShowInDashboard, setNewTaskShowInDashboard] = useState(false);
+  const [newRepeatLimit, setNewRepeatLimit] = useState('');
+  const [newRepeatPeriod, setNewRepeatPeriod] = useState<'day' | 'week'>('week');
   const [sortKey, setSortKey] = useState<SortKey>('health');
   const [sortAsc, setSortAsc] = useState(true);
   const focusedOnce = useRef<number | null>(null);
@@ -270,7 +276,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     }
     const displayedName = translateTask(task.name, task.translationKey);
     setEditingTask(task.id);
-    setEditForm({ name: displayedName, originalName: displayedName, notes: task.notes || '', freqValue: value, freqUnit: unit, effort: task.effort, health: task.health, healthChanged: false, iconKey: task.iconKey || 'sparkle', onDemand: !!task.onDemand, showInDashboard: !!task.showInDashboard, assignmentType, assignmentUserIds, assignmentMode: (task.assignmentMode || 'first') as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages, customCoins: task.customCoins ?? '', allowEarlyCompletion: !!task.allowEarlyCompletion });
+    setEditForm({ name: displayedName, originalName: displayedName, notes: task.notes || '', freqValue: value, freqUnit: unit, effort: task.effort, health: task.health, healthChanged: false, iconKey: task.iconKey || 'sparkle', onDemand: !!task.onDemand, showInDashboard: !!task.showInDashboard, assignmentType, assignmentUserIds, assignmentMode: (task.assignmentMode || 'first') as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages, customCoins: task.customCoins ?? '', allowEarlyCompletion: !!task.allowEarlyCompletion, repeatLimit: task.repeatLimit ? String(task.repeatLimit) : '', repeatPeriod: task.repeatPeriod === 'day' ? 'day' : 'week' });
   };
 
   const saveEdit = async () => {
@@ -281,7 +287,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       { assignedToChildren: false, assignedUserIds: [] };
     const assignedUserPercentages = editForm.assignmentMode === 'custom' ? editForm.assignmentPercentages : undefined;
     const nameChanged = editForm.name.trim() !== editForm.originalName.trim();
-    await api.updateTask(editingTask, { ...(nameChanged ? { name: editForm.name } : {}), notes: editForm.notes, frequencyDays, effort: editForm.effort, ...(editForm.healthChanged ? { health: editForm.health } : {}), iconKey: editForm.iconKey, onDemand: editForm.onDemand, showInDashboard: editForm.showInDashboard, assignmentMode: editForm.assignmentMode, assignedUserPercentages, customCoins: editForm.customCoins !== '' ? Number(editForm.customCoins) : null, allowEarlyCompletion: editForm.allowEarlyCompletion, ...assignmentPayload });
+    await api.updateTask(editingTask, { ...(nameChanged ? { name: editForm.name } : {}), notes: editForm.notes, frequencyDays, effort: editForm.effort, ...(editForm.healthChanged ? { health: editForm.health } : {}), iconKey: editForm.iconKey, onDemand: editForm.onDemand, showInDashboard: editForm.showInDashboard, assignmentMode: editForm.assignmentMode, assignedUserPercentages, customCoins: editForm.customCoins !== '' ? Number(editForm.customCoins) : null, allowEarlyCompletion: editForm.allowEarlyCompletion, repeatLimit: editForm.onDemand && editForm.repeatLimit ? Number(editForm.repeatLimit) : null, repeatPeriod: editForm.repeatPeriod, ...assignmentPayload });
     const editedId = editingTask;
     setEditingTask(null);
     onRefresh?.();
@@ -311,6 +317,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     if (pending > 0 && currentUserRole !== 'admin' && currentUserRole !== 'member') {
       if (!task.onDemand) return { disabled: true, label: t('app.waitingForApproval') };
       return { disabled: false, label: `${t('roomDetail.done')} · ⏳ ${pending}` };
+    }
+
+    // Anytime quest with a repeat limit that's used up for this day/week
+    if (task.onDemand && task.repeatLimit && (task.myRepeatCount ?? 0) >= task.repeatLimit && currentUserRole !== 'admin' && currentUserRole !== 'member') {
+      return { disabled: true, label: t(task.repeatPeriod === 'day' ? 'repeat.doneToday' : 'repeat.doneThisWeek') };
     }
 
     // Rotating mode: disabled if it's not the current user's turn
@@ -413,6 +424,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       iconKey: newTaskIconKey,
       onDemand: newTaskOnDemand,
       showInDashboard: newTaskShowInDashboard,
+      ...(newTaskOnDemand && newRepeatLimit ? { repeatLimit: Number(newRepeatLimit), repeatPeriod: newRepeatPeriod } : {}),
       assignmentMode: newAssignmentMode,
       assignedUserPercentages,
       ...assignmentPayload,
@@ -430,6 +442,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     setNewAssignmentPercentages({});
     setNewTaskOnDemand(false);
     setNewTaskShowInDashboard(false);
+    setNewRepeatLimit('');
     setShowAddTask(false);
     onRefresh?.();
   };
@@ -520,6 +533,15 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       <input type="checkbox" checked={editForm.showInDashboard}
                         onChange={(e) => setEditForm(f => ({ ...f, showInDashboard: e.target.checked }))}
                         style={{ cursor: 'pointer', width: 16, height: 16, accentColor: 'var(--warm-accent)' }} />
+                    </div>}
+                    {editForm.onDemand && <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }} title={t('repeat.limitDesc')}>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('repeat.limit')}</label>
+                      <input type="number" min={1} max={99} className="tq-input-compact" value={editForm.repeatLimit} placeholder="∞"
+                        onChange={(e) => setEditForm(f => ({ ...f, repeatLimit: e.target.value }))} style={{ width: 52 }} />
+                      <select className="tq-input-compact" value={editForm.repeatPeriod} onChange={(e) => setEditForm(f => ({ ...f, repeatPeriod: e.target.value as 'day' | 'week' }))}>
+                        <option value="day">{t('repeat.perDay')}</option>
+                        <option value="week">{t('repeat.perWeek')}</option>
+                      </select>
                     </div>}
                     {!editForm.onDemand && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.every')}</label>
@@ -755,7 +777,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       </div>
                     )}
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
-                      {timeAgo(task.lastCompletedAt)}{task.isSeasonal ? ` · ${t('roomDetail.seasonal')}` : ''}{task.onDemand ? ` · ${t('roomDetail.onDemand')}` : ''}
+                      {timeAgo(task.lastCompletedAt)}{task.isSeasonal ? ` · ${t('roomDetail.seasonal')}` : ''}{task.onDemand ? ` · ${t('roomDetail.onDemand')}` : ''}{task.onDemand && task.repeatLimit ? ` · ${task.myRepeatCount ?? 0}/${task.repeatLimit} ${t(task.repeatPeriod === 'day' ? 'repeat.today' : 'repeat.thisWeek')}` : ''}
                     </div>
                   </div>
                 </div>
@@ -946,6 +968,14 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   <input type="checkbox" checked={newTaskShowInDashboard}
                     onChange={(e) => setNewTaskShowInDashboard(e.target.checked)}
                     style={{ cursor: 'pointer', width: 16, height: 16, accentColor: 'var(--warm-accent)' }} />
+                </div>}
+                {newTaskOnDemand && <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }} title={t('repeat.limitDesc')}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('repeat.limit')}</label>
+                  <input type="number" min={1} max={99} className="tq-input-compact" value={newRepeatLimit} placeholder="∞" onChange={(e) => setNewRepeatLimit(e.target.value)} style={{ width: 52 }} />
+                  <select className="tq-input-compact" value={newRepeatPeriod} onChange={(e) => setNewRepeatPeriod(e.target.value as 'day' | 'week')}>
+                    <option value="day">{t('repeat.perDay')}</option>
+                    <option value="week">{t('repeat.perWeek')}</option>
+                  </select>
                 </div>}
                 {!newTaskOnDemand && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.every')}</label>

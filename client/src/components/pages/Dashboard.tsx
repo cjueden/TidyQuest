@@ -12,6 +12,8 @@ import { useTaskView } from '../../hooks/useTaskView';
 import { AllMineToggle } from '../shared/AllMineToggle';
 import { PendingApprovals, type PendingItem } from '../shared/PendingApprovals';
 import { ProofModal, type Proof } from '../shared/ProofModal';
+import type { CoinBoost } from '../../hooks/useApi';
+import { formatCoins } from '../../utils/format';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { api } from '../../hooks/useApi';
 
@@ -56,6 +58,9 @@ interface Quest {
   myPendingCount?: number;
   notes?: string | null;
   customCoins?: number | null;
+  repeatLimit?: number | null;
+  repeatPeriod?: 'day' | 'week' | null;
+  myRepeatCount?: number;
 }
 
 interface CurrentUser {
@@ -126,7 +131,9 @@ interface DashboardProps {
     scheduledUpcoming?: Quest[];
     onDemandQuests?: Quest[];
     completedToday?: CompletedTodayEntry[];
-    myGoal?: { goalCoins: number; currentCoins: number; progress: number; goalStartAt?: string | null; goalEndAt?: string | null; completed?: boolean } | null;
+    myGoal?: { goalCoins: number; currentCoins: number; progress: number; goalStartAt?: string | null; goalEndAt?: string | null; completed?: boolean; rewardCoins?: number; title?: string | null } | null;
+    /** Double coins events running now */
+    coinBoosts?: CoinBoost[];
     childrenGoals?: Array<{ id: number; displayName: string; role: string; coins: number; currentCoins?: number; goalCoins: number | null; progress: number | null; goalStartAt?: string | null; goalEndAt?: string | null }>;
     pendingRewardRequests?: Array<{ id: number; title: string; displayName: string; costCoins: number; redeemedAt: string; status: 'requested' | 'approved' | 'rejected' }>;
     /** Chores waiting for a parent (admins only) */
@@ -178,6 +185,19 @@ const Dashboard: React.FC<DashboardProps> = ({
     onClick: () => onOpenTask(q.roomId, q.id),
     onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' && e.target === e.currentTarget) onOpenTask(q.roomId, q.id); },
   } : {};
+  // Double coins events: the biggest running boost that covers a task's room (boosts don't stack)
+  const boosts = gamificationEnabled ? (data.coinBoosts ?? []) : [];
+  const boostFor = (q: Quest) => boosts.reduce((m, b) => (!b.roomIds || b.roomIds.includes(q.roomId) ? Math.max(m, b.multiplier) : m), 1);
+  const [nowTs, setNowTs] = useState(() => Date.now());
+  useEffect(() => {
+    if (boosts.length === 0) return;
+    const id = setInterval(() => setNowTs(Date.now()), 30000);
+    return () => clearInterval(id);
+  }, [boosts.length]);
+  const timeLeft = (endAt: string) => {
+    const mins = Math.max(0, Math.round((new Date(endAt).getTime() - nowTs) / 60000));
+    return mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`;
+  };
   const questDetails = (q: Quest) => (
     <>
       {q.notes && (
@@ -187,7 +207,14 @@ const Dashboard: React.FC<DashboardProps> = ({
       )}
       {gamificationEnabled && (
         <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)', display: 'inline-flex', alignItems: 'center', gap: 3, marginTop: 3 }}>
-          <CoinIcon />{taskCoins(q, coinsByEffort)}
+          <CoinIcon />
+          {boostFor(q) > 1 ? (
+            <>
+              <span style={{ textDecoration: 'line-through', color: 'var(--warm-text-light)', fontWeight: 700 }}>{formatCoins(taskCoins(q, coinsByEffort))}</span>
+              {formatCoins(Math.round(taskCoins(q, coinsByEffort) * boostFor(q)))}
+              <span style={{ fontSize: 10, fontWeight: 900, color: '#fff', backgroundColor: 'var(--warm-accent)', borderRadius: 6, padding: '1px 5px' }}>⚡ {boostFor(q)}×</span>
+            </>
+          ) : formatCoins(taskCoins(q, coinsByEffort))}
         </div>
       )}
     </>
@@ -314,7 +341,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           <div className="tq-card tq-card-padded kid-hero" style={{ gridColumn: '1 / -1', background: 'var(--warm-streak-bg)', borderColor: 'var(--warm-streak-border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 36, fontWeight: 900, color: 'var(--warm-streak-text)' }}>
-                <span style={{ transform: 'scale(1.6)', display: 'inline-flex', marginRight: 6 }}><CoinIcon /></span>{currentUser.coins.toLocaleString()}
+                <span style={{ transform: 'scale(1.6)', display: 'inline-flex', marginRight: 6 }}><CoinIcon /></span>{formatCoins(currentUser.coins)}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 22, fontWeight: 800, color: 'var(--warm-streak-text)' }}>
                 <FireIcon /> {currentUser.currentStreak}
@@ -327,8 +354,31 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <span>{myGoal.currentCoins} / {myGoal.goalCoins}</span>
                 </div>
                 <HealthBar value={myGoal.progress} height={14} showLabel={false} />
+                {(myGoal.rewardCoins ?? 0) > 0 && (
+                  <div style={{ fontSize: 13, fontWeight: 800, color: myGoal.completed ? 'var(--health-green)' : 'var(--warm-text-muted)', marginTop: 6 }}>
+                    {myGoal.completed ? `+${formatCoins(myGoal.rewardCoins)} ${t('goals.bonusEarned')}` : t('goals.bonusWhenReached').replace('{n}', formatCoins(myGoal.rewardCoins))}
+                  </div>
+                )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Double coins events running now, with time left */}
+        {boosts.length > 0 && (
+          <div className="tq-card tq-card-padded boost-banner" style={{ gridColumn: '1 / -1', background: 'linear-gradient(135deg, var(--warm-accent-light), var(--warm-card))', borderColor: 'var(--warm-accent)' }}>
+            {boosts.map((b) => (
+              <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 26, fontWeight: 900, color: 'var(--warm-accent)' }}>⚡ {b.multiplier}×</span>
+                <span style={{ flex: '1 1 180px', minWidth: 0 }}>
+                  <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--warm-text)' }}>{b.title}</span>
+                  <span style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                    {t('boosts.left').replace('{time}', timeLeft(b.endAt))}
+                    {b.roomIds ? ` · ${b.roomIds.map((id) => rooms.find((r) => r.id === id)?.name ?? '').filter(Boolean).join(', ')}` : ` · ${t('boosts.allRooms')}`}
+                  </span>
+                </span>
+              </div>
+            ))}
           </div>
         )}
 
@@ -507,8 +557,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                   const ids = q.effectiveAssignedUserIds ?? [];
                   const notMine = !isAdminOrMember && ids.length > 0 && !ids.includes(currentUser.id);
                   const pending = q.myPendingCount ?? 0;
+                  const usedUp = !isAdminOrMember && !!q.repeatLimit && (q.myRepeatCount ?? 0) >= q.repeatLimit;
+                  const blocked = notMine || usedUp;
                   const handleDone = () => {
-                    if (notMine) return;
+                    if (blocked) return;
                     if (isAdminOrMember && hasAssignees) setAdminModalQuest(q);
                     else onCompleteTask(q.id);
                   };
@@ -528,13 +580,18 @@ const Dashboard: React.FC<DashboardProps> = ({
                             ⏳ {t('app.waitingCount').replace('{n}', String(pending))}
                           </div>
                         )}
+                        {!!q.repeatLimit && (
+                          <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700, marginTop: 2 }}>
+                            {q.myRepeatCount ?? 0}/{q.repeatLimit} {t(q.repeatPeriod === 'day' ? 'repeat.today' : 'repeat.thisWeek')}
+                          </div>
+                        )}
                         {questDetails(q)}
                       </div>
                       <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-                      {proofButton(q, !notMine)}
-                      <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={notMine} className={notMine ? 'tq-btn' : 'tq-btn tq-btn-primary'}
-                        style={{ padding: '8px 14px', fontSize: 12, ...(notMine ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
-                        {notMine ? t('app.notAssigned') : <><CheckIcon /> {t('roomDetail.done')}</>}
+                      {proofButton(q, !blocked)}
+                      <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={blocked} className={blocked ? 'tq-btn' : 'tq-btn tq-btn-primary'}
+                        style={{ padding: '8px 14px', fontSize: 12, ...(blocked ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
+                        {notMine ? t('app.notAssigned') : usedUp ? t(q.repeatPeriod === 'day' ? 'repeat.doneToday' : 'repeat.doneThisWeek') : <><CheckIcon /> {t('roomDetail.done')}</>}
                       </button>
                       </span>
                     </div>
@@ -775,7 +832,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <UserAvatar name={u.displayName} color={u.avatarColor} size={28} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
                 <div style={{ flex: 1, fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{u.displayName}</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 800, color: 'var(--warm-coin)' }}>
-                  {u.coins} <CoinIcon />
+                  {formatCoins(u.coins)} <CoinIcon />
                 </div>
               </div>
             ))}
@@ -797,6 +854,11 @@ const Dashboard: React.FC<DashboardProps> = ({
               </div>
             )}
             <HealthBar value={myGoal.progress} height={8} showLabel={false} />
+            {(myGoal.rewardCoins ?? 0) > 0 && (
+              <div style={{ fontSize: 11, fontWeight: 800, color: myGoal.completed ? 'var(--health-green)' : 'var(--warm-text-muted)', marginTop: 6 }}>
+                {myGoal.completed ? `🎉 +${formatCoins(myGoal.rewardCoins)} ${t('goals.bonusEarned')}` : t('goals.bonusWhenReached').replace('{n}', formatCoins(myGoal.rewardCoins))}
+              </div>
+            )}
           </div>
         )}
 
@@ -808,7 +870,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <div key={cg.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--warm-border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, color: 'var(--warm-text-secondary)' }}>
                     <span>{cg.displayName}</span>
-                    <span>{cg.goalCoins ? `${cg.currentCoins ?? cg.coins}/${cg.goalCoins}` : t('dashboard.noGoal')}</span>
+                    <span>{cg.goalCoins ? `${formatCoins(cg.currentCoins ?? cg.coins)}/${formatCoins(cg.goalCoins)}` : t('dashboard.noGoal')}</span>
                   </div>
                   {(cg.goalStartAt || cg.goalEndAt) && (
                     <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700, marginTop: 2 }}>

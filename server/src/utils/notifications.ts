@@ -13,6 +13,8 @@ export interface NotificationTypeSettings {
   achievementUnlocked: boolean;
   /** A child finished a chore and it's waiting for a parent (Strict Mode) */
   choreApproval: boolean;
+  /** A double coins event started, or has an hour left */
+  coinBoost: boolean;
 }
 
 function getSetting(key: string): string {
@@ -34,6 +36,7 @@ const DEFAULT_NOTIFICATION_TYPES: NotificationTypeSettings = {
   rewardRequest: true,
   achievementUnlocked: true,
   choreApproval: true,
+  coinBoost: true,
 };
 
 export function getNotificationTypeSettings(): NotificationTypeSettings {
@@ -46,6 +49,7 @@ export function getNotificationTypeSettings(): NotificationTypeSettings {
       rewardRequest: parsed.rewardRequest !== false,
       achievementUnlocked: parsed.achievementUnlocked !== false,
       choreApproval: parsed.choreApproval !== false,
+      coinBoost: parsed.coinBoost !== false,
     };
   } catch {
     return DEFAULT_NOTIFICATION_TYPES;
@@ -215,7 +219,7 @@ export async function sendNotification(message: string): Promise<{ telegram?: bo
 
 let lastCheckedMinute: string | null = null;
 
-function isAnyProviderEnabled(): boolean {
+export function isAnyProviderEnabled(): boolean {
   if (getSetting('notificationsEnabled') !== '1') return false;
   const tg = getTelegramSettings();
   const ntfy = getNtfySettings();

@@ -3,6 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { CoinIcon } from '../icons/UIIcons';
 import { matchesQuery } from '../../utils/tasks';
 import { useTranslation } from '../../hooks/useTranslation';
+import type { RewardAvailability, RewardPot } from '../../hooks/useApi';
+import { formatCoins } from '../../utils/format';
+import { localeFor } from '../../utils/locale';
 
 interface Reward {
   id: number;
@@ -10,6 +13,12 @@ interface Reward {
   description?: string | null;
   costCoins: number;
   isPreset?: boolean;
+  /** The reward's usual price when this person has their own price */
+  regularCostCoins?: number;
+  isShared?: boolean;
+  availability?: RewardAvailability | null;
+  pot?: RewardPot | null;
+  availableUntil?: string | null;
 }
 
 interface Redemption {
@@ -39,9 +48,50 @@ interface RewardsProps {
   onRewardRequestAction?: (id: number, status: 'approved' | 'rejected') => Promise<void>;
   onRedeem: (rewardId: number) => Promise<void>;
   onCancel: (redemptionId: number) => Promise<void>;
+  /** Chip coins into a shared reward (Family Goals) */
+  onContribute?: (rewardId: number, amount: number) => Promise<void>;
 }
 
-export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRequests, onRewardRequestAction, onRedeem, onCancel }: RewardsProps) {
+/** A shared reward's pot: progress, who chipped in, and a box to add more. */
+function SharedPot({ pot, userCoins, language, onContribute }: { pot: RewardPot; userCoins: number; language?: string; onContribute?: (amount: number) => Promise<void> }) {
+  const { t } = useTranslation(language);
+  const locale = localeFor(language);
+  const most = Math.min(pot.remaining, userCoins);
+  const [amount, setAmount] = useState('');
+  const [error, setError] = useState('');
+  const pct = pot.target > 0 ? Math.min(100, Math.round((pot.saved / pot.target) * 100)) : 0;
+  return (
+    <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
+      <div style={{ height: 10, borderRadius: 99, backgroundColor: 'var(--warm-border)', overflow: 'hidden' }}>
+        <div style={{ width: `${pct}%`, height: '100%', backgroundColor: 'var(--warm-accent)' }} />
+      </div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+        {t('rewardRules.potSaved').replace('{saved}', formatCoins(pot.saved, locale)).replace('{target}', formatCoins(pot.target, locale))}
+        {pot.contributors.length > 0 && ` · ${pot.contributors.map((c) => `${c.displayName} ${formatCoins(c.amount, locale)}`).join(', ')}`}
+      </div>
+      {pot.awaitingApproval ? (
+        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-accent)' }}>🎉 {t('rewardRules.potWaiting')}</div>
+      ) : (
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+          <input type="number" min={1} max={most} className="tq-input-compact" value={amount} onChange={(e) => setAmount(e.target.value)}
+            placeholder={String(Math.max(1, Math.min(most, 50)))} style={{ width: 80 }} disabled={most < 1} />
+          <button className="tq-btn tq-btn-primary tq-btn-sm" disabled={most < 1 || !onContribute}
+            onClick={async () => {
+              setError('');
+              const n = Math.round(Number(amount || Math.min(most, 50)));
+              if (!n || n < 1) return;
+              try { await onContribute?.(n); setAmount(''); } catch (err) { setError(err instanceof Error ? err.message : t('common.error')); }
+            }}>
+            {t('rewardRules.chipIn')}
+          </button>
+          {error && <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-danger)' }}>{error}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRequests, onRewardRequestAction, onRedeem, onCancel, onContribute }: RewardsProps) {
   const { t } = useTranslation(language);
   const [pendingRewardId, setPendingRewardId] = useState<number | null>(null);
   const [spendFx, setSpendFx] = useState<{ amount: number; key: number } | null>(null);
@@ -154,7 +204,7 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
       <div className="tq-card tq-card-padded">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <CoinIcon />
-          <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--warm-text)' }}>{userCoins} {t('settings.coins')}</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--warm-text)' }}>{formatCoins(userCoins, localeFor(language))} {t('settings.coins')}</div>
         </div>
         <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginTop: 4 }}>{t('rewards.balanceHint')}</div>
       </div>
@@ -208,24 +258,41 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
         )}
         <div className="rewards-catalog-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10 }}>
           {visibleRewards.map((r) => {
-            const canBuy = userCoins >= r.costCoins;
+            const usedUp = !!r.availability && r.availability.remaining <= 0;
+            const canBuy = userCoins >= r.costCoins && !usedUp;
+            const ownPrice = r.regularCostCoins !== undefined && r.regularCostCoins !== r.costCoins;
             return (
               <div key={r.id} style={{ border: '1.5px solid var(--warm-border)', borderRadius: 14, padding: 12, backgroundColor: 'var(--warm-bg-subtle)' }}>
                 <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 4 }}>{rewardTitle(r)}</div>
                 <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, minHeight: 32 }}>{rewardDesc(r)}</div>
+                {(r.availability || r.availableUntil) && (
+                  <div style={{ fontSize: 11, fontWeight: 700, color: usedUp ? 'var(--warm-danger)' : 'var(--warm-text-muted)', marginTop: 4 }}>
+                    {r.availability && (usedUp
+                      ? t(`rewardRules.usedUp_${r.availability.period}`)
+                      : t(`rewardRules.left_${r.availability.period}`).replace('{n}', String(r.availability.remaining)))}
+                    {r.availability && r.availableUntil ? ' · ' : ''}
+                    {r.availableUntil && t('rewardRules.untilDate').replace('{date}', new Date(`${r.availableUntil}T12:00:00`).toLocaleDateString(localeFor(language), { month: 'short', day: 'numeric' }))}
+                  </div>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-accent)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                    <CoinIcon /> {r.costCoins}
+                    <CoinIcon /> {formatCoins(r.costCoins, localeFor(language))}
+                    {ownPrice && <span style={{ fontSize: 11, color: 'var(--warm-text-light)', textDecoration: 'line-through', fontWeight: 700 }}>{formatCoins(r.regularCostCoins, localeFor(language))}</span>}
                   </div>
-                  <button
-                    className="tq-btn tq-btn-primary tq-btn-sm"
-                    style={{ opacity: canBuy ? 1 : 0.6 }}
-                    disabled={!canBuy}
-                    onClick={() => setPendingRewardId(r.id)}
-                  >
-                    {canBuy ? t('rewards.redeem') : t('rewards.notEnough')}
-                  </button>
+                  {!r.isShared && (
+                    <button
+                      className="tq-btn tq-btn-primary tq-btn-sm"
+                      style={{ opacity: canBuy ? 1 : 0.6 }}
+                      disabled={!canBuy}
+                      onClick={() => setPendingRewardId(r.id)}
+                    >
+                      {usedUp ? t('rewardRules.usedUp') : canBuy ? t('rewards.redeem') : t('rewards.notEnough')}
+                    </button>
+                  )}
                 </div>
+                {r.isShared && r.pot && (
+                  <SharedPot pot={r.pot} userCoins={userCoins} language={language} onContribute={onContribute ? (n) => onContribute(r.id, n) : undefined} />
+                )}
               </div>
             );
           })}

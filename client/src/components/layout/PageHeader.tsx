@@ -3,6 +3,7 @@ import { FireIcon, CoinIcon, PointsIcon } from '../icons/UIIcons';
 import { SearchContext } from '../shared/searchContext';
 import { SearchIcon } from '../shared/SearchOverlay';
 import { useTranslation } from '../../hooks/useTranslation';
+import { formatCoins } from '../../utils/format';
 import type { User } from '../../hooks/useAuth';
 
 interface PageHeaderProps {
@@ -89,7 +90,7 @@ export function PageHeader({ title, subtitle, user, rightContent, onCoinsClick, 
           cursor: onCoinsClick ? 'pointer' : 'default',
         }}>
           <CoinIcon />
-          <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-streak-text)' }}>{user.coins}</span>
+          <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-streak-text)' }}>{formatCoins(user.coins)}</span>
         </div>
         <div
           onClick={onPointsClick}
@@ -109,7 +110,7 @@ export function PageHeader({ title, subtitle, user, rightContent, onCoinsClick, 
           cursor: onPointsClick ? 'pointer' : 'default',
         }}>
           <PointsIcon />
-          <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-streak-text)' }}>{userPoints ?? user.points}</span>
+          <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-streak-text)' }}>{formatCoins(userPoints ?? user.points)}</span>
           {pointsPeriodLabel && (
             <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', textTransform: 'uppercase' }}>{pointsPeriodLabel}</span>
           )}

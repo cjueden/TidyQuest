@@ -277,7 +277,8 @@
       "taskViewMineOnly": "Only theirs",
       "kidMode": "Kid mode",
       "kidModeDesc": "Bigger buttons, fewer cards, coins and goal up front.",
-      "notificationTypeChoreApproval": "Chore waiting for approval"
+      "notificationTypeChoreApproval": "Chore waiting for approval",
+      "notificationTypeCoinBoost": "Double coins events"
     },
     "nav": {
       "home": "Home",
@@ -587,7 +588,8 @@
       "add": "Add",
       "you": "You",
       "showMore": "Show {n} more",
-      "showLess": "Show less"
+      "showLess": "Show less",
+      "error": "Something went wrong"
     },
     "units": {
       "hours": "hours",
@@ -800,6 +802,81 @@
       "photo": "Photo (optional)",
       "submit": "Done",
       "photoFailed": "Saved, but the photo didn't upload."
+    },
+    "rewardRules": {
+      "whoCanSee": "Who can see it",
+      "everyone": "Everyone",
+      "pricePerPerson": "Price per person (blank = usual price)",
+      "limit": "Limit how often",
+      "periodEver": "in total",
+      "periodDay": "per day",
+      "periodWeek": "per week",
+      "periodMonth": "per month",
+      "scopePerson": "for each person",
+      "scopeEveryone": "for the whole family",
+      "onOffer": "On offer",
+      "from": "From",
+      "until": "Until",
+      "rotating": "Rotating",
+      "rotatingDesc": "Only a few rotating rewards show each week, picked automatically.",
+      "shared": "Shared saving",
+      "sharedDesc": "Anyone can chip in coins; when the pot is full it goes to a parent to approve.",
+      "customPrices": "own prices",
+      "per_ever": "in total",
+      "per_day": "per day",
+      "per_week": "per week",
+      "per_month": "per month",
+      "rules": "Rules",
+      "rotatingPerWeek": "Rotating rewards shown each week:",
+      "usedUp": "Used up",
+      "usedUp_ever": "Already used",
+      "usedUp_day": "Used today — back tomorrow",
+      "usedUp_week": "Used this week — back Monday",
+      "usedUp_month": "Used this month",
+      "left_ever": "{n} left",
+      "left_day": "{n} left today",
+      "left_week": "{n} left this week",
+      "left_month": "{n} left this month",
+      "untilDate": "Until {date}",
+      "potSaved": "{saved} of {target} saved",
+      "potWaiting": "The pot is full — waiting for a parent",
+      "chipIn": "Chip in"
+    },
+    "boosts": {
+      "title": "Double coins events",
+      "desc": "Extra coins for a while, e.g. getting the house ready for a party. The family gets a notification when it starts.",
+      "live": "on now",
+      "allRooms": "All rooms",
+      "titlePlaceholder": "e.g. Party prep!",
+      "starts": "Starts",
+      "ends": "Ends",
+      "rooms": "Rooms:",
+      "create": "Start an event",
+      "left": "{time} left"
+    },
+    "goals": {
+      "repeatWeekly": "Repeats weekly",
+      "bonus": "bonus",
+      "weeklyWinTitle": "Weekly Win",
+      "weeklyWinTemplate": "Weekly Win",
+      "bonusEarned": "bonus earned!",
+      "bonusWhenReached": "+{n} bonus when you reach it"
+    },
+    "coins": {
+      "reasonPlaceholder": "Reason (optional)",
+      "adjusted": "Coins adjusted",
+      "by": "by {name}"
+    },
+    "repeat": {
+      "limit": "Limit",
+      "limitDesc": "How many times each person can do this anytime quest per day or week (blank = no limit)",
+      "perDay": "per day",
+      "perWeek": "per week",
+      "doneToday": "Done today",
+      "doneThisWeek": "Done this week",
+      "today": "today",
+      "thisWeek": "this week",
+      "limitReached": "You've already done this as many times as allowed for now."
     }
   }
 }

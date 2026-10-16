@@ -277,7 +277,8 @@
       "taskViewMineOnly": "Nur eigene",
       "kidMode": "Kindermodus",
       "kidModeDesc": "Größere Knöpfe, weniger Karten, Münzen und Ziel ganz oben.",
-      "notificationTypeChoreApproval": "Aufgabe wartet auf Freigabe"
+      "notificationTypeChoreApproval": "Aufgabe wartet auf Freigabe",
+      "notificationTypeCoinBoost": "Doppelte-Münzen-Aktionen"
     },
     "nav": {
       "home": "Startseite",
@@ -587,7 +588,8 @@
       "add": "Hinzufügen",
       "you": "Sie",
       "showMore": "{n} mehr anzeigen",
-      "showLess": "Weniger anzeigen"
+      "showLess": "Weniger anzeigen",
+      "error": "Etwas ist schiefgelaufen"
     },
     "units": {
       "hours": "Stunden",
@@ -800,6 +802,81 @@
       "photo": "Foto (optional)",
       "submit": "Fertig",
       "photoFailed": "Gespeichert, aber das Foto wurde nicht hochgeladen."
+    },
+    "rewardRules": {
+      "whoCanSee": "Wer sie sieht",
+      "everyone": "Alle",
+      "pricePerPerson": "Preis pro Person (leer = normaler Preis)",
+      "limit": "Häufigkeit begrenzen",
+      "periodEver": "insgesamt",
+      "periodDay": "pro Tag",
+      "periodWeek": "pro Woche",
+      "periodMonth": "pro Monat",
+      "scopePerson": "pro Person",
+      "scopeEveryone": "für die ganze Familie",
+      "onOffer": "Verfügbar",
+      "from": "Von",
+      "until": "Bis",
+      "rotating": "Wechselnd",
+      "rotatingDesc": "Jede Woche erscheinen nur einige wechselnde Belohnungen, automatisch ausgewählt.",
+      "shared": "Gemeinsam sparen",
+      "sharedDesc": "Jeder kann Münzen beisteuern; ist der Topf voll, gibt ein Elternteil frei.",
+      "customPrices": "eigene Preise",
+      "per_ever": "insgesamt",
+      "per_day": "pro Tag",
+      "per_week": "pro Woche",
+      "per_month": "pro Monat",
+      "rules": "Regeln",
+      "rotatingPerWeek": "Wechselnde Belohnungen pro Woche:",
+      "usedUp": "Aufgebraucht",
+      "usedUp_ever": "Schon eingelöst",
+      "usedUp_day": "Heute eingelöst — morgen wieder",
+      "usedUp_week": "Diese Woche eingelöst — ab Montag wieder",
+      "usedUp_month": "Diesen Monat eingelöst",
+      "left_ever": "Noch {n}",
+      "left_day": "Heute noch {n}",
+      "left_week": "Diese Woche noch {n}",
+      "left_month": "Diesen Monat noch {n}",
+      "untilDate": "Bis {date}",
+      "potSaved": "{saved} von {target} gespart",
+      "potWaiting": "Der Topf ist voll — wartet auf ein Elternteil",
+      "chipIn": "Beisteuern"
+    },
+    "boosts": {
+      "title": "Doppelte-Münzen-Aktionen",
+      "desc": "Eine Weile mehr Münzen, z. B. um das Haus für eine Party vorzubereiten. Die Familie bekommt beim Start eine Benachrichtigung.",
+      "live": "läuft",
+      "allRooms": "Alle Räume",
+      "titlePlaceholder": "z. B. Partyvorbereitung!",
+      "starts": "Beginn",
+      "ends": "Ende",
+      "rooms": "Räume:",
+      "create": "Aktion starten",
+      "left": "Noch {time}"
+    },
+    "goals": {
+      "repeatWeekly": "Wöchentlich",
+      "bonus": "Bonus",
+      "weeklyWinTitle": "Wochensieg",
+      "weeklyWinTemplate": "Wochensieg",
+      "bonusEarned": "Bonus verdient!",
+      "bonusWhenReached": "+{n} Bonus, wenn du es schaffst"
+    },
+    "coins": {
+      "reasonPlaceholder": "Grund (optional)",
+      "adjusted": "Münzen angepasst",
+      "by": "von {name}"
+    },
+    "repeat": {
+      "limit": "Limit",
+      "limitDesc": "Wie oft jede Person diese Aufgabe pro Tag oder Woche erledigen kann (leer = ohne Limit)",
+      "perDay": "pro Tag",
+      "perWeek": "pro Woche",
+      "doneToday": "Heute erledigt",
+      "doneThisWeek": "Diese Woche erledigt",
+      "today": "heute",
+      "thisWeek": "diese Woche",
+      "limitReached": "Das hast du schon so oft gemacht, wie es gerade erlaubt ist."
     }
   }
 }

@@ -4,6 +4,7 @@ import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth } from '../utils/health';
 import { suggestTaskIcon } from '../utils/taskIcons';
 import { ensureAdmin, getGlobalVacation, getUserVacation, hiddenRoomIdsFor, resolveVacation } from '../utils/adminHelpers';
+import { repeatCountsFor } from '../utils/repeatLimits';
 
 const router = Router();
 
@@ -169,6 +170,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     (db.prepare("SELECT taskId, COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'pending' GROUP BY taskId")
       .all(req.userId) as { taskId: number; n: number }[]).map((r) => [r.taskId, r.n])
   );
+  // Anytime quests with a repeat limit: how many times the viewer did each this day/week
+  const myRepeatCounts = repeatCountsFor(req.userId, allTasks);
 
   // Batch-fetch all task_assignees
   const allTaskAssignees = db.prepare('SELECT taskId, userId, coinPercentage FROM task_assignees').all() as { taskId: number; userId: number; coinPercentage: number }[];
@@ -202,6 +205,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
         effectiveAssignedUserIds,
         completedTodayBy: completedTodayByTask.get(t.id) || null,
         myPendingCount: myPendingByTask.get(t.id) || 0,
+        myRepeatCount: myRepeatCounts.get(t.id) || 0,
         assignmentMode: mode,
         sharedCompletions: (mode === 'shared' || mode === 'custom') ? (sharedCompletionsByTask.get(t.id) || []) : undefined,
         health: (() => {

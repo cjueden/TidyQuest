@@ -277,7 +277,8 @@
       "taskViewMineOnly": "Seulement les siennes",
       "kidMode": "Mode enfant",
       "kidModeDesc": "Gros boutons, moins de cartes, pièces et objectif en premier.",
-      "notificationTypeChoreApproval": "Tâche en attente de validation"
+      "notificationTypeChoreApproval": "Tâche en attente de validation",
+      "notificationTypeCoinBoost": "Événements pièces doublées"
     },
     "nav": {
       "home": "Accueil",
@@ -587,7 +588,8 @@
       "add": "Ajouter",
       "you": "vous",
       "showMore": "Afficher {n} de plus",
-      "showLess": "Afficher moins"
+      "showLess": "Afficher moins",
+      "error": "Une erreur s'est produite"
     },
     "units": {
       "hours": "heures",
@@ -800,6 +802,81 @@
       "photo": "Photo (facultatif)",
       "submit": "Terminé",
       "photoFailed": "Enregistré, mais la photo n'a pas été envoyée."
+    },
+    "rewardRules": {
+      "whoCanSee": "Qui peut la voir",
+      "everyone": "Tout le monde",
+      "pricePerPerson": "Prix par personne (vide = prix habituel)",
+      "limit": "Limiter la fréquence",
+      "periodEver": "au total",
+      "periodDay": "par jour",
+      "periodWeek": "par semaine",
+      "periodMonth": "par mois",
+      "scopePerson": "pour chaque personne",
+      "scopeEveryone": "pour toute la famille",
+      "onOffer": "Disponible",
+      "from": "Du",
+      "until": "Au",
+      "rotating": "En rotation",
+      "rotatingDesc": "Seules quelques récompenses en rotation apparaissent chaque semaine, choisies automatiquement.",
+      "shared": "Épargne partagée",
+      "sharedDesc": "Chacun peut contribuer ; quand la cagnotte est pleine, un parent valide.",
+      "customPrices": "prix personnalisés",
+      "per_ever": "au total",
+      "per_day": "par jour",
+      "per_week": "par semaine",
+      "per_month": "par mois",
+      "rules": "Règles",
+      "rotatingPerWeek": "Récompenses en rotation par semaine :",
+      "usedUp": "Épuisée",
+      "usedUp_ever": "Déjà utilisée",
+      "usedUp_day": "Utilisée aujourd'hui — de retour demain",
+      "usedUp_week": "Utilisée cette semaine — de retour lundi",
+      "usedUp_month": "Utilisée ce mois-ci",
+      "left_ever": "Encore {n}",
+      "left_day": "Encore {n} aujourd'hui",
+      "left_week": "Encore {n} cette semaine",
+      "left_month": "Encore {n} ce mois-ci",
+      "untilDate": "Jusqu'au {date}",
+      "potSaved": "{saved} sur {target} économisées",
+      "potWaiting": "La cagnotte est pleine — en attente d'un parent",
+      "chipIn": "Contribuer"
+    },
+    "boosts": {
+      "title": "Événements pièces doublées",
+      "desc": "Des pièces en plus pendant un moment, par ex. pour préparer une fête. La famille reçoit une notification au début.",
+      "live": "en cours",
+      "allRooms": "Toutes les pièces",
+      "titlePlaceholder": "ex. Préparation de la fête !",
+      "starts": "Début",
+      "ends": "Fin",
+      "rooms": "Pièces :",
+      "create": "Lancer un événement",
+      "left": "Encore {time}"
+    },
+    "goals": {
+      "repeatWeekly": "Chaque semaine",
+      "bonus": "bonus",
+      "weeklyWinTitle": "Victoire de la semaine",
+      "weeklyWinTemplate": "Victoire de la semaine",
+      "bonusEarned": "de bonus gagnées !",
+      "bonusWhenReached": "+{n} de bonus quand tu l'atteins"
+    },
+    "coins": {
+      "reasonPlaceholder": "Raison (facultatif)",
+      "adjusted": "Pièces ajustées",
+      "by": "par {name}"
+    },
+    "repeat": {
+      "limit": "Limite",
+      "limitDesc": "Combien de fois chaque personne peut faire cette quête par jour ou par semaine (vide = sans limite)",
+      "perDay": "par jour",
+      "perWeek": "par semaine",
+      "doneToday": "Fait aujourd'hui",
+      "doneThisWeek": "Fait cette semaine",
+      "today": "aujourd'hui",
+      "thisWeek": "cette semaine",
+      "limitReached": "Tu l'as déjà fait autant de fois que permis pour l'instant."
     }
   }
 }
