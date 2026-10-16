@@ -6,6 +6,7 @@ import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, isStrictModeEnabl
 import { syncPrimaryGoal } from '../utils/goals';
 import { repeatCountsFor } from '../utils/repeatLimits';
 import { getActiveBoosts } from '../utils/boosts';
+import { achievementsFor } from '../utils/achievementStats';
 
 const router = Router();
 router.use(authMiddleware);
@@ -290,6 +291,12 @@ router.get('/', (req: AuthRequest, res: Response) => {
     currentUser: user,
     recentActivity,
     badges,
+    // The viewer's level and the closest badge still to earn ("Next up")
+    ...(() => {
+      const gamificationOn = (db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined)?.value !== '0';
+      const mine = gamificationOn ? achievementsFor(req.userId!) : null;
+      return { myLevel: mine?.level ?? null, nextBadge: mine?.nextBadge ?? null };
+    })(),
     vacation: { vacationMode: vacation.isVacation, vacationStartDate: vacation.startDate, vacationEndDate: vacation.endDate },
   });
 });

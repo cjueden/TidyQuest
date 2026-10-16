@@ -97,6 +97,21 @@ export interface TaskBatchChanges {
   frequencyDays?: number;
 }
 
+export interface CustomBadge {
+  id: number;
+  title: string;
+  description: string | null;
+  icon: string;
+  metric: 'task_count' | 'room_count' | 'task_weeks' | 'goal_weeks' | 'completions' | 'streak' | 'coins_earned';
+  taskIds: number[];
+  roomId: number | null;
+  threshold: number;
+  bonusCoins: number;
+  userIds: number[] | null;
+  secret: boolean;
+}
+export type CustomBadgeInput = Omit<CustomBadge, 'id'>;
+
 export type BoardPeriod = 'week' | 'lastWeek' | 'month' | 'quarter' | 'year';
 export type BoardMode = 'coins' | 'goal' | 'improved';
 
@@ -217,7 +232,7 @@ export const api = {
   resetTask: (id: number) =>
     apiFetch<{ success: boolean; completionsRemoved: number; coinsDeducted: number; lastCompletedAt: string }>(`/tasks/${id}/reset`, { method: 'POST' }),
   completeTask: (id: number, onBehalfOfUserId?: number, extra: { note?: string } = {}) =>
-    apiFetch<{ coinsEarned: number; health: number; pendingApproval?: boolean; newAchievements?: string[]; completionId?: number }>(`/tasks/${id}/complete`, {
+    apiFetch<{ coinsEarned: number; health: number; pendingApproval?: boolean; newAchievements?: string[]; newAchievementInfo?: Array<{ id: string; titleKey: string | null; title: string | null; icon: string }>; completionId?: number }>(`/tasks/${id}/complete`, {
       method: 'POST', body: JSON.stringify({ ...(onBehalfOfUserId ? { onBehalfOfUserId } : {}), ...extra }),
     }),
   approveCompletionsBatch: (ids: number[]) =>
@@ -244,6 +259,12 @@ export const api = {
 
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
+  // Badges parents make (Settings → Badges)
+  getCustomBadges: () => apiFetch<{ badges: Array<CustomBadge & { earnedBy: number }>; builtinBonusCoins: number }>('/achievements/custom'),
+  createCustomBadge: (data: CustomBadgeInput) => apiFetch<CustomBadge>('/achievements/custom', { method: 'POST', body: JSON.stringify(data) }),
+  updateCustomBadge: (id: number, data: CustomBadgeInput) => apiFetch<CustomBadge>(`/achievements/custom/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteCustomBadge: (id: number) => apiFetch<{ success: boolean }>(`/achievements/custom/${id}`, { method: 'DELETE' }),
+  setBadgeConfig: (builtinBonusCoins: number) => apiFetch<{ builtinBonusCoins: number }>('/achievements/config', { method: 'PUT', body: JSON.stringify({ builtinBonusCoins }) }),
   getBoard: (period: BoardPeriod, mode: BoardMode) => apiFetch<BoardData>(`/leaderboard/board?period=${period}&mode=${mode}`),
   getFamilyGoal: () => apiFetch<{ target: number; prize: string; progress: { total: number; target: number } | null }>('/leaderboard/family-goal'),
   setFamilyGoal: (target: number, prize: string) =>
@@ -264,7 +285,7 @@ export const api = {
     apiFetch<any>('/users', { method: 'POST', body: JSON.stringify(data) }),
   updateSettings: (userId: number, data: { language?: string; isVacationMode?: boolean }) =>
     apiFetch<any>(`/users/${userId}/settings`, { method: 'PUT', body: JSON.stringify(data) }),
-  updateProfile: (userId: number, data: { displayName?: string; avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string }) =>
+  updateProfile: (userId: number, data: { displayName?: string; avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null }) =>
     apiFetch<any>(`/users/${userId}/profile`, { method: 'PUT', body: JSON.stringify(data) }),
   updatePassword: (userId: number, data: { currentPassword?: string; newPassword: string }) =>
     apiFetch<{ success: boolean }>(`/users/${userId}/password`, { method: 'PUT', body: JSON.stringify(data) }),

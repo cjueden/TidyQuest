@@ -55,6 +55,8 @@ function AppContent() {
   const [confetti, setConfetti] = useState(false);
   const [taskErrorMsg, setTaskErrorMsg] = useState<string | null>(null);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  // Names for the pop-up from the completion itself (parent-made and secret badges aren't in the page data yet)
+  const [unlockedInfo, setUnlockedInfo] = useState<Array<{ id: string; titleKey: string | null; title: string | null }>>([]);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const openSearch = useCallback(() => setSearchOpen(true), []);
@@ -227,6 +229,7 @@ function AppContent() {
         return;
       }
       if (result.newAchievements && result.newAchievements.length > 0) {
+        setUnlockedInfo(result.newAchievementInfo ?? []);
         setUnlockedAchievements(result.newAchievements);
       }
       setConfetti(true);
@@ -344,7 +347,10 @@ function AppContent() {
           achievementIds={unlockedAchievements}
           onDismiss={() => setUnlockedAchievements([])}
           language={user?.language}
-          titleKeys={Object.fromEntries(((achievementsData?.me?.achievements ?? []) as Array<{ id: string; titleKey?: string }>).filter((a) => a.titleKey).map((a) => [a.id, a.titleKey as string]))}
+          titles={Object.fromEntries([
+            ...((achievementsData?.me?.achievements ?? []) as Array<{ id: string; titleKey?: string | null; title?: string | null }>),
+            ...unlockedInfo,
+          ].filter((a) => a.titleKey || a.title).map((a) => [a.id, a.titleKey ? t(a.titleKey) : a.title as string]))}
         />
       )}
 

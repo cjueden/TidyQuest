@@ -73,10 +73,30 @@ const NEW_TABLES: string[] = [
     deletedBy INTEGER REFERENCES users(id) ON DELETE SET NULL,
     deletedAt TEXT NOT NULL DEFAULT (datetime('now'))
   )`,
+  // Badges parents make (utils/badges.ts). metric: what counts; taskIds (JSON array) or roomId when the
+  // metric needs them; userIds (JSON array, NULL = everyone who does chores); bonusCoins paid once when earned.
+  // Earned ones are recorded in user_achievement_notifications as 'custom_<id>'.
+  `CREATE TABLE IF NOT EXISTS custom_badges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    icon TEXT NOT NULL DEFAULT '🏅',
+    metric TEXT NOT NULL,
+    taskIds TEXT,
+    roomId INTEGER REFERENCES rooms(id) ON DELETE SET NULL,
+    threshold INTEGER NOT NULL DEFAULT 1,
+    bonusCoins INTEGER NOT NULL DEFAULT 0,
+    userIds TEXT,
+    secret INTEGER NOT NULL DEFAULT 0,
+    createdBy INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
 const NEW_COLUMNS: string[] = [
+  // Birthday as 'MM-DD' (for the secret Birthday Helper badge)
+  `ALTER TABLE users ADD COLUMN birthday TEXT`,
   // Per-person views set by a parent: taskView 'all' | 'mine' (starts on Mine) | 'mineOnly' (locked)
   `ALTER TABLE users ADD COLUMN taskView TEXT NOT NULL DEFAULT 'all'`,
   `ALTER TABLE users ADD COLUMN kidMode INTEGER NOT NULL DEFAULT 0`,
@@ -116,6 +136,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'rewardContributions', table: 'reward_contributions' },
   { key: 'coinBoosts', table: 'coin_boosts' },
   { key: 'trash', table: 'trash' },
+  { key: 'customBadges', table: 'custom_badges' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

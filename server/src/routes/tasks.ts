@@ -8,6 +8,7 @@ import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth, getCoinsForEffort } from '../utils/health';
 import { suggestTaskIcon } from '../utils/taskIcons';
 import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '../utils/achievementNotifications';
+import { badgeInfo } from '../utils/achievementStats';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
 import { hasWeekdaySchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth } from '../utils/schedule';
@@ -817,7 +818,8 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   if (newAchievements.length > 0) {
     void notifyAchievementUnlocksForUser(effectiveUserId);
   }
-  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, completionId });
+  // Titles for the pop-up: parent-made and secret badges aren't in the page data the app already has
+  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(effectiveUserId, newAchievements), completionId });
 });
 
 router.get('/completions/pending', (req: AuthRequest, res: Response) => {

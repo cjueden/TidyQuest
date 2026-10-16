@@ -4,8 +4,13 @@ export interface AchievementDef {
   descKey: string;
   icon: 'spark' | 'fire' | 'coin' | 'star' | 'crown' | 'broom' | 'heart' | 'shield' | 'rocket' | 'diamond';
   threshold: number;
-  metric: 'completions' | 'streak' | 'coins' | 'rooms_clean' | 'weekly_tasks' | 'weekend_tasks' | 'perfect_weeks';
+  metric: BuiltinMetric;
+  /** Hidden (title and rule) until earned */
+  secret?: boolean;
 }
+
+export type BuiltinMetric = 'completions' | 'streak' | 'coins' | 'rooms_clean' | 'weekly_tasks' | 'weekend_tasks' | 'perfect_weeks'
+  | 'rewards_redeemed' | 'pot_contributions' | 'boost_completions' | 'goal_weeks' | 'room_sweeps' | 'early_chores' | 'birthday_chores';
 
 export const ACHIEVEMENTS: AchievementDef[] = [
   // Getting started
@@ -43,17 +48,23 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // Perfect weeks (all due tasks done)
   { id: 'perfect_1', titleKey: 'achievements.perfectWeek', descKey: 'achievements.perfectWeekDesc', icon: 'star', threshold: 1, metric: 'perfect_weeks' },
   { id: 'perfect_4', titleKey: 'achievements.perfectMonth', descKey: 'achievements.perfectMonthDesc', icon: 'crown', threshold: 4, metric: 'perfect_weeks' },
+
+  // Spending and teamwork
+  { id: 'first_reward', titleKey: 'achievements.firstPurchase', descKey: 'achievements.firstPurchaseDesc', icon: 'coin', threshold: 1, metric: 'rewards_redeemed' },
+  { id: 'team_player', titleKey: 'achievements.teamPlayer', descKey: 'achievements.teamPlayerDesc', icon: 'heart', threshold: 1, metric: 'pot_contributions' },
+  { id: 'double_trouble', titleKey: 'achievements.doubleTrouble', descKey: 'achievements.doubleTroubleDesc', icon: 'rocket', threshold: 1, metric: 'boost_completions' },
+
+  // Weekly goals hit in a row
+  { id: 'goal_streak_4', titleKey: 'achievements.goalGetter', descKey: 'achievements.goalGetterDesc', icon: 'star', threshold: 4, metric: 'goal_weeks' },
+  { id: 'goal_streak_12', titleKey: 'achievements.goalMachine', descKey: 'achievements.goalMachineDesc', icon: 'crown', threshold: 12, metric: 'goal_weeks' },
+
+  // Secret
+  { id: 'clean_sweep', titleKey: 'achievements.cleanSweep', descKey: 'achievements.cleanSweepDesc', icon: 'broom', threshold: 1, metric: 'room_sweeps', secret: true },
+  { id: 'early_bird_5', titleKey: 'achievements.earlyBird', descKey: 'achievements.earlyBirdDesc', icon: 'spark', threshold: 5, metric: 'early_chores', secret: true },
+  { id: 'birthday_helper', titleKey: 'achievements.birthdayHelper', descKey: 'achievements.birthdayHelperDesc', icon: 'heart', threshold: 1, metric: 'birthday_chores', secret: true },
 ];
 
-export interface AchievementStats {
-  completions: number;
-  streak: number;
-  coins: number;
-  rooms_clean: number;
-  weekly_tasks: number;
-  weekend_tasks: number;
-  perfect_weeks: number;
-}
+export type AchievementStats = Record<BuiltinMetric, number>;
 
 export function buildAchievements(stats: AchievementStats) {
   return ACHIEVEMENTS.map((a) => {
@@ -65,6 +76,8 @@ export function buildAchievements(stats: AchievementStats) {
       descKey: a.descKey,
       icon: a.icon,
       threshold: a.threshold,
+      metric: a.metric,
+      secret: !!a.secret,
       value,
       progress,
       unlocked: value >= a.threshold,

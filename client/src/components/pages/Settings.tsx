@@ -8,6 +8,8 @@ import { CoinBoostsAdmin } from '../shared/CoinBoostsAdmin';
 import { GoalRow } from '../shared/GoalRow';
 import { TrashAdmin } from '../shared/TrashAdmin';
 import { FamilyGoalAdmin } from '../shared/FamilyGoalAdmin';
+import { BirthdayInput } from '../shared/BirthdayInput';
+import { CustomBadgesAdmin } from '../shared/CustomBadgesAdmin';
 import { CsvTransfer } from '../shared/CsvTransfer';
 import { UndoToast, type UndoState } from '../shared/UndoToast';
 import { byFeatured, rulesSummary } from '../../utils/rewardRules';
@@ -30,6 +32,8 @@ interface FamilyUser {
   coins: number;
   currentStreak: number;
   language?: string;
+  /** 'MM-DD' */
+  birthday?: string | null;
   goalCoins?: number | null;
   goalStartAt?: string | null;
   goalEndAt?: string | null;
@@ -65,14 +69,14 @@ interface PendingCompletion {
 interface SettingsProps {
   user: User;
   family: FamilyUser[];
-  /** For choosing rooms in double coins events */
-  rooms?: Array<{ id: number; name: string }>;
+  /** For choosing rooms in double coins events, and tasks for parent-made badges */
+  rooms?: Array<{ id: number; name: string; roomType?: string; tasks?: Array<{ id: number; name: string; translationKey?: string }> }>;
   vacationConfig?: VacationConfig;
   onUpdateVacation?: (data: { vacationMode?: boolean; vacationEndDate?: string | null }) => Promise<void>;
   onUpdateRole: (userId: number, role: 'admin' | 'member' | 'child') => void;
   onAddMember: (data: { username: string; password: string; displayName: string; role: 'child' }) => Promise<void>;
   onDeleteUser: (userId: number) => Promise<void>;
-  onUpdateMemberProfile: (userId: number, data: { avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string }) => Promise<void>;
+  onUpdateMemberProfile: (userId: number, data: { avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null }) => Promise<void>;
   onChangePassword: (userId: number, data: { currentPassword?: string; newPassword: string }) => Promise<void>;
   coinsByEffort: Record<number, number>;
   onSaveCoinsByEffort: (values: Record<number, number>) => Promise<void>;
@@ -145,6 +149,7 @@ export function Settings({
     avatarType: 'letter' | 'preset';
     avatarColor: string;
     avatarPreset: string;
+    birthday: string;
   }>>({});
   const [memberProfileMsg, setMemberProfileMsg] = useState<Record<number, string>>({});
   const [memberGoalMsg, setMemberGoalMsg] = useState<Record<number, string>>({});
@@ -306,6 +311,7 @@ export function Settings({
         avatarType: u.avatarType === 'preset' ? 'preset' : 'letter',
         avatarColor: u.avatarColor || '#F97316',
         avatarPreset: u.avatarPreset || 'cat',
+        birthday: u.birthday ?? '',
       },
     }));
   };
@@ -329,6 +335,7 @@ export function Settings({
       avatarType: p.avatarType,
       avatarColor: p.avatarColor,
       avatarPreset: p.avatarType === 'preset' ? p.avatarPreset : null,
+      birthday: p.birthday || null,
     });
     setMemberProfileMsg((prev) => ({ ...prev, [u.id]: t('common.saved') }));
     window.setTimeout(() => {
@@ -1105,6 +1112,14 @@ export function Settings({
         </div>
       )}
 
+      {isAdmin && gamificationEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">🏅 {t('badges.adminTitle')}</h3>
+          <CustomBadgesAdmin rooms={rooms} language={user.language}
+            family={family.filter((m) => m.role !== 'admin' || m.isParticipant).map((m) => ({ id: m.id, displayName: m.displayName }))} />
+        </div>
+      )}
+
       {isAdmin && (
       <div className="tq-card tq-card-padded">
         <h3 className="tq-card-title">{t('settings.dataPrivacy')}</h3>
@@ -1294,6 +1309,8 @@ export function Settings({
                       ))}
                     </select>
                   )}
+                  <BirthdayInput value={memberProfile[u.id]?.birthday ?? ''} language={user.language}
+                    onChange={(birthday) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], birthday } }))} />
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                     <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={() => handleSaveChildProfile(u)}>{t('common.save')}</button>
                     {memberProfileMsg[u.id] && (

@@ -5,13 +5,13 @@ interface AchievementUnlockToastProps {
   achievementIds: string[];
   onDismiss: () => void;
   language?: string;
-  /** Achievement id -> its title's translation key (ids like 'first_task' aren't translation keys) */
-  titleKeys?: Record<string, string>;
+  /** Achievement id -> its name, already translated (ids like 'first_task' or 'custom_3' aren't names) */
+  titles?: Record<string, string>;
 }
 
 // Positioned with inline styles: this app has no Tailwind, so the old utility classes
 // (fixed, top-4, ...) did nothing and the toast landed in the page flow, shifting the layout (#123).
-export function AchievementUnlockToast({ achievementIds, onDismiss, language, titleKeys = {} }: AchievementUnlockToastProps) {
+export function AchievementUnlockToast({ achievementIds, onDismiss, language, titles = {} }: AchievementUnlockToastProps) {
   const { t } = useTranslation(language);
   const [visible, setVisible] = useState(true);
 
@@ -26,7 +26,7 @@ export function AchievementUnlockToast({ achievementIds, onDismiss, language, ti
   if (!achievementIds.length) return null;
 
   const title = (id: string) => {
-    if (titleKeys[id]) return t(titleKeys[id]);
+    if (titles[id]) return titles[id];
     const direct = t(`achievements.${id}`);
     return direct.startsWith('achievements.') ? id : direct;
   };

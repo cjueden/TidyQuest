@@ -1,7 +1,12 @@
 import { SparkleIcon, FireIcon, CoinIcon, StarIcon } from '../icons/UIIcons';
 import { useTranslation } from '../../hooks/useTranslation';
+import { LevelStrip } from '../shared/LevelStrip';
+import { localeFor } from '../../utils/locale';
+import { badgeDescription, badgeTitle, BUILTIN_ICONS, TIER_COLORS, TIER_KEYS, tierIndex, type BadgeItem, type LevelInfo } from '../../utils/badges';
 
 function AchievementIcon({ type }: { type: string }) {
+  // Parent-made badges use an emoji
+  if (!BUILTIN_ICONS.has(type)) return <span style={{ fontSize: 18, lineHeight: 1 }}>{type}</span>;
   if (type === 'fire') return <FireIcon />;
   if (type === 'coin') return <CoinIcon />;
   if (type === 'star') return <StarIcon />;
@@ -60,25 +65,14 @@ function AchievementIcon({ type }: { type: string }) {
   return <SparkleIcon />;
 }
 
-interface AchRow {
-  id: string;
-  titleKey?: string;
-  title?: string;
-  descKey?: string;
-  description?: string;
-  icon: string;
-  threshold: number;
-  value: number;
-  progress: number;
-  unlocked: boolean;
-}
-
 interface AchUser {
   id: number;
   displayName: string;
   role: 'admin' | 'member' | 'child';
   avatarColor: string;
-  achievements: AchRow[];
+  achievements: BadgeItem[];
+  level?: LevelInfo | null;
+  nextBadge?: BadgeItem | null;
 }
 
 interface Props {
@@ -86,66 +80,107 @@ interface Props {
   language?: string;
 }
 
+const card = (earned: boolean) => ({
+  borderRadius: 14, padding: 12, minWidth: 0,
+  border: `1.5px solid ${earned ? 'var(--warm-streak-border)' : 'var(--warm-border)'}`,
+  backgroundColor: earned ? 'var(--warm-accent-light)' : 'var(--warm-bg-subtle)',
+});
+const bar = (pct: number, color: string) => (
+  <div style={{ height: 6, borderRadius: 999, background: 'var(--health-bar-track)', overflow: 'hidden', margin: '6px 0' }}>
+    <div style={{ width: `${pct}%`, height: '100%', background: color }} />
+  </div>
+);
+
 export function Achievements({ data, language }: Props) {
   const { t } = useTranslation(language);
   if (!data) return null;
+  const locale = localeFor(language);
+  const earnedOn = (iso?: string | null) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const sameYear = d.getFullYear() === new Date().getFullYear();
+    return t('badges.earnedOn').replace('{date}', d.toLocaleDateString(locale, sameYear ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' }));
+  };
+
+  // One card per ladder (1, 10, 25 … chores): the best step reached as a medal, and the next one
+  const renderLadder = (metric: string, steps: BadgeItem[]) => {
+    const sorted = [...steps].sort((a, b) => a.threshold - b.threshold);
+    const reached = sorted.filter((a) => a.unlocked);
+    const top = reached[reached.length - 1];
+    const next = sorted.find((a) => !a.unlocked);
+    const tier = top ? tierIndex(sorted.indexOf(top)) : -1;
+    return (
+      <div key={metric} style={card(!!top)}>
+        <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--warm-text-light)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t(`badges.ladder_${metric}`)}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '4px 0' }}>
+          <AchievementIcon type={(top ?? sorted[0]).icon} />
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-text)', flex: 1, minWidth: 0 }}>{top ? badgeTitle(top, t) : t('badges.notStarted')}</div>
+          {top && (
+            <span style={{ fontSize: 10, fontWeight: 900, color: '#fff', backgroundColor: TIER_COLORS[tier], padding: '2px 8px', borderRadius: 99 }}>{t(TIER_KEYS[tier])}</span>
+          )}
+        </div>
+        {top && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)' }}>{earnedOn(top.unlockedAt)}</div>}
+        {next ? (
+          <>
+            {bar(next.progress, 'var(--warm-coin)')}
+            <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700 }}>
+              {t('badges.nextStep').replace('{name}', badgeTitle(next, t))} · {next.value}/{next.threshold}
+            </div>
+          </>
+        ) : <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--health-green)', marginTop: 6 }}>{t('badges.ladderDone')}</div>}
+        <div style={{ display: 'flex', gap: 4, marginTop: 8 }} aria-hidden>
+          {sorted.map((a, i) => (
+            <span key={a.id} title={`${badgeTitle(a, t)} (${a.threshold})`} style={{
+              width: 12, height: 12, borderRadius: 99, display: 'inline-block',
+              backgroundColor: a.unlocked ? TIER_COLORS[tierIndex(i)] : 'transparent', border: `2px solid ${a.unlocked ? TIER_COLORS[tierIndex(i)] : 'var(--warm-border)'}`,
+            }} />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderBadge = (a: BadgeItem) => (
+    <div key={a.id} style={card(a.unlocked)}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+        <AchievementIcon type={a.icon} />
+        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-text)', flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>{badgeTitle(a, t)}</div>
+        {a.custom && <span title={t('badges.familyBadge')} style={{ fontSize: 12 }}>🏠</span>}
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 600 }}>{badgeDescription(a, t)}</div>
+      {!(a.secret && !a.unlocked) && (
+        <>
+          {bar(a.unlocked ? 100 : a.progress, a.unlocked ? 'var(--health-green)' : 'var(--warm-coin)')}
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap', fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700 }}>
+            <span>{a.unlocked ? earnedOn(a.unlockedAt) : `${a.value}/${a.threshold}`}</span>
+            {(a.bonusCoins ?? 0) > 0 && <span style={{ color: a.unlocked ? 'var(--health-green)' : 'var(--warm-accent)' }}>+{a.bonusCoins} {t('settings.coins')}</span>}
+          </div>
+        </>
+      )}
+    </div>
+  );
 
   const renderUser = (u: AchUser) => {
-    const unlocked = u.achievements.filter(a => a.unlocked);
-    const locked = u.achievements.filter(a => !a.unlocked);
-
+    const earned = u.achievements.filter((a) => a.unlocked).length;
+    const ladders = new Map<string, BadgeItem[]>();
+    for (const a of u.achievements) if (a.ladder) ladders.set(a.ladder, [...(ladders.get(a.ladder) ?? []), a]);
+    const singles = u.achievements.filter((a) => !a.ladder).sort((a, b) =>
+      Number(b.unlocked) - Number(a.unlocked)
+      || (a.unlocked ? String(b.unlockedAt ?? '').localeCompare(String(a.unlockedAt ?? '')) : 0)
+      || Number(!!a.secret) - Number(!!b.secret)
+      || b.progress - a.progress);
+    const grid = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(210px, 100%), 1fr))', gap: 10 };
     return (
-      <div key={u.id} className="tq-card tq-card-padded">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div key={u.id} className="tq-card tq-card-padded" style={{ display: 'grid', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <h3 style={{ fontSize: 15, fontWeight: 900, color: 'var(--warm-text)', margin: 0 }}>{u.displayName}</h3>
           <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)', backgroundColor: 'var(--warm-accent-light)', padding: '4px 12px', borderRadius: 99 }}>
-            {unlocked.length}/{u.achievements.length}
+            {earned}/{u.achievements.length}
           </span>
         </div>
-        {unlocked.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10, marginBottom: locked.length > 0 ? 16 : 0 }}>
-            {unlocked.map((a) => (
-              <div key={a.id} style={{
-                borderRadius: 14, padding: 12, border: '1.5px solid var(--warm-streak-border)',
-                backgroundColor: 'var(--warm-accent-light)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <AchievementIcon type={a.icon} />
-                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-text)' }}>{a.titleKey ? t(a.titleKey) : a.title}</div>
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 600, marginBottom: 6 }}>{a.descKey ? t(a.descKey) : a.description}</div>
-                <div style={{ height: 6, borderRadius: 999, background: 'var(--health-bar-track)', overflow: 'hidden', marginBottom: 6 }}>
-                  <div style={{ width: '100%', height: '100%', background: 'var(--health-green)' }} />
-                </div>
-                <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700 }}>
-                  {a.value}/{a.threshold}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {locked.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
-            {locked.map((a) => (
-              <div key={a.id} style={{
-                borderRadius: 14, padding: 12, border: '1.5px solid var(--warm-border)',
-                backgroundColor: 'var(--warm-bg-subtle)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <AchievementIcon type={a.icon} />
-                  <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-text)' }}>{a.titleKey ? t(a.titleKey) : a.title}</div>
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 600, marginBottom: 6 }}>{a.descKey ? t(a.descKey) : a.description}</div>
-                <div style={{ height: 6, borderRadius: 999, background: 'var(--health-bar-track)', overflow: 'hidden', marginBottom: 6 }}>
-                  <div style={{ width: `${a.progress}%`, height: '100%', background: 'var(--warm-coin)' }} />
-                </div>
-                <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700 }}>
-                  {a.value}/{a.threshold}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <LevelStrip level={u.level ?? null} nextBadge={u.nextBadge ?? null} language={language} />
+        <div style={grid}>{[...ladders].map(([metric, steps]) => renderLadder(metric, steps))}</div>
+        <div style={grid}>{singles.map(renderBadge)}</div>
       </div>
     );
   };

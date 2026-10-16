@@ -1,6 +1,5 @@
 import db from '../database';
-import { ACHIEVEMENTS } from './achievements';
-import { achievementsFor } from './achievementStats';
+import { achievementsFor, badgeInfo } from './achievementStats';
 import { isNotificationTypeEnabled, sendNotification } from './notifications';
 import { tr } from './i18n';
 
@@ -28,8 +27,7 @@ export async function notifyAchievementUnlocksForUser(userId: number): Promise<v
   if (newIds.length === 0) return;
   const user = db.prepare('SELECT displayName FROM users WHERE id = ?').get(userId) as { displayName: string } | undefined;
   const name = user?.displayName || 'User';
-  for (const id of newIds) {
-    const def = ACHIEVEMENTS.find((a) => a.id === id);
-    await sendNotification(`🏆 ${name} unlocked an achievement: ${def ? tr('en', def.titleKey) : id}`);
+  for (const badge of badgeInfo(userId, newIds)) {
+    await sendNotification(`🏆 ${name} unlocked an achievement: ${badge.titleKey ? tr('en', badge.titleKey) : badge.title ?? badge.id}`);
   }
 }

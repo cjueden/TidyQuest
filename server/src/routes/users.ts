@@ -14,7 +14,7 @@ import { currentLocalWeek } from '../utils/periods';
 const router = Router();
 router.use(authMiddleware);
 
-const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode';
+const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday';
 
 function normalizeNotificationTime(value: string | undefined): string | null {
   if (value === undefined) return null;
@@ -147,7 +147,7 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
     return res.status(403).json({ error: 'Cannot modify another user' });
   }
 
-  const { displayName, avatarType, avatarColor, avatarPreset, language } = req.body;
+  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday } = req.body;
 
   const updates: string[] = [];
   const values: any[] = [];
@@ -157,6 +157,12 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
   if (avatarColor !== undefined) { updates.push('avatarColor = ?'); values.push(avatarColor); }
   if (avatarPreset !== undefined) { updates.push('avatarPreset = ?'); values.push(avatarPreset); }
   if (language !== undefined) { updates.push('language = ?'); values.push(language); }
+  // Birthday as 'MM-DD' (empty clears it)
+  if (birthday !== undefined) {
+    const b = typeof birthday === 'string' ? birthday.trim() : '';
+    if (b && !/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(b)) return res.status(400).json({ error: 'invalid_birthday' });
+    updates.push('birthday = ?'); values.push(b || null);
+  }
 
   if (updates.length > 0) {
     values.push(userId);
