@@ -9,6 +9,7 @@ import { calculateHealth, getCoinsForEffort } from '../utils/health';
 import { suggestTaskIcon } from '../utils/taskIcons';
 import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '../utils/achievementNotifications';
 import { badgeInfo } from '../utils/achievementStats';
+import { pinnedTaskIds } from '../utils/homeSections';
 import { notifyChoreApproved, notifyChoreRejected, notifyChoreWaiting } from '../utils/notifyMessages';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
@@ -181,6 +182,7 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   const vacation = getGlobalVacation();
   const room = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(req.params.roomId) as any;
   const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL').all(req.params.roomId) as any[];
+  const myPins = new Set(pinnedTaskIds(req.userId!));
   const now = new Date().toISOString();
 
   // Build users map for assignment resolution
@@ -240,6 +242,7 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
       ...t,
       ...scheduleFields(t, taskAssignedUserIds),
       isSeasonal: isSeasonalNow(t),
+      pinned: myPins.has(t.id),
       assignedToChildren: !!t.assignedToChildren,
       assignedUserIds: taskAssignedUserIds,
       assignedUsers,
@@ -910,6 +913,30 @@ router.post('/completions/:completionId/photo', proofUpload.single('photo'), (re
   const photoUrl = `/api/proofs/${file.filename}`;
   db.prepare('UPDATE task_completions SET photoUrl = ? WHERE id = ?').run(photoUrl, completion.id);
   res.json({ photoUrl });
+});
+
+// Home "Your usual": pin a task for yourself (or unpin it)
+router.post('/tasks/:id/pin', (req: AuthRequest, res: Response) => {
+  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ?').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
+  db.prepare('INSERT OR IGNORE INTO task_pins (userId, taskId) VALUES (?, ?)').run(req.userId, req.params.id);
+  res.json({ pinned: true });
+});
+router.delete('/tasks/:id/pin', (req: AuthRequest, res: Response) => {
+  db.prepare('DELETE FROM task_pins WHERE userId = ? AND taskId = ?').run(req.userId, req.params.id);
+  res.json({ pinned: false });
+});
+
+// Home "Maybe you forgot": hide a chore from that list for a few days (for yourself)
+router.post('/tasks/:id/snooze', (req: AuthRequest, res: Response) => {
+  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ?').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
+  const days = Math.min(30, Math.max(1, Math.round(Number(req.body?.days) || 3)));
+  const until = new Date(Date.now() + days * 86400000).toISOString();
+  db.prepare('INSERT OR REPLACE INTO task_snoozes (userId, taskId, until) VALUES (?, ?, ?)').run(req.userId, req.params.id, until);
+  res.json({ snoozedUntil: until });
+});
+router.delete('/tasks/:id/snooze', (req: AuthRequest, res: Response) => {
+  db.prepare('DELETE FROM task_snoozes WHERE userId = ? AND taskId = ?').run(req.userId, req.params.id);
+  res.json({ success: true });
 });
 
 // Cancel (undo) a task completion — admin only

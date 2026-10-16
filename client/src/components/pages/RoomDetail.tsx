@@ -85,6 +85,8 @@ interface Task extends ScheduledTaskFields {
   nextDueAt?: string | null;
   /** Outside its season right now (isSeasonal is then true too) */
   outOfSeason?: boolean;
+  /** Pinned by the viewer to "Your usual" on Home */
+  pinned?: boolean;
 }
 
 interface RoomDetailProps {
@@ -400,6 +402,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     setEditingTask(null);
     onRefresh?.();
     if (trashId) setUndo({ trashIds: [trashId], message: t('trash.deleted').replace('{name}', task ? translateTask(task.name, task.translationKey) : '') });
+  };
+
+  const togglePin = async (task: Task) => {
+    if (task.pinned) await api.unpinTask(task.id); else await api.pinTask(task.id);
+    onRefresh?.();
   };
 
   const handleDuplicateTask = async (taskId: number) => {
@@ -876,6 +883,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   }
                 </div>
                 <div className="room-task-actions" style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', position: 'relative' }}>
+                  <button onClick={() => togglePin(task)} className="tq-btn-sm" aria-pressed={!!task.pinned}
+                    title={task.pinned ? t('home.unpin') : t('home.pin')} aria-label={task.pinned ? t('home.unpin') : t('home.pin')}
+                    style={{ background: 'none', border: '1.5px solid var(--warm-border)', borderRadius: 10, cursor: 'pointer', fontSize: 14, color: task.pinned ? 'var(--warm-accent)' : 'var(--warm-text-light)' }}>
+                    {task.pinned ? '★' : '☆'}
+                  </button>
                   {isAdmin && (
                     <>
                       <button onClick={() => startEdit(task)}

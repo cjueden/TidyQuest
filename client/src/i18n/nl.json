@@ -1222,6 +1222,15 @@
       "overdue": "Te laat",
       "byDate": "Voor {date}",
       "added": "Toegevoegd: {name}"
+    },
+    "home": {
+      "usualTitle": "Je vaste klusjes",
+      "pin": "Vastzetten bij Je vaste klusjes",
+      "unpin": "Losmaken",
+      "forgotTitle": "Misschien vergeten",
+      "overdueDays": "{n} dagen te laat",
+      "overdueDay": "1 dag te laat",
+      "snooze": "3 dagen uitstellen"
     }
   }
 }

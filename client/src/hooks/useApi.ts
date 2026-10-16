@@ -289,6 +289,10 @@ export const api = {
 
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
+  // Home: pin to "Your usual", snooze in "Maybe you forgot" (for yourself)
+  pinTask: (id: number) => apiFetch<{ pinned: boolean }>(`/tasks/${id}/pin`, { method: 'POST' }),
+  unpinTask: (id: number) => apiFetch<{ pinned: boolean }>(`/tasks/${id}/pin`, { method: 'DELETE' }),
+  snoozeTask: (id: number, days = 3) => apiFetch<{ snoozedUntil: string }>(`/tasks/${id}/snooze`, { method: 'POST', body: JSON.stringify({ days }) }),
   // "+ To-do" on Home (one-time chores, parents)
   createTodo: (data: { name: string; assignedUserIds?: number[]; doBy?: string | null; customCoins?: number | null; roomId?: number }) =>
     apiFetch<{ id: number; roomId: number }>('/todos', { method: 'POST', body: JSON.stringify(data) }),

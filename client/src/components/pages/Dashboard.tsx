@@ -52,6 +52,10 @@ interface Quest {
   oneTime?: number | boolean;
   doBy?: string | null;
   overdue?: boolean;
+  /** Your usual: pinned by the viewer */
+  pinned?: boolean;
+  /** Maybe you forgot: whole days overdue */
+  overdueDays?: number;
   frequencyDays: number;
   dueDate?: string;
   dueInDays?: number;
@@ -140,6 +144,10 @@ interface DashboardProps {
     onDemandQuests?: Quest[];
     /** One-time chores still to do */
     todoQuests?: Quest[];
+    /** The viewer's pins, then what they do most */
+    usualQuests?: Quest[];
+    /** Chores overdue by at least their own interval, worst first */
+    forgottenQuests?: Quest[];
     completedToday?: CompletedTodayEntry[];
     myLevel?: LevelInfo | null;
     nextBadge?: BadgeItem | null;
@@ -259,7 +267,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     if (taskFilter === 'all') return quests;
     return quests.filter(q => isTaskForUser(q, currentUser.id, currentUser.role));
   };
-  const readyTasks = filterQuests(allReadyTasks);
+  const readyAll = filterQuests(allReadyTasks);
   const todoTasks = filterQuests(data.todoQuests ?? []);
   const [showTodoAdd, setShowTodoAdd] = useState(false);
   const [todoNotice, setTodoNotice] = useState('');
@@ -324,6 +332,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [showCustomize, setShowCustomize] = useState(false);
 
   const ALL_CARDS = [
+    { id: 'usual', label: t('home.usualTitle') },
+    { id: 'forgot', label: t('home.forgotTitle') },
     { id: 'todaysQuests', label: t('dashboard.todaysQuests') },
     { id: 'todo', label: t('todos.title') },
     { id: 'scheduled', label: t('dashboard.scheduled') },
@@ -347,8 +357,22 @@ const Dashboard: React.FC<DashboardProps> = ({
     localStorage.setItem(LS_KEY, JSON.stringify([...hiddenCards]));
   }, [hiddenCards]);
   // Kid mode keeps Home to the essentials: their quests and what they finished today
-  const KID_CARDS = new Set(['todaysQuests', 'todo', 'completedToday']);
+  const KID_CARDS = new Set(['usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
   const isVisible = (id: string) => kidMode ? KID_CARDS.has(id) : !hiddenCards.has(id);
+  // Your usual: pins always; the rest only when they can be done right now (6 at most)
+  const usualShown = (data.usualQuests ?? []).filter((q) => q.pinned || !doneState(q).disabled).slice(0, 6);
+  // Maybe you forgot: the 3 worst for this view; while that card shows, they leave "Ready to complete"
+  const forgottenShown = filterQuests(data.forgottenQuests ?? []).slice(0, 3);
+  const forgottenIds = new Set(isVisible('forgot') ? forgottenShown.map((q) => q.id) : []);
+  const readyTasks = readyAll.filter((q) => !forgottenIds.has(q.id));
+  const togglePin = async (q: Quest) => {
+    if (q.pinned) await api.unpinTask(q.id); else await api.pinTask(q.id);
+    onRefresh?.();
+  };
+  const snooze = async (q: Quest) => {
+    await api.snoozeTask(q.id, 3);
+    onRefresh?.();
+  };
   const toggleCard = (id: string) => setHiddenCards(prev => {
     const next = new Set(prev);
     next.has(id) ? next.delete(id) : next.add(id);
@@ -548,6 +572,45 @@ const Dashboard: React.FC<DashboardProps> = ({
         )}
 
         {/* Today's Quests Card — full width, sections: Ready to Complete / On Demand */}
+        {/* Your usual: pinned and most-done tasks, one tap away */}
+        {isVisible('usual') && usualShown.length > 0 && (
+          <div className="tq-card tq-card-padded">
+            <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: '0 0 12px' }}>⭐ {t('home.usualTitle')}</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {usualShown.map((q) => questRow(q, {
+                key: `usual-${q.id}`,
+                actions: (
+                  <button className="tq-btn tq-btn-secondary" onClick={(e) => { e.stopPropagation(); void togglePin(q); }}
+                    title={q.pinned ? t('home.unpin') : t('home.pin')} aria-label={q.pinned ? t('home.unpin') : t('home.pin')} aria-pressed={!!q.pinned}
+                    style={{ padding: '8px 10px', fontSize: 14, color: q.pinned ? 'var(--warm-accent)' : 'var(--warm-text-light)' }}>{q.pinned ? '★' : '☆'}</button>
+                ),
+              }))}
+            </div>
+          </div>
+        )}
+
+        {/* Maybe you forgot about these: overdue by a whole interval or more */}
+        {isVisible('forgot') && forgottenShown.length > 0 && (
+          <div className="tq-card tq-card-padded" style={{ borderColor: 'var(--warm-streak-border)' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: '0 0 12px' }}>🤔 {t('home.forgotTitle')}</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {forgottenShown.map((q) => questRow(q, {
+                key: `forgot-${q.id}`,
+                info: (
+                  <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--health-red)', marginTop: 2 }}>
+                    ⏰ {(q.overdueDays ?? 0) === 1 ? t('home.overdueDay') : t('home.overdueDays').replace('{n}', String(q.overdueDays ?? 0))}
+                    {q.lastCompletedAt ? ` · ${timeAgo(q.lastCompletedAt)}` : ''}
+                  </div>
+                ),
+                actions: (
+                  <button className="tq-btn tq-btn-secondary" onClick={(e) => { e.stopPropagation(); void snooze(q); }}
+                    title={t('home.snooze')} aria-label={t('home.snooze')} style={{ padding: '8px 10px', fontSize: 14 }}>💤</button>
+                ),
+              }))}
+            </div>
+          </div>
+        )}
+
         {isVisible('todaysQuests') && <div className="tq-card tq-card-padded">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: 0 }}>

@@ -7,6 +7,7 @@ import { syncPrimaryGoal } from '../utils/goals';
 import { repeatCountsFor } from '../utils/repeatLimits';
 import { getActiveBoosts } from '../utils/boosts';
 import { achievementsFor } from '../utils/achievementStats';
+import { forgottenTasks, usualTasks } from '../utils/homeSections';
 
 const router = Router();
 router.use(authMiddleware);
@@ -161,6 +162,10 @@ router.get('/', (req: AuthRequest, res: Response) => {
     .map((t) => ({ ...t, overdue: Date.now() > oneTimeDeadline(t).getTime() }))
     .sort((a, b) => Number(b.overdue) - Number(a.overdue) || String(a.doBy ?? '9999').localeCompare(String(b.doBy ?? '9999')) || a.id - b.id);
 
+  // Your usual (pins, then what this person does most) and Maybe you forgot (overdue by a whole interval)
+  const usualQuests = usualTasks(allTasks, req.userId!);
+  const forgottenQuests = forgottenTasks(allTasks, req.userId!);
+
   // Backwards-compatible aliases
   const todaysQuests = [...readyToComplete, ...onDemandQuests];
   const nextTasks = scheduledUpcoming;
@@ -288,6 +293,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     readyToComplete,
     scheduledUpcoming,
     todoQuests,
+    usualQuests,
+    forgottenQuests,
     onDemandQuests,
     nextTasks,
     completedToday,

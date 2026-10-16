@@ -113,6 +113,19 @@ const NEW_TABLES: string[] = [
     notBefore TEXT NOT NULL,
     dedupeKey TEXT
   )`,
+  // Home: tasks a person pinned to "Your usual", and chores they snoozed in "Maybe you forgot"
+  `CREATE TABLE IF NOT EXISTS task_pins (
+    userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    taskId INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (userId, taskId)
+  )`,
+  `CREATE TABLE IF NOT EXISTS task_snoozes (
+    userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    taskId INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    until TEXT NOT NULL,
+    PRIMARY KEY (userId, taskId)
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
@@ -174,6 +187,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'coinBoosts', table: 'coin_boosts' },
   { key: 'trash', table: 'trash' },
   { key: 'customBadges', table: 'custom_badges' },
+  { key: 'taskPins', table: 'task_pins' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

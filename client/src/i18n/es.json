@@ -1222,6 +1222,15 @@
       "overdue": "Atrasado",
       "byDate": "Antes del {date}",
       "added": "Añadido: {name}"
+    },
+    "home": {
+      "usualTitle": "Lo de siempre",
+      "pin": "Fijar en Lo de siempre",
+      "unpin": "Quitar",
+      "forgotTitle": "Quizá olvidaste estas",
+      "overdueDays": "{n} días de retraso",
+      "overdueDay": "1 día de retraso",
+      "snooze": "Posponer 3 días"
     }
   }
 }

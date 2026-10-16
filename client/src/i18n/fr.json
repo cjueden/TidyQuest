@@ -1222,6 +1222,15 @@
       "overdue": "En retard",
       "byDate": "Avant le {date}",
       "added": "Ajouté : {name}"
+    },
+    "home": {
+      "usualTitle": "Tes habitudes",
+      "pin": "Épingler dans Tes habitudes",
+      "unpin": "Désépingler",
+      "forgotTitle": "Tu as peut-être oublié ceux-ci",
+      "overdueDays": "{n} jours de retard",
+      "overdueDay": "1 jour de retard",
+      "snooze": "Reporter de 3 jours"
     }
   }
 }

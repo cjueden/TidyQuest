@@ -1222,6 +1222,15 @@
       "overdue": "In ritardo",
       "byDate": "Entro il {date}",
       "added": "Aggiunto: {name}"
+    },
+    "home": {
+      "usualTitle": "I tuoi soliti",
+      "pin": "Fissa nei tuoi soliti",
+      "unpin": "Rimuovi",
+      "forgotTitle": "Forse hai dimenticato queste",
+      "overdueDays": "{n} giorni di ritardo",
+      "overdueDay": "1 giorno di ritardo",
+      "snooze": "Posticipa di 3 giorni"
     }
   }
 }

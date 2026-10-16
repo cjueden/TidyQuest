@@ -1222,6 +1222,15 @@
       "overdue": "Overdue",
       "byDate": "By {date}",
       "added": "Added: {name}"
+    },
+    "home": {
+      "usualTitle": "Your usual",
+      "pin": "Pin to Your usual",
+      "unpin": "Unpin",
+      "forgotTitle": "Maybe you forgot about these",
+      "overdueDays": "{n} days overdue",
+      "overdueDay": "1 day overdue",
+      "snooze": "Snooze for 3 days"
     }
   }
 }

@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import { pinnedTaskIds } from '../utils/homeSections';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { isSeasonalNow, scheduleFields, taskHealth } from '../utils/schedule';
@@ -172,6 +173,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
   );
   // Anytime quests with a repeat limit: how many times the viewer did each this day/week
   const myRepeatCounts = repeatCountsFor(req.userId, allTasks);
+  // Tasks the viewer pinned to "Your usual" on Home
+  const myPins = new Set(pinnedTaskIds(req.userId!));
 
   // Batch-fetch all task_assignees
   const allTaskAssignees = db.prepare('SELECT taskId, userId, coinPercentage FROM task_assignees').all() as { taskId: number; userId: number; coinPercentage: number }[];
@@ -200,6 +203,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
         ...t,
         ...scheduleFields(t, taskAssignedUserIds),
         isSeasonal: isSeasonalNow(t),
+        pinned: myPins.has(t.id),
         assignedToChildren: !!t.assignedToChildren,
         assignedUserIds: taskAssignedUserIds,
         assignedUsers,

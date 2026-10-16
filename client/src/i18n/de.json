@@ -1222,6 +1222,15 @@
       "overdue": "Überfällig",
       "byDate": "Bis {date}",
       "added": "Hinzugefügt: {name}"
+    },
+    "home": {
+      "usualTitle": "Deine Klassiker",
+      "pin": "An Deine Klassiker anheften",
+      "unpin": "Lösen",
+      "forgotTitle": "Vielleicht vergessen",
+      "overdueDays": "{n} Tage überfällig",
+      "overdueDay": "1 Tag überfällig",
+      "snooze": "3 Tage ausblenden"
     }
   }
 }
