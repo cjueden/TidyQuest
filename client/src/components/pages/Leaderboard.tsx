@@ -1,4 +1,5 @@
 import { UserAvatar } from '../shared/UserAvatar';
+import { formatCoins } from '../../utils/format';
 import { FireIcon, CoinIcon } from '../icons/UIIcons';
 import { useTranslation } from '../../hooks/useTranslation';
 
@@ -94,7 +95,7 @@ export function Leaderboard({ users, period, language, onPeriodChange }: Leaderb
                 <FireIcon /> {u.currentStreak}d {t('leaderboard.streak')}
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: 'var(--warm-text-light)', fontWeight: 600 }}>
-                <CoinIcon /> {u.coins}
+                <CoinIcon /> {formatCoins(u.coins)}
               </span>
             </div>
           </div>

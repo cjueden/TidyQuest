@@ -267,7 +267,18 @@
       "reject": "Rifiuta",
       "noPendingValidations": "Nessuna validazione in attesa.",
       "goalReward": "Bonus completamento",
-      "goalRewardDesc": "Monete bonus quando questo obiettivo viene raggiunto"
+      "goalRewardDesc": "Monete bonus quando questo obiettivo viene raggiunto",
+      "hidePrivateRooms": "Nascondi ai bambini le stanze private degli altri",
+      "hidePrivateRoomsDesc": "I bambini non vedranno le stanze che appartengono a qualcun altro.",
+      "taskView": "Vista compiti",
+      "taskViewDesc": "Cosa vede in Home, Stanze, Compiti e Calendario.",
+      "taskViewAll": "Tutti (sceglie)",
+      "taskViewMine": "Parte da I miei",
+      "taskViewMineOnly": "Solo i suoi",
+      "kidMode": "Modalità bambino",
+      "kidModeDesc": "Pulsanti grandi, meno schede, monete e obiettivo in primo piano.",
+      "notificationTypeChoreApproval": "Compito in attesa di approvazione",
+      "notificationTypeCoinBoost": "Eventi monete doppie"
     },
     "nav": {
       "home": "Home",
@@ -279,7 +290,8 @@
       "settings": "Impostazioni",
       "profile": "Profilo",
       "tagline": "Porta la tua casa al livello successivo",
-      "achievements": "Obiettivi"
+      "achievements": "Obiettivi",
+      "tasks": "Compiti"
     },
     "app": {
       "roomsConfigured": "stanze configurate",
@@ -298,7 +310,10 @@
       "notAssigned": "Questo compito non ti è assegnato",
       "pendingApproval": "Compito inviato. In attesa di approvazione admin.",
       "doneBy": "Fatto da {name}",
-      "childrenGroup": "Bambini"
+      "childrenGroup": "Bambini",
+      "tasksSubtitle": "Tutti i compiti di tutte le stanze",
+      "waitingForApproval": "In attesa di approvazione",
+      "waitingCount": "{n} in attesa di approvazione"
     },
     "admin": {
       "whoDidThisTask": "Chi ha completato questo compito?",
@@ -321,7 +336,10 @@
       "tomorrow": "Domani",
       "upcomingDueDates": "Prossime scadenze",
       "inDays": "tra {days}g",
-      "allCaughtUp": "Tutto sotto controllo! Nessuna attività in scadenza a breve."
+      "allCaughtUp": "Tutto sotto controllo! Nessuna attività in scadenza a breve.",
+      "prevMonth": "Mese precedente",
+      "nextMonth": "Mese successivo",
+      "nothingThisDay": "Niente in scadenza o fatto in questo giorno."
     },
     "period": {
       "week": "Settimana",
@@ -352,7 +370,13 @@
       "statusPending": "In attesa",
       "statusApproved": "Approvata",
       "statusRejected": "Rifiutata",
-      "statusCancelled": "Annullata"
+      "statusCancelled": "Annullata",
+      "searchPlaceholder": "Cerca ricompense…",
+      "canAfford": "Posso permettermelo",
+      "sortPriceLow": "Prezzo: crescente",
+      "sortPriceHigh": "Prezzo: decrescente",
+      "sortName": "Nome A–Z",
+      "noMatches": "Nessuna ricompensa corrisponde."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +422,16 @@
       "previous": "Precedente",
       "next": "Successivo",
       "of": "di",
-      "cancel": "Annulla completamento"
+      "cancel": "Annulla completamento",
+      "everyone": "Tutti",
+      "allRooms": "Tutte le stanze",
+      "anyTime": "Qualsiasi data",
+      "today": "Oggi",
+      "thisWeek": "Questa settimana",
+      "thisMonth": "Questo mese",
+      "searchPlaceholder": "Cerca compiti…",
+      "noMatches": "Nessuna attività corrisponde a questi filtri.",
+      "clearFilters": "Azzera filtri"
     },
     "roomDetail": {
       "name": "Nome",
@@ -555,7 +588,9 @@
       "add": "Aggiungi",
       "you": "tu",
       "showMore": "Mostra altri {n}",
-      "showLess": "Mostra meno"
+      "showLess": "Mostra meno",
+      "error": "Qualcosa è andato storto",
+      "close": "Chiudi"
     },
     "units": {
       "hours": "ore",
@@ -723,6 +758,213 @@
       "shelf": "Scaffale",
       "drawer": "Cassetto",
       "closet": "Armadio"
+    },
+    "search": {
+      "button": "Cerca",
+      "placeholder": "Cerca compiti, stanze e ricompense…",
+      "tasks": "Compiti",
+      "rooms": "Stanze",
+      "rewards": "Ricompense",
+      "noResults": "Nessun risultato per «{q}»",
+      "seeAllTasks": "Vedi tutti i {n} compiti trovati",
+      "hint": "Premi / per cercare da qualsiasi pagina"
+    },
+    "taskList": {
+      "searchPlaceholder": "Cerca compiti, note o stanze…",
+      "everyone": "Tutti",
+      "mine": "I miei",
+      "openToAnyone": "Aperti a tutti",
+      "allRooms": "Tutte le stanze",
+      "statusAll": "Qualsiasi stato",
+      "dueNow": "Da fare ora",
+      "upcoming": "In arrivo",
+      "sortDue": "Ordina: scadenza",
+      "sortName": "Ordina: nome",
+      "sortRoom": "Ordina: stanza",
+      "sortCoins": "Ordina: monete",
+      "count": "{n} compiti",
+      "countOne": "1 compito",
+      "clear": "Azzera filtri",
+      "noMatches": "Nessun compito corrisponde a questi filtri."
+    },
+    "approvals": {
+      "title": "In attesa di approvazione",
+      "selectAll": "Seleziona tutto",
+      "approveSelected": "Approva {n}",
+      "rejectSelected": "Rifiuta {n}",
+      "approveAll": "Approva tutto ({n})",
+      "proofPhoto": "Foto di prova"
+    },
+    "proof": {
+      "addProof": "Aggiungi una nota o una foto",
+      "title": "Concludi con una nota o una foto",
+      "note": "Nota (facoltativa)",
+      "notePlaceholder": "es. 94% nella verifica di matematica",
+      "photo": "Foto (facoltativa)",
+      "submit": "Fatto",
+      "photoFailed": "Salvato, ma la foto non è stata caricata."
+    },
+    "rewardRules": {
+      "whoCanSee": "Chi la vede",
+      "everyone": "Tutti",
+      "pricePerPerson": "Prezzo per persona (vuoto = prezzo normale)",
+      "limit": "Limita quante volte",
+      "periodEver": "in totale",
+      "periodDay": "al giorno",
+      "periodWeek": "a settimana",
+      "periodMonth": "al mese",
+      "scopePerson": "per ogni persona",
+      "scopeEveryone": "per tutta la famiglia",
+      "onOffer": "Disponibile",
+      "from": "Dal",
+      "until": "Al",
+      "rotating": "A rotazione",
+      "rotatingDesc": "Ogni settimana compaiono solo alcune ricompense a rotazione, scelte automaticamente.",
+      "shared": "Risparmio condiviso",
+      "sharedDesc": "Chiunque può contribuire; quando il salvadanaio è pieno, approva un genitore.",
+      "customPrices": "prezzi propri",
+      "per_ever": "in totale",
+      "per_day": "al giorno",
+      "per_week": "a settimana",
+      "per_month": "al mese",
+      "rules": "Regole",
+      "rotatingPerWeek": "Ricompense a rotazione a settimana:",
+      "usedUp": "Esaurita",
+      "usedUp_ever": "Già usata",
+      "usedUp_day": "Usata oggi — torna domani",
+      "usedUp_week": "Usata questa settimana — torna lunedì",
+      "usedUp_month": "Usata questo mese",
+      "left_ever": "Ancora {n}",
+      "left_day": "Ancora {n} oggi",
+      "left_week": "Ancora {n} questa settimana",
+      "left_month": "Ancora {n} questo mese",
+      "untilDate": "Fino al {date}",
+      "potSaved": "{saved} su {target} risparmiate",
+      "potWaiting": "Il salvadanaio è pieno — in attesa di un genitore",
+      "chipIn": "Contribuisci"
+    },
+    "boosts": {
+      "title": "Eventi monete doppie",
+      "desc": "Monete extra per un po', ad es. per preparare la casa per una festa. La famiglia riceve una notifica all'inizio.",
+      "live": "in corso",
+      "allRooms": "Tutte le stanze",
+      "titlePlaceholder": "es. Preparativi per la festa!",
+      "starts": "Inizio",
+      "ends": "Fine",
+      "rooms": "Stanze:",
+      "create": "Avvia un evento",
+      "left": "Ancora {time}"
+    },
+    "goals": {
+      "repeatWeekly": "Ogni settimana",
+      "bonus": "bonus",
+      "weeklyWinTitle": "Vittoria settimanale",
+      "weeklyWinTemplate": "Vittoria settimanale",
+      "bonusEarned": "di bonus guadagnate!",
+      "bonusWhenReached": "+{n} di bonus quando lo raggiungi"
+    },
+    "coins": {
+      "reasonPlaceholder": "Motivo (facoltativo)",
+      "adjusted": "Monete modificate",
+      "by": "da {name}"
+    },
+    "repeat": {
+      "limit": "Limite",
+      "limitDesc": "Quante volte ogni persona può fare questo compito al giorno o a settimana (vuoto = nessun limite)",
+      "perDay": "al giorno",
+      "perWeek": "a settimana",
+      "doneToday": "Fatto oggi",
+      "doneThisWeek": "Fatto questa settimana",
+      "today": "oggi",
+      "thisWeek": "questa settimana",
+      "limitReached": "L'hai già fatto tutte le volte consentite per ora."
+    },
+    "schedule": {
+      "dueMode": "Frequenza",
+      "onDays": "Il",
+      "season": "Solo in stagione",
+      "seasonDesc": "Fuori da questi mesi non è in scadenza e non conta per la salute della casa",
+      "seasonFrom": "Mese di inizio",
+      "seasonTo": "Mese di fine",
+      "offSeason": "Fuori stagione",
+      "turnChanges": "Il turno cambia",
+      "turnEachTime": "dopo ogni completamento",
+      "turnWeekly": "ogni lunedì"
+    },
+    "trash": {
+      "undo": "Annulla",
+      "deleted": "«{name}» eliminato",
+      "deletedMany": "{n} attività eliminate",
+      "title": "Eliminati di recente",
+      "desc": "Attività e premi eliminati restano qui per {n} giorni, con la loro cronologia.",
+      "empty": "Niente qui.",
+      "reward": "Premio",
+      "history": "{n} nella cronologia",
+      "restoreInto": "Ripristina in",
+      "roomGone": "La sua stanza è stata eliminata; scegline un'altra",
+      "restoreIntoRoom": "In {room}",
+      "restore": "Ripristina",
+      "deleteForever": "Elimina per sempre",
+      "deleteForeverConfirm": "Eliminare «{name}» per sempre? Non si può annullare."
+    },
+    "bulk": {
+      "select": "Seleziona",
+      "finish": "Fatto",
+      "selectAll": "Seleziona tutto ({n})",
+      "clear": "Annulla selezione",
+      "selected": "{n} selezionate",
+      "change": "Modifica…",
+      "assign": "Chi la fa",
+      "room": "Sposta nella stanza",
+      "every": "Frequenza (giorni)",
+      "coinsDefault": "In base all'impegno",
+      "apply": "Applica",
+      "deleteConfirm": "Eliminare {n} attività? Puoi ripristinarle per 30 giorni da Impostazioni → Eliminati di recente.",
+      "updated": "{n} attività aggiornate",
+      "yes": "Sì",
+      "no": "No",
+      "updatedOne": "1 attività aggiornata",
+      "deleteConfirmOne": "Eliminare questa attività? Puoi ripristinarla per 30 giorni da Impostazioni → Eliminati di recente."
+    },
+    "csv": {
+      "title": "Fogli di calcolo",
+      "desc": "Scarica attività o premi, modificali in qualsiasi foglio di calcolo e ricarica il file. Prima vedrai un'anteprima; non viene mai eliminato nulla.",
+      "exportTasks": "Scarica attività",
+      "exportRewards": "Scarica premi",
+      "importTasks": "Carica attività",
+      "importRewards": "Carica premi",
+      "applied": "Salvato: {add} aggiunte, {update} modificate.",
+      "previewOf": "Anteprima di {file}",
+      "add": "{n} nuove",
+      "update": "{n} modificate",
+      "unchanged": "{n} uguali",
+      "errors": "{n} con problemi",
+      "newRooms": "Nuove stanze: {rooms}",
+      "ignoredColumns": "Colonne non usate: {cols}",
+      "line": "Riga {n}",
+      "addNewRoom": "nuova, in una nuova stanza",
+      "addRow": "nuova",
+      "apply": "Applica modifiche ({n})",
+      "errorsSkipped": "Le righe con problemi vengono saltate."
+    },
+    "rewardOrder": {
+      "up": "Sposta su",
+      "down": "Sposta giù",
+      "category": "Categoria",
+      "categoryPlaceholder": "es. Golosità, Grandi obiettivi",
+      "featured": "In evidenza",
+      "all": "Tutti",
+      "other": "Altri"
+    },
+    "duplicateRoom": {
+      "button": "Duplica stanza",
+      "title": "Duplica questa stanza",
+      "desc": "Copia ogni attività con le sue impostazioni e chi la fa. La cronologia non viene copiata, quindi tutto parte da fare.",
+      "copyName": "{name} (copia)",
+      "owner": "Proprietario",
+      "sameOwner": "Stesso proprietario ({name})",
+      "noOwner": "Nessun proprietario",
+      "create": "Crea copia"
     }
   }
 }

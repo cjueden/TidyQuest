@@ -267,7 +267,18 @@
       "reject": "Ablehnen",
       "noPendingValidations": "Keine ausstehenden Freigaben.",
       "goalReward": "Abschlussbonus",
-      "goalRewardDesc": "Bonus-Coins bei Erreichen dieses Ziels"
+      "goalRewardDesc": "Bonus-Coins bei Erreichen dieses Ziels",
+      "hidePrivateRooms": "Private Räume anderer vor Kindern verbergen",
+      "hidePrivateRoomsDesc": "Kinder sehen keine Räume, die jemand anderem gehören.",
+      "taskView": "Aufgabenansicht",
+      "taskViewDesc": "Was angezeigt wird auf Start, Räume, Aufgaben und Kalender.",
+      "taskViewAll": "Alle (selbst wählen)",
+      "taskViewMine": "Startet bei Meine",
+      "taskViewMineOnly": "Nur eigene",
+      "kidMode": "Kindermodus",
+      "kidModeDesc": "Größere Knöpfe, weniger Karten, Münzen und Ziel ganz oben.",
+      "notificationTypeChoreApproval": "Aufgabe wartet auf Freigabe",
+      "notificationTypeCoinBoost": "Doppelte-Münzen-Aktionen"
     },
     "nav": {
       "home": "Startseite",
@@ -279,7 +290,8 @@
       "settings": "Einstellungen",
       "profile": "Profil",
       "tagline": "Dein Zuhause aufleveln",
-      "achievements": "Erfolge"
+      "achievements": "Erfolge",
+      "tasks": "Aufgaben"
     },
     "app": {
       "roomsConfigured": "Räume konfiguriert",
@@ -298,7 +310,10 @@
       "notAssigned": "Diese Aufgabe ist dir nicht zugewiesen",
       "pendingApproval": "Erledigung gesendet. Warten auf Admin-Freigabe.",
       "doneBy": "Erledigt von {name}",
-      "childrenGroup": "Kinder"
+      "childrenGroup": "Kinder",
+      "tasksSubtitle": "Alle Aufgaben aus allen Räumen",
+      "waitingForApproval": "Wartet auf Freigabe",
+      "waitingCount": "{n} warten auf Freigabe"
     },
     "admin": {
       "whoDidThisTask": "Wer hat diese Aufgabe erledigt?",
@@ -321,7 +336,10 @@
       "tomorrow": "Morgen",
       "upcomingDueDates": "Bevorstehende Fälligkeiten",
       "inDays": "in {days}T",
-      "allCaughtUp": "Alles erledigt! Keine Aufgaben in Kürze fällig."
+      "allCaughtUp": "Alles erledigt! Keine Aufgaben in Kürze fällig.",
+      "prevMonth": "Vorheriger Monat",
+      "nextMonth": "Nächster Monat",
+      "nothingThisDay": "An diesem Tag war nichts fällig oder erledigt."
     },
     "period": {
       "week": "Woche",
@@ -352,7 +370,13 @@
       "statusPending": "Ausstehend",
       "statusApproved": "Freigegeben",
       "statusRejected": "Abgelehnt",
-      "statusCancelled": "Storniert"
+      "statusCancelled": "Storniert",
+      "searchPlaceholder": "Belohnungen suchen…",
+      "canAfford": "Kann ich mir leisten",
+      "sortPriceLow": "Preis: aufsteigend",
+      "sortPriceHigh": "Preis: absteigend",
+      "sortName": "Name A–Z",
+      "noMatches": "Keine passenden Belohnungen."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +422,16 @@
       "previous": "Zurück",
       "next": "Weiter",
       "of": "von",
-      "cancel": "Abschluss rückgängig machen"
+      "cancel": "Abschluss rückgängig machen",
+      "everyone": "Alle",
+      "allRooms": "Alle Räume",
+      "anyTime": "Jederzeit",
+      "today": "Heute",
+      "thisWeek": "Diese Woche",
+      "thisMonth": "Diesen Monat",
+      "searchPlaceholder": "Aufgaben suchen…",
+      "noMatches": "Keine Aktivität passt zu diesen Filtern.",
+      "clearFilters": "Filter zurücksetzen"
     },
     "roomDetail": {
       "name": "Name",
@@ -555,7 +588,9 @@
       "add": "Hinzufügen",
       "you": "Sie",
       "showMore": "{n} mehr anzeigen",
-      "showLess": "Weniger anzeigen"
+      "showLess": "Weniger anzeigen",
+      "error": "Etwas ist schiefgelaufen",
+      "close": "Schließen"
     },
     "units": {
       "hours": "Stunden",
@@ -723,6 +758,213 @@
       "shelf": "Regal",
       "drawer": "Schublade",
       "closet": "Kleiderschrank"
+    },
+    "search": {
+      "button": "Suchen",
+      "placeholder": "Aufgaben, Räume und Belohnungen suchen…",
+      "tasks": "Aufgaben",
+      "rooms": "Räume",
+      "rewards": "Belohnungen",
+      "noResults": "Keine Treffer für „{q}“",
+      "seeAllTasks": "Alle {n} passenden Aufgaben anzeigen",
+      "hint": "Drücke / um von jeder Seite aus zu suchen"
+    },
+    "taskList": {
+      "searchPlaceholder": "Aufgaben, Notizen oder Räume suchen…",
+      "everyone": "Alle",
+      "mine": "Meine",
+      "openToAnyone": "Für alle offen",
+      "allRooms": "Alle Räume",
+      "statusAll": "Jeder Status",
+      "dueNow": "Jetzt fällig",
+      "upcoming": "Demnächst",
+      "sortDue": "Sortieren: Fälligkeit",
+      "sortName": "Sortieren: Name",
+      "sortRoom": "Sortieren: Raum",
+      "sortCoins": "Sortieren: Münzen",
+      "count": "{n} Aufgaben",
+      "countOne": "1 Aufgabe",
+      "clear": "Filter zurücksetzen",
+      "noMatches": "Keine Aufgaben passen zu diesen Filtern."
+    },
+    "approvals": {
+      "title": "Wartet auf Freigabe",
+      "selectAll": "Alle auswählen",
+      "approveSelected": "{n} freigeben",
+      "rejectSelected": "{n} ablehnen",
+      "approveAll": "Alle freigeben ({n})",
+      "proofPhoto": "Beweisfoto"
+    },
+    "proof": {
+      "addProof": "Notiz oder Foto hinzufügen",
+      "title": "Mit Notiz oder Foto abschließen",
+      "note": "Notiz (optional)",
+      "notePlaceholder": "z. B. 94 % in der Mathearbeit",
+      "photo": "Foto (optional)",
+      "submit": "Fertig",
+      "photoFailed": "Gespeichert, aber das Foto wurde nicht hochgeladen."
+    },
+    "rewardRules": {
+      "whoCanSee": "Wer sie sieht",
+      "everyone": "Alle",
+      "pricePerPerson": "Preis pro Person (leer = normaler Preis)",
+      "limit": "Häufigkeit begrenzen",
+      "periodEver": "insgesamt",
+      "periodDay": "pro Tag",
+      "periodWeek": "pro Woche",
+      "periodMonth": "pro Monat",
+      "scopePerson": "pro Person",
+      "scopeEveryone": "für die ganze Familie",
+      "onOffer": "Verfügbar",
+      "from": "Von",
+      "until": "Bis",
+      "rotating": "Wechselnd",
+      "rotatingDesc": "Jede Woche erscheinen nur einige wechselnde Belohnungen, automatisch ausgewählt.",
+      "shared": "Gemeinsam sparen",
+      "sharedDesc": "Jeder kann Münzen beisteuern; ist der Topf voll, gibt ein Elternteil frei.",
+      "customPrices": "eigene Preise",
+      "per_ever": "insgesamt",
+      "per_day": "pro Tag",
+      "per_week": "pro Woche",
+      "per_month": "pro Monat",
+      "rules": "Regeln",
+      "rotatingPerWeek": "Wechselnde Belohnungen pro Woche:",
+      "usedUp": "Aufgebraucht",
+      "usedUp_ever": "Schon eingelöst",
+      "usedUp_day": "Heute eingelöst — morgen wieder",
+      "usedUp_week": "Diese Woche eingelöst — ab Montag wieder",
+      "usedUp_month": "Diesen Monat eingelöst",
+      "left_ever": "Noch {n}",
+      "left_day": "Heute noch {n}",
+      "left_week": "Diese Woche noch {n}",
+      "left_month": "Diesen Monat noch {n}",
+      "untilDate": "Bis {date}",
+      "potSaved": "{saved} von {target} gespart",
+      "potWaiting": "Der Topf ist voll — wartet auf ein Elternteil",
+      "chipIn": "Beisteuern"
+    },
+    "boosts": {
+      "title": "Doppelte-Münzen-Aktionen",
+      "desc": "Eine Weile mehr Münzen, z. B. um das Haus für eine Party vorzubereiten. Die Familie bekommt beim Start eine Benachrichtigung.",
+      "live": "läuft",
+      "allRooms": "Alle Räume",
+      "titlePlaceholder": "z. B. Partyvorbereitung!",
+      "starts": "Beginn",
+      "ends": "Ende",
+      "rooms": "Räume:",
+      "create": "Aktion starten",
+      "left": "Noch {time}"
+    },
+    "goals": {
+      "repeatWeekly": "Wöchentlich",
+      "bonus": "Bonus",
+      "weeklyWinTitle": "Wochensieg",
+      "weeklyWinTemplate": "Wochensieg",
+      "bonusEarned": "Bonus verdient!",
+      "bonusWhenReached": "+{n} Bonus, wenn du es schaffst"
+    },
+    "coins": {
+      "reasonPlaceholder": "Grund (optional)",
+      "adjusted": "Münzen angepasst",
+      "by": "von {name}"
+    },
+    "repeat": {
+      "limit": "Limit",
+      "limitDesc": "Wie oft jede Person diese Aufgabe pro Tag oder Woche erledigen kann (leer = ohne Limit)",
+      "perDay": "pro Tag",
+      "perWeek": "pro Woche",
+      "doneToday": "Heute erledigt",
+      "doneThisWeek": "Diese Woche erledigt",
+      "today": "heute",
+      "thisWeek": "diese Woche",
+      "limitReached": "Das hast du schon so oft gemacht, wie es gerade erlaubt ist."
+    },
+    "schedule": {
+      "dueMode": "Wie oft",
+      "onDays": "Am",
+      "season": "Nur in der Saison",
+      "seasonDesc": "Außerhalb dieser Monate ist die Aufgabe nicht fällig und zählt nicht zur Hausgesundheit",
+      "seasonFrom": "Von Monat",
+      "seasonTo": "Bis Monat",
+      "offSeason": "Außerhalb der Saison",
+      "turnChanges": "Wechsel",
+      "turnEachTime": "nach jeder Erledigung",
+      "turnWeekly": "jeden Montag"
+    },
+    "trash": {
+      "undo": "Rückgängig",
+      "deleted": "„{name}“ gelöscht",
+      "deletedMany": "{n} Aufgaben gelöscht",
+      "title": "Zuletzt gelöscht",
+      "desc": "Gelöschte Aufgaben und Belohnungen bleiben {n} Tage hier, mit ihrem Verlauf.",
+      "empty": "Nichts hier.",
+      "reward": "Belohnung",
+      "history": "{n} im Verlauf",
+      "restoreInto": "Wiederherstellen in",
+      "roomGone": "Der Raum wurde gelöscht; wähle einen anderen",
+      "restoreIntoRoom": "In {room}",
+      "restore": "Wiederherstellen",
+      "deleteForever": "Endgültig löschen",
+      "deleteForeverConfirm": "„{name}“ endgültig löschen? Das kann nicht rückgängig gemacht werden."
+    },
+    "bulk": {
+      "select": "Auswählen",
+      "finish": "Fertig",
+      "selectAll": "Alle auswählen ({n})",
+      "clear": "Auswahl aufheben",
+      "selected": "{n} ausgewählt",
+      "change": "Ändern…",
+      "assign": "Wer macht es",
+      "room": "In Raum verschieben",
+      "every": "Wie oft (Tage)",
+      "coinsDefault": "Nach Aufwand",
+      "apply": "Anwenden",
+      "deleteConfirm": "{n} Aufgaben löschen? Du kannst sie 30 Tage lang unter Einstellungen → Zuletzt gelöscht wiederherstellen.",
+      "updated": "{n} Aufgaben geändert",
+      "yes": "Ja",
+      "no": "Nein",
+      "updatedOne": "1 Aufgabe geändert",
+      "deleteConfirmOne": "Diese Aufgabe löschen? Du kannst sie 30 Tage lang unter Einstellungen → Zuletzt gelöscht wiederherstellen."
+    },
+    "csv": {
+      "title": "Tabellen",
+      "desc": "Lade Aufgaben oder Belohnungen herunter, bearbeite sie in einer Tabellen-App und lade die Datei wieder hoch. Zuerst siehst du eine Vorschau; es wird nie etwas gelöscht.",
+      "exportTasks": "Aufgaben herunterladen",
+      "exportRewards": "Belohnungen herunterladen",
+      "importTasks": "Aufgaben laden",
+      "importRewards": "Belohnungen laden",
+      "applied": "Gespeichert: {add} neu, {update} geändert.",
+      "previewOf": "Vorschau von {file}",
+      "add": "{n} neu",
+      "update": "{n} geändert",
+      "unchanged": "{n} gleich",
+      "errors": "{n} mit Problemen",
+      "newRooms": "Neue Räume: {rooms}",
+      "ignoredColumns": "Nicht verwendete Spalten: {cols}",
+      "line": "Zeile {n}",
+      "addNewRoom": "neu, in einem neuen Raum",
+      "addRow": "neu",
+      "apply": "Änderungen anwenden ({n})",
+      "errorsSkipped": "Zeilen mit Problemen werden übersprungen."
+    },
+    "rewardOrder": {
+      "up": "Nach oben",
+      "down": "Nach unten",
+      "category": "Kategorie",
+      "categoryPlaceholder": "z. B. Leckereien, Große Ziele",
+      "featured": "Empfohlen",
+      "all": "Alle",
+      "other": "Andere"
+    },
+    "duplicateRoom": {
+      "button": "Raum duplizieren",
+      "title": "Diesen Raum duplizieren",
+      "desc": "Kopiert jede Aufgabe mit ihren Einstellungen und wer sie macht. Der Verlauf wird nicht kopiert, daher ist alles zunächst fällig.",
+      "copyName": "{name} (Kopie)",
+      "owner": "Besitzer",
+      "sameOwner": "Gleicher Besitzer ({name})",
+      "noOwner": "Kein Besitzer",
+      "create": "Kopie erstellen"
     }
   }
 }

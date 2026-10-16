@@ -8,6 +8,9 @@ import { getHealthColor, getRoomHealth } from '../../utils/health';
 import { ROOM_COLORS } from '../../utils/colors';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useTaskView } from '../../hooks/useTaskView';
+import { AllMineToggle } from '../shared/AllMineToggle';
+import { isTaskForUser } from '../../utils/tasks';
 
 const ROOM_TYPES = [
   { type: 'kitchen' },
@@ -74,7 +77,7 @@ interface RoomsListProps {
     zoneId?: number | null;
     assignedUserId?: number | null;
     assignedUser?: AssignedUser | null;
-    tasks: Array<{ id: number; name: string; translationKey?: string; iconKey?: string; health: number }>;
+    tasks: Array<{ id: number; name: string; translationKey?: string; iconKey?: string; health: number; effectiveAssignedUserIds?: number[]; assignedToChildren?: boolean }>;
   }>;
   language?: string;
   isAdmin: boolean;
@@ -84,9 +87,13 @@ interface RoomsListProps {
   onDeleteRoom: (roomId: number) => Promise<void>;
   onAssignRoom?: (roomId: number, assignedUserId: number | null, force?: boolean) => Promise<void>;
   onRenameRoom?: (roomId: number, name: string) => Promise<void>;
+  /** Reload the rooms after a change made here (e.g. moving a room to another zone) */
+  onRoomsChanged?: () => Promise<void> | void;
+  /** The person looking: drives the All / Mine switch */
+  viewer?: { id: number; role?: string; taskView?: 'all' | 'mine' | 'mineOnly'; kidMode?: number | boolean };
 }
 
-export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCreateRoom, onDeleteRoom, onAssignRoom, onRenameRoom }: RoomsListProps) {
+export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCreateRoom, onDeleteRoom, onAssignRoom, onRenameRoom, onRoomsChanged, viewer }: RoomsListProps) {
   const { taskName, t, roomName: translateRoomName, roomDisplayName } = useTranslation(language);
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
@@ -118,7 +125,11 @@ export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCre
 
   const refreshZones = () => api.getZones().then(setZones).catch(() => {});
 
-  const sortedRooms = [...rooms].sort(
+  // Mine: rooms the viewer owns or has at least one task in
+  const { filter: roomFilter, setFilter: setRoomFilter, locked: roomFilterLocked } = useTaskView(viewer, 'tq-rooms-filter');
+  const isMyRoom = (room: RoomsListProps['rooms'][number]) => !viewer || room.assignedUserId === viewer.id
+    || room.tasks.some((task) => isTaskForUser(task, viewer.id, viewer.role));
+  const sortedRooms = [...rooms].filter((room) => roomFilter === 'all' || isMyRoom(room)).sort(
     (a, b) => getRoomHealth(a.tasks as any) - getRoomHealth(b.tasks as any)
   );
 
@@ -264,6 +275,11 @@ export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCre
 
   return (
     <>
+      {viewer && !roomFilterLocked && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+          <AllMineToggle value={roomFilter} onChange={setRoomFilter} allLabel={t('dashboard.allTasks')} mineLabel={t('dashboard.myTasks')} />
+        </div>
+      )}
       {isAdmin && (
         <div style={{ marginBottom: 20 }}>
           <button className="tq-btn tq-btn-primary tq-btn-md"
@@ -404,10 +420,10 @@ export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCre
                             {zoneMenuRoomId === room.id && (
                               <div style={{ position: 'absolute', right: 0, top: '100%', zIndex: 100, background: 'var(--warm-card)', border: '1.5px solid var(--warm-border)', borderRadius: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.14)', minWidth: 150, overflow: 'hidden' }}>
                                 {room.zoneId && (
-                                  <button onClick={async () => { await api.updateRoom(room.id, { zoneId: null }); setZoneMenuRoomId(null); window.location.reload(); }} style={{ width: '100%', textAlign: 'left', padding: '9px 14px', fontSize: 12, fontWeight: 600, color: 'var(--warm-text-muted)', background: 'none', border: 'none', borderBottom: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}>{t('rooms.removeFromZone')}</button>
+                                  <button onClick={async () => { await api.updateRoom(room.id, { zoneId: null }); setZoneMenuRoomId(null); await onRoomsChanged?.(); }} style={{ width: '100%', textAlign: 'left', padding: '9px 14px', fontSize: 12, fontWeight: 600, color: 'var(--warm-text-muted)', background: 'none', border: 'none', borderBottom: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}>{t('rooms.removeFromZone')}</button>
                                 )}
                                 {zones.map(z => (
-                                  <button key={z.id} onClick={async () => { await api.updateRoom(room.id, { zoneId: z.id }); setZoneMenuRoomId(null); window.location.reload(); }} style={{ width: '100%', textAlign: 'left', padding: '9px 14px', fontSize: 12, fontWeight: room.zoneId === z.id ? 800 : 600, color: room.zoneId === z.id ? 'var(--warm-accent)' : 'var(--warm-text)', background: 'none', border: 'none', borderBottom: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}>🏷️ {z.name}</button>
+                                  <button key={z.id} onClick={async () => { await api.updateRoom(room.id, { zoneId: z.id }); setZoneMenuRoomId(null); await onRoomsChanged?.(); }} style={{ width: '100%', textAlign: 'left', padding: '9px 14px', fontSize: 12, fontWeight: room.zoneId === z.id ? 800 : 600, color: room.zoneId === z.id ? 'var(--warm-accent)' : 'var(--warm-text)', background: 'none', border: 'none', borderBottom: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}>🏷️ {z.name}</button>
                                 ))}
                               </div>
                             )}

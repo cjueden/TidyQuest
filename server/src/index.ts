@@ -14,6 +14,10 @@ import dataRoutes from './routes/data';
 import achievementsRoutes from './routes/achievements';
 import rewardsRoutes from './routes/rewards';
 import { sendDueTaskNotificationsIfNeeded } from './utils/notifications';
+import { sendCoinBoostNotificationsIfNeeded } from './utils/boosts';
+import boostsRoutes from './routes/boosts';
+import csvRoutes from './routes/csv';
+import trashRoutes from './routes/trash';
 
 export function createApp() {
   const app = express();
@@ -33,6 +37,8 @@ export function createApp() {
   // Serve uploaded avatars
   const avatarsDir = path.join(__dirname, '..', '..', 'data', 'avatars');
   app.use('/api/avatars', express.static(avatarsDir));
+  // Proof photos attached to completions (random, unguessable file names, like avatars)
+  app.use('/api/proofs', express.static(path.join(__dirname, '..', '..', 'data', 'proofs')));
 
   // API routes
   app.use('/api/auth', authRoutes);
@@ -46,6 +52,9 @@ export function createApp() {
   app.use('/api', dataRoutes);
   app.use('/api/achievements', achievementsRoutes);
   app.use('/api/rewards', rewardsRoutes);
+  app.use('/api/boosts', boostsRoutes);
+  app.use('/api/csv', csvRoutes);
+  app.use('/api/trash', trashRoutes);
 
   // 404 handler for unknown API routes
   app.use('/api/*', (_req, res) => {
@@ -71,8 +80,10 @@ if (require.main === module || !process.env.VITEST) {
   app.listen(PORT, () => {
     console.log(`TidyQuest server running on http://localhost:${PORT}`);
     void sendDueTaskNotificationsIfNeeded();
+    void sendCoinBoostNotificationsIfNeeded();
     setInterval(() => {
       void sendDueTaskNotificationsIfNeeded();
+      void sendCoinBoostNotificationsIfNeeded();
     }, 30000);
   });
 }

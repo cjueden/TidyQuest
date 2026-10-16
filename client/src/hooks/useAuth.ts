@@ -15,6 +15,9 @@ export interface User {
   points: number;
   isVacationMode: boolean;
   language: string;
+  /** Set by a parent: 'all' | 'mine' (starts on Mine) | 'mineOnly' (locked) */
+  taskView?: 'all' | 'mine' | 'mineOnly';
+  kidMode?: number | boolean;
 }
 
 export function useAuth() {

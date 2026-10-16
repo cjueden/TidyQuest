@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import bcrypt from 'bcryptjs';
 import { suggestTaskIcon } from './utils/taskIcons';
+import { applyForkSchema } from './forkSchema';
 
 const DB_PATH = path.join(__dirname, '..', '..', 'data', 'tidyquest.db');
 
@@ -224,6 +225,8 @@ export function initDatabase() {
   }
 
   db.exec(`CREATE INDEX IF NOT EXISTS idx_task_completions_status ON task_completions(status);`);
+
+  applyForkSchema(db);
 
   // One-time migration: set isParticipant = 0 for existing admins (opt-in for pre-existing installs)
   const participantMigrated = db.prepare("SELECT value FROM app_settings WHERE key = 'adminParticipantMigrated_v1'").get() as any;

@@ -267,7 +267,18 @@
       "reject": "Rechazar",
       "noPendingValidations": "No hay validaciones pendientes.",
       "goalReward": "Bono de completado",
-      "goalRewardDesc": "Monedas bonus cuando se alcanza este objetivo"
+      "goalRewardDesc": "Monedas bonus cuando se alcanza este objetivo",
+      "hidePrivateRooms": "Ocultar a los niños las habitaciones privadas de otros",
+      "hidePrivateRoomsDesc": "Los niños no verán habitaciones que pertenecen a otra persona.",
+      "taskView": "Vista de tareas",
+      "taskViewDesc": "Lo que ve en Inicio, Habitaciones, Tareas y Calendario.",
+      "taskViewAll": "Todas (elige)",
+      "taskViewMine": "Empieza en Mías",
+      "taskViewMineOnly": "Solo las suyas",
+      "kidMode": "Modo niño",
+      "kidModeDesc": "Botones grandes, menos tarjetas, monedas y meta primero.",
+      "notificationTypeChoreApproval": "Tarea esperando aprobación",
+      "notificationTypeCoinBoost": "Eventos de monedas dobles"
     },
     "nav": {
       "home": "Inicio",
@@ -279,7 +290,8 @@
       "settings": "Ajustes",
       "profile": "Perfil",
       "tagline": "Sube de nivel tu casa",
-      "achievements": "Logros"
+      "achievements": "Logros",
+      "tasks": "Tareas"
     },
     "app": {
       "roomsConfigured": "habitaciones configuradas",
@@ -298,7 +310,10 @@
       "notAssigned": "Esta tarea no te está asignada",
       "pendingApproval": "Tarea enviada. Esperando aprobación del admin.",
       "doneBy": "Hecho por {name}",
-      "childrenGroup": "Niños"
+      "childrenGroup": "Niños",
+      "tasksSubtitle": "Todas las tareas de todas las habitaciones",
+      "waitingForApproval": "Esperando aprobación",
+      "waitingCount": "{n} esperando aprobación"
     },
     "admin": {
       "whoDidThisTask": "¿Quién completó esta tarea?",
@@ -321,7 +336,10 @@
       "tomorrow": "Mañana",
       "upcomingDueDates": "Próximas fechas límite",
       "inDays": "en {days}d",
-      "allCaughtUp": "¡Todo al día! No hay tareas próximas."
+      "allCaughtUp": "¡Todo al día! No hay tareas próximas.",
+      "prevMonth": "Mes anterior",
+      "nextMonth": "Mes siguiente",
+      "nothingThisDay": "Nada pendiente ni hecho este día."
     },
     "period": {
       "week": "Semana",
@@ -352,7 +370,13 @@
       "statusPending": "Pendiente",
       "statusApproved": "Aprobada",
       "statusRejected": "Rechazada",
-      "statusCancelled": "Cancelada"
+      "statusCancelled": "Cancelada",
+      "searchPlaceholder": "Buscar recompensas…",
+      "canAfford": "Me alcanza",
+      "sortPriceLow": "Precio: de menor a mayor",
+      "sortPriceHigh": "Precio: de mayor a menor",
+      "sortName": "Nombre A–Z",
+      "noMatches": "Ninguna recompensa coincide."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +422,16 @@
       "previous": "Anterior",
       "next": "Siguiente",
       "of": "de",
-      "cancel": "Cancelar compleción"
+      "cancel": "Cancelar compleción",
+      "everyone": "Todos",
+      "allRooms": "Todas las habitaciones",
+      "anyTime": "Cualquier fecha",
+      "today": "Hoy",
+      "thisWeek": "Esta semana",
+      "thisMonth": "Este mes",
+      "searchPlaceholder": "Buscar tareas…",
+      "noMatches": "Ninguna actividad coincide con estos filtros.",
+      "clearFilters": "Borrar filtros"
     },
     "roomDetail": {
       "name": "Nombre",
@@ -555,7 +588,9 @@
       "add": "Añadir",
       "you": "tú",
       "showMore": "Mostrar {n} más",
-      "showLess": "Mostrar menos"
+      "showLess": "Mostrar menos",
+      "error": "Algo salió mal",
+      "close": "Cerrar"
     },
     "units": {
       "hours": "horas",
@@ -723,6 +758,213 @@
       "shelf": "Estante",
       "drawer": "Cajón",
       "closet": "Armario"
+    },
+    "search": {
+      "button": "Buscar",
+      "placeholder": "Buscar tareas, habitaciones y recompensas…",
+      "tasks": "Tareas",
+      "rooms": "Habitaciones",
+      "rewards": "Recompensas",
+      "noResults": "Nada coincide con «{q}»",
+      "seeAllTasks": "Ver las {n} tareas que coinciden",
+      "hint": "Pulsa / para buscar desde cualquier página"
+    },
+    "taskList": {
+      "searchPlaceholder": "Buscar tareas, notas o habitaciones…",
+      "everyone": "Todos",
+      "mine": "Mías",
+      "openToAnyone": "Abiertas a todos",
+      "allRooms": "Todas las habitaciones",
+      "statusAll": "Cualquier estado",
+      "dueNow": "Pendientes ahora",
+      "upcoming": "Próximas",
+      "sortDue": "Ordenar: vencimiento",
+      "sortName": "Ordenar: nombre",
+      "sortRoom": "Ordenar: habitación",
+      "sortCoins": "Ordenar: monedas",
+      "count": "{n} tareas",
+      "countOne": "1 tarea",
+      "clear": "Borrar filtros",
+      "noMatches": "Ninguna tarea coincide con estos filtros."
+    },
+    "approvals": {
+      "title": "Esperando aprobación",
+      "selectAll": "Seleccionar todo",
+      "approveSelected": "Aprobar {n}",
+      "rejectSelected": "Rechazar {n}",
+      "approveAll": "Aprobar todo ({n})",
+      "proofPhoto": "Foto de prueba"
+    },
+    "proof": {
+      "addProof": "Añadir una nota o foto",
+      "title": "Terminar con una nota o foto",
+      "note": "Nota (opcional)",
+      "notePlaceholder": "p. ej. Saqué 94 % en el examen de mates",
+      "photo": "Foto (opcional)",
+      "submit": "Hecho",
+      "photoFailed": "Guardado, pero la foto no se subió."
+    },
+    "rewardRules": {
+      "whoCanSee": "Quién la ve",
+      "everyone": "Todos",
+      "pricePerPerson": "Precio por persona (vacío = precio normal)",
+      "limit": "Limitar cuántas veces",
+      "periodEver": "en total",
+      "periodDay": "por día",
+      "periodWeek": "por semana",
+      "periodMonth": "por mes",
+      "scopePerson": "por persona",
+      "scopeEveryone": "para toda la familia",
+      "onOffer": "Disponible",
+      "from": "Desde",
+      "until": "Hasta",
+      "rotating": "Rotativa",
+      "rotatingDesc": "Cada semana solo aparecen algunas recompensas rotativas, elegidas automáticamente.",
+      "shared": "Ahorro compartido",
+      "sharedDesc": "Cualquiera puede aportar monedas; cuando el bote se llena, lo aprueba un padre.",
+      "customPrices": "precios propios",
+      "per_ever": "en total",
+      "per_day": "por día",
+      "per_week": "por semana",
+      "per_month": "por mes",
+      "rules": "Reglas",
+      "rotatingPerWeek": "Recompensas rotativas por semana:",
+      "usedUp": "Agotada",
+      "usedUp_ever": "Ya usada",
+      "usedUp_day": "Usada hoy — vuelve mañana",
+      "usedUp_week": "Usada esta semana — vuelve el lunes",
+      "usedUp_month": "Usada este mes",
+      "left_ever": "Quedan {n}",
+      "left_day": "Quedan {n} hoy",
+      "left_week": "Quedan {n} esta semana",
+      "left_month": "Quedan {n} este mes",
+      "untilDate": "Hasta el {date}",
+      "potSaved": "{saved} de {target} ahorradas",
+      "potWaiting": "El bote está lleno — esperando a un padre",
+      "chipIn": "Aportar"
+    },
+    "boosts": {
+      "title": "Eventos de monedas dobles",
+      "desc": "Monedas extra por un rato, p. ej. para preparar la casa para una fiesta. La familia recibe un aviso al empezar.",
+      "live": "en curso",
+      "allRooms": "Todas las habitaciones",
+      "titlePlaceholder": "p. ej. ¡Preparar la fiesta!",
+      "starts": "Empieza",
+      "ends": "Termina",
+      "rooms": "Habitaciones:",
+      "create": "Empezar un evento",
+      "left": "Quedan {time}"
+    },
+    "goals": {
+      "repeatWeekly": "Cada semana",
+      "bonus": "bonus",
+      "weeklyWinTitle": "Victoria semanal",
+      "weeklyWinTemplate": "Victoria semanal",
+      "bonusEarned": "de bonus ganadas",
+      "bonusWhenReached": "+{n} de bonus cuando lo logres"
+    },
+    "coins": {
+      "reasonPlaceholder": "Motivo (opcional)",
+      "adjusted": "Monedas ajustadas",
+      "by": "por {name}"
+    },
+    "repeat": {
+      "limit": "Límite",
+      "limitDesc": "Cuántas veces puede hacer cada persona esta misión por día o semana (vacío = sin límite)",
+      "perDay": "por día",
+      "perWeek": "por semana",
+      "doneToday": "Hecho hoy",
+      "doneThisWeek": "Hecho esta semana",
+      "today": "hoy",
+      "thisWeek": "esta semana",
+      "limitReached": "Ya lo hiciste todas las veces permitidas por ahora."
+    },
+    "schedule": {
+      "dueMode": "Frecuencia",
+      "onDays": "Los",
+      "season": "Solo en temporada",
+      "seasonDesc": "Fuera de estos meses no vence y no cuenta para la salud de la casa",
+      "seasonFrom": "Mes de inicio",
+      "seasonTo": "Mes de fin",
+      "offSeason": "Fuera de temporada",
+      "turnChanges": "El turno cambia",
+      "turnEachTime": "tras cada vez",
+      "turnWeekly": "cada lunes"
+    },
+    "trash": {
+      "undo": "Deshacer",
+      "deleted": "«{name}» eliminado",
+      "deletedMany": "{n} tareas eliminadas",
+      "title": "Eliminados recientemente",
+      "desc": "Las tareas y recompensas eliminadas se quedan aquí {n} días, con su historial.",
+      "empty": "No hay nada.",
+      "reward": "Recompensa",
+      "history": "{n} en el historial",
+      "restoreInto": "Restaurar en",
+      "roomGone": "Su habitación se eliminó; elige otra",
+      "restoreIntoRoom": "En {room}",
+      "restore": "Restaurar",
+      "deleteForever": "Eliminar para siempre",
+      "deleteForeverConfirm": "¿Eliminar «{name}» para siempre? No se puede deshacer."
+    },
+    "bulk": {
+      "select": "Seleccionar",
+      "finish": "Listo",
+      "selectAll": "Seleccionar todo ({n})",
+      "clear": "Quitar selección",
+      "selected": "{n} seleccionadas",
+      "change": "Cambiar…",
+      "assign": "Quién la hace",
+      "room": "Mover a la habitación",
+      "every": "Frecuencia (días)",
+      "coinsDefault": "Según el esfuerzo",
+      "apply": "Aplicar",
+      "deleteConfirm": "¿Eliminar {n} tareas? Puedes restaurarlas durante 30 días en Ajustes → Eliminados recientemente.",
+      "updated": "{n} tareas actualizadas",
+      "yes": "Sí",
+      "no": "No",
+      "updatedOne": "1 tarea actualizada",
+      "deleteConfirmOne": "¿Eliminar esta tarea? Puedes restaurarla durante 30 días en Ajustes → Eliminados recientemente."
+    },
+    "csv": {
+      "title": "Hojas de cálculo",
+      "desc": "Descarga las tareas o recompensas, edítalas en cualquier hoja de cálculo y vuelve a cargar el archivo. Primero verás una vista previa; nunca se elimina nada.",
+      "exportTasks": "Descargar tareas",
+      "exportRewards": "Descargar recompensas",
+      "importTasks": "Cargar tareas",
+      "importRewards": "Cargar recompensas",
+      "applied": "Guardado: {add} añadidas, {update} cambiadas.",
+      "previewOf": "Vista previa de {file}",
+      "add": "{n} nuevas",
+      "update": "{n} cambiadas",
+      "unchanged": "{n} iguales",
+      "errors": "{n} con problemas",
+      "newRooms": "Habitaciones nuevas: {rooms}",
+      "ignoredColumns": "Columnas no usadas: {cols}",
+      "line": "Línea {n}",
+      "addNewRoom": "nueva, en una habitación nueva",
+      "addRow": "nueva",
+      "apply": "Aplicar cambios ({n})",
+      "errorsSkipped": "Las filas con problemas se omiten."
+    },
+    "rewardOrder": {
+      "up": "Subir",
+      "down": "Bajar",
+      "category": "Categoría",
+      "categoryPlaceholder": "p. ej. Caprichos, Grandes metas",
+      "featured": "Destacadas",
+      "all": "Todas",
+      "other": "Otras"
+    },
+    "duplicateRoom": {
+      "button": "Duplicar habitación",
+      "title": "Duplicar esta habitación",
+      "desc": "Copia cada tarea con sus ajustes y quién la hace. El historial no se copia, así que todo empieza pendiente.",
+      "copyName": "{name} (copia)",
+      "owner": "Dueño",
+      "sameOwner": "Mismo dueño ({name})",
+      "noOwner": "Sin dueño",
+      "create": "Crear copia"
     }
   }
 }

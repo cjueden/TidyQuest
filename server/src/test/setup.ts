@@ -7,6 +7,7 @@ process.env.NODE_ENV = 'test';
 process.env.VITEST = 'true';
 
 import { setDatabase } from '../database';
+import { applyForkSchema } from '../forkSchema';
 import { createApp } from '../index';
 
 export function createTestApp() {
@@ -17,6 +18,7 @@ export function createTestApp() {
 
   // Initialize schema
   runSchema(db);
+  applyForkSchema(db);
 
   // Swap the global singleton so all routes use this DB
   setDatabase(db);

@@ -1,19 +1,26 @@
 import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
-import { calculateHealth } from '../utils/health';
-import { getGlobalVacation, getUserVacation, resolveVacation } from '../utils/adminHelpers';
+import { calendarDaysUntil, hasWeekdaySchedule, isSeasonalNow, nextDueAt, scheduleFields, taskHealth } from '../utils/schedule';
+import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, isStrictModeEnabled, resolveVacation } from '../utils/adminHelpers';
+import { syncPrimaryGoal } from '../utils/goals';
+import { repeatCountsFor } from '../utils/repeatLimits';
+import { getActiveBoosts } from '../utils/boosts';
 
 const router = Router();
 router.use(authMiddleware);
 
 router.get('/', (req: AuthRequest, res: Response) => {
+  // Refresh the cached goal first so it rolls over to the current week (and completes) on its own
+  const myPrimaryGoal = syncPrimaryGoal(req.userId!);
   const user = db.prepare(
-    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, language FROM users WHERE id = ?'
+    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, language, taskView, kidMode FROM users WHERE id = ?'
   ).get(req.userId) as any;
   const vacation = getGlobalVacation();
 
-  const rooms = db.prepare('SELECT * FROM rooms ORDER BY sortOrder, id').all() as any[];
+  // Kids don't see other people's private rooms (when the setting is on)
+  const hiddenRooms = hiddenRoomIdsFor(req.userId);
+  const rooms = (db.prepare('SELECT * FROM rooms ORDER BY sortOrder, id').all() as any[]).filter((r) => !hiddenRooms.has(r.id));
   const allTasks: any[] = [];
 
   // Fetch all tasks in one query and group by roomId to avoid N+1
@@ -43,6 +50,14 @@ router.get('/', (req: AuthRequest, res: Response) => {
     sharedCompletionsByTask.get(c.taskId)!.push({ userId: c.userId, displayName: c.displayName });
   }
 
+  // The viewer's own completions still waiting for a parent, per task (Strict Mode)
+  const myPendingByTask = new Map(
+    (db.prepare("SELECT taskId, COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'pending' GROUP BY taskId")
+      .all(req.userId) as { taskId: number; n: number }[]).map((r) => [r.taskId, r.n])
+  );
+  // Anytime quests with a repeat limit: how many times the viewer did each this day/week
+  const myRepeatCounts = repeatCountsFor(req.userId, dbTasks);
+
   // Batch-fetch all task assignees
   const allTaskAssignees = db.prepare(
     `SELECT ta.taskId, ta.userId, ta.coinPercentage, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -66,15 +81,16 @@ router.get('/', (req: AuthRequest, res: Response) => {
       const taskVac = effectiveIds.length === 1
         ? resolveVacation(vacation, getUserVacation(effectiveIds[0]))
         : vacation;
-      const health = calculateHealth(t.lastCompletedAt, t.frequencyDays, taskVac.isVacation, taskVac.startDate);
-      const safeFreq = Math.max(1 / 24, Number(t.frequencyDays) || 7);
-      const dueDateTs = t.lastCompletedAt
-        ? new Date(t.lastCompletedAt).getTime() + safeFreq * 86400000
-        : nowTs;
-      const dueInDays = t.onDemand ? 0 : Math.max(0, Math.floor((dueDateTs - nowTs) / 86400000));
+      // Rolling interval or set weekdays, and the season (utils/schedule.ts)
+      const health = taskHealth(t, taskVac);
+      const dueDateTs = nextDueAt(t)?.getTime() ?? nowTs;
+      const dueInDays = t.onDemand ? 0
+        : hasWeekdaySchedule(t) ? calendarDaysUntil(new Date(dueDateTs))
+        : Math.max(0, Math.floor((dueDateTs - nowTs) / 86400000));
       const taskWithHealth = {
         ...t,
-        isSeasonal: !!t.isSeasonal,
+        ...scheduleFields(t, taskAssigneesForTask.map((a: any) => a.userId)),
+        isSeasonal: isSeasonalNow(t),
         assignedToChildren: !!t.assignedToChildren,
         effectiveAssignedUserId: room.assignedUserId ?? t.assignedUserId ?? null,
         assignedUserIds: taskAssigneesForTask.map((a: any) => a.userId),
@@ -84,7 +100,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
           coinPercentage: a.coinPercentage ?? 0,
         })),
         assignmentMode: t.assignmentMode || 'first',
-        effectiveAssignedUserIds: taskAssigneesForTask.map((a: any) => a.userId),
+        effectiveAssignedUserIds: effectiveIds,
+        myPendingCount: myPendingByTask.get(t.id) || 0,
+        myRepeatCount: myRepeatCounts.get(t.id) || 0,
         sharedCompletions: sharedCompletionsByTask.get(t.id) || [],
         completedTodayBy: completedTodayByTask.get(t.id) || null,
         health,
@@ -175,29 +193,53 @@ router.get('/', (req: AuthRequest, res: Response) => {
   }
 
   const myCurrentCoins = user.goalCoins ? getGoalCoinsWithinPeriod(user) : user.coins;
-  const myGoalStatus = user.goalCoins ? (db.prepare(
-    "SELECT status FROM user_goals WHERE userId = ? AND goalCoins = ? ORDER BY CASE WHEN status = 'active' THEN 0 ELSE 1 END, id DESC LIMIT 1"
-  ).get(user.id, user.goalCoins) as { status: string } | undefined)?.status || 'active' : null;
   const myGoal = user.goalCoins ? {
     goalCoins: user.goalCoins,
     currentCoins: myCurrentCoins,
     goalStartAt: user.goalStartAt || null,
     goalEndAt: user.goalEndAt || null,
     progress: Math.min(100, Math.round((myCurrentCoins / user.goalCoins) * 100)),
-    completed: myGoalStatus === 'completed',
+    completed: myPrimaryGoal?.status === 'completed',
+    goalId: myPrimaryGoal?.id ?? null,
+    title: myPrimaryGoal?.title ?? null,
+    rewardCoins: myPrimaryGoal?.rewardCoins ?? 0,
   } : null;
 
+  // Each child's current goal, so parents can see who reached it (and earned the bonus)
+  const childPrimaryGoals = new Map<number, ReturnType<typeof syncPrimaryGoal>>([[user.id, myPrimaryGoal]]);
+  if (user.role === 'admin') {
+    const listed = db.prepare("SELECT id FROM users WHERE (role != 'admin' OR isParticipant = 1) AND id != ?").all(user.id) as { id: number }[];
+    for (const c of listed) childPrimaryGoals.set(c.id, syncPrimaryGoal(c.id));
+  }
   const childrenGoals = user.role === 'admin'
     ? db.prepare(
       "SELECT id, displayName, role, coins, goalCoins, goalStartAt, goalEndAt, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users WHERE role != 'admin' OR isParticipant = 1 ORDER BY displayName"
     ).all().map((c: any) => {
       const currentCoins = c.goalCoins ? getGoalCoinsWithinPeriod(c) : c.coins;
+      const primary = childPrimaryGoals.get(c.id);
       return {
         ...c,
         currentCoins,
         progress: c.goalCoins ? Math.min(100, Math.round((currentCoins / c.goalCoins) * 100)) : null,
+        goalCompleted: primary?.status === 'completed',
+        goalRewardCoins: primary?.rewardCoins ?? 0,
       };
     })
+    : [];
+
+  // Chores waiting for a parent's approval (Strict Mode), newest first
+  const pendingCompletions = user.role === 'admin'
+    ? db.prepare(`
+      SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl,
+             t.name AS taskName, t.translationKey, t.roomId, t.iconKey, r.name AS roomName, r.roomType, r.color AS roomColor,
+             u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
+      FROM task_completions tc
+      JOIN tasks t ON tc.taskId = t.id
+      JOIN rooms r ON t.roomId = r.id
+      JOIN users u ON tc.userId = u.id
+      WHERE tc.status = 'pending'
+      ORDER BY tc.completedAt DESC
+      LIMIT 100`).all()
     : [];
 
   const pendingRewardRequests = user.role === 'admin'
@@ -241,6 +283,10 @@ router.get('/', (req: AuthRequest, res: Response) => {
     myGoal,
     childrenGoals,
     pendingRewardRequests,
+    pendingCompletions,
+    strictMode: isStrictModeEnabled(),
+    // Double coins events running now (Home shows a banner and the boosted amounts)
+    coinBoosts: getActiveBoosts().map(({ id, title, multiplier, startAt, endAt, roomIds }) => ({ id, title, multiplier, startAt, endAt, roomIds })),
     currentUser: user,
     recentActivity,
     badges,

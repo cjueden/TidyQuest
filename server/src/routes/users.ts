@@ -7,12 +7,14 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { DEFAULT_COINS_BY_EFFORT, normalizeCoinsByEffortConfig } from '../utils/health';
 import { NotificationTypeSettings, sendTelegramMessageDetailed, sendNtfyMessageDetailed } from '../utils/notifications';
-import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, isStrictModeEnabled } from '../utils/adminHelpers';
+import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, isHidePrivateRoomsEnabled, isStrictModeEnabled } from '../utils/adminHelpers';
+import { syncPrimaryGoal } from '../utils/goals';
+import { currentLocalWeek } from '../utils/periods';
 
 const router = Router();
 router.use(authMiddleware);
 
-const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant';
+const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode';
 
 function normalizeNotificationTime(value: string | undefined): string | null {
   if (value === undefined) return null;
@@ -29,67 +31,20 @@ function normalizeNotificationTypes(value: unknown): NotificationTypeSettings | 
     taskDue: toBool(raw.taskDue, true),
     rewardRequest: toBool(raw.rewardRequest, true),
     achievementUnlocked: toBool(raw.achievementUnlocked, true),
+    choreApproval: toBool(raw.choreApproval, true),
+    coinBoost: toBool(raw.coinBoost, true),
   };
 }
 
 function readNotificationTypesSetting(): NotificationTypeSettings {
   const rawTypes = (db.prepare("SELECT value FROM app_settings WHERE key = 'notificationTypes'").get() as any)?.value
     || (db.prepare("SELECT value FROM app_settings WHERE key = 'telegramNotificationTypes'").get() as any)?.value || '';
-  if (!rawTypes) return { taskDue: true, rewardRequest: true, achievementUnlocked: true };
+  if (!rawTypes) return { taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true };
   try {
-    return normalizeNotificationTypes(JSON.parse(rawTypes)) || { taskDue: true, rewardRequest: true, achievementUnlocked: true };
+    return normalizeNotificationTypes(JSON.parse(rawTypes)) || { taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true };
   } catch {
-    return { taskDue: true, rewardRequest: true, achievementUnlocked: true };
+    return { taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true };
   }
-}
-
-function syncPrimaryGoal(userId: number) {
-  const nowIso = new Date().toISOString();
-
-  // Auto-complete any active goals where coins >= target
-  const activeGoals = db.prepare(
-    `SELECT id, goalCoins, rewardCoins, startAt, endAt, createdAt FROM user_goals WHERE userId = ? AND status = 'active'`
-  ).all(userId) as { id: number; goalCoins: number; rewardCoins: number; startAt: string | null; endAt: string | null; createdAt: string }[];
-  for (const g of activeGoals) {
-    // Use startAt if set, otherwise fall back to createdAt so that goals without an
-    // explicit start date only count coins earned after the goal was created — prevents
-    // goals from auto-completing instantly when the user already has enough coins.
-    const from = g.startAt || g.createdAt || '1970-01-01T00:00:00.000Z';
-    const to = g.endAt || '9999-12-31T23:59:59.999Z';
-    const row = db.prepare(
-      "SELECT COALESCE(SUM(coinsEarned), 0) as total FROM task_completions WHERE userId = ? AND status = 'approved' AND completedAt >= ? AND completedAt <= ?"
-    ).get(userId, from, to) as { total: number };
-    if (row.total >= g.goalCoins) {
-      db.prepare("UPDATE user_goals SET status = 'completed', completedAt = ? WHERE id = ?").run(nowIso, g.id);
-      // Award bonus coins if configured
-      if (g.rewardCoins > 0) {
-        db.prepare('UPDATE users SET coins = coins + ? WHERE id = ?').run(g.rewardCoins, userId);
-      }
-    }
-  }
-
-  // Find the next active goal to sync as primary
-  const primary = db.prepare(
-    `SELECT goalCoins, startAt, endAt
-     FROM user_goals
-     WHERE userId = ? AND status = 'active'
-     ORDER BY
-       CASE
-         WHEN (startAt IS NULL OR startAt <= ?) AND (endAt IS NULL OR endAt >= ?) THEN 0
-         ELSE 1
-       END,
-       COALESCE(startAt, createdAt) ASC,
-       id DESC
-     LIMIT 1`
-  ).get(userId, nowIso, nowIso) as { goalCoins: number; startAt: string | null; endAt: string | null } | undefined;
-
-  if (!primary) {
-    db.prepare('UPDATE users SET goalCoins = NULL, goalStartAt = NULL, goalEndAt = NULL WHERE id = ?').run(userId);
-    return;
-  }
-
-  db.prepare('UPDATE users SET goalCoins = ?, goalStartAt = ?, goalEndAt = ? WHERE id = ?')
-    .run(primary.goalCoins, primary.startAt || null, primary.endAt || null, userId);
 }
 
 // Setup multer for avatar uploads
@@ -380,6 +335,22 @@ router.put('/:id/goal', (req: AuthRequest, res: Response) => {
   res.json(updated);
 });
 
+// What a person sees: All/Mine default or lock, and Kid mode. Parents only, so kids can't unlock themselves.
+router.put('/:id/view', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const targetId = parseInt(req.params.id as string);
+  if (!db.prepare('SELECT id FROM users WHERE id = ?').get(targetId)) return res.status(404).json({ error: 'User not found' });
+  const { taskView, kidMode } = req.body as { taskView?: string; kidMode?: boolean };
+  if (taskView !== undefined) {
+    if (!['all', 'mine', 'mineOnly'].includes(taskView)) return res.status(400).json({ error: 'taskView must be all, mine or mineOnly' });
+    db.prepare('UPDATE users SET taskView = ? WHERE id = ?').run(taskView, targetId);
+  }
+  if (kidMode !== undefined) {
+    db.prepare('UPDATE users SET kidMode = ? WHERE id = ?').run(kidMode ? 1 : 0, targetId);
+  }
+  res.json(db.prepare(`SELECT ${USER_SELECT} FROM users WHERE id = ?`).get(targetId));
+});
+
 router.put('/:id/participant', (req: AuthRequest, res: Response) => {
   const requester = db.prepare('SELECT id, role FROM users WHERE id = ?').get(req.userId) as any;
   if (!requester || requester.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
@@ -441,7 +412,7 @@ router.get('/:id/goals', (req: AuthRequest, res: Response) => {
   if (!target) return res.status(404).json({ error: 'User not found' });
 
   const goals = db.prepare(
-    'SELECT id, userId, title, goalCoins, startAt, endAt, status, completedAt, createdBy, createdAt FROM user_goals WHERE userId = ? ORDER BY createdAt DESC, id DESC'
+    'SELECT id, userId, title, goalCoins, startAt, endAt, rewardCoins, repeatWeekly, status, completedAt, createdBy, createdAt FROM user_goals WHERE userId = ? ORDER BY createdAt DESC, id DESC'
   ).all(targetId);
   res.json(goals);
 });
@@ -454,28 +425,30 @@ router.post('/:id/goals', (req: AuthRequest, res: Response) => {
   if (!target) return res.status(404).json({ error: 'User not found' });
   if (target.role === 'admin' && !target.isParticipant) return res.status(400).json({ error: 'Cannot assign goals to a non-participating admin' });
 
-  const { title, goalCoins, startAt, endAt, rewardCoins } = req.body as { title?: string; goalCoins?: number; startAt?: string | null; endAt?: string | null; rewardCoins?: number };
+  const { title, goalCoins, startAt, endAt, rewardCoins, repeatWeekly } = req.body as { title?: string; goalCoins?: number; startAt?: string | null; endAt?: string | null; rewardCoins?: number; repeatWeekly?: boolean };
   const cleanTitle = String(title || '').trim();
   if (!cleanTitle) return res.status(400).json({ error: 'title is required' });
   const n = Math.round(Number(goalCoins));
   if (!Number.isFinite(n) || n <= 0) return res.status(400).json({ error: 'goalCoins must be > 0' });
   if (startAt && Number.isNaN(new Date(startAt).getTime())) return res.status(400).json({ error: 'startAt must be a valid date' });
   if (endAt && Number.isNaN(new Date(endAt).getTime())) return res.status(400).json({ error: 'endAt must be a valid date' });
-  const normStart = startAt ? new Date(startAt).toISOString() : null;
-  const normEnd = endAt ? new Date(endAt).toISOString() : null;
+  let normStart = startAt ? new Date(startAt).toISOString() : null;
+  let normEnd = endAt ? new Date(endAt).toISOString() : null;
   if (normStart && normEnd && new Date(normEnd).getTime() < new Date(normStart).getTime()) {
     return res.status(400).json({ error: 'endAt must be after startAt' });
   }
+  // A weekly goal needs a window to roll over from: without dates it covers this week (Mon–Sun)
+  if (repeatWeekly && !normEnd) ({ startAt: normStart, endAt: normEnd } = currentLocalWeek());
   const normRewardCoins = (rewardCoins !== undefined && rewardCoins !== null)
-    ? Math.max(0, Math.round(Number(rewardCoins))) : 0;
+    ? Math.max(0, Math.round(Number(rewardCoins)) || 0) : 0;
 
   const result = db.prepare(
-    'INSERT INTO user_goals (userId, title, goalCoins, startAt, endAt, rewardCoins, createdBy) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).run(targetId, cleanTitle, n, normStart, normEnd, normRewardCoins, req.userId);
+    'INSERT INTO user_goals (userId, title, goalCoins, startAt, endAt, rewardCoins, repeatWeekly, createdBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).run(targetId, cleanTitle, n, normStart, normEnd, normRewardCoins, repeatWeekly ? 1 : 0, req.userId);
 
   syncPrimaryGoal(targetId);
   const created = db.prepare(
-    'SELECT id, userId, title, goalCoins, startAt, endAt, rewardCoins, status, completedAt, createdBy, createdAt FROM user_goals WHERE id = ?'
+    'SELECT id, userId, title, goalCoins, startAt, endAt, rewardCoins, repeatWeekly, status, completedAt, createdBy, createdAt FROM user_goals WHERE id = ?'
   ).get(result.lastInsertRowid);
   res.status(201).json(created);
 });
@@ -486,23 +459,31 @@ router.put('/goals/:goalId', (req: AuthRequest, res: Response) => {
   const goal = db.prepare('SELECT id, userId FROM user_goals WHERE id = ?').get(goalId) as any;
   if (!goal) return res.status(404).json({ error: 'Goal not found' });
 
-  const { title, goalCoins, startAt, endAt } = req.body as { title?: string; goalCoins?: number; startAt?: string | null; endAt?: string | null };
+  const { title, goalCoins, startAt, endAt, rewardCoins, repeatWeekly } = req.body as { title?: string; goalCoins?: number; startAt?: string | null; endAt?: string | null; rewardCoins?: number | null; repeatWeekly?: boolean };
   const cleanTitle = String(title || '').trim();
   if (!cleanTitle) return res.status(400).json({ error: 'title is required' });
   const n = Math.round(Number(goalCoins));
   if (!Number.isFinite(n) || n <= 0) return res.status(400).json({ error: 'goalCoins must be > 0' });
   if (startAt && Number.isNaN(new Date(startAt).getTime())) return res.status(400).json({ error: 'startAt must be a valid date' });
   if (endAt && Number.isNaN(new Date(endAt).getTime())) return res.status(400).json({ error: 'endAt must be a valid date' });
-  const normStart = startAt ? new Date(startAt).toISOString() : null;
-  const normEnd = endAt ? new Date(endAt).toISOString() : null;
+  let normStart = startAt ? new Date(startAt).toISOString() : null;
+  let normEnd = endAt ? new Date(endAt).toISOString() : null;
   if (normStart && normEnd && new Date(normEnd).getTime() < new Date(normStart).getTime()) {
     return res.status(400).json({ error: 'endAt must be after startAt' });
   }
+  if (repeatWeekly && !normEnd) ({ startAt: normStart, endAt: normEnd } = currentLocalWeek());
 
   db.prepare('UPDATE user_goals SET title = ?, goalCoins = ?, startAt = ?, endAt = ? WHERE id = ?')
     .run(cleanTitle, n, normStart, normEnd, goalId);
+  // Optional: bonus coins and "repeat weekly" (left unchanged when not sent)
+  if (rewardCoins !== undefined) {
+    db.prepare('UPDATE user_goals SET rewardCoins = ? WHERE id = ?').run(Math.max(0, Math.round(Number(rewardCoins)) || 0), goalId);
+  }
+  if (repeatWeekly !== undefined) {
+    db.prepare('UPDATE user_goals SET repeatWeekly = ? WHERE id = ?').run(repeatWeekly ? 1 : 0, goalId);
+  }
   syncPrimaryGoal(goal.userId);
-  const updated = db.prepare('SELECT id, userId, title, goalCoins, startAt, endAt, status, completedAt, createdBy, createdAt FROM user_goals WHERE id = ?').get(goalId);
+  const updated = db.prepare('SELECT id, userId, title, goalCoins, startAt, endAt, rewardCoins, repeatWeekly, status, completedAt, createdBy, createdAt FROM user_goals WHERE id = ?').get(goalId);
   res.json(updated);
 });
 
@@ -690,14 +671,47 @@ router.post('/:id/adjust-coins', (req: AuthRequest, res: Response) => {
   const targetUser = db.prepare(`SELECT ${USER_SELECT} FROM users WHERE id = ?`).get(req.params.id) as any;
   if (!targetUser) return res.status(404).json({ error: 'User not found' });
 
-  const amount = Number(req.body.amount);
+  const amount = Math.round(Number(req.body.amount));
   if (!Number.isFinite(amount) || amount === 0) {
     return res.status(400).json({ error: 'amount must be a non-zero number' });
   }
+  const rawReason = req.body.reason;
+  if (rawReason != null && typeof rawReason !== 'string') return res.status(400).json({ error: 'reason must be text' });
+  const reason = (rawReason || '').trim();
+  if (reason.length > 200) return res.status(400).json({ error: 'reason must be 200 characters or fewer' });
 
-  db.prepare('UPDATE users SET coins = MAX(0, coins + ?) WHERE id = ?').run(amount, req.params.id);
+  // The balance can't go below 0, so the ledger records the change actually applied
+  const applied = db.transaction(() => {
+    db.prepare('UPDATE users SET coins = MAX(0, coins + ?) WHERE id = ?').run(amount, targetUser.id);
+    const after = (db.prepare('SELECT coins FROM users WHERE id = ?').get(targetUser.id) as { coins: number }).coins;
+    const delta = after - targetUser.coins;
+    if (delta !== 0) {
+      db.prepare('INSERT INTO coin_adjustments (userId, amount, reason, createdBy, createdAt) VALUES (?, ?, ?, ?, ?)')
+        .run(targetUser.id, delta, reason || null, req.userId, new Date().toISOString());
+    }
+    return delta;
+  })();
   const updated = db.prepare(`SELECT ${USER_SELECT} FROM users WHERE id = ?`).get(req.params.id) as any;
-  res.json(updated);
+  res.json({ ...updated, applied });
+});
+
+// A person's coin adjustments, newest first (parents, or that person)
+router.get('/:id/coin-adjustments', (req: AuthRequest, res: Response) => {
+  const targetId = parseInt(req.params.id as string, 10);
+  if (targetId !== req.userId && !ensureAdmin(req.userId)) return res.status(403).json({ error: 'Forbidden' });
+  if (!db.prepare('SELECT id FROM users WHERE id = ?').get(targetId)) return res.status(404).json({ error: 'User not found' });
+  const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 50, 1), 200);
+  const offset = Math.max(parseInt(req.query.offset as string) || 0, 0);
+  const adjustments = db.prepare(`
+    SELECT a.id, a.userId, a.amount, a.reason, a.createdBy, a.createdAt, c.displayName AS createdByName
+    FROM coin_adjustments a
+    LEFT JOIN users c ON c.id = a.createdBy
+    WHERE a.userId = ?
+    ORDER BY a.createdAt DESC, a.id DESC
+    LIMIT ? OFFSET ?
+  `).all(targetId, limit, offset);
+  const total = (db.prepare('SELECT COUNT(*) AS n FROM coin_adjustments WHERE userId = ?').get(targetId) as { n: number }).n;
+  res.json({ adjustments, total });
 });
 
 router.get('/vacation-config', (req: AuthRequest, res: Response) => {
@@ -730,6 +744,19 @@ router.put('/vacation-config', (req: AuthRequest, res: Response) => {
 
   const v = getGlobalVacation();
   res.json({ vacationMode: v.isVacation, vacationStartDate: v.startDate, vacationEndDate: v.endDate });
+});
+
+router.get('/kids-config', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  res.json({ hidePrivateRooms: isHidePrivateRoomsEnabled() });
+});
+
+router.put('/kids-config', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const { hidePrivateRooms } = req.body as { hidePrivateRooms?: boolean };
+  if (typeof hidePrivateRooms !== 'boolean') return res.status(400).json({ error: 'hidePrivateRooms must be a boolean' });
+  db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('hidePrivateRooms', ?)").run(hidePrivateRooms ? '1' : '0');
+  res.json({ hidePrivateRooms });
 });
 
 router.get('/strict-mode-config', (req: AuthRequest, res: Response) => {

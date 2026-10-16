@@ -1,7 +1,7 @@
 import db from '../database';
 import { buildAchievements } from './achievements';
 import { isNotificationTypeEnabled, sendNotification } from './notifications';
-import { calculateHealth } from './health';
+import { isSeasonalNow, taskHealth } from './schedule';
 import { getGlobalVacation, getUserVacation, resolveVacation } from './adminHelpers';
 import { localDateStr } from './dateHelpers';
 
@@ -18,18 +18,21 @@ function getUserAchievementStats(userId: number) {
   const rooms = db.prepare('SELECT id FROM rooms').all() as Array<{ id: number }>;
   let roomsClean = 0;
   for (const room of rooms) {
-    const tasks = db.prepare('SELECT effort, isSeasonal, lastCompletedAt, frequencyDays FROM tasks WHERE roomId = ?').all(room.id) as Array<{
+    const tasks = db.prepare('SELECT effort, isSeasonal, lastCompletedAt, frequencyDays, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks WHERE roomId = ?').all(room.id) as Array<{
       effort: number;
       isSeasonal: number;
       lastCompletedAt: string | null;
       frequencyDays: number;
+      seasonStartMonth: number | null;
+      seasonEndMonth: number | null;
+      scheduleWeekdays: number | null;
     }>;
     if (tasks.length === 0) continue;
-    const nonSeasonal = tasks.filter((t) => !t.isSeasonal);
+    const nonSeasonal = tasks.filter((t) => !isSeasonalNow(t));
     const forAvg = nonSeasonal.length > 0 ? nonSeasonal : tasks;
     const totalEffort = forAvg.reduce((s, t) => s + t.effort, 0);
     const health = totalEffort > 0
-      ? Math.round(forAvg.reduce((s, t) => s + calculateHealth(t.lastCompletedAt, t.frequencyDays, vacation.isVacation, vacation.startDate) * t.effort, 0) / totalEffort)
+      ? Math.round(forAvg.reduce((s, t) => s + taskHealth(t, vacation) * t.effort, 0) / totalEffort)
       : 100;
     if (health >= 70) roomsClean++;
   }

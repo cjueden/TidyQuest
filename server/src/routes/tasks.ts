@@ -1,4 +1,8 @@
 import { Router, Response } from 'express';
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
+import multer from 'multer';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth, getCoinsForEffort } from '../utils/health';
@@ -6,27 +10,51 @@ import { suggestTaskIcon } from '../utils/taskIcons';
 import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '../utils/achievementNotifications';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
+import { hasWeekdaySchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth } from '../utils/schedule';
+import { isNotificationTypeEnabled, sendNotification } from '../utils/notifications';
+import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatLimits';
+import { boostMultiplierForRoom } from '../utils/boosts';
+import { trashTask } from '../utils/trash';
+
+// Proof photos kids can attach to a completion (served at /api/proofs)
+export const proofsDir = path.join(__dirname, '..', '..', '..', 'data', 'proofs');
+if (!fs.existsSync(proofsDir)) fs.mkdirSync(proofsDir, { recursive: true });
+const proofUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, proofsDir),
+    filename: (_req, file, cb) => {
+      const ext = ['.jpg', '.jpeg', '.png', '.webp', '.heic'].includes(path.extname(file.originalname).toLowerCase())
+        ? path.extname(file.originalname).toLowerCase() : '.jpg';
+      cb(null, `proof-${crypto.randomBytes(12).toString('hex')}${ext}`);
+    },
+  }),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
+});
 
 const router = Router();
 router.use(authMiddleware);
 
 function hadDueTaskOnDate(dateIsoDay: string): boolean {
   const endOfDay = new Date(`${dateIsoDay}T23:59:59.999Z`).getTime();
-  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt FROM tasks').all() as Array<{
+  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks').all() as Array<{
     id: number; frequencyDays: number; isSeasonal: number; lastCompletedAt: string | null;
+    seasonStartMonth: number | null; seasonEndMonth: number | null; scheduleWeekdays: number | null;
   }>;
 
   for (const t of tasks) {
-    if (t.isSeasonal) continue;
+    if (isSeasonalNow(t, new Date(`${dateIsoDay}T12:00:00`))) continue;
     const safeFreq = Math.max(1 / 24, Number(t.frequencyDays) || 7);
     let dueTs: number;
-    if (!t.lastCompletedAt) {
+    if (hasWeekdaySchedule(t)) {
+      dueTs = nextDueAt(t)!.getTime();
+    } else if (!t.lastCompletedAt) {
       dueTs = 0;
     } else {
       dueTs = new Date(t.lastCompletedAt).getTime() + safeFreq * 86400000;
     }
     if (dueTs <= endOfDay) {
-      const health = calculateHealth(t.lastCompletedAt, safeFreq, false, null);
+      const health = hasWeekdaySchedule(t) ? taskHealth(t) : calculateHealth(t.lastCompletedAt, safeFreq, false, null);
       if (health < 100) return true;
     }
   }
@@ -40,18 +68,19 @@ function applyApprovedCompletion(
   coins: number,
   now: string,
   gamificationOn: boolean = true,
-  options?: { completionId?: number; approvedByUserId?: number; approvedAt?: string }
-) {
+  options?: { completionId?: number; approvedByUserId?: number; approvedAt?: string; note?: string | null }
+): number {
   const approvedByUserId = options?.approvedByUserId ?? effectiveUserId;
   const approvedAt = options?.approvedAt ?? now;
+  let completionId = options?.completionId ?? 0;
   if (options?.completionId) {
     db.prepare(
       "UPDATE task_completions SET status = 'approved', approvedByUserId = ?, approvedAt = ? WHERE id = ?"
     ).run(approvedByUserId, approvedAt, options.completionId);
   } else {
-    db.prepare(
-      'INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, approvedByUserId, approvedAt) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    ).run(taskId, effectiveUserId, now, coins, 'approved', approvedByUserId, approvedAt);
+    completionId = Number(db.prepare(
+      'INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, approvedByUserId, approvedAt, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(taskId, effectiveUserId, now, coins, 'approved', approvedByUserId, approvedAt, options?.note ?? null).lastInsertRowid);
   }
 
   const taskAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ?').all(taskId) as { userId: number }[];
@@ -107,6 +136,36 @@ function applyApprovedCompletion(
     }
 
   }
+  return completionId;
+}
+
+/** Approve one waiting completion: pay it out, move the rotation on. Returns an error code or null. */
+function approvePendingCompletion(completionId: number, adminId: number): string | null {
+  const completion = db.prepare('SELECT id, taskId, userId, completedAt, coinsEarned, status FROM task_completions WHERE id = ?').get(completionId) as any;
+  if (!completion) return 'not_found';
+  if (completion.status !== 'pending') return 'completion_not_pending';
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(completion.taskId) as any;
+  if (!task) return 'task_not_found';
+  const gamifRow = db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined;
+  const gamificationOn = gamifRow ? gamifRow.value !== '0' : true;
+  applyApprovedCompletion(task, completion.taskId, completion.userId, completion.coinsEarned, completion.completedAt, gamificationOn, {
+    completionId: completion.id,
+    approvedByUserId: adminId,
+    approvedAt: new Date().toISOString(),
+  });
+  // The turn moves on once the parent approves (it used to stay stuck under Strict Mode)
+  advanceRotation(task, completion.userId);
+  if (gamificationOn) void notifyAchievementUnlocksForUser(completion.userId);
+  return null;
+}
+
+/** Reject one waiting completion (it's removed; no coins). Returns an error code or null. */
+function rejectPendingCompletion(completionId: number): string | null {
+  const completion = db.prepare('SELECT id, status FROM task_completions WHERE id = ?').get(completionId) as { id: number; status: string } | undefined;
+  if (!completion) return 'not_found';
+  if (completion.status !== 'pending') return 'completion_not_pending';
+  db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
+  return null;
 }
 
 // List tasks for a room
@@ -171,7 +230,8 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
     const mode = t.assignmentMode || 'first';
     return {
       ...t,
-      isSeasonal: !!t.isSeasonal,
+      ...scheduleFields(t, taskAssignedUserIds),
+      isSeasonal: isSeasonalNow(t),
       assignedToChildren: !!t.assignedToChildren,
       assignedUserIds: taskAssignedUserIds,
       assignedUsers,
@@ -183,7 +243,7 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
         const taskVac = effectiveAssignedUserIds.length === 1
           ? resolveVacation(vacation, getUserVacation(effectiveAssignedUserIds[0]))
           : vacation;
-        return calculateHealth(t.lastCompletedAt, t.frequencyDays, taskVac.isVacation, taskVac.startDate);
+        return taskHealth(t, taskVac);
       })(),
     };
   });
@@ -191,17 +251,18 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   res.json(tasksWithHealth);
 });
 
-// Create task
-router.post('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
-  if (!ensureAdmin(req.userId)) {
-    return res.status(403).json({ error: 'Admin only' });
-  }
+/** Result of createTask / updateTask: the HTTP status and JSON body the routes send back. */
+export interface TaskWriteResult { status: number; body: any }
 
-  const { name, notes, frequencyDays, effort, isSeasonal, health, iconKey, assignedToChildren, assignedUserIds, assignmentMode, assignedUserPercentages, onDemand, showInDashboard, customCoins, allowEarlyCompletion } = req.body;
-  if (!name) return res.status(400).json({ error: 'name is required' });
+/** Create a task in a room (POST /rooms/:roomId/tasks; also used by the CSV import). */
+export function createTask(roomId: number | string, body: any): TaskWriteResult {
+  const { name, notes, frequencyDays, effort, isSeasonal, health, iconKey, assignedToChildren, assignedUserIds, assignmentMode, assignedUserPercentages, onDemand, showInDashboard, customCoins, allowEarlyCompletion } = body;
+  if (!name) return { status: 400, body: { error: 'name is required' } };
 
-  const room = db.prepare('SELECT id FROM rooms WHERE id = ?').get(req.params.roomId);
-  if (!room) return res.status(404).json({ error: 'Room not found' });
+  const room = db.prepare('SELECT id FROM rooms WHERE id = ?').get(roomId);
+  if (!room) return { status: 404, body: { error: 'Room not found' } };
+  const schedule = readScheduleInput(body);
+  if ('error' in schedule) return { status: 400, body: { error: schedule.error } };
 
   const effectiveFrequency = Math.max(1 / 24, Number(frequencyDays) || 7);
   let lastCompletedAt: string | null = null;
@@ -222,24 +283,29 @@ router.post('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   // Validate custom mode percentages sum to 100
   if (resolvedAssignmentMode === 'custom' && Array.isArray(assignedUserIds) && assignedUserIds.length > 0) {
     const total = assignedUserIds.reduce((s: number, uid: number) => s + ((assignedUserPercentages?.[Number(uid)] ?? 0)), 0);
-    if (total !== 100) return res.status(400).json({ error: 'custom_percentages_must_sum_to_100' });
+    if (total !== 100) return { status: 400, body: { error: 'custom_percentages_must_sum_to_100' } };
   }
 
   const resolvedCustomCoins = (customCoins !== undefined && customCoins !== null && customCoins !== '')
     ? Math.max(1, Math.round(Number(customCoins))) : null;
+  const repeat = parseRepeatLimit(body);
+  if (repeat.error) return { status: 400, body: { error: repeat.error } };
 
   const result = db.prepare(
     `INSERT INTO tasks (roomId, name, notes, frequencyDays, effort, isSeasonal, lastCompletedAt, iconKey,
-      assignedToChildren, assignmentMode, onDemand, showInDashboard, customCoins, allowEarlyCompletion)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      assignedToChildren, assignmentMode, onDemand, showInDashboard, customCoins, allowEarlyCompletion, repeatLimit, repeatPeriod)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
-    req.params.roomId, name, notes || null, frequencyDays || 7, effort || 1, isSeasonal ? 1 : 0,
+    roomId, name, notes || null, frequencyDays || 7, effort || 1, isSeasonal ? 1 : 0,
     lastCompletedAt, iconKey || suggestTaskIcon(name, null), resolvedAssignedToChildren,
     resolvedAssignmentMode, onDemand ? 1 : 0, showInDashboard ? 1 : 0,
-    resolvedCustomCoins, allowEarlyCompletion ? 1 : 0
+    resolvedCustomCoins, allowEarlyCompletion ? 1 : 0,
+    repeat.value?.repeatLimit ?? null, repeat.value?.repeatPeriod ?? null
   );
 
   const newTaskId = result.lastInsertRowid as number;
+  // Season, set weekdays, rotation period (utils/schedule.ts)
+  saveScheduleInput(newTaskId, schedule.values, health);
 
   // Insert multi-user assignees
   if (Array.isArray(assignedUserIds) && assignedUserIds.length > 0) {
@@ -255,25 +321,32 @@ router.post('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   }
 
   // If the room has a room-level assignedUserId, auto-assign this new task to that user
-  const roomData = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(req.params.roomId) as { assignedUserId: number | null } | undefined;
+  const roomData = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(roomId) as { assignedUserId: number | null } | undefined;
   if (roomData?.assignedUserId) {
     db.prepare('INSERT OR IGNORE INTO task_assignees (taskId, userId, coinPercentage) VALUES (?, ?, 0)')
       .run(newTaskId, roomData.assignedUserId);
   }
 
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(newTaskId);
-  res.status(201).json(task);
-});
+  return { status: 201, body: task };
+}
 
-// Update task
-router.put('/tasks/:id', (req: AuthRequest, res: Response) => {
+// Create task
+router.post('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
+  const result = createTask(req.params.roomId as string, req.body);
+  res.status(result.status).json(result.body);
+});
 
-  const { name, notes, frequencyDays, effort, isSeasonal, health, iconKey, assignedToChildren, assignedUserIds, assignmentMode, assignedUserPercentages, onDemand, showInDashboard, roomId, customCoins, allowEarlyCompletion } = req.body;
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as any;
-  if (!task) return res.status(404).json({ error: 'Task not found' });
+/** Update a task (PUT /tasks/:id; also used by the bulk edit and the CSV import). Only given fields change. */
+export function updateTask(id: number | string, body: any): TaskWriteResult {
+  const { name, notes, frequencyDays, effort, isSeasonal, health, iconKey, assignedToChildren, assignedUserIds, assignmentMode, assignedUserPercentages, onDemand, showInDashboard, roomId, customCoins, allowEarlyCompletion } = body;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as any;
+  if (!task) return { status: 404, body: { error: 'Task not found' } };
+  const schedule = readScheduleInput(body);
+  if ('error' in schedule) return { status: 400, body: { error: schedule.error } };
 
   let lastCompletedAt: string | undefined;
   if (health !== undefined && health !== null) {
@@ -313,7 +386,7 @@ router.put('/tasks/:id', (req: AuthRequest, res: Response) => {
   if (showInDashboard !== undefined) { setClauses.push('showInDashboard = ?'); params.push(showInDashboard ? 1 : 0); }
   if (roomId !== undefined) {
     const targetRoom = db.prepare('SELECT id FROM rooms WHERE id = ?').get(roomId);
-    if (!targetRoom) return res.status(404).json({ error: 'Target room not found' });
+    if (!targetRoom) return { status: 404, body: { error: 'Target room not found' } };
     setClauses.push('roomId = ?'); params.push(Number(roomId));
   }
   if (customCoins !== undefined) {
@@ -321,45 +394,61 @@ router.put('/tasks/:id', (req: AuthRequest, res: Response) => {
     setClauses.push('customCoins = ?'); params.push(resolved);
   }
   if (allowEarlyCompletion !== undefined) { setClauses.push('allowEarlyCompletion = ?'); params.push(allowEarlyCompletion ? 1 : 0); }
+  const repeat = parseRepeatLimit(body);
+  if (repeat.error) return { status: 400, body: { error: repeat.error } };
+  if (repeat.value) {
+    setClauses.push('repeatLimit = ?', 'repeatPeriod = ?');
+    params.push(repeat.value.repeatLimit, repeat.value.repeatPeriod);
+  }
 
   // Validate custom mode percentages sum to 100
   if (resolvedMode === 'custom' && Array.isArray(assignedUserIds) && assignedUserIds.length > 0) {
     const total = assignedUserIds.reduce((s: number, uid: number) => s + ((assignedUserPercentages?.[Number(uid)] ?? 0)), 0);
-    if (total !== 100) return res.status(400).json({ error: 'custom_percentages_must_sum_to_100' });
+    if (total !== 100) return { status: 400, body: { error: 'custom_percentages_must_sum_to_100' } };
   }
 
   if (setClauses.length > 0) {
-    params.push(req.params.id);
+    params.push(id);
     db.prepare(`UPDATE tasks SET ${setClauses.join(', ')} WHERE id = ?`).run(...params);
   }
+  saveScheduleInput(Number(id), schedule.values, health);
 
   // Update task_assignees if provided
   if (assignedUserIds !== undefined) {
-    db.prepare('DELETE FROM task_assignees WHERE taskId = ?').run(req.params.id);
+    db.prepare('DELETE FROM task_assignees WHERE taskId = ?').run(id);
     if (Array.isArray(assignedUserIds) && assignedUserIds.length > 0) {
       const insertAssignee = db.prepare('INSERT OR IGNORE INTO task_assignees (taskId, userId, coinPercentage) VALUES (?, ?, ?)');
       for (const uid of assignedUserIds) {
         const pct = (assignedUserPercentages && typeof assignedUserPercentages === 'object') ? (assignedUserPercentages[Number(uid)] ?? 0) : 0;
-        insertAssignee.run(Number(req.params.id), Number(uid), pct);
+        insertAssignee.run(Number(id), Number(uid), pct);
       }
       // Clear assignedToChildren when specific users are set
-      db.prepare('UPDATE tasks SET assignedToChildren = 0 WHERE id = ?').run(req.params.id);
+      db.prepare('UPDATE tasks SET assignedToChildren = 0 WHERE id = ?').run(id);
       // (Re-)set rotation start user when switching to rotating mode
       const effectiveMode = resolvedMode ?? task.assignmentMode;
       if (effectiveMode === 'rotating') {
-        db.prepare('UPDATE tasks SET rotationCurrentUserId = ? WHERE id = ?').run(Number(assignedUserIds[0]), req.params.id);
+        db.prepare('UPDATE tasks SET rotationCurrentUserId = ? WHERE id = ?').run(Number(assignedUserIds[0]), id);
       }
     } else {
       // Cleared all assignees — clear rotation too
-      db.prepare('UPDATE tasks SET rotationCurrentUserId = NULL WHERE id = ?').run(req.params.id);
+      db.prepare('UPDATE tasks SET rotationCurrentUserId = NULL WHERE id = ?').run(id);
     }
   }
 
-  const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as any;
-  res.json({ ...updated, assignedToChildren: !!updated.assignedToChildren });
+  const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as any;
+  return { status: 200, body: { ...updated, assignedToChildren: !!updated.assignedToChildren } };
+}
+
+// Update task
+router.put('/tasks/:id', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) {
+    return res.status(403).json({ error: 'Admin only' });
+  }
+  const result = updateTask(req.params.id as string, req.body);
+  res.status(result.status).json(result.body);
 });
 
-// Delete task
+// Delete task: it goes to the trash (restorable for 30 days, with its history)
 router.delete('/tasks/:id', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
@@ -368,8 +457,61 @@ router.delete('/tasks/:id', (req: AuthRequest, res: Response) => {
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
   if (!task) return res.status(404).json({ error: 'Task not found' });
 
-  db.prepare('DELETE FROM tasks WHERE id = ?').run(req.params.id);
-  res.json({ success: true });
+  const trashId = trashTask(Number(req.params.id), req.userId);
+  res.json({ success: true, trashId });
+});
+
+// Bulk edit (Tasks page "Select"): the same change for many tasks, all or nothing.
+const BULK_FIELDS = ['assignedUserIds', 'assignmentMode', 'customCoins', 'showInDashboard', 'onDemand', 'roomId', 'allowEarlyCompletion', 'effort', 'frequencyDays'];
+
+class BulkEditError extends Error {
+  constructor(public result: TaskWriteResult) { super('bulk edit failed'); }
+}
+
+router.post('/tasks/batch', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const ids = batchIds(req.body);
+  if (!ids) return res.status(400).json({ error: 'ids must be a non-empty array of task ids' });
+  const changes = req.body.changes;
+  if (!changes || typeof changes !== 'object' || Array.isArray(changes) || Object.keys(changes).length === 0) {
+    return res.status(400).json({ error: 'changes must be an object with at least one field' });
+  }
+  const unsupported = Object.keys(changes).filter((k) => !BULK_FIELDS.includes(k));
+  if (unsupported.length > 0) return res.status(400).json({ error: 'unsupported_fields', fields: unsupported });
+  if (changes.assignedUserIds !== undefined && !(Array.isArray(changes.assignedUserIds)
+    && changes.assignedUserIds.every((u: unknown) => db.prepare('SELECT 1 FROM users WHERE id = ?').get(Number(u))))) {
+    return res.status(400).json({ error: 'assignedUserIds must list existing people' });
+  }
+  if (changes.customCoins != null && changes.customCoins !== '' && !(Number(changes.customCoins) >= 1)) {
+    return res.status(400).json({ error: 'customCoins must be at least 1 (or null for the effort default)' });
+  }
+  const missing = ids.filter((id) => !db.prepare('SELECT 1 FROM tasks WHERE id = ?').get(id));
+  if (missing.length > 0) return res.status(404).json({ error: 'Task not found', ids: missing });
+
+  try {
+    const tasks = db.transaction(() => ids.map((id) => {
+      const current = db.prepare('SELECT assignmentMode FROM tasks WHERE id = ?').get(id) as { assignmentMode: string };
+      // Custom splits belong to the old people; new people share the coins equally instead
+      const own = changes.assignedUserIds !== undefined && changes.assignmentMode === undefined && current.assignmentMode === 'custom'
+        ? { ...changes, assignmentMode: 'shared' } : changes;
+      const result = updateTask(id, own);
+      if (result.status !== 200) throw new BulkEditError(result);
+      return result.body;
+    }))();
+    res.json({ updated: tasks.length, tasks });
+  } catch (e) {
+    if (e instanceof BulkEditError) return res.status(e.result.status).json(e.result.body);
+    throw e;
+  }
+});
+
+// Bulk delete: every task goes to the trash; returns the trash ids so the client can offer Undo
+router.post('/tasks/batch-delete', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const ids = batchIds(req.body);
+  if (!ids) return res.status(400).json({ error: 'ids must be a non-empty array of task ids' });
+  const trashIds = db.transaction(() => ids.map((id) => trashTask(id, req.userId)).filter((t): t is number => t !== null))();
+  res.json({ deleted: trashIds.length, trashIds });
 });
 
 // Get all overdue tasks (health <= 0, non-seasonal, non-onDemand)
@@ -378,6 +520,7 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
 
   const tasks = db.prepare(`
     SELECT t.id, t.name, t.roomId, t.effort, t.frequencyDays, t.lastCompletedAt, t.isSeasonal, t.onDemand,
+           t.seasonStartMonth, t.seasonEndMonth, t.scheduleWeekdays,
            r.name as roomName
     FROM tasks t
     JOIN rooms r ON t.roomId = r.id
@@ -398,16 +541,19 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
   }
 
   const overdueTasks = tasks
+    .filter((t: any) => !isSeasonalNow(t))
     .map((t: any) => {
       const assigneeIds = assigneesByTask.get(t.id) || [];
       const taskVac = assigneeIds.length === 1
         ? resolveVacation(globalVac, getUserVacation(assigneeIds[0]))
         : globalVac;
-      const health = calculateHealth(t.lastCompletedAt, t.frequencyDays, taskVac.isVacation, taskVac.startDate);
+      const health = taskHealth(t, taskVac);
       if (health > 0) return null;
-      const daysOverdue = t.lastCompletedAt
-        ? Math.max(0, (Date.now() - new Date(t.lastCompletedAt).getTime()) / 86400000 - t.frequencyDays)
-        : 999;
+      const daysOverdue = hasWeekdaySchedule(t)
+        ? Math.max(0, (Date.now() - nextDueAt(t)!.getTime()) / 86400000)
+        : t.lastCompletedAt
+          ? Math.max(0, (Date.now() - new Date(t.lastCompletedAt).getTime()) / 86400000 - t.frequencyDays)
+          : 999;
       return {
         id: t.id,
         name: t.name,
@@ -436,14 +582,20 @@ router.post('/tasks/:id/duplicate', (req: AuthRequest, res: Response) => {
 
   const result = db.prepare(
     `INSERT INTO tasks (roomId, name, notes, frequencyDays, effort, isSeasonal, lastCompletedAt, iconKey,
-      assignedToChildren, assignmentMode, onDemand, showInDashboard, customCoins, allowEarlyCompletion, translationKey)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      assignedToChildren, assignmentMode, onDemand, showInDashboard, customCoins, allowEarlyCompletion, translationKey,
+      repeatLimit, repeatPeriod)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     task.roomId, task.name, task.notes, task.frequencyDays, task.effort, task.isSeasonal,
     null, task.iconKey, task.assignedToChildren, task.assignmentMode, task.onDemand,
-    task.showInDashboard, task.customCoins, task.allowEarlyCompletion, task.translationKey
+    task.showInDashboard, task.customCoins, task.allowEarlyCompletion, task.translationKey,
+    task.repeatLimit ?? null, task.repeatPeriod ?? null
   );
   const newTaskId = result.lastInsertRowid as number;
+  saveScheduleInput(newTaskId, {
+    seasonStartMonth: task.seasonStartMonth, seasonEndMonth: task.seasonEndMonth,
+    scheduleWeekdays: task.scheduleWeekdays, rotationPeriod: task.rotationPeriod,
+  });
 
   const assignees = db.prepare('SELECT userId, coinPercentage FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number; coinPercentage: number }[];
   for (const a of assignees) {
@@ -485,7 +637,9 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
   ).run(task.id, now);
 
   const effectiveFrequency = Math.max(1 / 24, Number(task.frequencyDays) || 7);
-  const dirtyAt = new Date(Date.now() - effectiveFrequency * 86400000).toISOString();
+  const dirtyAt = hasWeekdaySchedule(task)
+    ? lastCompletedAtForHealth(task, 0)
+    : new Date(Date.now() - effectiveFrequency * 86400000).toISOString();
   db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(dirtyAt, task.id);
 
   res.json({
@@ -497,6 +651,18 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
     lastCompletedAt: dirtyAt,
   });
 });
+
+/** Rotating tasks: hand the next turn to the assignee after the one who just finished. */
+function advanceRotation(task: any, completedByUserId: number) {
+  if (task.assignmentMode !== 'rotating') return;
+  if (task.rotationPeriod === 'week') return; // the turn follows the calendar week instead
+  const rotationAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ? ORDER BY userId ASC').all(task.id) as { userId: number }[];
+  if (rotationAssignees.length > 1) {
+    const currentIdx = rotationAssignees.findIndex(a => a.userId === (task.rotationCurrentUserId ?? completedByUserId));
+    const nextIdx = (currentIdx + 1) % rotationAssignees.length;
+    db.prepare('UPDATE tasks SET rotationCurrentUserId = ? WHERE id = ?').run(rotationAssignees[nextIdx].userId, task.id);
+  }
+}
 
 // Complete task
 router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
@@ -536,7 +702,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
 
   // Rotating mode: only the current rotation user can complete (admins/members bypass)
   if (task.assignmentMode === 'rotating' && !isAdminOrMember) {
-    const rotationUserId = task.rotationCurrentUserId;
+    const rotationUserId = rotationTurnUserId(task);
     if (rotationUserId && req.userId !== rotationUserId) {
       return res.status(409).json({ error: 'not_your_turn' });
     }
@@ -571,7 +737,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
       const taskVac = taskAssigneesForVac.length === 1
         ? resolveVacation(globalVac, getUserVacation(taskAssigneesForVac[0].userId))
         : globalVac;
-      const currentHealth = calculateHealth(task.lastCompletedAt, task.frequencyDays, taskVac.isVacation, taskVac.startDate);
+      const currentHealth = taskHealth(task, taskVac);
       if (currentHealth > 0) {
         // allowEarlyCompletion: bypass cooldown if completed on a previous calendar day
         if (task.allowEarlyCompletion) {
@@ -584,6 +750,15 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
         } else {
           return res.status(409).json({ error: 'not_yet_due', health: currentHealth });
         }
+      }
+    }
+  } else {
+    // Anytime quests skip the cooldowns above, but may be capped per person per day/week
+    const repeat = repeatLimitOf(task);
+    if (repeat) {
+      const count = countInPeriod(task.id, effectiveUserId, repeat.period, new Date(now));
+      if (count >= repeat.limit) {
+        return res.status(409).json({ error: 'repeat_limit_reached', limit: repeat.limit, period: repeat.period, count });
       }
     }
   }
@@ -610,35 +785,39 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     } else {
       coins = baseCoins;
     }
+    // Double coins event running for this room: the boosted amount is stored on the completion,
+    // so a parent approving it later (Strict Mode) still pays the boost
+    const multiplier = boostMultiplierForRoom(task.roomId, new Date(now));
+    if (multiplier > 1) coins = Math.round(coins * multiplier);
   }
 
-  const targetUser = db.prepare('SELECT role FROM users WHERE id = ?').get(effectiveUserId) as { role?: string } | undefined;
-  const strictNeedsApproval = isStrictModeEnabled() && targetUser?.role === 'child' && !isAdminOrMember;
+  // Optional proof note (a photo can be attached afterwards with POST /completions/:id/photo)
+  const note = typeof req.body.note === 'string' && req.body.note.trim() ? req.body.note.trim().slice(0, 500) : null;
+
+  const targetUser = db.prepare('SELECT role, displayName FROM users WHERE id = ?').get(effectiveUserId) as { role?: string; displayName?: string } | undefined;
+  // requireApproval: integrations such as Home Assistant act for a child with a parent's login, so the
+  // completion must still go through Strict Mode (upstream #142). In-app "who did it?" stays instant.
+  const actingForChild = !!onBehalfOfUserId && req.body.requireApproval === true;
+  const strictNeedsApproval = isStrictModeEnabled() && targetUser?.role === 'child' && (!isAdminOrMember || actingForChild);
 
   if (strictNeedsApproval) {
-    db.prepare(
-      "INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status) VALUES (?, ?, ?, ?, 'pending')"
-    ).run(task.id, effectiveUserId, now, coins);
-    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true });
-  }
-
-  applyApprovedCompletion(task, task.id, effectiveUserId, coins, now, gamificationOn);
-
-  // Advance rotation to next assignee after successful completion
-  if (task.assignmentMode === 'rotating') {
-    const rotationAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ? ORDER BY userId ASC').all(task.id) as { userId: number }[];
-    if (rotationAssignees.length > 1) {
-      const currentIdx = rotationAssignees.findIndex(a => a.userId === (task.rotationCurrentUserId ?? effectiveUserId));
-      const nextIdx = (currentIdx + 1) % rotationAssignees.length;
-      db.prepare('UPDATE tasks SET rotationCurrentUserId = ? WHERE id = ?').run(rotationAssignees[nextIdx].userId, task.id);
+    const pendingId = Number(db.prepare(
+      "INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, note) VALUES (?, ?, ?, ?, 'pending', ?)"
+    ).run(task.id, effectiveUserId, now, coins, note).lastInsertRowid);
+    if (isNotificationTypeEnabled('choreApproval')) {
+      void sendNotification(`✅ ${targetUser?.displayName ?? 'Someone'} finished "${task.name}" and it's waiting for your approval.`);
     }
+    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId });
   }
+
+  const completionId = applyApprovedCompletion(task, task.id, effectiveUserId, coins, now, gamificationOn, { note });
+  advanceRotation(task, effectiveUserId);
 
   const newAchievements = gamificationOn ? checkAndRecordNewAchievements(effectiveUserId) : [];
   if (newAchievements.length > 0) {
     void notifyAchievementUnlocksForUser(effectiveUserId);
   }
-  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements });
+  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, completionId });
 });
 
 router.get('/completions/pending', (req: AuthRequest, res: Response) => {
@@ -647,7 +826,7 @@ router.get('/completions/pending', (req: AuthRequest, res: Response) => {
   }
 
   const pending = db.prepare(`
-    SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned,
+    SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl,
            t.name AS taskName, t.translationKey, t.roomId, t.assignmentMode, t.effort,
            r.name AS roomName, r.roomType,
            u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -662,33 +841,14 @@ router.get('/completions/pending', (req: AuthRequest, res: Response) => {
   res.json({ pending });
 });
 
+const PENDING_ERRORS: Record<string, number> = { not_found: 404, task_not_found: 404, completion_not_pending: 409 };
+
 router.post('/completions/:completionId/approve', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
-
-  const completion = db.prepare(
-    `SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.status, t.assignmentMode
-     FROM task_completions tc
-     JOIN tasks t ON t.id = tc.taskId
-     WHERE tc.id = ?`
-  ).get(req.params.completionId) as any;
-
-  if (!completion) return res.status(404).json({ error: 'Completion not found' });
-  if (completion.status !== 'pending') return res.status(409).json({ error: 'completion_not_pending' });
-
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(completion.taskId) as any;
-  if (!task) return res.status(404).json({ error: 'Task not found' });
-
-  const gamifRowApprove = db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined;
-  const gamifOnApprove = gamifRowApprove ? gamifRowApprove.value !== '0' : true;
-  applyApprovedCompletion(task, completion.taskId, completion.userId, completion.coinsEarned, completion.completedAt, gamifOnApprove, {
-    completionId: completion.id,
-    approvedByUserId: req.userId,
-    approvedAt: new Date().toISOString(),
-  });
-  if (gamifOnApprove) void notifyAchievementUnlocksForUser(completion.userId);
-
+  const error = approvePendingCompletion(Number(req.params.completionId), req.userId!);
+  if (error) return res.status(PENDING_ERRORS[error]).json({ error: error === 'not_found' ? 'Completion not found' : error === 'task_not_found' ? 'Task not found' : error });
   res.json({ success: true });
 });
 
@@ -696,15 +856,46 @@ router.delete('/completions/:completionId/reject', (req: AuthRequest, res: Respo
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
-
-  const completion = db.prepare(
-    'SELECT id, status FROM task_completions WHERE id = ?'
-  ).get(req.params.completionId) as { id: number; status: string } | undefined;
-  if (!completion) return res.status(404).json({ error: 'Completion not found' });
-  if (completion.status !== 'pending') return res.status(409).json({ error: 'completion_not_pending' });
-
-  db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
+  const error = rejectPendingCompletion(Number(req.params.completionId));
+  if (error) return res.status(PENDING_ERRORS[error]).json({ error: error === 'not_found' ? 'Completion not found' : error });
   res.json({ success: true });
+});
+
+// Approve or reject several waiting completions at once (report card day). Skips ones already handled.
+function batchIds(body: any): number[] | null {
+  const ids = body?.ids;
+  if (!Array.isArray(ids) || ids.length === 0 || ids.length > 500) return null;
+  const nums = ids.map(Number).filter((n) => Number.isInteger(n) && n > 0);
+  return nums.length === ids.length ? nums : null;
+}
+
+router.post('/completions/approve-batch', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const ids = batchIds(req.body);
+  if (!ids) return res.status(400).json({ error: 'ids must be a non-empty array of completion ids' });
+  const results = db.transaction(() => ids.map((id) => ({ id, error: approvePendingCompletion(id, req.userId!) })))();
+  res.json({ approved: results.filter((r) => !r.error).map((r) => r.id), skipped: results.filter((r) => r.error) });
+});
+
+router.post('/completions/reject-batch', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const ids = batchIds(req.body);
+  if (!ids) return res.status(400).json({ error: 'ids must be a non-empty array of completion ids' });
+  const results = db.transaction(() => ids.map((id) => ({ id, error: rejectPendingCompletion(id) })))();
+  res.json({ rejected: results.filter((r) => !r.error).map((r) => r.id), skipped: results.filter((r) => r.error) });
+});
+
+// Attach a proof photo to a completion: the person who did it (or a parent)
+router.post('/completions/:completionId/photo', proofUpload.single('photo'), (req: AuthRequest, res: Response) => {
+  const file = (req as any).file as { filename: string; path: string } | undefined;
+  const completion = db.prepare('SELECT id, userId FROM task_completions WHERE id = ?').get(req.params.completionId) as { id: number; userId: number } | undefined;
+  const discard = () => { if (file) fs.rmSync(file.path, { force: true }); };
+  if (!completion) { discard(); return res.status(404).json({ error: 'Completion not found' }); }
+  if (completion.userId !== req.userId && !ensureAdmin(req.userId)) { discard(); return res.status(403).json({ error: 'forbidden' }); }
+  if (!file) return res.status(400).json({ error: 'photo (an image file) is required' });
+  const photoUrl = `/api/proofs/${file.filename}`;
+  db.prepare('UPDATE task_completions SET photoUrl = ? WHERE id = ?').run(photoUrl, completion.id);
+  res.json({ photoUrl });
 });
 
 // Cancel (undo) a task completion — admin only

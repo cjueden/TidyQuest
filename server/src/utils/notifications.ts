@@ -1,4 +1,5 @@
 import db from '../database';
+import { isSeasonalNow, nextDueAt } from './schedule';
 
 interface TelegramSettings {
   enabled: boolean;
@@ -11,6 +12,10 @@ export interface NotificationTypeSettings {
   taskDue: boolean;
   rewardRequest: boolean;
   achievementUnlocked: boolean;
+  /** A child finished a chore and it's waiting for a parent (Strict Mode) */
+  choreApproval: boolean;
+  /** A double coins event started, or has an hour left */
+  coinBoost: boolean;
 }
 
 function getSetting(key: string): string {
@@ -31,6 +36,8 @@ const DEFAULT_NOTIFICATION_TYPES: NotificationTypeSettings = {
   taskDue: true,
   rewardRequest: true,
   achievementUnlocked: true,
+  choreApproval: true,
+  coinBoost: true,
 };
 
 export function getNotificationTypeSettings(): NotificationTypeSettings {
@@ -42,6 +49,8 @@ export function getNotificationTypeSettings(): NotificationTypeSettings {
       taskDue: parsed.taskDue !== false,
       rewardRequest: parsed.rewardRequest !== false,
       achievementUnlocked: parsed.achievementUnlocked !== false,
+      choreApproval: parsed.choreApproval !== false,
+      coinBoost: parsed.coinBoost !== false,
     };
   } catch {
     return DEFAULT_NOTIFICATION_TYPES;
@@ -75,12 +84,9 @@ function toLocalIsoDay(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function getDueIsoDay(task: { lastCompletedAt: string | null; frequencyDays: number }, now: Date): string {
-  const safeFrequency = Math.max(1 / 24, Number(task.frequencyDays) || 7);
-  const dueTs = task.lastCompletedAt
-    ? new Date(task.lastCompletedAt).getTime() + safeFrequency * 86400000
-    : now.getTime();
-  return toLocalIsoDay(new Date(dueTs));
+function getDueIsoDay(task: { lastCompletedAt: string | null; frequencyDays: number; scheduleWeekdays?: number | null }, now: Date): string {
+  // Rolling interval or set weekdays (utils/schedule.ts); never done = due now
+  return toLocalIsoDay(nextDueAt(task, now) ?? now);
 }
 
 export async function sendTelegramMessageDetailed(message: string, options: SendTelegramMessageOptions = {}): Promise<TelegramSendResult> {
@@ -211,7 +217,7 @@ export async function sendNotification(message: string): Promise<{ telegram?: bo
 
 let lastCheckedMinute: string | null = null;
 
-function isAnyProviderEnabled(): boolean {
+export function isAnyProviderEnabled(): boolean {
   if (getSetting('notificationsEnabled') !== '1') return false;
   const tg = getTelegramSettings();
   const ntfy = getNtfySettings();
@@ -238,7 +244,7 @@ export async function sendDueTaskNotificationsIfNeeded(
 
   const today = toLocalIsoDay(now);
   const tasks = db.prepare(
-    `SELECT t.id, t.name, t.frequencyDays, t.lastCompletedAt, r.name as roomName
+    `SELECT t.id, t.name, t.frequencyDays, t.lastCompletedAt, t.seasonStartMonth, t.seasonEndMonth, t.scheduleWeekdays, r.name as roomName
      FROM tasks t
      LEFT JOIN rooms r ON r.id = t.roomId
      WHERE t.isSeasonal = 0`
@@ -247,10 +253,14 @@ export async function sendDueTaskNotificationsIfNeeded(
     name: string;
     frequencyDays: number;
     lastCompletedAt: string | null;
+    seasonStartMonth: number | null;
+    seasonEndMonth: number | null;
+    scheduleWeekdays: number | null;
     roomName: string | null;
   }>;
 
   for (const task of tasks) {
+    if (isSeasonalNow(task, now)) continue; // outside its season
     const dueDate = getDueIsoDay(task, now);
     if (dueDate !== today) continue;
 

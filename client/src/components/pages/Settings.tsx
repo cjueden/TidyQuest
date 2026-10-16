@@ -1,12 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { UserAvatar } from '../shared/UserAvatar';
 import { EffortDots } from '../shared/EffortDots';
 import { Toggle } from '../shared/Toggle';
+import { PendingApprovals } from '../shared/PendingApprovals';
+import { RewardRulesEditor } from '../shared/RewardRulesEditor';
+import { CoinBoostsAdmin } from '../shared/CoinBoostsAdmin';
+import { GoalRow } from '../shared/GoalRow';
+import { TrashAdmin } from '../shared/TrashAdmin';
+import { CsvTransfer } from '../shared/CsvTransfer';
+import { UndoToast, type UndoState } from '../shared/UndoToast';
+import { byFeatured, rulesSummary } from '../../utils/rewardRules';
+import { formatCoins } from '../../utils/format';
 import { BellIcon, DownloadIcon, UploadIcon, LockIcon, CoinIcon } from '../icons/UIIcons';
 import { AVATAR_PRESETS } from '../icons/AvatarPresets';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { User } from '../../hooks/useAuth';
-import { api } from '../../hooks/useApi';
+import { api, type RewardRules } from '../../hooks/useApi';
+import { localeFor } from '../../utils/locale';
 
 interface FamilyUser {
   id: number;
@@ -26,6 +36,8 @@ interface FamilyUser {
   vacationStartDate?: string | null;
   vacationEndDate?: string | null;
   isParticipant?: number;
+  taskView?: 'all' | 'mine' | 'mineOnly';
+  kidMode?: number | boolean;
 }
 
 interface VacationConfig {
@@ -45,11 +57,15 @@ interface PendingCompletion {
   roomId: number;
   roomName: string;
   displayName: string;
+  note?: string | null;
+  photoUrl?: string | null;
 }
 
 interface SettingsProps {
   user: User;
   family: FamilyUser[];
+  /** For choosing rooms in double coins events */
+  rooms?: Array<{ id: number; name: string }>;
   vacationConfig?: VacationConfig;
   onUpdateVacation?: (data: { vacationMode?: boolean; vacationEndDate?: string | null }) => Promise<void>;
   onUpdateRole: (userId: number, role: 'admin' | 'member' | 'child') => void;
@@ -64,9 +80,11 @@ interface SettingsProps {
   onChangeTheme: (theme: 'orange' | 'blue' | 'rose' | 'night') => void;
   onExport: () => void;
   onImport: () => void;
-  onAdjustCoins?: (userId: number, amount: number) => Promise<void>;
+  onAdjustCoins?: (userId: number, amount: number, reason?: string) => Promise<void>;
   gamificationEnabled?: boolean;
   onGamificationChange?: (enabled: boolean) => void;
+  /** Tasks or rooms changed here (spreadsheet import, restore from the trash): reload them */
+  onDataChanged?: () => void;
 }
 
 const COLORS = ['#F97316', '#9B72CF', '#4AABDE', '#5CB85C', '#D4A017', '#E25A5A', '#38BDF8', '#EC4899'];
@@ -89,8 +107,10 @@ export function Settings({
   onExport,
   onImport,
   onAdjustCoins,
+  rooms = [],
   gamificationEnabled = true,
   onGamificationChange,
+  onDataChanged,
 }: SettingsProps) {
   const { t } = useTranslation(user.language);
   const isAdmin = user.role === 'admin';
@@ -102,14 +122,22 @@ export function Settings({
   const [memberEditOpen, setMemberEditOpen] = useState<Record<number, boolean>>({});
   const [memberPassword, setMemberPassword] = useState<Record<number, string>>({});
   const [memberPasswordMsg, setMemberPasswordMsg] = useState<Record<number, string>>({});
-  const [memberGoals, setMemberGoals] = useState<Record<number, Array<{ id: number; title: string; goalCoins: number; rewardCoins?: number; startAt?: string | null; endAt?: string | null }>>>({});
+  const [memberGoals, setMemberGoals] = useState<Record<number, Array<{ id: number; title: string; goalCoins: number; rewardCoins?: number; repeatWeekly?: number; status?: string; startAt?: string | null; endAt?: string | null }>>>({});
+  const [goalRepeat, setGoalRepeat] = useState<Record<number, boolean>>({});
+  const [rulesOpenId, setRulesOpenId] = useState<number | null>(null);
+  const [rotatingPerWeek, setRotatingPerWeek] = useState('3');
+  const [coinReason, setCoinReason] = useState<Record<number, string>>({});
   const [goalDraft, setGoalDraft] = useState<Record<number, { title: string; goalCoins: string; rewardCoins: string; endAt: string }>>({});
-  const [rewardsAdmin, setRewardsAdmin] = useState<Array<{ id: number; title: string; description?: string | null; costCoins: number; isActive?: boolean; isPreset?: boolean }>>([]);
+  const [rewardsAdmin, setRewardsAdmin] = useState<Array<{ id: number; title: string; description?: string | null; costCoins: number; isActive?: boolean; isPreset?: boolean; category?: string | null; sortOrder?: number } & Partial<RewardRules>>>([]);
   const [rewardRequests, setRewardRequests] = useState<Array<{ id: number; title: string; displayName: string; costCoins: number; redeemedAt: string; status: string }>>([]);
   const [rewardDraft, setRewardDraft] = useState({ title: '', description: '', costCoins: '30' });
   const [editingRewardId, setEditingRewardId] = useState<number | null>(null);
   const [editingRewardTitle, setEditingRewardTitle] = useState('');
   const [editingRewardDesc, setEditingRewardDesc] = useState('');
+  const [editingRewardCategory, setEditingRewardCategory] = useState('');
+  const [undo, setUndo] = useState<UndoState | null>(null);
+  const closeUndo = useCallback(() => setUndo(null), []);
+  const [trashVersion, setTrashVersion] = useState(0);
   const [editingRewardCost, setEditingRewardCost] = useState('');
   const [memberProfile, setMemberProfile] = useState<Record<number, {
     language: string;
@@ -123,6 +151,8 @@ export function Settings({
   const [coinAdjustMsg, setCoinAdjustMsg] = useState<Record<number, string>>({});
   const [memberVacation, setMemberVacation] = useState<Record<number, boolean>>({});
   const [memberParticipant, setMemberParticipant] = useState<Record<number, boolean>>({});
+  const [memberView, setMemberView] = useState<Record<number, { taskView: 'all' | 'mine' | 'mineOnly'; kidMode: boolean }>>({});
+  const [hidePrivateRooms, setHidePrivateRooms] = useState(true);
   const [vacationEnabled, setVacationEnabled] = useState(!!vacationConfig?.vacationMode);
   const [vacationEndDate, setVacationEndDate] = useState(vacationConfig?.vacationEndDate ?? null);
   const [registrationEnabled, setRegistrationEnabled] = useState(true);
@@ -133,7 +163,7 @@ export function Settings({
   const [notifChatId, setNotifChatId] = useState('');
   const [notifToken, setNotifToken] = useState('');
   const [notifTime, setNotifTime] = useState('09:00');
-  const [notifTypes, setNotifTypes] = useState({ taskDue: true, rewardRequest: true, achievementUnlocked: true });
+  const [notifTypes, setNotifTypes] = useState<{ taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean; coinBoost?: boolean }>({ taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true });
   const [notifHasToken, setNotifHasToken] = useState(false);
   const [notifMsg, setNotifMsg] = useState('');
   const [ntfyEnabled, setNtfyEnabled] = useState(false);
@@ -142,8 +172,7 @@ export function Settings({
   const [ntfyToken, setNtfyToken] = useState('');
   const [ntfyHasToken, setNtfyHasToken] = useState(false);
 
-  const localeMap: Record<string, string> = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT', nl: 'nl-NL' };
-  const locale = localeMap[user.language || 'en'] || 'en-US';
+  const locale = localeFor(user.language);
 
   const formatDate = (isoDate?: string | null): string => {
     if (!isoDate) return '-';
@@ -201,6 +230,11 @@ export function Settings({
 
   useEffect(() => {
     if (!isAdmin) return;
+    api.getKidsConfig().then((cfg) => setHidePrivateRooms(!!cfg.hidePrivateRooms)).catch(() => {});
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
     api.getStrictModeConfig()
       .then((cfg) => setStrictModeEnabled(!!cfg.strictMode))
       .catch(() => {});
@@ -238,6 +272,7 @@ export function Settings({
     if (!isAdmin) return;
     const data = await api.getRewardsAdmin();
     setRewardsAdmin(data.rewards || []);
+    if (typeof data.rotatingPerWeek === 'number') setRotatingPerWeek(String(data.rotatingPerWeek));
     setRewardRequests(data.redemptions || []);
   };
 
@@ -323,7 +358,9 @@ export function Settings({
       rewardCoins,
       startAt: null,
       endAt: d.endAt ? `${d.endAt}T23:59:59.999Z` : null,
-    } as any);
+      repeatWeekly: !!goalRepeat[u.id],
+    });
+    setGoalRepeat((prev) => ({ ...prev, [u.id]: false }));
     setGoalDraft((prev) => ({ ...prev, [u.id]: { title: '', goalCoins: '', rewardCoins: '', endAt: '' } }));
     await loadAdminGoals();
   };
@@ -372,11 +409,31 @@ export function Settings({
     await loadRewardsAdmin();
   };
 
-  const startRewardEdit = (r: { id: number; title: string; description?: string | null; costCoins: number }) => {
+  const startRewardEdit = (r: { id: number; title: string; description?: string | null; costCoins: number; category?: string | null }) => {
     setEditingRewardId(r.id);
+    setEditingRewardCategory(r.category ?? '');
     setEditingRewardTitle(r.title);
     setEditingRewardDesc(r.description || '');
     setEditingRewardCost(String(r.costCoins));
+  };
+
+  // The admin list in the "Featured" order kids see first; ↑/↓ swaps neighbours and saves the whole order
+  const orderedRewards = [...rewardsAdmin].sort((a, b) => Number(b.isActive !== false) - Number(a.isActive !== false) || byFeatured(a, b));
+  const moveReward = async (id: number, step: -1 | 1) => {
+    const ids = orderedRewards.map((r) => r.id);
+    const i = ids.indexOf(id);
+    const j = i + step;
+    if (i < 0 || j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    await api.orderRewards(ids);
+    await loadRewardsAdmin();
+  };
+  const rewardCategories = [...new Set(rewardsAdmin.map((r) => r.category).filter((c): c is string => !!c))].sort();
+  const deleteReward = async (r: { id: number; title: string }) => {
+    const { trashId } = await api.deleteReward(r.id);
+    await loadRewardsAdmin();
+    setTrashVersion((v) => v + 1);
+    if (trashId) setUndo({ trashIds: [trashId], message: t('trash.deleted').replace('{name}', rewardTitle(r)) });
   };
 
   const cancelRewardEdit = () => {
@@ -386,7 +443,7 @@ export function Settings({
     setEditingRewardCost('');
   };
 
-  const saveRewardEdit = async (r: { id: number; isActive?: boolean }) => {
+  const saveRewardEdit = async (r: { id: number; isActive?: boolean; category?: string | null }) => {
     const parsed = Math.max(1, Math.round(Number(editingRewardCost)));
     if (!Number.isFinite(parsed)) return;
     if (!editingRewardTitle.trim()) return;
@@ -396,6 +453,7 @@ export function Settings({
       costCoins: parsed,
       isActive: r.isActive !== false,
     });
+    if (editingRewardCategory.trim() !== (r.category ?? '')) await api.setRewardCategory(r.id, editingRewardCategory.trim());
     cancelRewardEdit();
     await loadRewardsAdmin();
   };
@@ -521,6 +579,14 @@ export function Settings({
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
                     <input type="checkbox" checked={notifTypes.achievementUnlocked} onChange={(e) => setNotifTypes((prev) => ({ ...prev, achievementUnlocked: e.target.checked }))} style={{ marginRight: 6 }} />
                     {t('settings.notificationTypeAchievementUnlocked')}
+                  </label>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                    <input type="checkbox" checked={notifTypes.choreApproval !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, choreApproval: e.target.checked }))} style={{ marginRight: 6 }} />
+                    {t('settings.notificationTypeChoreApproval')}
+                  </label>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                    <input type="checkbox" checked={notifTypes.coinBoost !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, coinBoost: e.target.checked }))} style={{ marginRight: 6 }} />
+                    {t('settings.notificationTypeCoinBoost')}
                   </label>
                 </div>
 
@@ -744,6 +810,25 @@ export function Settings({
         {isAdmin && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <rect x="3" y="8" width="14" height="9" rx="2" stroke="var(--warm-text-light)" strokeWidth="1.5" />
+              <path d="M6.5 8V6a3.5 3.5 0 017 0v2" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.hidePrivateRooms')}</div>
+              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.hidePrivateRoomsDesc')}</div>
+            </div>
+            <Toggle
+              checked={hidePrivateRooms}
+              onChange={async (val) => {
+                setHidePrivateRooms(val);
+                await api.updateKidsConfig({ hidePrivateRooms: val }).catch(() => setHidePrivateRooms(!val));
+              }}
+            />
+          </div>
+        )}
+        {isAdmin && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M10 1l2.5 5.5L18 7.5l-4 4 1 5.5L10 14.5 4.5 17l1-5.5-4-4 5.5-1z" fill="var(--warm-text-light)" />
             </svg>
             <div style={{ flex: 1 }}>
@@ -782,38 +867,10 @@ export function Settings({
         <div className="tq-card settings-admin-card" style={{ padding: 24 }}>
           <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-text)', margin: '0 0 12px' }}>{t('settings.pendingValidations')}</h3>
           <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.pendingValidationsDesc')}</div>
-          <div style={{ display: 'grid', gap: 8 }}>
-            {pendingCompletions.map((pc) => (
-              <div key={pc.id} style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.1fr 110px auto auto', gap: 8, alignItems: 'center', border: '1px solid var(--warm-border)', borderRadius: 10, padding: '8px 10px', backgroundColor: 'var(--warm-bg-subtle)' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)' }}>{pc.displayName}</div>
-                <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{pc.taskName}</div>
-                <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{formatDate(pc.completedAt)}</div>
-                <button
-                  className="tq-btn tq-btn-secondary"
-                  style={{ padding: '5px 10px', fontSize: 11 }}
-                  onClick={async () => {
-                    await api.approveCompletion(pc.id);
-                    await loadPendingCompletions();
-                  }}
-                >
-                  {t('settings.approve')}
-                </button>
-                <button
-                  className="tq-btn"
-                  style={{ padding: '5px 10px', fontSize: 11, backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}
-                  onClick={async () => {
-                    await api.rejectPendingCompletion(pc.id);
-                    await loadPendingCompletions();
-                  }}
-                >
-                  {t('settings.reject')}
-                </button>
-              </div>
-            ))}
-            {pendingCompletions.length === 0 && (
-              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.noPendingValidations')}</div>
-            )}
-          </div>
+          <PendingApprovals items={pendingCompletions} language={user.language} gamificationEnabled={gamificationEnabled} onChanged={loadPendingCompletions} />
+          {pendingCompletions.length === 0 && (
+            <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.noPendingValidations')}</div>
+          )}
         </div>
       )}
 
@@ -859,14 +916,7 @@ export function Settings({
                   <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 8 }}>{u.displayName}</div>
                   <div style={{ display: 'grid', gap: 6, marginBottom: 8 }}>
                     {(memberGoals[u.id] || []).map((g) => (
-                      <div key={g.id} className="goal-member-row" style={{ display: 'grid', gridTemplateColumns: '1.4fr 120px 120px auto', gap: 8, alignItems: 'center', padding: '6px 8px', borderRadius: 10, backgroundColor: 'var(--warm-bg-warm)', border: '1px solid var(--warm-border)' }}>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-text)' }}>{g.title}</div>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)', display: 'inline-flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}><CoinIcon /> {g.goalCoins}</div>
-                        <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700 }}>{formatDate(g.endAt)}</div>
-                        <button className="tq-btn tq-btn-sm" onClick={() => handleDeleteGoal(g.id, u.id)} style={{ backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}>
-                          {t('common.delete')}
-                        </button>
-                      </div>
+                      <GoalRow key={g.id} goal={g} language={user.language} formatDate={formatDate} onChanged={loadAdminGoals} onDelete={() => handleDeleteGoal(g.id, u.id)} />
                     ))}
                   </div>
                   {memberGoalMsg[u.id] && (
@@ -907,6 +957,18 @@ export function Settings({
                     />
                     <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => handleAddGoal(u)}>{t('settings.addGoal')}</button>
                   </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginTop: 6 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={!!goalRepeat[u.id]} onChange={(e) => setGoalRepeat((prev) => ({ ...prev, [u.id]: e.target.checked }))} style={{ accentColor: 'var(--warm-accent)' }} />
+                      {t('goals.repeatWeekly')}
+                    </label>
+                    {/* Template: a weekly win this week, reusing their last target and bonus */}
+                    <button className="tq-btn tq-btn-sm" onClick={() => {
+                      const last = (memberGoals[u.id] || [])[0];
+                      setGoalDraft((prev) => ({ ...prev, [u.id]: { title: t('goals.weeklyWinTitle'), goalCoins: String(last?.goalCoins ?? 100), rewardCoins: String(last?.rewardCoins ?? 20), endAt: '' } }));
+                      setGoalRepeat((prev) => ({ ...prev, [u.id]: true }));
+                    }}>⭐ {t('goals.weeklyWinTemplate')}</button>
+                  </div>
                 </div>
               ))}
           </div>
@@ -924,8 +986,13 @@ export function Settings({
             <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={handleSeedRewards}>{t('settings.addPresetRewards')}</button>
             <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={handleCreateReward}>{t('settings.create')}</button>
           </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: 10, fontSize: 12, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+            {t('rewardRules.rotatingPerWeek')}
+            <input type="number" min={0} max={50} className="tq-input-compact" value={rotatingPerWeek} onChange={(e) => setRotatingPerWeek(e.target.value)} style={{ width: 60 }} />
+            <button className="tq-btn tq-btn-sm" onClick={async () => { await api.updateRotationConfig(Math.max(0, Math.round(Number(rotatingPerWeek) || 0))); await loadRewardsAdmin(); }}>{t('common.save')}</button>
+          </div>
           <div style={{ display: 'grid', gap: 6 }}>
-            {rewardsAdmin.map((r) => (
+            {orderedRewards.map((r, index) => (
               <div key={r.id} className="rewards-list-row" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.4fr 100px auto', gap: 8, alignItems: 'center', border: '1px solid var(--warm-border)', borderRadius: 10, padding: '8px 10px', backgroundColor: r.isActive ? 'var(--warm-bg-subtle)' : 'var(--warm-bg-warm)' }}>
                 {editingRewardId === r.id ? (
                   <>
@@ -952,7 +1019,11 @@ export function Settings({
                   </>
                 ) : (
                   <>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)' }}>{rewardTitle(r)}</div>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)' }}>
+                      {rewardTitle(r)}
+                      {r.category && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-muted)' }}>🏷 {r.category}</div>}
+                      {rulesSummary(r, family, t) && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-accent)' }}>{rulesSummary(r, family, t)}</div>}
+                    </div>
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{rewardDesc(r)}</div>
                   </>
                 )}
@@ -969,7 +1040,7 @@ export function Settings({
                     style={{ padding: '6px 8px', borderRadius: 8, border: '1.5px solid var(--warm-border)', fontFamily: 'Nunito', fontSize: 12 }}
                   />
                 ) : (
-                  <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-accent)', display: 'flex', alignItems: 'center', gap: 4 }}><CoinIcon /> {r.costCoins}</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-accent)', display: 'flex', alignItems: 'center', gap: 4 }}><CoinIcon /> {formatCoins(r.costCoins)}</div>
                 )}
                 {editingRewardId === r.id ? (
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
@@ -978,13 +1049,29 @@ export function Settings({
                   </div>
                 ) : (
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    <button className="tq-btn" onClick={() => moveReward(r.id, -1)} disabled={index === 0} aria-label={t('rewardOrder.up')} title={t('rewardOrder.up')} style={{ padding: '4px 7px', fontSize: 10 }}>↑</button>
+                    <button className="tq-btn" onClick={() => moveReward(r.id, 1)} disabled={index === orderedRewards.length - 1} aria-label={t('rewardOrder.down')} title={t('rewardOrder.down')} style={{ padding: '4px 7px', fontSize: 10 }}>↓</button>
+                    <button className="tq-btn" onClick={() => setRulesOpenId(rulesOpenId === r.id ? null : r.id)} style={{ padding: '4px 8px', fontSize: 10 }}>{t('rewardRules.rules')}</button>
                     <button className="tq-btn" onClick={() => startRewardEdit(r)} style={{ padding: '4px 8px', fontSize: 10 }}>{t('common.edit')}</button>
-                    <button className="tq-btn" onClick={async () => { await api.deleteReward(r.id); await loadRewardsAdmin(); }} style={{ padding: '4px 8px', fontSize: 10, backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}>{t('common.delete')}</button>
+                    <button className="tq-btn" onClick={() => deleteReward(r)} style={{ padding: '4px 8px', fontSize: 10, backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}>{t('common.delete')}</button>
+                  </div>
+                )}
+                {editingRewardId === r.id && (
+                  <label style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>
+                    {t('rewardOrder.category')}
+                    <input className="tq-input-compact" list="reward-categories" value={editingRewardCategory} maxLength={40}
+                      onChange={(e) => setEditingRewardCategory(e.target.value)} placeholder={t('rewardOrder.categoryPlaceholder')} style={{ flex: 1, minWidth: 0 }} />
+                  </label>
+                )}
+                {rulesOpenId === r.id && (
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <RewardRulesEditor reward={r} family={family} language={user.language} onSaved={loadRewardsAdmin} />
                   </div>
                 )}
               </div>
             ))}
           </div>
+          <datalist id="reward-categories">{rewardCategories.map((c) => <option key={c} value={c} />)}</datalist>
           <div style={{ marginTop: 14 }}>
             <h4 className="tq-card-title" style={{ fontSize: 13 }}>{t('settings.rewardRequests')}</h4>
             <div style={{ display: 'grid', gap: 6 }}>
@@ -1002,6 +1089,14 @@ export function Settings({
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {isAdmin && gamificationEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">{t('boosts.title')}</h3>
+          <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('boosts.desc')}</div>
+          <CoinBoostsAdmin rooms={rooms} language={user.language} />
         </div>
       )}
 
@@ -1027,6 +1122,21 @@ export function Settings({
           </div>
         ))}
       </div>
+      )}
+
+      {isAdmin && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">{t('csv.title')}</h3>
+          <CsvTransfer language={user.language} onImported={() => { onDataChanged?.(); void loadRewardsAdmin(); }} />
+        </div>
+      )}
+
+      {isAdmin && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">{t('trash.title')}</h3>
+          <TrashAdmin rooms={rooms} language={user.language} reloadKey={trashVersion}
+            onRestored={() => { onDataChanged?.(); void loadRewardsAdmin(); }} />
+        </div>
       )}
 
       <div className="tq-card tq-card-padded settings-admin-card family-members-card" style={{ gridColumn: '1 / -1' }}>
@@ -1122,6 +1232,36 @@ export function Settings({
                   />
                 </div>
               )}
+              {isAdmin && u.id !== user.id && (() => {
+                const view = memberView[u.id] ?? { taskView: u.taskView ?? 'all', kidMode: !!u.kidMode };
+                const saveView = async (next: { taskView: 'all' | 'mine' | 'mineOnly'; kidMode: boolean }) => {
+                  setMemberView((prev) => ({ ...prev, [u.id]: next }));
+                  await api.updateUserView(u.id, next).catch(() => setMemberView((prev) => ({ ...prev, [u.id]: view })));
+                };
+                return (
+                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--warm-border)', display: 'grid', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 1 160px' }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.taskView')}</div>
+                        <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 500, marginTop: 2 }}>{t('settings.taskViewDesc')}</div>
+                      </div>
+                      <select className="tq-input" value={view.taskView} style={{ width: 'auto', cursor: 'pointer', fontSize: 12 }}
+                        onChange={(e) => saveView({ ...view, taskView: e.target.value as 'all' | 'mine' | 'mineOnly' })}>
+                        <option value="all">{t('settings.taskViewAll')}</option>
+                        <option value="mine">{t('settings.taskViewMine')}</option>
+                        <option value="mineOnly">{t('settings.taskViewMineOnly')}</option>
+                      </select>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.kidMode')}</div>
+                        <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 500, marginTop: 2 }}>{t('settings.kidModeDesc')}</div>
+                      </div>
+                      <Toggle checked={view.kidMode} onChange={(val) => saveView({ ...view, kidMode: val })} />
+                    </div>
+                  </div>
+                );
+              })()}
               {isAdmin && u.role !== 'admin' && memberEditOpen[u.id] && (
                 <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--warm-border)', display: 'grid', gap: 8 }}>
                   <select className="tq-input" value={memberProfile[u.id]?.language || 'en'} onChange={(e) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], language: e.target.value } }))} style={{ cursor: 'pointer' }}>
@@ -1163,7 +1303,7 @@ export function Settings({
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{memberPasswordMsg[u.id]}</div>
                   )}
                   {gamificationEnabled && <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('settings.coinsBalance')}: {u.coins}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('settings.coinsBalance')}: {formatCoins(u.coins)}</span>
                     <input
                       type="number"
                       className="tq-input-compact"
@@ -1172,15 +1312,25 @@ export function Settings({
                       placeholder={t('settings.adjustCoins')}
                       style={{ width: 80 }}
                     />
+                    <input
+                      className="tq-input-compact"
+                      value={coinReason[u.id] || ''}
+                      maxLength={200}
+                      onChange={(e) => setCoinReason((prev) => ({ ...prev, [u.id]: e.target.value }))}
+                      placeholder={t('coins.reasonPlaceholder')}
+                      style={{ flex: '1 1 140px', minWidth: 0 }}
+                    />
                     <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={async () => {
                       const amt = parseInt(coinAdjust[u.id] || '0');
                       if (!amt) return;
+                      const reason = (coinReason[u.id] || '').trim() || undefined;
                       if (onAdjustCoins) {
-                        await onAdjustCoins(u.id, amt);
+                        await onAdjustCoins(u.id, amt, reason);
                       } else {
-                        await api.adjustCoins(u.id, amt);
+                        await api.adjustCoins(u.id, amt, reason);
                       }
                       setCoinAdjust((prev) => ({ ...prev, [u.id]: '' }));
+                      setCoinReason((prev) => ({ ...prev, [u.id]: '' }));
                       setCoinAdjustMsg((prev) => ({ ...prev, [u.id]: `${amt > 0 ? '+' : ''}${amt} ✓` }));
                       setTimeout(() => setCoinAdjustMsg((prev) => ({ ...prev, [u.id]: '' })), 2000);
                     }}>{t('settings.adjustCoins')}</button>
@@ -1192,6 +1342,8 @@ export function Settings({
           ))}
         </div>
       </div>
+      <UndoToast undo={undo} language={user.language} onClose={closeUndo}
+        onRestored={async () => { await loadRewardsAdmin(); setTrashVersion((v) => v + 1); }} />
     </div>
   );
 }

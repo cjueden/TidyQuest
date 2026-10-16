@@ -61,6 +61,9 @@ class TidyQuestApiClient:
         payload: dict[str, Any] = {}
         if on_behalf_of_user_id is not None:
             payload["onBehalfOfUserId"] = on_behalf_of_user_id
+            # The integration logs in as a parent, but the person acting is the one named here,
+            # so let TidyQuest apply Strict Mode approval when that person is a child.
+            payload["requireApproval"] = True
         return await self._request("post", f"/tasks/{task_id}/complete", json=payload)
 
     async def async_reset_task(self, task_id: int) -> dict[str, Any]:

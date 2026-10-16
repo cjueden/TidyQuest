@@ -267,7 +267,18 @@
       "reject": "Refuser",
       "noPendingValidations": "Aucune validation en attente.",
       "goalReward": "Bonus de complétion",
-      "goalRewardDesc": "Coins bonus accordés quand cet objectif est atteint"
+      "goalRewardDesc": "Coins bonus accordés quand cet objectif est atteint",
+      "hidePrivateRooms": "Masquer aux enfants les pièces privées des autres",
+      "hidePrivateRoomsDesc": "Les enfants ne verront pas les pièces qui appartiennent à quelqu'un d'autre.",
+      "taskView": "Affichage des tâches",
+      "taskViewDesc": "Ce qu'il voit dans Accueil, Pièces, Tâches et Calendrier.",
+      "taskViewAll": "Toutes (au choix)",
+      "taskViewMine": "Commence sur les miennes",
+      "taskViewMineOnly": "Seulement les siennes",
+      "kidMode": "Mode enfant",
+      "kidModeDesc": "Gros boutons, moins de cartes, pièces et objectif en premier.",
+      "notificationTypeChoreApproval": "Tâche en attente de validation",
+      "notificationTypeCoinBoost": "Événements pièces doublées"
     },
     "nav": {
       "home": "Accueil",
@@ -279,7 +290,8 @@
       "settings": "Paramètres",
       "profile": "Profil",
       "tagline": "Fais évoluer ta maison",
-      "achievements": "Succès"
+      "achievements": "Succès",
+      "tasks": "Tâches"
     },
     "app": {
       "roomsConfigured": "pièces configurées",
@@ -298,7 +310,10 @@
       "notAssigned": "Cette tâche ne t'est pas attribuée",
       "pendingApproval": "Tâche envoyée. En attente d'approbation admin.",
       "doneBy": "Fait par {name}",
-      "childrenGroup": "Enfants"
+      "childrenGroup": "Enfants",
+      "tasksSubtitle": "Toutes les tâches de toutes les pièces",
+      "waitingForApproval": "En attente de validation",
+      "waitingCount": "{n} en attente de validation"
     },
     "admin": {
       "whoDidThisTask": "Qui a fait cette tâche ?",
@@ -321,7 +336,10 @@
       "tomorrow": "Demain",
       "upcomingDueDates": "Échéances à venir",
       "inDays": "dans {days}j",
-      "allCaughtUp": "Tout est à jour ! Aucune tâche imminente."
+      "allCaughtUp": "Tout est à jour ! Aucune tâche imminente.",
+      "prevMonth": "Mois précédent",
+      "nextMonth": "Mois suivant",
+      "nothingThisDay": "Rien de prévu ni de fait ce jour-là."
     },
     "period": {
       "week": "Semaine",
@@ -352,7 +370,13 @@
       "statusPending": "En attente",
       "statusApproved": "Approuvée",
       "statusRejected": "Refusée",
-      "statusCancelled": "Annulée"
+      "statusCancelled": "Annulée",
+      "searchPlaceholder": "Rechercher une récompense…",
+      "canAfford": "À ma portée",
+      "sortPriceLow": "Prix croissant",
+      "sortPriceHigh": "Prix décroissant",
+      "sortName": "Nom A–Z",
+      "noMatches": "Aucune récompense ne correspond."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +422,16 @@
       "previous": "Précédent",
       "next": "Suivant",
       "of": "sur",
-      "cancel": "Annuler la complétion"
+      "cancel": "Annuler la complétion",
+      "everyone": "Tout le monde",
+      "allRooms": "Toutes les pièces",
+      "anyTime": "Toutes les dates",
+      "today": "Aujourd'hui",
+      "thisWeek": "Cette semaine",
+      "thisMonth": "Ce mois-ci",
+      "searchPlaceholder": "Rechercher une tâche…",
+      "noMatches": "Aucune activité ne correspond à ces filtres.",
+      "clearFilters": "Effacer les filtres"
     },
     "roomDetail": {
       "name": "Nom",
@@ -555,7 +588,9 @@
       "add": "Ajouter",
       "you": "vous",
       "showMore": "Afficher {n} de plus",
-      "showLess": "Afficher moins"
+      "showLess": "Afficher moins",
+      "error": "Une erreur s'est produite",
+      "close": "Fermer"
     },
     "units": {
       "hours": "heures",
@@ -723,6 +758,213 @@
       "shelf": "Étagère",
       "drawer": "Tiroir",
       "closet": "Placard"
+    },
+    "search": {
+      "button": "Rechercher",
+      "placeholder": "Rechercher des tâches, pièces et récompenses…",
+      "tasks": "Tâches",
+      "rooms": "Pièces",
+      "rewards": "Récompenses",
+      "noResults": "Aucun résultat pour « {q} »",
+      "seeAllTasks": "Voir les {n} tâches correspondantes",
+      "hint": "Appuyez sur / pour rechercher depuis n'importe quelle page"
+    },
+    "taskList": {
+      "searchPlaceholder": "Rechercher une tâche, une note ou une pièce…",
+      "everyone": "Tout le monde",
+      "mine": "Les miennes",
+      "openToAnyone": "Ouvertes à tous",
+      "allRooms": "Toutes les pièces",
+      "statusAll": "Tous les statuts",
+      "dueNow": "À faire maintenant",
+      "upcoming": "À venir",
+      "sortDue": "Tri : échéance",
+      "sortName": "Tri : nom",
+      "sortRoom": "Tri : pièce",
+      "sortCoins": "Tri : récompense",
+      "count": "{n} tâches",
+      "countOne": "1 tâche",
+      "clear": "Effacer les filtres",
+      "noMatches": "Aucune tâche ne correspond à ces filtres."
+    },
+    "approvals": {
+      "title": "En attente de validation",
+      "selectAll": "Tout sélectionner",
+      "approveSelected": "Valider {n}",
+      "rejectSelected": "Refuser {n}",
+      "approveAll": "Tout valider ({n})",
+      "proofPhoto": "Photo de preuve"
+    },
+    "proof": {
+      "addProof": "Ajouter une note ou une photo",
+      "title": "Terminer avec une note ou une photo",
+      "note": "Note (facultatif)",
+      "notePlaceholder": "ex. 94 % au contrôle de maths",
+      "photo": "Photo (facultatif)",
+      "submit": "Terminé",
+      "photoFailed": "Enregistré, mais la photo n'a pas été envoyée."
+    },
+    "rewardRules": {
+      "whoCanSee": "Qui peut la voir",
+      "everyone": "Tout le monde",
+      "pricePerPerson": "Prix par personne (vide = prix habituel)",
+      "limit": "Limiter la fréquence",
+      "periodEver": "au total",
+      "periodDay": "par jour",
+      "periodWeek": "par semaine",
+      "periodMonth": "par mois",
+      "scopePerson": "pour chaque personne",
+      "scopeEveryone": "pour toute la famille",
+      "onOffer": "Disponible",
+      "from": "Du",
+      "until": "Au",
+      "rotating": "En rotation",
+      "rotatingDesc": "Seules quelques récompenses en rotation apparaissent chaque semaine, choisies automatiquement.",
+      "shared": "Épargne partagée",
+      "sharedDesc": "Chacun peut contribuer ; quand la cagnotte est pleine, un parent valide.",
+      "customPrices": "prix personnalisés",
+      "per_ever": "au total",
+      "per_day": "par jour",
+      "per_week": "par semaine",
+      "per_month": "par mois",
+      "rules": "Règles",
+      "rotatingPerWeek": "Récompenses en rotation par semaine :",
+      "usedUp": "Épuisée",
+      "usedUp_ever": "Déjà utilisée",
+      "usedUp_day": "Utilisée aujourd'hui — de retour demain",
+      "usedUp_week": "Utilisée cette semaine — de retour lundi",
+      "usedUp_month": "Utilisée ce mois-ci",
+      "left_ever": "Encore {n}",
+      "left_day": "Encore {n} aujourd'hui",
+      "left_week": "Encore {n} cette semaine",
+      "left_month": "Encore {n} ce mois-ci",
+      "untilDate": "Jusqu'au {date}",
+      "potSaved": "{saved} sur {target} économisées",
+      "potWaiting": "La cagnotte est pleine — en attente d'un parent",
+      "chipIn": "Contribuer"
+    },
+    "boosts": {
+      "title": "Événements pièces doublées",
+      "desc": "Des pièces en plus pendant un moment, par ex. pour préparer une fête. La famille reçoit une notification au début.",
+      "live": "en cours",
+      "allRooms": "Toutes les pièces",
+      "titlePlaceholder": "ex. Préparation de la fête !",
+      "starts": "Début",
+      "ends": "Fin",
+      "rooms": "Pièces :",
+      "create": "Lancer un événement",
+      "left": "Encore {time}"
+    },
+    "goals": {
+      "repeatWeekly": "Chaque semaine",
+      "bonus": "bonus",
+      "weeklyWinTitle": "Victoire de la semaine",
+      "weeklyWinTemplate": "Victoire de la semaine",
+      "bonusEarned": "de bonus gagnées !",
+      "bonusWhenReached": "+{n} de bonus quand tu l'atteins"
+    },
+    "coins": {
+      "reasonPlaceholder": "Raison (facultatif)",
+      "adjusted": "Pièces ajustées",
+      "by": "par {name}"
+    },
+    "repeat": {
+      "limit": "Limite",
+      "limitDesc": "Combien de fois chaque personne peut faire cette quête par jour ou par semaine (vide = sans limite)",
+      "perDay": "par jour",
+      "perWeek": "par semaine",
+      "doneToday": "Fait aujourd'hui",
+      "doneThisWeek": "Fait cette semaine",
+      "today": "aujourd'hui",
+      "thisWeek": "cette semaine",
+      "limitReached": "Tu l'as déjà fait autant de fois que permis pour l'instant."
+    },
+    "schedule": {
+      "dueMode": "Fréquence",
+      "onDays": "Le",
+      "season": "Seulement en saison",
+      "seasonDesc": "En dehors de ces mois, la tâche n'est pas due et ne compte pas dans la santé de la maison",
+      "seasonFrom": "Mois de début",
+      "seasonTo": "Mois de fin",
+      "offSeason": "Hors saison",
+      "turnChanges": "Le tour change",
+      "turnEachTime": "après chaque réalisation",
+      "turnWeekly": "chaque lundi"
+    },
+    "trash": {
+      "undo": "Annuler",
+      "deleted": "« {name} » supprimé",
+      "deletedMany": "{n} tâches supprimées",
+      "title": "Supprimés récemment",
+      "desc": "Les tâches et récompenses supprimées restent ici {n} jours, avec leur historique.",
+      "empty": "Rien ici.",
+      "reward": "Récompense",
+      "history": "{n} dans l'historique",
+      "restoreInto": "Restaurer dans",
+      "roomGone": "Sa pièce a été supprimée ; choisissez-en une autre",
+      "restoreIntoRoom": "Dans {room}",
+      "restore": "Restaurer",
+      "deleteForever": "Supprimer définitivement",
+      "deleteForeverConfirm": "Supprimer « {name} » définitivement ? C'est irréversible."
+    },
+    "bulk": {
+      "select": "Sélectionner",
+      "finish": "Terminé",
+      "selectAll": "Tout sélectionner ({n})",
+      "clear": "Effacer la sélection",
+      "selected": "{n} sélectionnées",
+      "change": "Modifier…",
+      "assign": "Qui s'en charge",
+      "room": "Déplacer vers la pièce",
+      "every": "Fréquence (jours)",
+      "coinsDefault": "Selon l'effort",
+      "apply": "Appliquer",
+      "deleteConfirm": "Supprimer {n} tâches ? Vous pourrez les restaurer pendant 30 jours depuis Paramètres → Supprimés récemment.",
+      "updated": "{n} tâches mises à jour",
+      "yes": "Oui",
+      "no": "Non",
+      "updatedOne": "1 tâche mise à jour",
+      "deleteConfirmOne": "Supprimer cette tâche ? Vous pourrez la restaurer pendant 30 jours depuis Paramètres → Supprimés récemment."
+    },
+    "csv": {
+      "title": "Tableurs",
+      "desc": "Téléchargez les tâches ou les récompenses, modifiez-les dans un tableur, puis rechargez le fichier. Un aperçu s'affiche d'abord ; rien n'est jamais supprimé.",
+      "exportTasks": "Télécharger les tâches",
+      "exportRewards": "Télécharger les récompenses",
+      "importTasks": "Charger des tâches",
+      "importRewards": "Charger des récompenses",
+      "applied": "Enregistré : {add} ajoutées, {update} modifiées.",
+      "previewOf": "Aperçu de {file}",
+      "add": "{n} nouvelles",
+      "update": "{n} modifiées",
+      "unchanged": "{n} identiques",
+      "errors": "{n} avec des problèmes",
+      "newRooms": "Nouvelles pièces : {rooms}",
+      "ignoredColumns": "Colonnes non utilisées : {cols}",
+      "line": "Ligne {n}",
+      "addNewRoom": "nouvelle, dans une nouvelle pièce",
+      "addRow": "nouvelle",
+      "apply": "Appliquer les changements ({n})",
+      "errorsSkipped": "Les lignes avec des problèmes sont ignorées."
+    },
+    "rewardOrder": {
+      "up": "Monter",
+      "down": "Descendre",
+      "category": "Catégorie",
+      "categoryPlaceholder": "ex. Friandises, Grands objectifs",
+      "featured": "À la une",
+      "all": "Toutes",
+      "other": "Autres"
+    },
+    "duplicateRoom": {
+      "button": "Dupliquer la pièce",
+      "title": "Dupliquer cette pièce",
+      "desc": "Copie chaque tâche avec ses réglages et qui s'en charge. L'historique n'est pas copié : tout commence à faire.",
+      "copyName": "{name} (copie)",
+      "owner": "Propriétaire",
+      "sameOwner": "Même propriétaire ({name})",
+      "noOwner": "Aucun propriétaire",
+      "create": "Créer la copie"
     }
   }
 }

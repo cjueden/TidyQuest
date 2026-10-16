@@ -267,7 +267,18 @@
       "pendingValidationsDesc": "Klusjes goedkeuren of afkeuren die door de kinderen zijn afgevinkt.",
       "approve": "Goedkeuren",
       "reject": "Afkeuren",
-      "noPendingValidations": "Geen klusjes die wachten op controle."
+      "noPendingValidations": "Geen klusjes die wachten op controle.",
+      "hidePrivateRooms": "Privékamers van anderen verbergen voor kinderen",
+      "hidePrivateRoomsDesc": "Kinderen zien geen kamers die van iemand anders zijn.",
+      "taskView": "Klusjesweergave",
+      "taskViewDesc": "Wat ze zien op Home, Kamers, Klusjes en de Kalender.",
+      "taskViewAll": "Alles (zelf kiezen)",
+      "taskViewMine": "Begint bij Mijn klusjes",
+      "taskViewMineOnly": "Alleen eigen",
+      "kidMode": "Kindermodus",
+      "kidModeDesc": "Grotere knoppen, minder kaarten, munten en doel bovenaan.",
+      "notificationTypeChoreApproval": "Klusje wacht op goedkeuring",
+      "notificationTypeCoinBoost": "Dubbele-muntenacties"
     },
     "nav": {
       "home": "Home",
@@ -279,7 +290,8 @@
       "settings": "Instellingen",
       "profile": "Profiel",
       "tagline": "Maak van je huis een game!",
-      "achievements": "Medailles"
+      "achievements": "Medailles",
+      "tasks": "Klusjes"
     },
     "app": {
       "roomsConfigured": "kamers ingesteld",
@@ -298,7 +310,10 @@
       "notAssigned": "Dit klusje is niet aan jou toegewezen",
       "pendingApproval": "Ingezonden! Wachten op goedkeuring van papa of mama.",
       "doneBy": "Gedaan door {name}",
-      "childrenGroup": "Kinderen"
+      "childrenGroup": "Kinderen",
+      "tasksSubtitle": "Alle klusjes uit alle kamers",
+      "waitingForApproval": "Wacht op goedkeuring",
+      "waitingCount": "{n} wachten op goedkeuring"
     },
     "admin": {
       "whoDidThisTask": "Wie heeft dit klusje gedaan?",
@@ -321,7 +336,10 @@
       "tomorrow": "Morgen",
       "upcomingDueDates": "Klusjes die eraan komen",
       "inDays": "over {days}d",
-      "allCaughtUp": "Helemaal bijgewerkt! Geen klusjes voor de boeg."
+      "allCaughtUp": "Helemaal bijgewerkt! Geen klusjes voor de boeg.",
+      "prevMonth": "Vorige maand",
+      "nextMonth": "Volgende maand",
+      "nothingThisDay": "Niets te doen of gedaan op deze dag."
     },
     "period": {
       "week": "Week",
@@ -352,7 +370,13 @@
       "statusPending": "Wachten op toestemming",
       "statusApproved": "Goedgekeurd! 🎉",
       "statusRejected": "Niet goedgekeurd",
-      "statusCancelled": "Geannuleerd"
+      "statusCancelled": "Geannuleerd",
+      "searchPlaceholder": "Zoek beloningen…",
+      "canAfford": "Kan ik betalen",
+      "sortPriceLow": "Prijs: laag naar hoog",
+      "sortPriceHigh": "Prijs: hoog naar laag",
+      "sortName": "Naam A–Z",
+      "noMatches": "Geen beloningen gevonden."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +422,16 @@
       "previous": "Vorige",
       "next": "Volgende",
       "of": "van",
-      "cancel": "Klusje ongedaan maken"
+      "cancel": "Klusje ongedaan maken",
+      "everyone": "Iedereen",
+      "allRooms": "Alle kamers",
+      "anyTime": "Altijd",
+      "today": "Vandaag",
+      "thisWeek": "Deze week",
+      "thisMonth": "Deze maand",
+      "searchPlaceholder": "Zoek klusjes…",
+      "noMatches": "Geen activiteit voldoet aan deze filters.",
+      "clearFilters": "Filters wissen"
     },
     "roomDetail": {
       "name": "Naam",
@@ -555,7 +588,9 @@
       "add": "Toevoegen",
       "you": "Jij",
       "showMore": "Toon nog {n}",
-      "showLess": "Minder tonen"
+      "showLess": "Minder tonen",
+      "error": "Er ging iets mis",
+      "close": "Sluiten"
     },
     "units": {
       "hours": "uur",
@@ -723,6 +758,213 @@
       "shelf": "Plank",
       "drawer": "La",
       "closet": "Kledingkast"
+    },
+    "search": {
+      "button": "Zoeken",
+      "placeholder": "Zoek klusjes, kamers en beloningen…",
+      "tasks": "Klusjes",
+      "rooms": "Kamers",
+      "rewards": "Beloningen",
+      "noResults": "Niets gevonden voor ‘{q}’",
+      "seeAllTasks": "Bekijk alle {n} gevonden klusjes",
+      "hint": "Druk op / om vanaf elke pagina te zoeken"
+    },
+    "taskList": {
+      "searchPlaceholder": "Zoek klusjes, notities of kamers…",
+      "everyone": "Iedereen",
+      "mine": "Mijn klusjes",
+      "openToAnyone": "Voor iedereen open",
+      "allRooms": "Alle kamers",
+      "statusAll": "Elke status",
+      "dueNow": "Nu te doen",
+      "upcoming": "Binnenkort",
+      "sortDue": "Sorteren: vervaldatum",
+      "sortName": "Sorteren: naam",
+      "sortRoom": "Sorteren: kamer",
+      "sortCoins": "Sorteren: munten",
+      "count": "{n} klusjes",
+      "countOne": "1 klusje",
+      "clear": "Filters wissen",
+      "noMatches": "Geen klusjes voldoen aan deze filters."
+    },
+    "approvals": {
+      "title": "Wacht op goedkeuring",
+      "selectAll": "Alles selecteren",
+      "approveSelected": "{n} goedkeuren",
+      "rejectSelected": "{n} afwijzen",
+      "approveAll": "Alles goedkeuren ({n})",
+      "proofPhoto": "Bewijsfoto"
+    },
+    "proof": {
+      "addProof": "Notitie of foto toevoegen",
+      "title": "Afronden met een notitie of foto",
+      "note": "Notitie (optioneel)",
+      "notePlaceholder": "bijv. 94% voor de wiskundetoets",
+      "photo": "Foto (optioneel)",
+      "submit": "Klaar",
+      "photoFailed": "Opgeslagen, maar de foto is niet geüpload."
+    },
+    "rewardRules": {
+      "whoCanSee": "Wie ziet het",
+      "everyone": "Iedereen",
+      "pricePerPerson": "Prijs per persoon (leeg = gewone prijs)",
+      "limit": "Beperk hoe vaak",
+      "periodEver": "in totaal",
+      "periodDay": "per dag",
+      "periodWeek": "per week",
+      "periodMonth": "per maand",
+      "scopePerson": "per persoon",
+      "scopeEveryone": "voor het hele gezin",
+      "onOffer": "Beschikbaar",
+      "from": "Van",
+      "until": "Tot",
+      "rotating": "Wisselend",
+      "rotatingDesc": "Elke week verschijnen maar een paar wisselende beloningen, automatisch gekozen.",
+      "shared": "Samen sparen",
+      "sharedDesc": "Iedereen kan munten bijleggen; als de pot vol is, keurt een ouder het goed.",
+      "customPrices": "eigen prijzen",
+      "per_ever": "in totaal",
+      "per_day": "per dag",
+      "per_week": "per week",
+      "per_month": "per maand",
+      "rules": "Regels",
+      "rotatingPerWeek": "Wisselende beloningen per week:",
+      "usedUp": "Op",
+      "usedUp_ever": "Al gebruikt",
+      "usedUp_day": "Vandaag gebruikt — morgen weer",
+      "usedUp_week": "Deze week gebruikt — maandag weer",
+      "usedUp_month": "Deze maand gebruikt",
+      "left_ever": "Nog {n}",
+      "left_day": "Vandaag nog {n}",
+      "left_week": "Deze week nog {n}",
+      "left_month": "Deze maand nog {n}",
+      "untilDate": "Tot {date}",
+      "potSaved": "{saved} van {target} gespaard",
+      "potWaiting": "De pot is vol — wacht op een ouder",
+      "chipIn": "Bijleggen"
+    },
+    "boosts": {
+      "title": "Dubbele-muntenacties",
+      "desc": "Een tijdje extra munten, bijv. om het huis klaar te maken voor een feestje. Het gezin krijgt een melding bij de start.",
+      "live": "nu bezig",
+      "allRooms": "Alle kamers",
+      "titlePlaceholder": "bijv. Feestje voorbereiden!",
+      "starts": "Begint",
+      "ends": "Eindigt",
+      "rooms": "Kamers:",
+      "create": "Actie starten",
+      "left": "Nog {time}"
+    },
+    "goals": {
+      "repeatWeekly": "Elke week",
+      "bonus": "bonus",
+      "weeklyWinTitle": "Weekwinst",
+      "weeklyWinTemplate": "Weekwinst",
+      "bonusEarned": "bonus verdiend!",
+      "bonusWhenReached": "+{n} bonus als je het haalt"
+    },
+    "coins": {
+      "reasonPlaceholder": "Reden (optioneel)",
+      "adjusted": "Munten aangepast",
+      "by": "door {name}"
+    },
+    "repeat": {
+      "limit": "Limiet",
+      "limitDesc": "Hoe vaak iedereen deze klus per dag of week mag doen (leeg = geen limiet)",
+      "perDay": "per dag",
+      "perWeek": "per week",
+      "doneToday": "Vandaag gedaan",
+      "doneThisWeek": "Deze week gedaan",
+      "today": "vandaag",
+      "thisWeek": "deze week",
+      "limitReached": "Je hebt dit al zo vaak gedaan als nu mag."
+    },
+    "schedule": {
+      "dueMode": "Hoe vaak",
+      "onDays": "Op",
+      "season": "Alleen in het seizoen",
+      "seasonDesc": "Buiten deze maanden is de taak niet aan de beurt en telt ze niet mee voor de huisgezondheid",
+      "seasonFrom": "Vanaf maand",
+      "seasonTo": "Tot maand",
+      "offSeason": "Buiten seizoen",
+      "turnChanges": "Beurt wisselt",
+      "turnEachTime": "na elke keer",
+      "turnWeekly": "elke maandag"
+    },
+    "trash": {
+      "undo": "Ongedaan maken",
+      "deleted": "‘{name}’ verwijderd",
+      "deletedMany": "{n} taken verwijderd",
+      "title": "Onlangs verwijderd",
+      "desc": "Verwijderde taken en beloningen blijven hier {n} dagen staan, met hun geschiedenis.",
+      "empty": "Niets hier.",
+      "reward": "Beloning",
+      "history": "{n} in de geschiedenis",
+      "restoreInto": "Terugzetten in",
+      "roomGone": "De ruimte is verwijderd; kies een andere",
+      "restoreIntoRoom": "In {room}",
+      "restore": "Terugzetten",
+      "deleteForever": "Definitief verwijderen",
+      "deleteForeverConfirm": "‘{name}’ definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
+    },
+    "bulk": {
+      "select": "Selecteren",
+      "finish": "Klaar",
+      "selectAll": "Alles selecteren ({n})",
+      "clear": "Selectie wissen",
+      "selected": "{n} geselecteerd",
+      "change": "Wijzigen…",
+      "assign": "Wie doet het",
+      "room": "Naar ruimte verplaatsen",
+      "every": "Hoe vaak (dagen)",
+      "coinsDefault": "Volgens inspanning",
+      "apply": "Toepassen",
+      "deleteConfirm": "{n} taken verwijderen? Je kunt ze 30 dagen terugzetten via Instellingen → Onlangs verwijderd.",
+      "updated": "{n} taken bijgewerkt",
+      "yes": "Ja",
+      "no": "Nee",
+      "updatedOne": "1 taak bijgewerkt",
+      "deleteConfirmOne": "Deze taak verwijderen? Je kunt hem 30 dagen terugzetten via Instellingen → Onlangs verwijderd."
+    },
+    "csv": {
+      "title": "Spreadsheets",
+      "desc": "Download taken of beloningen, bewerk ze in een spreadsheet-app en laad het bestand weer in. Je ziet eerst een voorbeeld; er wordt nooit iets verwijderd.",
+      "exportTasks": "Taken downloaden",
+      "exportRewards": "Beloningen downloaden",
+      "importTasks": "Taken inladen",
+      "importRewards": "Beloningen inladen",
+      "applied": "Opgeslagen: {add} toegevoegd, {update} gewijzigd.",
+      "previewOf": "Voorbeeld van {file}",
+      "add": "{n} nieuw",
+      "update": "{n} gewijzigd",
+      "unchanged": "{n} hetzelfde",
+      "errors": "{n} met problemen",
+      "newRooms": "Nieuwe ruimtes: {rooms}",
+      "ignoredColumns": "Kolommen niet gebruikt: {cols}",
+      "line": "Regel {n}",
+      "addNewRoom": "nieuw, in een nieuwe ruimte",
+      "addRow": "nieuw",
+      "apply": "Wijzigingen toepassen ({n})",
+      "errorsSkipped": "Regels met problemen worden overgeslagen."
+    },
+    "rewardOrder": {
+      "up": "Omhoog",
+      "down": "Omlaag",
+      "category": "Categorie",
+      "categoryPlaceholder": "bijv. Lekkers, Grote doelen",
+      "featured": "Uitgelicht",
+      "all": "Alle",
+      "other": "Overig"
+    },
+    "duplicateRoom": {
+      "button": "Ruimte dupliceren",
+      "title": "Deze ruimte dupliceren",
+      "desc": "Kopieert elke taak met de instellingen en wie het doet. De geschiedenis wordt niet gekopieerd, dus alles begint als te doen.",
+      "copyName": "{name} (kopie)",
+      "owner": "Eigenaar",
+      "sameOwner": "Zelfde eigenaar ({name})",
+      "noOwner": "Geen eigenaar",
+      "create": "Kopie maken"
     }
   }
 }

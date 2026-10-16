@@ -3,9 +3,58 @@ import bcrypt from 'bcryptjs';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
+import { BACKUP_TABLES } from '../forkSchema';
 
 const router = Router();
 router.use(authMiddleware);
+
+/**
+ * Tables in a backup, parents before children. The key is the property name in the backup file
+ * (kept from older versions so their files still import).
+ */
+const TABLES: Array<{ key: string; table: string }> = [
+  { key: 'users', table: 'users' },
+  { key: 'zones', table: 'zones' },
+  { key: 'rooms', table: 'rooms' },
+  { key: 'tasks', table: 'tasks' },
+  { key: 'taskAssignees', table: 'task_assignees' },
+  { key: 'completions', table: 'task_completions' },
+  { key: 'goals', table: 'user_goals' },
+  { key: 'rewards', table: 'rewards' },
+  { key: 'rewardRedemptions', table: 'reward_redemptions' },
+  ...BACKUP_TABLES,
+];
+
+interface ColumnInfo { name: string; notnull: number; dflt_value: unknown }
+
+function columnsOf(table: string): ColumnInfo[] {
+  return db.prepare(`PRAGMA table_info(${table})`).all() as ColumnInfo[];
+}
+
+/**
+ * Insert backup rows using whatever columns the table has today, so no column is silently
+ * dropped. Keys the table doesn't know are ignored; missing or null values fall back to the
+ * column default.
+ */
+function insertRows(table: string, rows: any[], skip: string[] = []) {
+  const cols = columnsOf(table).filter((c) => !skip.includes(c.name));
+  // Optional links to rows the backup doesn't contain (e.g. a room's zone, when an older backup has
+  // no zones) are cleared instead of failing the whole import on a foreign key.
+  const optionalLinks = (db.prepare(`PRAGMA foreign_key_list(${table})`).all() as { table: string; from: string; to: string | null }[])
+    .filter((fk) => !cols.find((c) => c.name === fk.from)?.notnull);
+  for (const original of rows) {
+    const row = { ...original };
+    for (const fk of optionalLinks) {
+      if (row[fk.from] == null) continue;
+      const exists = db.prepare(`SELECT 1 FROM ${fk.table} WHERE ${fk.to ?? 'id'} = ?`).get(row[fk.from]);
+      if (!exists) row[fk.from] = null;
+    }
+    const present = cols.filter((c) => row[c.name] !== undefined && !(row[c.name] === null && c.notnull && c.dflt_value !== null));
+    if (present.length === 0) continue;
+    const values = present.map((c) => (typeof row[c.name] === 'boolean' ? (row[c.name] ? 1 : 0) : row[c.name]));
+    db.prepare(`INSERT INTO ${table} (${present.map((c) => c.name).join(', ')}) VALUES (${present.map(() => '?').join(', ')})`).run(...values);
+  }
+}
 
 // Export all data as JSON
 router.get('/export', (req: AuthRequest, res: Response) => {
@@ -13,110 +62,65 @@ router.get('/export', (req: AuthRequest, res: Response) => {
     return res.status(403).json({ error: 'Admin only' });
   }
 
-  const users = db.prepare('SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt FROM users').all();
-  const rooms = db.prepare('SELECT * FROM rooms').all();
-  const tasks = db.prepare('SELECT * FROM tasks').all();
-  const taskAssignees = db.prepare('SELECT * FROM task_assignees').all();
-  const completions = db.prepare('SELECT * FROM task_completions').all();
-  const settings = db.prepare('SELECT * FROM app_settings').all();
-  const goals = db.prepare('SELECT * FROM user_goals').all();
-  const rewards = db.prepare('SELECT * FROM rewards').all();
-  const rewardRedemptions = db.prepare('SELECT * FROM reward_redemptions').all();
+  const out: Record<string, unknown> = { version: 7, exportedAt: new Date().toISOString() };
+  for (const { key, table } of TABLES) {
+    out[key] = db.prepare(`SELECT * FROM ${table}`).all();
+  }
+  // Password hashes never leave the server
+  out.users = (out.users as any[]).map(({ passwordHash: _omit, ...u }) => u);
+  out.settings = db.prepare('SELECT * FROM app_settings').all();
 
   res.setHeader('Content-Disposition', 'attachment; filename=tidyquest-backup.json');
-  res.json({ version: 6, exportedAt: new Date().toISOString(), users, rooms, tasks, taskAssignees, completions, settings, goals, rewards, rewardRedemptions });
+  res.json(out);
 });
 
-// Import data from JSON
+// Import data from JSON (replaces everything)
 router.post('/import', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
 
-  const { users, rooms, tasks, taskAssignees, completions, settings, goals, rewards, rewardRedemptions } = req.body;
+  const body = req.body || {};
+  const { users, rooms, tasks, completions, settings, taskAssignees } = body;
 
   if (!Array.isArray(users) || !Array.isArray(rooms) || !Array.isArray(tasks) || !Array.isArray(completions)) {
     return res.status(400).json({ error: 'Invalid backup format. Expected arrays: users, rooms, tasks, completions' });
   }
 
-  // Preserve the current admin's credentials so they can't be locked out
+  // Password hashes are never accepted from a file. The importing admin keeps theirs, and anyone
+  // who already has an account here (same username) keeps their current password; new people get
+  // a random one and need a reset.
   const currentAdmin = db.prepare('SELECT id, username, passwordHash FROM users WHERE id = ?').get(req.userId) as { id: number; username: string; passwordHash: string } | undefined;
+  const existingHashes = new Map(
+    (db.prepare('SELECT username, passwordHash FROM users').all() as { username: string; passwordHash: string }[])
+      .map((u) => [u.username.toLowerCase(), u.passwordHash])
+  );
 
   const importData = db.transaction(() => {
-    // Clear existing data
-    db.prepare('DELETE FROM task_completions').run();
-    db.prepare('DELETE FROM task_assignees').run();
-    db.prepare('DELETE FROM reward_redemptions').run();
-    db.prepare('DELETE FROM user_goals').run();
-    db.prepare('DELETE FROM rewards').run();
-    db.prepare('DELETE FROM tasks').run();
-    db.prepare('DELETE FROM rooms').run();
-    db.prepare('DELETE FROM users').run();
+    // Clear existing data, children first. Zones are only replaced when the backup has them.
+    for (const { key, table } of [...TABLES].reverse()) {
+      if (table === 'zones' && !Array.isArray(body.zones)) continue;
+      if (BACKUP_TABLES.some((t) => t.table === table) && !Array.isArray(body[key])) continue;
+      db.prepare(`DELETE FROM ${table}`).run();
+    }
 
-    // Re-insert users — passwordHash is NEVER accepted from import data
-    // Current admin keeps their password; all others get a random hash (must use password recovery)
-    for (const u of users) {
+    const usersWithHashes = users.map((u: any) => {
       const isCurrentAdmin = currentAdmin && (u.id === currentAdmin.id || u.username === currentAdmin.username);
-      const hash = isCurrentAdmin ? currentAdmin.passwordHash : bcrypt.hashSync(require('crypto').randomBytes(32).toString('hex'), 10);
-      db.prepare(
-        'INSERT INTO users (id, username, displayName, passwordHash, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-      ).run(
-        u.id,
-        u.username,
-        u.displayName,
-        hash,
-        u.role || 'child',
-        u.avatarColor,
-        u.avatarType || 'letter',
-        u.avatarPreset || null,
-        u.avatarPhotoUrl || null,
-        u.coins,
-        u.currentStreak,
-        u.goalCoins || null,
-        u.goalStartAt || null,
-        u.goalEndAt || null,
-        u.lastActiveDate,
-        u.isVacationMode ? 1 : 0,
-        u.vacationStartDate || null,
-        u.vacationEndDate || null,
-        u.language,
-        u.createdAt
-      );
-    }
+      const passwordHash = isCurrentAdmin
+        ? currentAdmin!.passwordHash
+        : existingHashes.get(String(u.username).toLowerCase())
+          ?? bcrypt.hashSync(require('crypto').randomBytes(32).toString('hex'), 10);
+      const { passwordHash: _ignored, ...rest } = u;
+      return { ...rest, passwordHash };
+    });
+    insertRows('users', usersWithHashes);
 
-    for (const r of rooms) {
-      db.prepare(
-        'INSERT INTO rooms (id, name, roomType, color, accentColor, photoUrl, sortOrder, assignedUserId, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-      ).run(r.id, r.name, r.roomType, r.color, r.accentColor, r.photoUrl, r.sortOrder, r.assignedUserId ?? null, r.createdAt);
-    }
-
-    for (const t of tasks) {
-      db.prepare(
-        'INSERT INTO tasks (id, roomId, name, notes, frequencyDays, effort, isSeasonal, lastCompletedAt, translationKey, iconKey, assignedToChildren, assignedUserId, assignmentMode, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-      ).run(
-        t.id,
-        t.roomId,
-        t.name,
-        t.notes || null,
-        t.frequencyDays,
-        t.effort,
-        t.isSeasonal ? 1 : 0,
-        t.lastCompletedAt,
-        t.translationKey || null,
-        t.iconKey || null,
-        t.assignedToChildren ? 1 : 0,
-        t.assignedUserId ?? null,
-        t.assignmentMode || 'first',
-        t.createdAt
-      );
-    }
+    if (Array.isArray(body.zones)) insertRows('zones', body.zones);
+    insertRows('rooms', rooms);
+    insertRows('tasks', tasks);
 
     if (Array.isArray(taskAssignees)) {
-      for (const ta of taskAssignees) {
-        db.prepare(
-          'INSERT INTO task_assignees (taskId, userId, coinPercentage) VALUES (?, ?, ?)'
-        ).run(ta.taskId, ta.userId, ta.coinPercentage ?? 0);
-      }
+      insertRows('task_assignees', taskAssignees);
     } else {
       // Backward compatibility for older backups without task_assignees array
       for (const t of tasks) {
@@ -127,20 +131,7 @@ router.post('/import', (req: AuthRequest, res: Response) => {
       }
     }
 
-    for (const c of completions) {
-      db.prepare(
-        'INSERT INTO task_completions (id, taskId, userId, completedAt, coinsEarned, status, approvedByUserId, approvedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-      ).run(
-        c.id,
-        c.taskId,
-        c.userId,
-        c.completedAt,
-        c.coinsEarned,
-        c.status || 'approved',
-        c.approvedByUserId ?? null,
-        c.approvedAt ?? null,
-      );
-    }
+    insertRows('task_completions', completions.map((c: any) => ({ ...c, status: c.status || 'approved' })));
 
     if (Array.isArray(settings)) {
       db.prepare('DELETE FROM app_settings').run();
@@ -149,30 +140,10 @@ router.post('/import', (req: AuthRequest, res: Response) => {
       }
     }
 
-    if (Array.isArray(goals)) {
-      for (const g of goals) {
-        db.prepare(
-          'INSERT INTO user_goals (id, userId, title, goalCoins, startAt, endAt, createdBy, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-        ).run(g.id, g.userId, g.title, g.goalCoins, g.startAt || null, g.endAt || null, g.createdBy || null, g.createdAt);
-      }
+    for (const { key, table } of TABLES) {
+      if (['users', 'zones', 'rooms', 'tasks', 'task_assignees', 'task_completions'].includes(table)) continue;
+      if (Array.isArray(body[key])) insertRows(table, body[key]);
     }
-
-    if (Array.isArray(rewards)) {
-      for (const r of rewards) {
-        db.prepare(
-          'INSERT INTO rewards (id, title, description, costCoins, isActive, isPreset, createdBy, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-        ).run(r.id, r.title, r.description || null, r.costCoins, r.isActive ? 1 : 0, r.isPreset ? 1 : 0, r.createdBy || null, r.createdAt);
-      }
-    }
-
-    if (Array.isArray(rewardRedemptions)) {
-      for (const rr of rewardRedemptions) {
-        db.prepare(
-          'INSERT INTO reward_redemptions (id, rewardId, userId, costCoins, redeemedAt, status) VALUES (?, ?, ?, ?, ?, ?)'
-        ).run(rr.id, rr.rewardId, rr.userId, rr.costCoins, rr.redeemedAt, rr.status || 'requested');
-      }
-    }
-
   });
 
   importData();

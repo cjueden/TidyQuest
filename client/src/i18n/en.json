@@ -263,11 +263,22 @@
       "ntfyDisabledHint": "Enable ntfy to configure push notifications.",
       "ntfyTestSent": "ntfy test notification sent.",
       "ntfyTestFailed": "Failed to send ntfy test notification.",
-"pendingValidations": "Pending Task Validations",
+      "pendingValidations": "Pending Task Validations",
       "pendingValidationsDesc": "Approve or reject tasks completed by children while Strict Mode is enabled.",
       "approve": "Approve",
       "reject": "Reject",
-      "noPendingValidations": "No pending validations."
+      "noPendingValidations": "No pending validations.",
+      "hidePrivateRooms": "Hide other people's private rooms from kids",
+      "hidePrivateRoomsDesc": "Kids won't see rooms that belong to someone else, like Mom's Quests.",
+      "taskView": "Task view",
+      "taskViewDesc": "What they see on Home, Rooms, Tasks and the Calendar.",
+      "taskViewAll": "All (they choose)",
+      "taskViewMine": "Starts on Mine",
+      "taskViewMineOnly": "Only theirs",
+      "kidMode": "Kid mode",
+      "kidModeDesc": "Bigger buttons, fewer cards, coins and goal up front.",
+      "notificationTypeChoreApproval": "Chore waiting for approval",
+      "notificationTypeCoinBoost": "Double coins events"
     },
     "nav": {
       "home": "Home",
@@ -279,7 +290,8 @@
       "settings": "Settings",
       "profile": "Profile",
       "tagline": "Level up your home",
-      "achievements": "Achievements"
+      "achievements": "Achievements",
+      "tasks": "Tasks"
     },
     "app": {
       "roomsConfigured": "rooms configured",
@@ -298,7 +310,10 @@
       "notAssigned": "This task is not assigned to you",
       "pendingApproval": "Completion submitted. Waiting for admin approval.",
       "doneBy": "Done by {name}",
-      "childrenGroup": "Children"
+      "childrenGroup": "Children",
+      "tasksSubtitle": "Every task in every room",
+      "waitingForApproval": "Waiting for approval",
+      "waitingCount": "{n} waiting for approval"
     },
     "admin": {
       "whoDidThisTask": "Who completed this task?",
@@ -321,7 +336,10 @@
       "tomorrow": "Tomorrow",
       "upcomingDueDates": "Upcoming Due Dates",
       "inDays": "in {days}d",
-      "allCaughtUp": "All caught up! No tasks due soon."
+      "allCaughtUp": "All caught up! No tasks due soon.",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month",
+      "nothingThisDay": "Nothing due or done this day."
     },
     "period": {
       "week": "Week",
@@ -352,7 +370,13 @@
       "statusPending": "Pending",
       "statusApproved": "Approved",
       "statusRejected": "Rejected",
-      "statusCancelled": "Cancelled"
+      "statusCancelled": "Cancelled",
+      "searchPlaceholder": "Search rewards…",
+      "canAfford": "I can afford",
+      "sortPriceLow": "Price: low to high",
+      "sortPriceHigh": "Price: high to low",
+      "sortName": "Name A–Z",
+      "noMatches": "No rewards match."
     },
     "rewardsPreset": {
       "movie_night": {
@@ -398,7 +422,16 @@
       "previous": "Previous",
       "next": "Next",
       "of": "of",
-      "cancel": "Cancel completion"
+      "cancel": "Cancel completion",
+      "everyone": "Everyone",
+      "allRooms": "All rooms",
+      "anyTime": "Any time",
+      "today": "Today",
+      "thisWeek": "This week",
+      "thisMonth": "This month",
+      "searchPlaceholder": "Search tasks…",
+      "noMatches": "No activity matches these filters.",
+      "clearFilters": "Clear filters"
     },
     "roomDetail": {
       "name": "Name",
@@ -555,7 +588,9 @@
       "add": "Add",
       "you": "You",
       "showMore": "Show {n} more",
-      "showLess": "Show less"
+      "showLess": "Show less",
+      "error": "Something went wrong",
+      "close": "Close"
     },
     "units": {
       "hours": "hours",
@@ -723,6 +758,213 @@
       "shelf": "Shelf",
       "drawer": "Drawer",
       "closet": "Closet"
+    },
+    "search": {
+      "button": "Search",
+      "placeholder": "Search tasks, rooms and rewards…",
+      "tasks": "Tasks",
+      "rooms": "Rooms",
+      "rewards": "Rewards",
+      "noResults": "Nothing matches “{q}”",
+      "seeAllTasks": "See all {n} matching tasks",
+      "hint": "Press / to search from any page"
+    },
+    "taskList": {
+      "searchPlaceholder": "Search tasks, notes or rooms…",
+      "everyone": "Everyone",
+      "mine": "Mine",
+      "openToAnyone": "Open to anyone",
+      "allRooms": "All rooms",
+      "statusAll": "Any status",
+      "dueNow": "Due now",
+      "upcoming": "Upcoming",
+      "sortDue": "Sort: due date",
+      "sortName": "Sort: name",
+      "sortRoom": "Sort: room",
+      "sortCoins": "Sort: coins",
+      "count": "{n} tasks",
+      "countOne": "1 task",
+      "clear": "Clear filters",
+      "noMatches": "No tasks match these filters."
+    },
+    "approvals": {
+      "title": "Waiting for approval",
+      "selectAll": "Select all",
+      "approveSelected": "Approve {n}",
+      "rejectSelected": "Reject {n}",
+      "approveAll": "Approve all ({n})",
+      "proofPhoto": "Proof photo"
+    },
+    "proof": {
+      "addProof": "Add a note or photo",
+      "title": "Finish with a note or photo",
+      "note": "Note (optional)",
+      "notePlaceholder": "e.g. Got 94% on the math test",
+      "photo": "Photo (optional)",
+      "submit": "Done",
+      "photoFailed": "Saved, but the photo didn't upload."
+    },
+    "rewardRules": {
+      "whoCanSee": "Who can see it",
+      "everyone": "Everyone",
+      "pricePerPerson": "Price per person (blank = usual price)",
+      "limit": "Limit how often",
+      "periodEver": "in total",
+      "periodDay": "per day",
+      "periodWeek": "per week",
+      "periodMonth": "per month",
+      "scopePerson": "for each person",
+      "scopeEveryone": "for the whole family",
+      "onOffer": "On offer",
+      "from": "From",
+      "until": "Until",
+      "rotating": "Rotating",
+      "rotatingDesc": "Only a few rotating rewards show each week, picked automatically.",
+      "shared": "Shared saving",
+      "sharedDesc": "Anyone can chip in coins; when the pot is full it goes to a parent to approve.",
+      "customPrices": "own prices",
+      "per_ever": "in total",
+      "per_day": "per day",
+      "per_week": "per week",
+      "per_month": "per month",
+      "rules": "Rules",
+      "rotatingPerWeek": "Rotating rewards shown each week:",
+      "usedUp": "Used up",
+      "usedUp_ever": "Already used",
+      "usedUp_day": "Used today — back tomorrow",
+      "usedUp_week": "Used this week — back Monday",
+      "usedUp_month": "Used this month",
+      "left_ever": "{n} left",
+      "left_day": "{n} left today",
+      "left_week": "{n} left this week",
+      "left_month": "{n} left this month",
+      "untilDate": "Until {date}",
+      "potSaved": "{saved} of {target} saved",
+      "potWaiting": "The pot is full — waiting for a parent",
+      "chipIn": "Chip in"
+    },
+    "boosts": {
+      "title": "Double coins events",
+      "desc": "Extra coins for a while, e.g. getting the house ready for a party. The family gets a notification when it starts.",
+      "live": "on now",
+      "allRooms": "All rooms",
+      "titlePlaceholder": "e.g. Party prep!",
+      "starts": "Starts",
+      "ends": "Ends",
+      "rooms": "Rooms:",
+      "create": "Start an event",
+      "left": "{time} left"
+    },
+    "goals": {
+      "repeatWeekly": "Repeats weekly",
+      "bonus": "bonus",
+      "weeklyWinTitle": "Weekly Win",
+      "weeklyWinTemplate": "Weekly Win",
+      "bonusEarned": "bonus earned!",
+      "bonusWhenReached": "+{n} bonus when you reach it"
+    },
+    "coins": {
+      "reasonPlaceholder": "Reason (optional)",
+      "adjusted": "Coins adjusted",
+      "by": "by {name}"
+    },
+    "repeat": {
+      "limit": "Limit",
+      "limitDesc": "How many times each person can do this anytime quest per day or week (blank = no limit)",
+      "perDay": "per day",
+      "perWeek": "per week",
+      "doneToday": "Done today",
+      "doneThisWeek": "Done this week",
+      "today": "today",
+      "thisWeek": "this week",
+      "limitReached": "You've already done this as many times as allowed for now."
+    },
+    "schedule": {
+      "dueMode": "How often",
+      "onDays": "On",
+      "season": "Only in season",
+      "seasonDesc": "Outside these months it isn't due and doesn't count toward house health",
+      "seasonFrom": "From month",
+      "seasonTo": "To month",
+      "offSeason": "Off season",
+      "turnChanges": "Turn changes",
+      "turnEachTime": "after each completion",
+      "turnWeekly": "every Monday"
+    },
+    "trash": {
+      "undo": "Undo",
+      "deleted": "Deleted “{name}”",
+      "deletedMany": "Deleted {n} tasks",
+      "title": "Recently deleted",
+      "desc": "Deleted tasks and rewards stay here for {n} days, with their history.",
+      "empty": "Nothing here.",
+      "reward": "Reward",
+      "history": "{n} in history",
+      "restoreInto": "Restore into",
+      "roomGone": "Its room was deleted; choose another",
+      "restoreIntoRoom": "Into {room}",
+      "restore": "Restore",
+      "deleteForever": "Delete forever",
+      "deleteForeverConfirm": "Delete “{name}” for good? This can't be undone."
+    },
+    "bulk": {
+      "select": "Select",
+      "finish": "Done",
+      "selectAll": "Select all ({n})",
+      "clear": "Clear selection",
+      "selected": "{n} selected",
+      "change": "Change…",
+      "assign": "Who does it",
+      "room": "Move to room",
+      "every": "How often (days)",
+      "coinsDefault": "Effort default",
+      "apply": "Apply",
+      "deleteConfirm": "Delete {n} tasks? You can restore them from Settings → Recently deleted for 30 days.",
+      "updated": "Updated {n} tasks",
+      "yes": "Yes",
+      "no": "No",
+      "updatedOne": "Updated 1 task",
+      "deleteConfirmOne": "Delete this task? You can restore it from Settings → Recently deleted for 30 days."
+    },
+    "csv": {
+      "title": "Spreadsheets",
+      "desc": "Download tasks or rewards, edit them in any spreadsheet app, then load the file back. You'll see a preview first; nothing is ever deleted.",
+      "exportTasks": "Download tasks",
+      "exportRewards": "Download rewards",
+      "importTasks": "Load tasks",
+      "importRewards": "Load rewards",
+      "applied": "Saved: {add} added, {update} changed.",
+      "previewOf": "Preview of {file}",
+      "add": "{n} new",
+      "update": "{n} changed",
+      "unchanged": "{n} the same",
+      "errors": "{n} with problems",
+      "newRooms": "New rooms: {rooms}",
+      "ignoredColumns": "Columns not used: {cols}",
+      "line": "Line {n}",
+      "addNewRoom": "new, in a new room",
+      "addRow": "new",
+      "apply": "Apply changes ({n})",
+      "errorsSkipped": "Rows with problems are skipped."
+    },
+    "rewardOrder": {
+      "up": "Move up",
+      "down": "Move down",
+      "category": "Category",
+      "categoryPlaceholder": "e.g. Treats, Big goals",
+      "featured": "Featured",
+      "all": "All",
+      "other": "Other"
+    },
+    "duplicateRoom": {
+      "button": "Duplicate room",
+      "title": "Duplicate this room",
+      "desc": "Copies every task with its settings and who does it. History isn't copied, so everything starts out due.",
+      "copyName": "{name} (copy)",
+      "owner": "Owner",
+      "sameOwner": "Same owner ({name})",
+      "noOwner": "No owner",
+      "create": "Create copy"
     }
   }
 }

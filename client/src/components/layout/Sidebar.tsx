@@ -1,8 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { HomeIcon, RoomsIcon, TrophyIcon, CalendarIcon, ActivityIcon, AchievementsIcon, SettingsIcon, RewardsIcon } from '../icons/NavIcons';
+import { HomeIcon, RoomsIcon, TasksIcon, TrophyIcon, CalendarIcon, ActivityIcon, AchievementsIcon, SettingsIcon, RewardsIcon } from '../icons/NavIcons';
 import { FireIcon, CoinIcon, SparkleIcon } from '../icons/UIIcons';
 import { UserAvatar } from '../shared/UserAvatar';
 import { useTranslation } from '../../hooks/useTranslation';
+import { formatCoins } from '../../utils/format';
 import type { User } from '../../hooks/useAuth';
 
 interface SidebarProps {
@@ -17,6 +18,7 @@ interface SidebarProps {
 const navItems = [
   { to: '/', label: 'Home', Icon: HomeIcon },
   { to: '/rooms', label: 'Rooms', Icon: RoomsIcon },
+  { to: '/tasks', label: 'Tasks', Icon: TasksIcon },
   { to: '/leaderboard', label: 'Board', Icon: TrophyIcon },
   { to: '/calendar', label: 'Calendar', Icon: CalendarIcon },
   { to: '/activity', label: 'Activity', Icon: ActivityIcon },
@@ -215,7 +217,7 @@ export function Sidebar({ user, isMobileOpen = false, onClose, gamificationEnabl
                 {gamificationEnabled && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
-                      <CoinIcon /> {user.coins}
+                      <CoinIcon /> {formatCoins(user.coins)}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
                       <FireIcon /> {user.currentStreak}d
