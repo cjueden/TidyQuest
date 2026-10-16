@@ -589,7 +589,8 @@
       "you": "You",
       "showMore": "Show {n} more",
       "showLess": "Show less",
-      "error": "Something went wrong"
+      "error": "Something went wrong",
+      "close": "Close"
     },
     "units": {
       "hours": "hours",
@@ -889,6 +890,81 @@
       "turnChanges": "Turn changes",
       "turnEachTime": "after each completion",
       "turnWeekly": "every Monday"
+    },
+    "trash": {
+      "undo": "Undo",
+      "deleted": "Deleted “{name}”",
+      "deletedMany": "Deleted {n} tasks",
+      "title": "Recently deleted",
+      "desc": "Deleted tasks and rewards stay here for {n} days, with their history.",
+      "empty": "Nothing here.",
+      "reward": "Reward",
+      "history": "{n} in history",
+      "restoreInto": "Restore into",
+      "roomGone": "Its room was deleted; choose another",
+      "restoreIntoRoom": "Into {room}",
+      "restore": "Restore",
+      "deleteForever": "Delete forever",
+      "deleteForeverConfirm": "Delete “{name}” for good? This can't be undone."
+    },
+    "bulk": {
+      "select": "Select",
+      "finish": "Done",
+      "selectAll": "Select all ({n})",
+      "clear": "Clear selection",
+      "selected": "{n} selected",
+      "change": "Change…",
+      "assign": "Who does it",
+      "room": "Move to room",
+      "every": "How often (days)",
+      "coinsDefault": "Effort default",
+      "apply": "Apply",
+      "deleteConfirm": "Delete {n} tasks? You can restore them from Settings → Recently deleted for 30 days.",
+      "updated": "Updated {n} tasks",
+      "yes": "Yes",
+      "no": "No",
+      "updatedOne": "Updated 1 task",
+      "deleteConfirmOne": "Delete this task? You can restore it from Settings → Recently deleted for 30 days."
+    },
+    "csv": {
+      "title": "Spreadsheets",
+      "desc": "Download tasks or rewards, edit them in any spreadsheet app, then load the file back. You'll see a preview first; nothing is ever deleted.",
+      "exportTasks": "Download tasks",
+      "exportRewards": "Download rewards",
+      "importTasks": "Load tasks",
+      "importRewards": "Load rewards",
+      "applied": "Saved: {add} added, {update} changed.",
+      "previewOf": "Preview of {file}",
+      "add": "{n} new",
+      "update": "{n} changed",
+      "unchanged": "{n} the same",
+      "errors": "{n} with problems",
+      "newRooms": "New rooms: {rooms}",
+      "ignoredColumns": "Columns not used: {cols}",
+      "line": "Line {n}",
+      "addNewRoom": "new, in a new room",
+      "addRow": "new",
+      "apply": "Apply changes ({n})",
+      "errorsSkipped": "Rows with problems are skipped."
+    },
+    "rewardOrder": {
+      "up": "Move up",
+      "down": "Move down",
+      "category": "Category",
+      "categoryPlaceholder": "e.g. Treats, Big goals",
+      "featured": "Featured",
+      "all": "All",
+      "other": "Other"
+    },
+    "duplicateRoom": {
+      "button": "Duplicate room",
+      "title": "Duplicate this room",
+      "desc": "Copies every task with its settings and who does it. History isn't copied, so everything starts out due.",
+      "copyName": "{name} (copy)",
+      "owner": "Owner",
+      "sameOwner": "Same owner ({name})",
+      "noOwner": "No owner",
+      "create": "Create copy"
     }
   }
 }

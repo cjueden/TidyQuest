@@ -49,6 +49,54 @@ export interface CoinBoost {
   roomIds: number[] | null;
 }
 
+export interface TrashItem {
+  id: number;
+  kind: 'task' | 'reward';
+  itemId: number;
+  title: string;
+  roomId: number | null;
+  roomName: string | null;
+  roomExists?: boolean;
+  deletedAt: string;
+  deletedByName: string | null;
+  historyCount: number;
+}
+
+export type CsvKind = 'tasks' | 'rewards';
+
+export interface CsvImportRow {
+  line: number;
+  action: 'add' | 'update' | 'unchanged' | 'error';
+  room?: string;
+  task?: string;
+  title?: string;
+  newRoom?: boolean;
+  changes: Array<{ field: string; from: string; to: string }>;
+  error?: { code: string; message: string; field?: string; value?: string };
+}
+
+export interface CsvImportResult {
+  dryRun: boolean;
+  applied: boolean;
+  rows: CsvImportRow[];
+  summary: { add: number; update: number; unchanged: number; error: number };
+  roomsToCreate?: string[];
+  unknownColumns: string[];
+}
+
+/** Fields the Tasks page can change for many tasks at once */
+export interface TaskBatchChanges {
+  assignedUserIds?: number[];
+  assignmentMode?: 'first' | 'shared' | 'custom' | 'rotating';
+  customCoins?: number | null;
+  showInDashboard?: boolean;
+  onDemand?: boolean;
+  roomId?: number;
+  allowEarlyCompletion?: boolean;
+  effort?: number;
+  frequencyDays?: number;
+}
+
 function getToken(): string | null {
   return localStorage.getItem('tidyquest_token');
 }
@@ -110,6 +158,9 @@ export const api = {
     apiFetch<any>(`/rooms/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteRoom: (id: number) =>
     apiFetch<any>(`/rooms/${id}`, { method: 'DELETE' }),
+  /** Copy a room with its tasks; ownerUserId left out keeps the owner, null clears it */
+  duplicateRoom: (id: number, data: { name: string; ownerUserId?: number | null }) =>
+    apiFetch<{ id: number; name: string }>(`/rooms/${id}/duplicate`, { method: 'POST', body: JSON.stringify(data) }),
 
   // Tasks
   getTasks: (roomId: number) => apiFetch<any[]>(`/rooms/${roomId}/tasks`),
@@ -118,7 +169,11 @@ export const api = {
   updateTask: (id: number, data: any) =>
     apiFetch<any>(`/tasks/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteTask: (id: number) =>
-    apiFetch<any>(`/tasks/${id}`, { method: 'DELETE' }),
+    apiFetch<{ success: boolean; trashId: number | null }>(`/tasks/${id}`, { method: 'DELETE' }),
+  batchUpdateTasks: (ids: number[], changes: TaskBatchChanges) =>
+    apiFetch<{ updated: number }>('/tasks/batch', { method: 'POST', body: JSON.stringify({ ids, changes }) }),
+  batchDeleteTasks: (ids: number[]) =>
+    apiFetch<{ deleted: number; trashIds: number[] }>('/tasks/batch-delete', { method: 'POST', body: JSON.stringify({ ids }) }),
   duplicateTask: (id: number) =>
     apiFetch<any>(`/tasks/${id}/duplicate`, { method: 'POST' }),
   resetTask: (id: number) =>
@@ -273,7 +328,12 @@ export const api = {
   updateReward: (id: number, data: { title: string; description?: string; costCoins: number; isActive?: boolean }) =>
     apiFetch<any>(`/rewards/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteReward: (id: number) =>
-    apiFetch<{ success: boolean }>(`/rewards/${id}`, { method: 'DELETE' }),
+    apiFetch<{ success: boolean; trashId: number | null }>(`/rewards/${id}`, { method: 'DELETE' }),
+  setRewardCategory: (id: number, category: string) =>
+    apiFetch<{ id: number; category: string | null }>(`/rewards/${id}/category`, { method: 'PUT', body: JSON.stringify({ category }) }),
+  /** The parents' "Featured" order, first to last */
+  orderRewards: (ids: number[]) =>
+    apiFetch<{ success: boolean }>('/rewards/order', { method: 'POST', body: JSON.stringify({ ids }) }),
   redeemReward: (id: number) =>
     apiFetch<{ redemption: any; coins: number }>(`/rewards/${id}/redeem`, { method: 'POST' }),
 
@@ -311,6 +371,22 @@ export const api = {
   createBoost: (data: { title: string; multiplier: number; startAt: string; endAt: string; roomIds?: number[] | null }) =>
     apiFetch<CoinBoost>('/boosts', { method: 'POST', body: JSON.stringify(data) }),
   deleteBoost: (id: number) => apiFetch<{ success: boolean }>(`/boosts/${id}`, { method: 'DELETE' }),
+
+  // Recently deleted tasks and rewards (kept 30 days)
+  getTrash: () => apiFetch<{ items: TrashItem[]; keepDays: number }>('/trash'),
+  restoreTrash: (id: number, roomId?: number) =>
+    apiFetch<{ kind: 'task' | 'reward'; id: number; roomId?: number }>(`/trash/${id}/restore`, { method: 'POST', body: JSON.stringify(roomId ? { roomId } : {}) }),
+  deleteTrash: (id: number) => apiFetch<{ success: boolean }>(`/trash/${id}`, { method: 'DELETE' }),
+
+  // Spreadsheets
+  exportCsv: async (kind: CsvKind): Promise<Blob> => {
+    const token = getToken();
+    const res = await fetch(`${API_BASE}/csv/${kind}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    if (!res.ok) throw new Error('Request failed');
+    return res.blob();
+  },
+  importCsv: (kind: CsvKind, csv: string, dryRun: boolean) =>
+    apiFetch<CsvImportResult>(`/csv/${kind}/import`, { method: 'POST', body: JSON.stringify({ csv, dryRun }) }),
 
   getVacationConfig: () =>
     apiFetch<{ vacationMode: boolean; vacationStartDate: string | null; vacationEndDate: string | null }>('/users/vacation-config'),

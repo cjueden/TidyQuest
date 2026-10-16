@@ -409,4 +409,56 @@ router.delete('/:id', (req: AuthRequest, res: Response) => {
   res.json({ success: true });
 });
 
+// Duplicate a room with its tasks (settings and assignees, no history), e.g. copy one kid's quest room
+// for the other. When a new owner is given and the room has one, the old owner's assignments go to them.
+router.post('/:id/duplicate', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const room = db.prepare('SELECT * FROM rooms WHERE id = ?').get(req.params.id) as any;
+  if (!room) return res.status(404).json({ error: 'Room not found' });
+  const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
+  if (!name) return res.status(400).json({ error: 'name is required' });
+  // ownerUserId left out: same owner as the original; null: no owner; a user id: that person
+  const newOwnerGiven = req.body?.ownerUserId != null;
+  const ownerUserId: number | null = 'ownerUserId' in (req.body || {})
+    ? (newOwnerGiven ? Number(req.body.ownerUserId) : null)
+    : room.assignedUserId ?? null;
+  if (ownerUserId !== null && !db.prepare('SELECT 1 FROM users WHERE id = ?').get(ownerUserId)) {
+    return res.status(400).json({ error: 'Owner not found' });
+  }
+  const swapFrom: number | null = newOwnerGiven && room.assignedUserId ? room.assignedUserId : null;
+
+  const newRoomId = db.transaction(() => {
+    const id = Number(db.prepare(
+      'INSERT INTO rooms (name, roomType, color, accentColor, photoUrl, sortOrder, assignedUserId, zoneId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(name, room.roomType, room.color, room.accentColor, room.photoUrl ?? null, room.sortOrder, ownerUserId, room.zoneId ?? null).lastInsertRowid);
+    const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? ORDER BY id').all(room.id) as any[];
+    // Every setting column is copied (so newer ones like schedules and repeat limits come along);
+    // history and whose turn it is start fresh
+    const fresh = ['id', 'roomId', 'lastCompletedAt', 'createdAt', 'rotationCurrentUserId'];
+    const cols = (db.prepare('PRAGMA table_info(tasks)').all() as { name: string }[]).map((c) => c.name).filter((c) => !fresh.includes(c));
+    const insertTask = db.prepare(`INSERT INTO tasks (roomId, ${cols.join(', ')}) VALUES (?, ${cols.map(() => '?').join(', ')})`);
+    const insertAssignee = db.prepare('INSERT OR IGNORE INTO task_assignees (taskId, userId, coinPercentage) VALUES (?, ?, ?)');
+    for (const t of tasks) {
+      const values = cols.map((c) => (c === 'assignedUserId' && swapFrom !== null && t[c] === swapFrom ? ownerUserId : t[c]));
+      const taskId = Number(insertTask.run(id, ...values).lastInsertRowid);
+      const assignees = db.prepare('SELECT userId, coinPercentage FROM task_assignees WHERE taskId = ? ORDER BY userId').all(t.id) as { userId: number; coinPercentage: number }[];
+      const userIds: number[] = [];
+      for (const a of assignees) {
+        const userId = swapFrom !== null && a.userId === swapFrom ? ownerUserId! : a.userId;
+        insertAssignee.run(taskId, userId, a.coinPercentage);
+        if (!userIds.includes(userId)) userIds.push(userId);
+      }
+      // Rotations start again from the first person
+      if (t.assignmentMode === 'rotating' && userIds.length > 0) {
+        db.prepare('UPDATE tasks SET rotationCurrentUserId = ? WHERE id = ?').run(Math.min(...userIds), taskId);
+      }
+    }
+    return id;
+  })();
+
+  const created = db.prepare('SELECT * FROM rooms WHERE id = ?').get(newRoomId) as any;
+  const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ?').all(newRoomId);
+  res.status(201).json({ ...created, tasks });
+});
+
 export default router;

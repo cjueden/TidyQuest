@@ -16,6 +16,8 @@ import rewardsRoutes from './routes/rewards';
 import { sendDueTaskNotificationsIfNeeded } from './utils/notifications';
 import { sendCoinBoostNotificationsIfNeeded } from './utils/boosts';
 import boostsRoutes from './routes/boosts';
+import csvRoutes from './routes/csv';
+import trashRoutes from './routes/trash';
 
 export function createApp() {
   const app = express();
@@ -51,6 +53,8 @@ export function createApp() {
   app.use('/api/achievements', achievementsRoutes);
   app.use('/api/rewards', rewardsRoutes);
   app.use('/api/boosts', boostsRoutes);
+  app.use('/api/csv', csvRoutes);
+  app.use('/api/trash', trashRoutes);
 
   // 404 handler for unknown API routes
   app.use('/api/*', (_req, res) => {

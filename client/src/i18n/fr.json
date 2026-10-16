@@ -589,7 +589,8 @@
       "you": "vous",
       "showMore": "Afficher {n} de plus",
       "showLess": "Afficher moins",
-      "error": "Une erreur s'est produite"
+      "error": "Une erreur s'est produite",
+      "close": "Fermer"
     },
     "units": {
       "hours": "heures",
@@ -889,6 +890,81 @@
       "turnChanges": "Le tour change",
       "turnEachTime": "après chaque réalisation",
       "turnWeekly": "chaque lundi"
+    },
+    "trash": {
+      "undo": "Annuler",
+      "deleted": "« {name} » supprimé",
+      "deletedMany": "{n} tâches supprimées",
+      "title": "Supprimés récemment",
+      "desc": "Les tâches et récompenses supprimées restent ici {n} jours, avec leur historique.",
+      "empty": "Rien ici.",
+      "reward": "Récompense",
+      "history": "{n} dans l'historique",
+      "restoreInto": "Restaurer dans",
+      "roomGone": "Sa pièce a été supprimée ; choisissez-en une autre",
+      "restoreIntoRoom": "Dans {room}",
+      "restore": "Restaurer",
+      "deleteForever": "Supprimer définitivement",
+      "deleteForeverConfirm": "Supprimer « {name} » définitivement ? C'est irréversible."
+    },
+    "bulk": {
+      "select": "Sélectionner",
+      "finish": "Terminé",
+      "selectAll": "Tout sélectionner ({n})",
+      "clear": "Effacer la sélection",
+      "selected": "{n} sélectionnées",
+      "change": "Modifier…",
+      "assign": "Qui s'en charge",
+      "room": "Déplacer vers la pièce",
+      "every": "Fréquence (jours)",
+      "coinsDefault": "Selon l'effort",
+      "apply": "Appliquer",
+      "deleteConfirm": "Supprimer {n} tâches ? Vous pourrez les restaurer pendant 30 jours depuis Paramètres → Supprimés récemment.",
+      "updated": "{n} tâches mises à jour",
+      "yes": "Oui",
+      "no": "Non",
+      "updatedOne": "1 tâche mise à jour",
+      "deleteConfirmOne": "Supprimer cette tâche ? Vous pourrez la restaurer pendant 30 jours depuis Paramètres → Supprimés récemment."
+    },
+    "csv": {
+      "title": "Tableurs",
+      "desc": "Téléchargez les tâches ou les récompenses, modifiez-les dans un tableur, puis rechargez le fichier. Un aperçu s'affiche d'abord ; rien n'est jamais supprimé.",
+      "exportTasks": "Télécharger les tâches",
+      "exportRewards": "Télécharger les récompenses",
+      "importTasks": "Charger des tâches",
+      "importRewards": "Charger des récompenses",
+      "applied": "Enregistré : {add} ajoutées, {update} modifiées.",
+      "previewOf": "Aperçu de {file}",
+      "add": "{n} nouvelles",
+      "update": "{n} modifiées",
+      "unchanged": "{n} identiques",
+      "errors": "{n} avec des problèmes",
+      "newRooms": "Nouvelles pièces : {rooms}",
+      "ignoredColumns": "Colonnes non utilisées : {cols}",
+      "line": "Ligne {n}",
+      "addNewRoom": "nouvelle, dans une nouvelle pièce",
+      "addRow": "nouvelle",
+      "apply": "Appliquer les changements ({n})",
+      "errorsSkipped": "Les lignes avec des problèmes sont ignorées."
+    },
+    "rewardOrder": {
+      "up": "Monter",
+      "down": "Descendre",
+      "category": "Catégorie",
+      "categoryPlaceholder": "ex. Friandises, Grands objectifs",
+      "featured": "À la une",
+      "all": "Toutes",
+      "other": "Autres"
+    },
+    "duplicateRoom": {
+      "button": "Dupliquer la pièce",
+      "title": "Dupliquer cette pièce",
+      "desc": "Copie chaque tâche avec ses réglages et qui s'en charge. L'historique n'est pas copié : tout commence à faire.",
+      "copyName": "{name} (copie)",
+      "owner": "Propriétaire",
+      "sameOwner": "Même propriétaire ({name})",
+      "noOwner": "Aucun propriétaire",
+      "create": "Créer la copie"
     }
   }
 }

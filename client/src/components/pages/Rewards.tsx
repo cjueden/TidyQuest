@@ -6,8 +6,12 @@ import { useTranslation } from '../../hooks/useTranslation';
 import type { RewardAvailability, RewardPot } from '../../hooks/useApi';
 import { formatCoins } from '../../utils/format';
 import { localeFor } from '../../utils/locale';
+import { byFeatured } from '../../utils/rewardRules';
 
 interface Reward {
+  category?: string | null;
+  /** The parents' "Featured" order (0 = not placed) */
+  sortOrder?: number;
   id: number;
   title: string;
   description?: string | null;
@@ -101,7 +105,9 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
   // Search opens this page with ?q=<reward title> to show that reward
   const [query, setQuery] = useState(() => searchParams.get('q') || '');
   const [affordableOnly, setAffordableOnly] = useState(false);
-  const [sort, setSort] = useState<'priceLow' | 'priceHigh' | 'name'>('priceLow');
+  // '' = the default: Featured when the parents have ordered rewards, else cheapest first
+  const [sortChoice, setSortChoice] = useState<'' | 'featured' | 'priceLow' | 'priceHigh' | 'name'>('');
+  const [category, setCategory] = useState<string | null>(null);
 
   const pendingReward = useMemo(() => rewards.find((r) => r.id === pendingRewardId) || null, [pendingRewardId, rewards]);
 
@@ -132,11 +138,21 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
     return r.description || t('rewards.noDescription');
   };
 
+  const hasFeatured = rewards.some((r) => (r.sortOrder ?? 0) > 0);
+  const sort = sortChoice || (hasFeatured ? 'featured' : 'priceLow');
+  const categories = [...new Set(rewards.map((r) => r.category).filter((c): c is string => !!c))].sort((a, b) => a.localeCompare(b));
+  const hasUncategorized = categories.length > 0 && rewards.some((r) => !r.category);
   const visibleRewards = rewards
-    .filter((r) => (!affordableOnly || userCoins >= r.costCoins) && matchesQuery(query, [rewardTitle(r), rewardDesc(r)]))
-    .sort((a, b) => sort === 'name'
-      ? rewardTitle(a).localeCompare(rewardTitle(b))
+    .filter((r) => (!affordableOnly || userCoins >= r.costCoins) && matchesQuery(query, [rewardTitle(r), rewardDesc(r), r.category]))
+    .filter((r) => category === null || (category === '' ? !r.category : r.category === category))
+    .sort((a, b) => sort === 'featured' ? byFeatured(a, b)
+      : sort === 'name' ? rewardTitle(a).localeCompare(rewardTitle(b))
       : (sort === 'priceHigh' ? b.costCoins - a.costCoins : a.costCoins - b.costCoins));
+  const chipStyle = (on: boolean): CSSProperties => ({
+    padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 800, fontFamily: 'Nunito', cursor: 'pointer',
+    border: `1.5px solid ${on ? 'var(--warm-accent)' : 'var(--warm-border)'}`,
+    backgroundColor: on ? 'var(--warm-accent-light)' : 'var(--warm-bg-input)', color: on ? 'var(--warm-accent)' : 'var(--warm-text-muted)',
+  });
 
   const confirmRedeem = async () => {
     if (!pendingReward) return;
@@ -241,8 +257,9 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
             aria-label={t('rewards.searchPlaceholder')}
             style={{ flex: '2 1 220px', minWidth: 0 }}
           />
-          <select className="tq-input-compact" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}
+          <select className="tq-input-compact" value={sort} onChange={(e) => setSortChoice(e.target.value as typeof sortChoice)}
             style={{ flex: '1 1 150px', padding: '8px 10px', fontSize: 13, cursor: 'pointer', minWidth: 0 }}>
+            {hasFeatured && <option value="featured">{t('rewardOrder.featured')}</option>}
             <option value="priceLow">{t('rewards.sortPriceLow')}</option>
             <option value="priceHigh">{t('rewards.sortPriceHigh')}</option>
             <option value="name">{t('rewards.sortName')}</option>
@@ -253,6 +270,13 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
             {t('rewards.canAfford')}
           </label>
         </div>
+        {categories.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }} role="group" aria-label={t('rewardOrder.category')}>
+            <button type="button" style={chipStyle(category === null)} onClick={() => setCategory(null)}>{t('rewardOrder.all')}</button>
+            {categories.map((c) => <button type="button" key={c} style={chipStyle(category === c)} onClick={() => setCategory(c)}>{c}</button>)}
+            {hasUncategorized && <button type="button" style={chipStyle(category === '')} onClick={() => setCategory('')}>{t('rewardOrder.other')}</button>}
+          </div>
+        )}
         {visibleRewards.length === 0 && (
           <div className="tq-empty-state" style={{ padding: '16px 4px' }}>{t('rewards.noMatches')}</div>
         )}

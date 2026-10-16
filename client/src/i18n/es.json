@@ -589,7 +589,8 @@
       "you": "tú",
       "showMore": "Mostrar {n} más",
       "showLess": "Mostrar menos",
-      "error": "Algo salió mal"
+      "error": "Algo salió mal",
+      "close": "Cerrar"
     },
     "units": {
       "hours": "horas",
@@ -889,6 +890,81 @@
       "turnChanges": "El turno cambia",
       "turnEachTime": "tras cada vez",
       "turnWeekly": "cada lunes"
+    },
+    "trash": {
+      "undo": "Deshacer",
+      "deleted": "«{name}» eliminado",
+      "deletedMany": "{n} tareas eliminadas",
+      "title": "Eliminados recientemente",
+      "desc": "Las tareas y recompensas eliminadas se quedan aquí {n} días, con su historial.",
+      "empty": "No hay nada.",
+      "reward": "Recompensa",
+      "history": "{n} en el historial",
+      "restoreInto": "Restaurar en",
+      "roomGone": "Su habitación se eliminó; elige otra",
+      "restoreIntoRoom": "En {room}",
+      "restore": "Restaurar",
+      "deleteForever": "Eliminar para siempre",
+      "deleteForeverConfirm": "¿Eliminar «{name}» para siempre? No se puede deshacer."
+    },
+    "bulk": {
+      "select": "Seleccionar",
+      "finish": "Listo",
+      "selectAll": "Seleccionar todo ({n})",
+      "clear": "Quitar selección",
+      "selected": "{n} seleccionadas",
+      "change": "Cambiar…",
+      "assign": "Quién la hace",
+      "room": "Mover a la habitación",
+      "every": "Frecuencia (días)",
+      "coinsDefault": "Según el esfuerzo",
+      "apply": "Aplicar",
+      "deleteConfirm": "¿Eliminar {n} tareas? Puedes restaurarlas durante 30 días en Ajustes → Eliminados recientemente.",
+      "updated": "{n} tareas actualizadas",
+      "yes": "Sí",
+      "no": "No",
+      "updatedOne": "1 tarea actualizada",
+      "deleteConfirmOne": "¿Eliminar esta tarea? Puedes restaurarla durante 30 días en Ajustes → Eliminados recientemente."
+    },
+    "csv": {
+      "title": "Hojas de cálculo",
+      "desc": "Descarga las tareas o recompensas, edítalas en cualquier hoja de cálculo y vuelve a cargar el archivo. Primero verás una vista previa; nunca se elimina nada.",
+      "exportTasks": "Descargar tareas",
+      "exportRewards": "Descargar recompensas",
+      "importTasks": "Cargar tareas",
+      "importRewards": "Cargar recompensas",
+      "applied": "Guardado: {add} añadidas, {update} cambiadas.",
+      "previewOf": "Vista previa de {file}",
+      "add": "{n} nuevas",
+      "update": "{n} cambiadas",
+      "unchanged": "{n} iguales",
+      "errors": "{n} con problemas",
+      "newRooms": "Habitaciones nuevas: {rooms}",
+      "ignoredColumns": "Columnas no usadas: {cols}",
+      "line": "Línea {n}",
+      "addNewRoom": "nueva, en una habitación nueva",
+      "addRow": "nueva",
+      "apply": "Aplicar cambios ({n})",
+      "errorsSkipped": "Las filas con problemas se omiten."
+    },
+    "rewardOrder": {
+      "up": "Subir",
+      "down": "Bajar",
+      "category": "Categoría",
+      "categoryPlaceholder": "p. ej. Caprichos, Grandes metas",
+      "featured": "Destacadas",
+      "all": "Todas",
+      "other": "Otras"
+    },
+    "duplicateRoom": {
+      "button": "Duplicar habitación",
+      "title": "Duplicar esta habitación",
+      "desc": "Copia cada tarea con sus ajustes y quién la hace. El historial no se copia, así que todo empieza pendiente.",
+      "copyName": "{name} (copia)",
+      "owner": "Dueño",
+      "sameOwner": "Mismo dueño ({name})",
+      "noOwner": "Sin dueño",
+      "create": "Crear copia"
     }
   }
 }

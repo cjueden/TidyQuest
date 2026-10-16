@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HealthBar } from '../shared/HealthBar';
 import { RingGauge } from '../shared/RingGauge';
@@ -14,6 +14,8 @@ import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { ProofModal, type Proof } from '../shared/ProofModal';
+import { UndoToast, type UndoState } from '../shared/UndoToast';
+import { DuplicateRoom } from '../shared/DuplicateRoom';
 
 const FREQ_UNITS = [
   { label: 'hours', toDays: 1 / 24 },
@@ -101,6 +103,8 @@ interface RoomDetailProps {
   strictMode?: boolean;
   onBack: () => void;
   onRefresh?: () => void;
+  /** Go to another room (after duplicating this one) */
+  onOpenRoom?: (roomId: number) => void;
   onAchievementsUnlocked?: (ids: string[]) => void;
   /** Task to scroll to and briefly highlight (from search or the task list) */
   focusTaskId?: number;
@@ -151,7 +155,7 @@ function EffortPicker({ effort, onChange }: { effort: number; onChange: (e: numb
   );
 }
 
-export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
+export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onOpenRoom, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const [editingTask, setEditingTask] = useState<number | null>(null);
@@ -183,6 +187,9 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const focusedOnce = useRef<number | null>(null);
   const [proofTask, setProofTask] = useState<Task | null>(null);
   const canAddProof = !!strictMode && currentUserRole === 'child';
+  const [undo, setUndo] = useState<UndoState | null>(null);
+  const [showDuplicate, setShowDuplicate] = useState(false);
+  const closeUndo = useCallback(() => setUndo(null), []);
 
   // Opened from search or the task list: bring that task into view and flash it once
   useEffect(() => {
@@ -387,9 +394,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
 
   const deleteTask = async (taskId: number) => {
     if (!window.confirm(t('roomDetail.deleteTaskConfirm'))) return;
-    await api.deleteTask(taskId);
+    const task = room.tasks.find((x) => x.id === taskId);
+    const { trashId } = await api.deleteTask(taskId);
     setEditingTask(null);
     onRefresh?.();
+    if (trashId) setUndo({ trashIds: [trashId], message: t('trash.deleted').replace('{name}', task ? translateTask(task.name, task.translationKey) : '') });
   };
 
   const handleDuplicateTask = async (taskId: number) => {
@@ -478,10 +487,23 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
           <h2 style={{ fontSize: 24, fontWeight: 900, color: 'var(--warm-text)', margin: '0 0 4px' }}>{roomDisplayName(room.name, room.roomType)}</h2>
           <div style={{ fontSize: 13, color: 'var(--warm-text-muted)', fontWeight: 600 }}>{room.tasks.length} {t('rooms.tasksTracked')}</div>
         </div>
-        <button onClick={onBack} className="tq-btn tq-btn-secondary tq-btn-md">
-          <BackIcon /> {t('rooms.backToRooms')}
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignSelf: 'stretch', justifyContent: 'center' }}>
+          <button onClick={onBack} className="tq-btn tq-btn-secondary tq-btn-md">
+            <BackIcon /> {t('rooms.backToRooms')}
+          </button>
+          {isAdmin && (
+            <button onClick={() => setShowDuplicate((v) => !v)} className="tq-btn tq-btn-secondary tq-btn-sm">
+              {t('duplicateRoom.button')}
+            </button>
+          )}
+        </div>
       </div>
+
+      {isAdmin && showDuplicate && (
+        <DuplicateRoom room={room} displayName={roomDisplayName(room.name, room.roomType)} users={users || []} language={language}
+          onCancel={() => setShowDuplicate(false)}
+          onDone={(id) => { setShowDuplicate(false); onRefresh?.(); onOpenRoom?.(id); }} />
+      )}
 
       {/* Task Table */}
       <div className="tq-card tq-card-padded">
@@ -1288,6 +1310,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
         </div>
       </div>
     )}
+    <UndoToast undo={undo} language={language} onClose={closeUndo} onRestored={() => onRefresh?.()} />
     </>
   );
 }

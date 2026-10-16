@@ -477,6 +477,8 @@ function AppContent() {
                 loading={!roomsLoaded}
                 taskView={user.taskView}
                 kidMode={user.kidMode}
+                isAdmin={user.role === 'admin'}
+                onRefresh={() => { refreshRooms(); loadDashboard(); }}
                 onOpenTask={(roomId, taskId) => navigate(`/rooms/${roomId}?task=${taskId}`)}
               />
             </>
@@ -575,6 +577,7 @@ function AppContent() {
                 onExport={handleExport}
                 onImport={handleImport}
                 rooms={rooms}
+                onDataChanged={() => { refreshRooms(); loadDashboard(); }}
                 onAdjustCoins={async (userId: number, amount: number, reason?: string) => {
                   await api.adjustCoins(userId, amount, reason);
                   setFamilySettings(await api.getUsers());
@@ -663,7 +666,7 @@ function RoomDetailWrapper({ rooms, roomsLoaded, strictMode, user, users, coinsB
   return (
     <>
       <PageHeader title={roomDisplayName(room.name, room.roomType)} subtitle={`${room.tasks?.length || 0} ${t('rooms.tasksTracked')}`} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} gamificationEnabled={gamificationEnabled} />
-      <RoomDetail room={room} language={user?.language} isAdmin={user?.role === 'admin'} currentUserId={user?.id} currentUserRole={user?.role} users={users} coinsByEffort={coinsByEffort} onCompleteTask={onCompleteTask} onBack={() => navigate('/rooms')} focusTaskId={focusTaskId} strictMode={strictMode} onlyMine={user?.taskView === 'mineOnly' || !!user?.kidMode} onRefresh={onRefresh} onAchievementsUnlocked={onAchievementsUnlocked} />
+      <RoomDetail room={room} language={user?.language} isAdmin={user?.role === 'admin'} currentUserId={user?.id} currentUserRole={user?.role} users={users} coinsByEffort={coinsByEffort} onCompleteTask={onCompleteTask} onBack={() => navigate('/rooms')} onOpenRoom={(id) => navigate(`/rooms/${id}`)} focusTaskId={focusTaskId} strictMode={strictMode} onlyMine={user?.taskView === 'mineOnly' || !!user?.kidMode} onRefresh={onRefresh} onAchievementsUnlocked={onAchievementsUnlocked} />
     </>
   );
 }

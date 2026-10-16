@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { UserAvatar } from '../shared/UserAvatar';
 import { EffortDots } from '../shared/EffortDots';
 import { Toggle } from '../shared/Toggle';
@@ -6,7 +6,10 @@ import { PendingApprovals } from '../shared/PendingApprovals';
 import { RewardRulesEditor } from '../shared/RewardRulesEditor';
 import { CoinBoostsAdmin } from '../shared/CoinBoostsAdmin';
 import { GoalRow } from '../shared/GoalRow';
-import { rulesSummary } from '../../utils/rewardRules';
+import { TrashAdmin } from '../shared/TrashAdmin';
+import { CsvTransfer } from '../shared/CsvTransfer';
+import { UndoToast, type UndoState } from '../shared/UndoToast';
+import { byFeatured, rulesSummary } from '../../utils/rewardRules';
 import { formatCoins } from '../../utils/format';
 import { BellIcon, DownloadIcon, UploadIcon, LockIcon, CoinIcon } from '../icons/UIIcons';
 import { AVATAR_PRESETS } from '../icons/AvatarPresets';
@@ -79,6 +82,8 @@ interface SettingsProps {
   onAdjustCoins?: (userId: number, amount: number, reason?: string) => Promise<void>;
   gamificationEnabled?: boolean;
   onGamificationChange?: (enabled: boolean) => void;
+  /** Tasks or rooms changed here (spreadsheet import, restore from the trash): reload them */
+  onDataChanged?: () => void;
 }
 
 const COLORS = ['#F97316', '#9B72CF', '#4AABDE', '#5CB85C', '#D4A017', '#E25A5A', '#38BDF8', '#EC4899'];
@@ -104,6 +109,7 @@ export function Settings({
   rooms = [],
   gamificationEnabled = true,
   onGamificationChange,
+  onDataChanged,
 }: SettingsProps) {
   const { t } = useTranslation(user.language);
   const isAdmin = user.role === 'admin';
@@ -121,12 +127,16 @@ export function Settings({
   const [rotatingPerWeek, setRotatingPerWeek] = useState('3');
   const [coinReason, setCoinReason] = useState<Record<number, string>>({});
   const [goalDraft, setGoalDraft] = useState<Record<number, { title: string; goalCoins: string; rewardCoins: string; endAt: string }>>({});
-  const [rewardsAdmin, setRewardsAdmin] = useState<Array<{ id: number; title: string; description?: string | null; costCoins: number; isActive?: boolean; isPreset?: boolean } & Partial<RewardRules>>>([]);
+  const [rewardsAdmin, setRewardsAdmin] = useState<Array<{ id: number; title: string; description?: string | null; costCoins: number; isActive?: boolean; isPreset?: boolean; category?: string | null; sortOrder?: number } & Partial<RewardRules>>>([]);
   const [rewardRequests, setRewardRequests] = useState<Array<{ id: number; title: string; displayName: string; costCoins: number; redeemedAt: string; status: string }>>([]);
   const [rewardDraft, setRewardDraft] = useState({ title: '', description: '', costCoins: '30' });
   const [editingRewardId, setEditingRewardId] = useState<number | null>(null);
   const [editingRewardTitle, setEditingRewardTitle] = useState('');
   const [editingRewardDesc, setEditingRewardDesc] = useState('');
+  const [editingRewardCategory, setEditingRewardCategory] = useState('');
+  const [undo, setUndo] = useState<UndoState | null>(null);
+  const closeUndo = useCallback(() => setUndo(null), []);
+  const [trashVersion, setTrashVersion] = useState(0);
   const [editingRewardCost, setEditingRewardCost] = useState('');
   const [memberProfile, setMemberProfile] = useState<Record<number, {
     language: string;
@@ -399,11 +409,31 @@ export function Settings({
     await loadRewardsAdmin();
   };
 
-  const startRewardEdit = (r: { id: number; title: string; description?: string | null; costCoins: number }) => {
+  const startRewardEdit = (r: { id: number; title: string; description?: string | null; costCoins: number; category?: string | null }) => {
     setEditingRewardId(r.id);
+    setEditingRewardCategory(r.category ?? '');
     setEditingRewardTitle(r.title);
     setEditingRewardDesc(r.description || '');
     setEditingRewardCost(String(r.costCoins));
+  };
+
+  // The admin list in the "Featured" order kids see first; ↑/↓ swaps neighbours and saves the whole order
+  const orderedRewards = [...rewardsAdmin].sort((a, b) => Number(b.isActive !== false) - Number(a.isActive !== false) || byFeatured(a, b));
+  const moveReward = async (id: number, step: -1 | 1) => {
+    const ids = orderedRewards.map((r) => r.id);
+    const i = ids.indexOf(id);
+    const j = i + step;
+    if (i < 0 || j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    await api.orderRewards(ids);
+    await loadRewardsAdmin();
+  };
+  const rewardCategories = [...new Set(rewardsAdmin.map((r) => r.category).filter((c): c is string => !!c))].sort();
+  const deleteReward = async (r: { id: number; title: string }) => {
+    const { trashId } = await api.deleteReward(r.id);
+    await loadRewardsAdmin();
+    setTrashVersion((v) => v + 1);
+    if (trashId) setUndo({ trashIds: [trashId], message: t('trash.deleted').replace('{name}', rewardTitle(r)) });
   };
 
   const cancelRewardEdit = () => {
@@ -413,7 +443,7 @@ export function Settings({
     setEditingRewardCost('');
   };
 
-  const saveRewardEdit = async (r: { id: number; isActive?: boolean }) => {
+  const saveRewardEdit = async (r: { id: number; isActive?: boolean; category?: string | null }) => {
     const parsed = Math.max(1, Math.round(Number(editingRewardCost)));
     if (!Number.isFinite(parsed)) return;
     if (!editingRewardTitle.trim()) return;
@@ -423,6 +453,7 @@ export function Settings({
       costCoins: parsed,
       isActive: r.isActive !== false,
     });
+    if (editingRewardCategory.trim() !== (r.category ?? '')) await api.setRewardCategory(r.id, editingRewardCategory.trim());
     cancelRewardEdit();
     await loadRewardsAdmin();
   };
@@ -961,7 +992,7 @@ export function Settings({
             <button className="tq-btn tq-btn-sm" onClick={async () => { await api.updateRotationConfig(Math.max(0, Math.round(Number(rotatingPerWeek) || 0))); await loadRewardsAdmin(); }}>{t('common.save')}</button>
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
-            {rewardsAdmin.map((r) => (
+            {orderedRewards.map((r, index) => (
               <div key={r.id} className="rewards-list-row" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.4fr 100px auto', gap: 8, alignItems: 'center', border: '1px solid var(--warm-border)', borderRadius: 10, padding: '8px 10px', backgroundColor: r.isActive ? 'var(--warm-bg-subtle)' : 'var(--warm-bg-warm)' }}>
                 {editingRewardId === r.id ? (
                   <>
@@ -990,6 +1021,7 @@ export function Settings({
                   <>
                     <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)' }}>
                       {rewardTitle(r)}
+                      {r.category && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-muted)' }}>🏷 {r.category}</div>}
                       {rulesSummary(r, family, t) && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-accent)' }}>{rulesSummary(r, family, t)}</div>}
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{rewardDesc(r)}</div>
@@ -1017,10 +1049,19 @@ export function Settings({
                   </div>
                 ) : (
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    <button className="tq-btn" onClick={() => moveReward(r.id, -1)} disabled={index === 0} aria-label={t('rewardOrder.up')} title={t('rewardOrder.up')} style={{ padding: '4px 7px', fontSize: 10 }}>↑</button>
+                    <button className="tq-btn" onClick={() => moveReward(r.id, 1)} disabled={index === orderedRewards.length - 1} aria-label={t('rewardOrder.down')} title={t('rewardOrder.down')} style={{ padding: '4px 7px', fontSize: 10 }}>↓</button>
                     <button className="tq-btn" onClick={() => setRulesOpenId(rulesOpenId === r.id ? null : r.id)} style={{ padding: '4px 8px', fontSize: 10 }}>{t('rewardRules.rules')}</button>
                     <button className="tq-btn" onClick={() => startRewardEdit(r)} style={{ padding: '4px 8px', fontSize: 10 }}>{t('common.edit')}</button>
-                    <button className="tq-btn" onClick={async () => { await api.deleteReward(r.id); await loadRewardsAdmin(); }} style={{ padding: '4px 8px', fontSize: 10, backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}>{t('common.delete')}</button>
+                    <button className="tq-btn" onClick={() => deleteReward(r)} style={{ padding: '4px 8px', fontSize: 10, backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}>{t('common.delete')}</button>
                   </div>
+                )}
+                {editingRewardId === r.id && (
+                  <label style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>
+                    {t('rewardOrder.category')}
+                    <input className="tq-input-compact" list="reward-categories" value={editingRewardCategory} maxLength={40}
+                      onChange={(e) => setEditingRewardCategory(e.target.value)} placeholder={t('rewardOrder.categoryPlaceholder')} style={{ flex: 1, minWidth: 0 }} />
+                  </label>
                 )}
                 {rulesOpenId === r.id && (
                   <div style={{ gridColumn: '1 / -1' }}>
@@ -1030,6 +1071,7 @@ export function Settings({
               </div>
             ))}
           </div>
+          <datalist id="reward-categories">{rewardCategories.map((c) => <option key={c} value={c} />)}</datalist>
           <div style={{ marginTop: 14 }}>
             <h4 className="tq-card-title" style={{ fontSize: 13 }}>{t('settings.rewardRequests')}</h4>
             <div style={{ display: 'grid', gap: 6 }}>
@@ -1080,6 +1122,21 @@ export function Settings({
           </div>
         ))}
       </div>
+      )}
+
+      {isAdmin && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">{t('csv.title')}</h3>
+          <CsvTransfer language={user.language} onImported={() => { onDataChanged?.(); void loadRewardsAdmin(); }} />
+        </div>
+      )}
+
+      {isAdmin && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">{t('trash.title')}</h3>
+          <TrashAdmin rooms={rooms} language={user.language} reloadKey={trashVersion}
+            onRestored={() => { onDataChanged?.(); void loadRewardsAdmin(); }} />
+        </div>
       )}
 
       <div className="tq-card tq-card-padded settings-admin-card family-members-card" style={{ gridColumn: '1 / -1' }}>
@@ -1285,6 +1342,8 @@ export function Settings({
           ))}
         </div>
       </div>
+      <UndoToast undo={undo} language={user.language} onClose={closeUndo}
+        onRestored={async () => { await loadRewardsAdmin(); setTrashVersion((v) => v + 1); }} />
     </div>
   );
 }

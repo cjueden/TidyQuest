@@ -589,7 +589,8 @@
       "you": "Sie",
       "showMore": "{n} mehr anzeigen",
       "showLess": "Weniger anzeigen",
-      "error": "Etwas ist schiefgelaufen"
+      "error": "Etwas ist schiefgelaufen",
+      "close": "Schließen"
     },
     "units": {
       "hours": "Stunden",
@@ -889,6 +890,81 @@
       "turnChanges": "Wechsel",
       "turnEachTime": "nach jeder Erledigung",
       "turnWeekly": "jeden Montag"
+    },
+    "trash": {
+      "undo": "Rückgängig",
+      "deleted": "„{name}“ gelöscht",
+      "deletedMany": "{n} Aufgaben gelöscht",
+      "title": "Zuletzt gelöscht",
+      "desc": "Gelöschte Aufgaben und Belohnungen bleiben {n} Tage hier, mit ihrem Verlauf.",
+      "empty": "Nichts hier.",
+      "reward": "Belohnung",
+      "history": "{n} im Verlauf",
+      "restoreInto": "Wiederherstellen in",
+      "roomGone": "Der Raum wurde gelöscht; wähle einen anderen",
+      "restoreIntoRoom": "In {room}",
+      "restore": "Wiederherstellen",
+      "deleteForever": "Endgültig löschen",
+      "deleteForeverConfirm": "„{name}“ endgültig löschen? Das kann nicht rückgängig gemacht werden."
+    },
+    "bulk": {
+      "select": "Auswählen",
+      "finish": "Fertig",
+      "selectAll": "Alle auswählen ({n})",
+      "clear": "Auswahl aufheben",
+      "selected": "{n} ausgewählt",
+      "change": "Ändern…",
+      "assign": "Wer macht es",
+      "room": "In Raum verschieben",
+      "every": "Wie oft (Tage)",
+      "coinsDefault": "Nach Aufwand",
+      "apply": "Anwenden",
+      "deleteConfirm": "{n} Aufgaben löschen? Du kannst sie 30 Tage lang unter Einstellungen → Zuletzt gelöscht wiederherstellen.",
+      "updated": "{n} Aufgaben geändert",
+      "yes": "Ja",
+      "no": "Nein",
+      "updatedOne": "1 Aufgabe geändert",
+      "deleteConfirmOne": "Diese Aufgabe löschen? Du kannst sie 30 Tage lang unter Einstellungen → Zuletzt gelöscht wiederherstellen."
+    },
+    "csv": {
+      "title": "Tabellen",
+      "desc": "Lade Aufgaben oder Belohnungen herunter, bearbeite sie in einer Tabellen-App und lade die Datei wieder hoch. Zuerst siehst du eine Vorschau; es wird nie etwas gelöscht.",
+      "exportTasks": "Aufgaben herunterladen",
+      "exportRewards": "Belohnungen herunterladen",
+      "importTasks": "Aufgaben laden",
+      "importRewards": "Belohnungen laden",
+      "applied": "Gespeichert: {add} neu, {update} geändert.",
+      "previewOf": "Vorschau von {file}",
+      "add": "{n} neu",
+      "update": "{n} geändert",
+      "unchanged": "{n} gleich",
+      "errors": "{n} mit Problemen",
+      "newRooms": "Neue Räume: {rooms}",
+      "ignoredColumns": "Nicht verwendete Spalten: {cols}",
+      "line": "Zeile {n}",
+      "addNewRoom": "neu, in einem neuen Raum",
+      "addRow": "neu",
+      "apply": "Änderungen anwenden ({n})",
+      "errorsSkipped": "Zeilen mit Problemen werden übersprungen."
+    },
+    "rewardOrder": {
+      "up": "Nach oben",
+      "down": "Nach unten",
+      "category": "Kategorie",
+      "categoryPlaceholder": "z. B. Leckereien, Große Ziele",
+      "featured": "Empfohlen",
+      "all": "Alle",
+      "other": "Andere"
+    },
+    "duplicateRoom": {
+      "button": "Raum duplizieren",
+      "title": "Diesen Raum duplizieren",
+      "desc": "Kopiert jede Aufgabe mit ihren Einstellungen und wer sie macht. Der Verlauf wird nicht kopiert, daher ist alles zunächst fällig.",
+      "copyName": "{name} (Kopie)",
+      "owner": "Besitzer",
+      "sameOwner": "Gleicher Besitzer ({name})",
+      "noOwner": "Kein Besitzer",
+      "create": "Kopie erstellen"
     }
   }
 }

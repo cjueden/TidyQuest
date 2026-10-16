@@ -589,7 +589,8 @@
       "you": "Jij",
       "showMore": "Toon nog {n}",
       "showLess": "Minder tonen",
-      "error": "Er ging iets mis"
+      "error": "Er ging iets mis",
+      "close": "Sluiten"
     },
     "units": {
       "hours": "uur",
@@ -889,6 +890,81 @@
       "turnChanges": "Beurt wisselt",
       "turnEachTime": "na elke keer",
       "turnWeekly": "elke maandag"
+    },
+    "trash": {
+      "undo": "Ongedaan maken",
+      "deleted": "‘{name}’ verwijderd",
+      "deletedMany": "{n} taken verwijderd",
+      "title": "Onlangs verwijderd",
+      "desc": "Verwijderde taken en beloningen blijven hier {n} dagen staan, met hun geschiedenis.",
+      "empty": "Niets hier.",
+      "reward": "Beloning",
+      "history": "{n} in de geschiedenis",
+      "restoreInto": "Terugzetten in",
+      "roomGone": "De ruimte is verwijderd; kies een andere",
+      "restoreIntoRoom": "In {room}",
+      "restore": "Terugzetten",
+      "deleteForever": "Definitief verwijderen",
+      "deleteForeverConfirm": "‘{name}’ definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
+    },
+    "bulk": {
+      "select": "Selecteren",
+      "finish": "Klaar",
+      "selectAll": "Alles selecteren ({n})",
+      "clear": "Selectie wissen",
+      "selected": "{n} geselecteerd",
+      "change": "Wijzigen…",
+      "assign": "Wie doet het",
+      "room": "Naar ruimte verplaatsen",
+      "every": "Hoe vaak (dagen)",
+      "coinsDefault": "Volgens inspanning",
+      "apply": "Toepassen",
+      "deleteConfirm": "{n} taken verwijderen? Je kunt ze 30 dagen terugzetten via Instellingen → Onlangs verwijderd.",
+      "updated": "{n} taken bijgewerkt",
+      "yes": "Ja",
+      "no": "Nee",
+      "updatedOne": "1 taak bijgewerkt",
+      "deleteConfirmOne": "Deze taak verwijderen? Je kunt hem 30 dagen terugzetten via Instellingen → Onlangs verwijderd."
+    },
+    "csv": {
+      "title": "Spreadsheets",
+      "desc": "Download taken of beloningen, bewerk ze in een spreadsheet-app en laad het bestand weer in. Je ziet eerst een voorbeeld; er wordt nooit iets verwijderd.",
+      "exportTasks": "Taken downloaden",
+      "exportRewards": "Beloningen downloaden",
+      "importTasks": "Taken inladen",
+      "importRewards": "Beloningen inladen",
+      "applied": "Opgeslagen: {add} toegevoegd, {update} gewijzigd.",
+      "previewOf": "Voorbeeld van {file}",
+      "add": "{n} nieuw",
+      "update": "{n} gewijzigd",
+      "unchanged": "{n} hetzelfde",
+      "errors": "{n} met problemen",
+      "newRooms": "Nieuwe ruimtes: {rooms}",
+      "ignoredColumns": "Kolommen niet gebruikt: {cols}",
+      "line": "Regel {n}",
+      "addNewRoom": "nieuw, in een nieuwe ruimte",
+      "addRow": "nieuw",
+      "apply": "Wijzigingen toepassen ({n})",
+      "errorsSkipped": "Regels met problemen worden overgeslagen."
+    },
+    "rewardOrder": {
+      "up": "Omhoog",
+      "down": "Omlaag",
+      "category": "Categorie",
+      "categoryPlaceholder": "bijv. Lekkers, Grote doelen",
+      "featured": "Uitgelicht",
+      "all": "Alle",
+      "other": "Overig"
+    },
+    "duplicateRoom": {
+      "button": "Ruimte dupliceren",
+      "title": "Deze ruimte dupliceren",
+      "desc": "Kopieert elke taak met de instellingen en wie het doet. De geschiedenis wordt niet gekopieerd, dus alles begint als te doen.",
+      "copyName": "{name} (kopie)",
+      "owner": "Eigenaar",
+      "sameOwner": "Zelfde eigenaar ({name})",
+      "noOwner": "Geen eigenaar",
+      "create": "Kopie maken"
     }
   }
 }

@@ -60,6 +60,19 @@ const NEW_TABLES: string[] = [
     notifiedStart INTEGER NOT NULL DEFAULT 0,
     notifiedEnding INTEGER NOT NULL DEFAULT 0
   )`,
+  // Deleted tasks and rewards, kept for 30 days so they can be restored. snapshot is JSON: for a task
+  // { task, assignees, completions }, for a reward { reward, redemptions, visibility, prices, contributions }.
+  `CREATE TABLE IF NOT EXISTS trash (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kind TEXT NOT NULL,
+    itemId INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    roomId INTEGER,
+    roomName TEXT,
+    snapshot TEXT NOT NULL,
+    deletedBy INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    deletedAt TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
@@ -90,6 +103,9 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE tasks ADD COLUMN seasonEndMonth INTEGER`,
   `ALTER TABLE tasks ADD COLUMN scheduleWeekdays INTEGER`,
   `ALTER TABLE tasks ADD COLUMN rotationPeriod TEXT NOT NULL DEFAULT 'completion'`,
+  // Reward categories (free text) and the parents' manual order ("Featured"; 0 = not placed yet)
+  `ALTER TABLE rewards ADD COLUMN category TEXT`,
+  `ALTER TABLE rewards ADD COLUMN sortOrder INTEGER NOT NULL DEFAULT 0`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */
@@ -99,6 +115,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'rewardPrices', table: 'reward_prices' },
   { key: 'rewardContributions', table: 'reward_contributions' },
   { key: 'coinBoosts', table: 'coin_boosts' },
+  { key: 'trash', table: 'trash' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

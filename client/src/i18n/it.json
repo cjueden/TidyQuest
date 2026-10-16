@@ -589,7 +589,8 @@
       "you": "tu",
       "showMore": "Mostra altri {n}",
       "showLess": "Mostra meno",
-      "error": "Qualcosa è andato storto"
+      "error": "Qualcosa è andato storto",
+      "close": "Chiudi"
     },
     "units": {
       "hours": "ore",
@@ -889,6 +890,81 @@
       "turnChanges": "Il turno cambia",
       "turnEachTime": "dopo ogni completamento",
       "turnWeekly": "ogni lunedì"
+    },
+    "trash": {
+      "undo": "Annulla",
+      "deleted": "«{name}» eliminato",
+      "deletedMany": "{n} attività eliminate",
+      "title": "Eliminati di recente",
+      "desc": "Attività e premi eliminati restano qui per {n} giorni, con la loro cronologia.",
+      "empty": "Niente qui.",
+      "reward": "Premio",
+      "history": "{n} nella cronologia",
+      "restoreInto": "Ripristina in",
+      "roomGone": "La sua stanza è stata eliminata; scegline un'altra",
+      "restoreIntoRoom": "In {room}",
+      "restore": "Ripristina",
+      "deleteForever": "Elimina per sempre",
+      "deleteForeverConfirm": "Eliminare «{name}» per sempre? Non si può annullare."
+    },
+    "bulk": {
+      "select": "Seleziona",
+      "finish": "Fatto",
+      "selectAll": "Seleziona tutto ({n})",
+      "clear": "Annulla selezione",
+      "selected": "{n} selezionate",
+      "change": "Modifica…",
+      "assign": "Chi la fa",
+      "room": "Sposta nella stanza",
+      "every": "Frequenza (giorni)",
+      "coinsDefault": "In base all'impegno",
+      "apply": "Applica",
+      "deleteConfirm": "Eliminare {n} attività? Puoi ripristinarle per 30 giorni da Impostazioni → Eliminati di recente.",
+      "updated": "{n} attività aggiornate",
+      "yes": "Sì",
+      "no": "No",
+      "updatedOne": "1 attività aggiornata",
+      "deleteConfirmOne": "Eliminare questa attività? Puoi ripristinarla per 30 giorni da Impostazioni → Eliminati di recente."
+    },
+    "csv": {
+      "title": "Fogli di calcolo",
+      "desc": "Scarica attività o premi, modificali in qualsiasi foglio di calcolo e ricarica il file. Prima vedrai un'anteprima; non viene mai eliminato nulla.",
+      "exportTasks": "Scarica attività",
+      "exportRewards": "Scarica premi",
+      "importTasks": "Carica attività",
+      "importRewards": "Carica premi",
+      "applied": "Salvato: {add} aggiunte, {update} modificate.",
+      "previewOf": "Anteprima di {file}",
+      "add": "{n} nuove",
+      "update": "{n} modificate",
+      "unchanged": "{n} uguali",
+      "errors": "{n} con problemi",
+      "newRooms": "Nuove stanze: {rooms}",
+      "ignoredColumns": "Colonne non usate: {cols}",
+      "line": "Riga {n}",
+      "addNewRoom": "nuova, in una nuova stanza",
+      "addRow": "nuova",
+      "apply": "Applica modifiche ({n})",
+      "errorsSkipped": "Le righe con problemi vengono saltate."
+    },
+    "rewardOrder": {
+      "up": "Sposta su",
+      "down": "Sposta giù",
+      "category": "Categoria",
+      "categoryPlaceholder": "es. Golosità, Grandi obiettivi",
+      "featured": "In evidenza",
+      "all": "Tutti",
+      "other": "Altri"
+    },
+    "duplicateRoom": {
+      "button": "Duplica stanza",
+      "title": "Duplica questa stanza",
+      "desc": "Copia ogni attività con le sue impostazioni e chi la fa. La cronologia non viene copiata, quindi tutto parte da fare.",
+      "copyName": "{name} (copia)",
+      "owner": "Proprietario",
+      "sameOwner": "Stesso proprietario ({name})",
+      "noOwner": "Nessun proprietario",
+      "create": "Crea copia"
     }
   }
 }

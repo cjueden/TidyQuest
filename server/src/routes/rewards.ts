@@ -7,13 +7,14 @@ import {
   LIMIT_PERIODS, LIMIT_SCOPES, adminRulesFor, catalogFor, completePotIfFull, getRotatingPerWeek, getRules,
   isSharedRedemption, potFor, priceFor, refundContributions, refundOpenPot, rotatingThisWeek, unavailableReason,
 } from '../utils/rewardRules';
+import { trashReward } from '../utils/trash';
 
 const router = Router();
 router.use(authMiddleware);
 
 router.get('/', (req: AuthRequest, res: Response) => {
   const rewards = db.prepare(
-    'SELECT id, title, description, costCoins, isActive, isPreset, createdBy, createdAt FROM rewards WHERE isActive = 1 ORDER BY costCoins ASC, id ASC'
+    'SELECT id, title, description, costCoins, isActive, isPreset, createdBy, createdAt, category, sortOrder FROM rewards WHERE isActive = 1 ORDER BY costCoins ASC, id ASC'
   ).all();
   const mine = db.prepare(
     `SELECT rr.id, rr.rewardId, rr.userId, rr.costCoins, rr.redeemedAt, rr.status, r.title,
@@ -31,7 +32,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
 router.get('/admin', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
   const rewards = db.prepare(
-    'SELECT id, title, description, costCoins, isActive, isPreset, createdBy, createdAt FROM rewards ORDER BY isActive DESC, costCoins ASC, id ASC'
+    'SELECT id, title, description, costCoins, isActive, isPreset, createdBy, createdAt, category, sortOrder FROM rewards ORDER BY isActive DESC, costCoins ASC, id ASC'
   ).all();
   const redemptions = db.prepare(
     `SELECT rr.id, rr.rewardId, rr.userId, rr.costCoins, rr.redeemedAt, rr.status, r.title, u.displayName
@@ -281,11 +282,11 @@ router.delete('/:id', (req: AuthRequest, res: Response) => {
   const id = parseInt(req.params.id as string, 10);
   const reward = db.prepare('SELECT id FROM rewards WHERE id = ?').get(id) as any;
   if (!reward) return res.status(404).json({ error: 'Reward not found' });
-  db.transaction(() => {
-    refundOpenPot(id);
-    db.prepare('DELETE FROM rewards WHERE id = ?').run(id);
-  })();
-  res.json({ success: true });
+  // Coins already chipped into a shared pot go back first; then it goes to the trash with its
+  // redemptions and rules (restorable for 30 days)
+  refundOpenPot(id);
+  const trashId = trashReward(id, req.userId);
+  res.json({ success: true, trashId });
 });
 
 router.post('/:id/redeem', (req: AuthRequest, res: Response) => {
@@ -326,6 +327,28 @@ router.post('/:id/redeem', (req: AuthRequest, res: Response) => {
     );
   }
   res.json({ redemption, coins: user.coins });
+});
+
+// Category (free text, empty clears it) — set from the Settings "Categories & order" panel
+router.put('/:id/category', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const id = parseInt(req.params.id as string, 10);
+  if (!db.prepare('SELECT 1 FROM rewards WHERE id = ?').get(id)) return res.status(404).json({ error: 'Reward not found' });
+  const category = typeof req.body?.category === 'string' ? req.body.category.trim().slice(0, 40) : '';
+  db.prepare('UPDATE rewards SET category = ? WHERE id = ?').run(category || null, id);
+  res.json({ id, category: category || null });
+});
+
+// The manual ("Featured") order: ids listed first to last get sortOrder 1, 2, 3…; others keep theirs
+router.post('/order', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const ids = req.body?.ids;
+  if (!Array.isArray(ids) || ids.length === 0 || ids.length > 1000 || !ids.every((n) => Number.isInteger(n) && n > 0)) {
+    return res.status(400).json({ error: 'ids must be a non-empty array of reward ids' });
+  }
+  const set = db.prepare('UPDATE rewards SET sortOrder = ? WHERE id = ?');
+  db.transaction(() => ids.forEach((id: number, i: number) => set.run(i + 1, id)))();
+  res.json({ success: true });
 });
 
 export default router;

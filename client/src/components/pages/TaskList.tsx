@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TaskIcon } from '../icons/TaskIcons';
 import { CoinIcon } from '../icons/UIIcons';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
+import { BulkTaskBar } from '../shared/BulkTaskBar';
+import { UndoToast, type UndoState } from '../shared/UndoToast';
 import { formatNextDue, isTaskDue, isTaskForUser, matchesQuery, taskCoins, taskNextDue } from '../../utils/tasks';
 
 export interface ListTask {
@@ -54,6 +56,9 @@ interface TaskListProps {
   /** Set by a parent: starts on Mine, or is locked to Mine (Kid mode too) */
   taskView?: 'all' | 'mine' | 'mineOnly';
   kidMode?: number | boolean;
+  /** Parents can select tasks and change or delete them together */
+  isAdmin?: boolean;
+  onRefresh?: () => void;
   onOpenTask: (roomId: number, taskId: number) => void;
 }
 
@@ -66,7 +71,7 @@ function isOpenToAnyone(task: ListTask): boolean {
   return !(task.effectiveAssignedUserIds?.length) && !task.assignedToChildren;
 }
 
-export function TaskList({ rooms, users, currentUserId, coinsByEffort, language, gamificationEnabled = true, loading = false, taskView, kidMode, onOpenTask }: TaskListProps) {
+export function TaskList({ rooms, users, currentUserId, coinsByEffort, language, gamificationEnabled = true, loading = false, taskView, kidMode, isAdmin = false, onRefresh, onOpenTask }: TaskListProps) {
   const { t, taskName, roomDisplayName } = useTranslation(language);
   const [params, setParams] = useSearchParams();
   const q = params.get('q') || '';
@@ -77,6 +82,11 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
   const status = (params.get('status') || '') as Status;
   const sort = (params.get('sort') || 'due') as Sort;
   const [zones, setZones] = useState<Array<{ id: number; name: string }>>([]);
+  const [selecting, setSelecting] = useState(false);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [notice, setNotice] = useState('');
+  const [undo, setUndo] = useState<UndoState | null>(null);
+  const closeUndo = useCallback(() => setUndo(null), []);
 
   useEffect(() => {
     api.getZones().then(setZones).catch(() => setZones([]));
@@ -125,6 +135,16 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
       return (Number.isNaN(cmp) ? 0 : cmp) || a.name.localeCompare(b.name);
     });
   }, [rooms, q, person, roomFilter, status, sort, currentUserId, roleById, coinsByEffort, taskName, roomDisplayName]);
+
+  // Bulk edit: only tasks still in the list count (filters may have hidden some)
+  const shownIds = rows.map((r) => r.task.id);
+  const selectedIds = shownIds.filter((id) => selected.has(id));
+  const toggle = (id: number) => setSelected((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+  const stopSelecting = () => { setSelecting(false); setSelected(new Set()); setNotice(''); };
 
   // Room picker grouped by zone; rooms without a zone go last
   const roomGroups = useMemo(() => {
@@ -176,14 +196,27 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
             {gamificationEnabled && <option value="coins">{t('taskList.sortCoins')}</option>}
           </select>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>
-          <span>{loading ? '' : rows.length === 1 ? t('taskList.countOne') : t('taskList.count').replace('{n}', String(rows.length))}</span>
-          {hasFilters && (
-            <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => setParams(sort !== 'due' ? { sort } : {}, { replace: true })}>
-              {t('taskList.clear')}
-            </button>
-          )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>
+          <span style={{ flex: '1 0 auto' }}>{loading ? '' : rows.length === 1 ? t('taskList.countOne') : t('taskList.count').replace('{n}', String(rows.length))}</span>
+          <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {hasFilters && (
+              <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => setParams(sort !== 'due' ? { sort } : {}, { replace: true })}>
+                {t('taskList.clear')}
+              </button>
+            )}
+            {isAdmin && selecting && (
+              <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => setSelected(selectedIds.length === shownIds.length ? new Set() : new Set(shownIds))}>
+                {selectedIds.length === shownIds.length && shownIds.length > 0 ? t('bulk.clear') : t('bulk.selectAll').replace('{n}', String(shownIds.length))}
+              </button>
+            )}
+            {isAdmin && (
+              <button className={`tq-btn tq-btn-sm ${selecting ? 'tq-btn-primary' : 'tq-btn-secondary'}`} onClick={() => (selecting ? stopSelecting() : setSelecting(true))}>
+                {selecting ? t('bulk.finish') : t('bulk.select')}
+              </button>
+            )}
+          </span>
         </div>
+        {notice && <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--health-green)' }}>{notice}</div>}
       </div>
 
       <div className="tq-card tq-card-padded" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -197,16 +230,26 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
             ? { text: t('roomDetail.onDemand'), color: 'var(--warm-accent)' }
             : task.outOfSeason ? { text: t('schedule.offSeason'), color: 'var(--warm-text-light)' }
             : formatNextDue(task.lastCompletedAt, task.frequencyDays, t, language, task.health, task.nextDueAt);
+          const isSelected = selecting && selected.has(task.id);
           return (
             <button
               key={task.id}
-              onClick={() => onOpenTask(room.id, task.id)}
+              onClick={() => (selecting ? toggle(task.id) : onOpenTask(room.id, task.id))}
+              aria-pressed={selecting ? isSelected : undefined}
               style={{
                 display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', width: '100%', textAlign: 'left',
-                borderRadius: 16, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)',
+                borderRadius: 16, backgroundColor: isSelected ? 'var(--warm-accent-light)' : 'var(--warm-bg-subtle)',
+                border: `1.5px solid ${isSelected ? 'var(--warm-accent)' : 'var(--warm-border)'}`,
                 cursor: 'pointer', fontFamily: 'Nunito', color: 'inherit',
               }}
             >
+              {selecting && (
+                <span aria-hidden style={{
+                  width: 22, height: 22, borderRadius: 7, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: `2px solid ${isSelected ? 'var(--warm-accent)' : 'var(--warm-border)'}`,
+                  backgroundColor: isSelected ? 'var(--warm-accent)' : 'transparent', color: '#fff', fontSize: 13, fontWeight: 900,
+                }}>{isSelected ? '✓' : ''}</span>
+              )}
               <span style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: room.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${room.accentColor}44` }}>
                 <TaskIcon iconKey={task.iconKey} size={24} />
               </span>
@@ -229,6 +272,22 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
           );
         })}
       </div>
+      {isAdmin && selecting && selectedIds.length > 0 && (
+        <BulkTaskBar
+          ids={selectedIds}
+          people={people}
+          rooms={rooms.map((r) => ({ id: r.id, name: roomDisplayName(r.name, r.roomType) }))}
+          language={language}
+          onApplied={(n) => { setNotice(n === 1 ? t('bulk.updatedOne') : t('bulk.updated').replace('{n}', String(n))); onRefresh?.(); }}
+          onDeleted={(trashIds) => {
+            setSelected(new Set());
+            const only = trashIds.length === 1 ? rows.find((r) => r.task.id === selectedIds[0]) : undefined;
+            setUndo({ trashIds, message: only ? t('trash.deleted').replace('{name}', only.name) : t('trash.deletedMany').replace('{n}', String(trashIds.length)) });
+            onRefresh?.();
+          }}
+        />
+      )}
+      <UndoToast undo={undo} language={language} onClose={closeUndo} onRestored={() => onRefresh?.()} />
     </div>
   );
 }
