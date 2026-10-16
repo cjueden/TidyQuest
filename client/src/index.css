@@ -925,3 +925,12 @@ html[data-theme='night'] option {
   font-size: 16px !important;
 }
 
+/* Achievement pop-up: centred on phones, top-right on wider screens */
+@media (min-width: 769px) {
+  .achievement-toast {
+    left: auto !important;
+    right: 16px;
+    transform: none !important;
+  }
+}
+

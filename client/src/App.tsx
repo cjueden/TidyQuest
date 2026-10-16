@@ -23,6 +23,7 @@ import { Register } from './components/pages/Register';
 import { Achievements } from './components/pages/Achievements';
 import { Rewards } from './components/pages/Rewards';
 import { useTranslation } from './hooks/useTranslation';
+import { localeFor } from './utils/locale';
 
 function AppContent() {
   const { user, loading, login, register, logout, refreshUser } = useAuth();
@@ -306,8 +307,7 @@ function AppContent() {
     return <Login onLogin={login} onSwitchToRegister={() => setAuthView('register')} />;
   }
 
-  const localeMap: Record<string, string> = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT', nl: 'nl-NL' };
-  const today = new Date().toLocaleDateString(localeMap[user.language] || 'en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const today = new Date().toLocaleDateString(localeFor(user.language), { weekday: 'long', month: 'long', day: 'numeric' });
   const periods: Array<'all' | 'week' | 'month' | 'year'> = ['all', 'week', 'month', 'year'];
   const myPoints = pointsPeriod === 'all'
     ? (user.points ?? 0)
@@ -351,6 +351,7 @@ function AppContent() {
           achievementIds={unlockedAchievements}
           onDismiss={() => setUnlockedAchievements([])}
           language={user?.language}
+          titleKeys={Object.fromEntries(((achievementsData?.me?.achievements ?? []) as Array<{ id: string; titleKey?: string }>).filter((a) => a.titleKey).map((a) => [a.id, a.titleKey as string]))}
         />
       )}
 

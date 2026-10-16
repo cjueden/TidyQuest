@@ -1,4 +1,5 @@
 // Shared task helpers used by the room page, the task list and search.
+import { localeFor } from './locale';
 
 export function getNextDueDate(lastCompletedAt: string | null, frequencyDays: number): Date {
   if (!lastCompletedAt) return new Date();
@@ -40,8 +41,7 @@ export function formatNextDue(lastCompletedAt: string | null, frequencyDays: num
   const dueStart = new Date(nextDue.getFullYear(), nextDue.getMonth(), nextDue.getDate());
   const diffDays = Math.round((dueStart.getTime() - todayStart.getTime()) / (24 * 60 * 60 * 1000));
   if (diffDays <= 1) return { text: t('roomDetail.tomorrow'), color: 'var(--health-yellow)' };
-  const localeMap: Record<string, string> = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT' };
-  const locale = localeMap[language || 'en'] || 'en-US';
+  const locale = localeFor(language);
   const text = nextDue.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
   return { text, color: diffDays <= 7 ? 'var(--health-yellow)' : 'var(--health-green)' };
 }

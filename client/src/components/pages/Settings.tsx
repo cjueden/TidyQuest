@@ -16,6 +16,7 @@ import { AVATAR_PRESETS } from '../icons/AvatarPresets';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { User } from '../../hooks/useAuth';
 import { api, type RewardRules } from '../../hooks/useApi';
+import { localeFor } from '../../utils/locale';
 
 interface FamilyUser {
   id: number;
@@ -171,8 +172,7 @@ export function Settings({
   const [ntfyToken, setNtfyToken] = useState('');
   const [ntfyHasToken, setNtfyHasToken] = useState(false);
 
-  const localeMap: Record<string, string> = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT', nl: 'nl-NL' };
-  const locale = localeMap[user.language || 'en'] || 'en-US';
+  const locale = localeFor(user.language);
 
   const formatDate = (isoDate?: string | null): string => {
     if (!isoDate) return '-';

@@ -388,13 +388,14 @@ const Dashboard: React.FC<DashboardProps> = ({
           className="tq-card tq-card-padded dashboard-hero"
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'center',
             gap: 20,
             background: 'var(--warm-streak-bg)',
           }}
         >
           <RingGauge value={houseHealth} size={130} strokeWidth={11} />
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: '1 1 170px', minWidth: 0 }}>
           <button onClick={() => setShowCustomize(v => !v)} className="tq-btn tq-btn-secondary"
             style={{ float: 'right', fontSize: 11, padding: '5px 10px', marginBottom: 6 }}>
             ⚙ {t('dashboard.customise')}

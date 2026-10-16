@@ -3,6 +3,7 @@ import { TaskIcon } from '../icons/TaskIcons';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { isTaskForUser, taskNextDue } from '../../utils/tasks';
+import { localeFor } from '../../utils/locale';
 import { useTaskView } from '../../hooks/useTaskView';
 import { AllMineToggle } from '../shared/AllMineToggle';
 
@@ -51,8 +52,7 @@ const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
 export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps) {
   const { taskName, t, roomDisplayName } = useTranslation(language);
-  const localeMap: Record<string, string> = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT' };
-  const locale = localeMap[language || 'en'] || 'en-US';
+  const locale = localeFor(language);
   const today = new Date();
   const [view, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const [selected, setSelected] = useState<number | null>(today.getDate());
