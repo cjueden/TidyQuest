@@ -140,7 +140,8 @@
       "language": "Taal",
       "save": "Opslaan",
       "saved": "Opgeslagen!",
-      "logout": "Uitloggen"
+      "logout": "Uitloggen",
+      "themeDesc": "Jouw kleuren, op elk apparaat waarop je inlogt."
     },
     "settings": {
       "title": "Instellingen",
@@ -278,7 +279,11 @@
       "kidMode": "Kindermodus",
       "kidModeDesc": "Grotere knoppen, minder kaarten, munten en doel bovenaan.",
       "notificationTypeChoreApproval": "Klusje wacht op goedkeuring",
-      "notificationTypeCoinBoost": "Dubbele-muntenacties"
+      "notificationTypeCoinBoost": "Dubbele-muntenacties",
+      "themeMint": "Munt",
+      "themeGrape": "Druif",
+      "themeSunny": "Zonnig",
+      "themeOcean": "Oceaan (donker)"
     },
     "nav": {
       "home": "Home",

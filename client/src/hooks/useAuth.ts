@@ -18,6 +18,10 @@ export interface User {
   /** Set by a parent: 'all' | 'mine' (starts on Mine) | 'mineOnly' (locked) */
   taskView?: 'all' | 'mine' | 'mineOnly';
   kidMode?: number | boolean;
+  /** Their color theme (follows them to every device); null = the device's */
+  theme?: string | null;
+  /** 'MM-DD' */
+  birthday?: string | null;
 }
 
 export function useAuth() {

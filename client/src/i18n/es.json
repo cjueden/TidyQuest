@@ -140,7 +140,8 @@
       "language": "Idioma",
       "save": "Guardar",
       "saved": "Guardado",
-      "logout": "Cerrar sesión"
+      "logout": "Cerrar sesión",
+      "themeDesc": "Tus colores, en cada dispositivo donde inicies sesión."
     },
     "settings": {
       "title": "Ajustes",
@@ -278,7 +279,11 @@
       "kidMode": "Modo niño",
       "kidModeDesc": "Botones grandes, menos tarjetas, monedas y meta primero.",
       "notificationTypeChoreApproval": "Tarea esperando aprobación",
-      "notificationTypeCoinBoost": "Eventos de monedas dobles"
+      "notificationTypeCoinBoost": "Eventos de monedas dobles",
+      "themeMint": "Menta",
+      "themeGrape": "Uva",
+      "themeSunny": "Soleado",
+      "themeOcean": "Océano (oscuro)"
     },
     "nav": {
       "home": "Inicio",

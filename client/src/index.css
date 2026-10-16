@@ -147,6 +147,87 @@ html[data-theme='rose'] {
   --warm-primary-shadow: rgba(236, 72, 153, 0.25);
 }
 
+html[data-theme='mint'] {
+  --warm-bg: #F2FBF6;
+  --warm-card: #FFFFFF;
+  --warm-border: #D5EFE1;
+  --warm-border-subtle: #E3F5EB;
+  --warm-text: #1E3B2F;
+  --warm-text-secondary: #365A4A;
+  --warm-text-muted: #577A69;
+  --warm-text-light: #7E9A8C;
+  --warm-accent: #10B981;
+  --warm-accent-light: #E3F8EE;
+  --warm-accent-hover: #059669;
+  --warm-bg-subtle: #F7FDF9;
+  --warm-bg-warm: #ECF9F2;
+  --warm-bg-input: #FFFFFF;
+  --warm-sidebar: #FFFFFF;
+  --warm-sidebar-active: #E3F8EE;
+  --warm-sidebar-border: #D5EFE1;
+  --warm-sidebar-user-bg: #E3F8EE;
+  --warm-sidebar-user-border: #A7F3D0;
+  --warm-streak-bg: linear-gradient(135deg, #E3F8EE, #D1FAE5);
+  --warm-streak-border: #A7F3D0;
+  --warm-streak-text: #065F46;
+  --warm-streak-subtext: #059669;
+  --warm-primary-shadow: rgba(16, 185, 129, 0.25);
+}
+
+html[data-theme='grape'] {
+  --warm-bg: #F7F4FF;
+  --warm-card: #FFFFFF;
+  --warm-border: #E4DCF7;
+  --warm-border-subtle: #EDE7FB;
+  --warm-text: #2E2149;
+  --warm-text-secondary: #4A3A6E;
+  --warm-text-muted: #6B5C8D;
+  --warm-text-light: #8E81AA;
+  --warm-accent: #8B5CF6;
+  --warm-accent-light: #EFE9FE;
+  --warm-accent-hover: #7C3AED;
+  --warm-bg-subtle: #FBF9FF;
+  --warm-bg-warm: #F3EEFF;
+  --warm-bg-input: #FFFFFF;
+  --warm-sidebar: #FFFFFF;
+  --warm-sidebar-active: #EFE9FE;
+  --warm-sidebar-border: #E4DCF7;
+  --warm-sidebar-user-bg: #EFE9FE;
+  --warm-sidebar-user-border: #C4B5FD;
+  --warm-streak-bg: linear-gradient(135deg, #EFE9FE, #EDE9FE);
+  --warm-streak-border: #C4B5FD;
+  --warm-streak-text: #5B21B6;
+  --warm-streak-subtext: #7C3AED;
+  --warm-primary-shadow: rgba(139, 92, 246, 0.25);
+}
+
+html[data-theme='sunny'] {
+  --warm-bg: #FFFBEA;
+  --warm-card: #FFFFFF;
+  --warm-border: #F2E6BC;
+  --warm-border-subtle: #F7EECC;
+  --warm-text: #3D3314;
+  --warm-text-secondary: #5E5022;
+  --warm-text-muted: #7E6E3A;
+  --warm-text-light: #9E8F5E;
+  --warm-accent: #CA8A04;
+  --warm-accent-light: #FEF6D3;
+  --warm-accent-hover: #A16207;
+  --warm-bg-subtle: #FFFDF4;
+  --warm-bg-warm: #FFF7DC;
+  --warm-bg-input: #FFFFFF;
+  --warm-sidebar: #FFFFFF;
+  --warm-sidebar-active: #FEF6D3;
+  --warm-sidebar-border: #F2E6BC;
+  --warm-sidebar-user-bg: #FEF6D3;
+  --warm-sidebar-user-border: #FDE68A;
+  --warm-streak-bg: linear-gradient(135deg, #FEF6D3, #FEF3C7);
+  --warm-streak-border: #FDE68A;
+  --warm-streak-text: #854D0E;
+  --warm-streak-subtext: #A16207;
+  --warm-primary-shadow: rgba(202, 138, 4, 0.25);
+}
+
 html[data-theme='night'] {
   --warm-bg: #0B0F19;
   --warm-card: #1C2436;
@@ -183,6 +264,66 @@ html[data-theme='night'] {
   --health-red-bg: #2E1A1A;
   --warm-shadow: rgba(0, 0, 0, 0.3);
   --warm-primary-shadow: rgba(96, 165, 250, 0.25);
+
+  /* Status badge colors — dark theme */
+  --status-approved-text: #4ADE80;
+  --status-approved-bg: #1A2E1A;
+  --status-approved-border: #166534;
+  --status-rejected-text: #FCA5A5;
+  --status-rejected-bg: #2A1F1F;
+  --status-rejected-border: #7F1D1D;
+  --status-cancelled-text: #94A3B8;
+  --status-cancelled-bg: #1E293B;
+  --status-cancelled-border: #475569;
+
+  /* Task health badge colors — dark theme */
+  --task-healthy-text: #4ADE80;
+  --task-healthy-bg: #1A2E1A;
+  --task-healthy-border: #166534;
+  --task-warning-text: #FBBF24;
+  --task-warning-bg: #2E2A1A;
+  --task-warning-border: #92400E;
+  --task-critical-text: #FCA5A5;
+  --task-critical-bg: #2E1A1A;
+  --task-critical-border: #7F1D1D;
+}
+
+html[data-theme='ocean'] {
+  --warm-bg: #071A1F;
+  --warm-card: #10272E;
+  --warm-border: #24464F;
+  --warm-border-subtle: #1D3B43;
+  --warm-text: #E2E8F0;
+  --warm-text-secondary: #CBD5E1;
+  --warm-text-muted: #94A3B8;
+  --warm-text-light: #64748B;
+  --warm-accent: #2DD4BF;
+  --warm-accent-light: #133A3D;
+  --warm-accent-hover: #14B8A6;
+  --warm-bg-subtle: #15343B;
+  --warm-bg-warm: #1A3E46;
+  --warm-bg-input: #0D2228;
+  --warm-sidebar: #0B2026;
+  --warm-sidebar-active: #15363C;
+  --warm-sidebar-border: #334155;
+  --warm-sidebar-user-bg: #15363C;
+  --warm-sidebar-user-border: #475569;
+  --warm-streak-bg: linear-gradient(135deg, #10272E, #15343B);
+  --warm-streak-border: #475569;
+  --warm-streak-text: #5EEAD4;
+  --warm-streak-subtext: #2DD4BF;
+  --warm-danger: #F87171;
+  --warm-danger-bg: #2A1F1F;
+  --warm-danger-border: #7F1D1D;
+  --warm-badge-bg: #2A1F1F;
+  --warm-badge-text: #F87171;
+  --warm-coin: #FBBF24;
+  --health-bar-track: #24464F;
+  --health-green-bg: #1A2E1A;
+  --health-yellow-bg: #2E2A1A;
+  --health-red-bg: #2E1A1A;
+  --warm-shadow: rgba(0, 0, 0, 0.3);
+  --warm-primary-shadow: rgba(45, 212, 191, 0.25);
 
   /* Status badge colors — dark theme */
   --status-approved-text: #4ADE80;
@@ -417,16 +558,22 @@ body {
 /* Night theme: ensure inputs and selects are readable */
 html[data-theme='night'] input,
 html[data-theme='night'] textarea,
-html[data-theme='night'] select {
+html[data-theme='night'] select,
+html[data-theme='ocean'] input,
+html[data-theme='ocean'] textarea,
+html[data-theme='ocean'] select {
   background-color: var(--warm-bg-input) !important;
   color: var(--warm-text) !important;
   border-color: var(--warm-border) !important;
 }
 html[data-theme='night'] input::placeholder,
-html[data-theme='night'] textarea::placeholder {
+html[data-theme='night'] textarea::placeholder,
+html[data-theme='ocean'] input::placeholder,
+html[data-theme='ocean'] textarea::placeholder {
   color: var(--warm-text-light) !important;
 }
-html[data-theme='night'] option {
+html[data-theme='night'] option,
+html[data-theme='ocean'] option {
   background-color: var(--warm-card);
   color: var(--warm-text);
 }

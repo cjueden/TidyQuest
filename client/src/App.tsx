@@ -24,6 +24,7 @@ import { Achievements } from './components/pages/Achievements';
 import { Rewards } from './components/pages/Rewards';
 import { useTranslation } from './hooks/useTranslation';
 import { localeFor } from './utils/locale';
+import { isTheme, type Theme } from './utils/themes';
 
 function AppContent() {
   const { user, loading, login, register, logout, refreshUser } = useAuth();
@@ -43,10 +44,19 @@ function AppContent() {
   const [coinsByEffort, setCoinsByEffort] = useState<Record<number, number>>({ 1: 5, 2: 10, 3: 15, 4: 20, 5: 25 });
   const [achievementsData, setAchievementsData] = useState<any>(null);
   const [rewardsData, setRewardsData] = useState<{ rewards: any[]; mine: any[] }>({ rewards: [], mine: [] });
-  const [theme, setTheme] = useState<'orange' | 'blue' | 'rose' | 'night'>(() => {
+  // The device's theme (also the login screen's); a signed-in person's own theme wins
+  const [deviceTheme, setDeviceTheme] = useState<Theme>(() => {
     const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('tidyquest_theme') : null;
-    return (saved === 'blue' || saved === 'rose' || saved === 'night') ? saved : 'orange';
+    return isTheme(saved) ? saved : 'orange';
   });
+  const theme: Theme = isTheme(user?.theme) ? user.theme : deviceTheme;
+  const changeTheme = async (next: Theme) => {
+    setDeviceTheme(next);
+    if (user) {
+      await api.updateProfile(user.id, { theme: next });
+      await refreshUser();
+    }
+  };
   const [vacationConfig, setVacationConfig] = useState<{ vacationMode: boolean; vacationStartDate: string | null; vacationEndDate: string | null } | null>(null);
   const vacationUpdatePending = useRef(false);
   const dashboardLoadInFlight = useRef<Promise<void> | null>(null);
@@ -516,7 +526,7 @@ function AppContent() {
           <Route path="/profile" element={
             <>
               <PageHeader title={t('nav.profile')} subtitle={t('app.profileSubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <Profile user={user} onSave={async () => { await refreshUser(); }} onLogout={() => { logout(); navigate('/login', { replace: true }); }} />
+              <Profile user={user} theme={theme} onChangeTheme={changeTheme} onSave={async () => { await refreshUser(); }} onLogout={() => { logout(); navigate('/login', { replace: true }); }} />
             </>
           } />
 
@@ -572,8 +582,6 @@ function AppContent() {
                   const updated = await api.updateCoinsConfig({ useDefault: true });
                   setCoinsByEffort(updated.coinsByEffort);
                 }}
-                theme={theme}
-                onChangeTheme={setTheme}
                 onExport={handleExport}
                 onImport={handleImport}
                 rooms={rooms}

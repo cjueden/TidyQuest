@@ -74,3 +74,14 @@ describe('Server translations', () => {
     expect(tr('en', 'trash.deleted', { name: 'Dishes' })).toBe('Deleted “Dishes”');
   });
 });
+
+describe('Theme per person', () => {
+  it('saves a theme on the person (it follows them to any device), and rejects unknown ones', async () => {
+    const { admin, kid } = await family();
+    await agent.put(`/api/users/${kid.user.id}/profile`).set(auth(kid.token)).send({ theme: 'grape' }).expect(200);
+    expect((await agent.get('/api/auth/me').set(auth(kid.token))).body.theme).toBe('grape');
+    expect((await agent.put(`/api/users/${kid.user.id}/profile`).set(auth(kid.token)).send({ theme: 'neon' })).body.error).toBe('invalid_theme');
+    await agent.put(`/api/users/${kid.user.id}/profile`).set(auth(admin.token)).send({ theme: 'ocean' }).expect(200);
+    expect(((await agent.get('/api/users').set(auth(admin.token))).body as any[]).find((u) => u.id === kid.user.id).theme).toBe('ocean');
+  });
+});

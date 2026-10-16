@@ -5,6 +5,8 @@ import { GlobeIcon } from '../icons/UIIcons';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { MyNotifications } from '../shared/MyNotifications';
+import { ThemePicker } from '../shared/ThemePicker';
+import type { Theme } from '../../utils/themes';
 import type { User } from '../../hooks/useAuth';
 
 const COLORS = [
@@ -15,11 +17,13 @@ const COLORS = [
 
 interface ProfileProps {
   user: User;
+  theme: Theme;
+  onChangeTheme: (theme: Theme) => void | Promise<void>;
   onSave: () => void;
   onLogout: () => void;
 }
 
-export function Profile({ user, onSave, onLogout }: ProfileProps) {
+export function Profile({ user, theme, onChangeTheme, onSave, onLogout }: ProfileProps) {
   const { t } = useTranslation(user.language);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [avatarType, setAvatarType] = useState<'letter' | 'preset' | 'photo'>(user.avatarType || 'letter');
@@ -282,6 +286,11 @@ export function Profile({ user, onSave, onLogout }: ProfileProps) {
         >
           {t('profile.logout')}
         </button>
+      </div>
+      <div className="tq-card tq-card-padded" style={{ marginTop: 16, display: 'grid', gap: 8 }}>
+        <h3 className="tq-card-title" style={{ margin: 0 }}>🎨 {t('settings.theme')}</h3>
+        <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('profile.themeDesc')}</div>
+        <ThemePicker value={theme} onChange={(next) => void onChangeTheme(next)} language={user.language} />
       </div>
       <MyNotifications userId={user.id} language={user.language} />
     </div>

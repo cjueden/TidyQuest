@@ -140,7 +140,8 @@
       "language": "Language",
       "save": "Save",
       "saved": "Saved",
-      "logout": "Log out"
+      "logout": "Log out",
+      "themeDesc": "Your colors, on every device you sign in on."
     },
     "settings": {
       "title": "Settings",
@@ -278,7 +279,11 @@
       "kidMode": "Kid mode",
       "kidModeDesc": "Bigger buttons, fewer cards, coins and goal up front.",
       "notificationTypeChoreApproval": "Chore waiting for approval",
-      "notificationTypeCoinBoost": "Double coins events"
+      "notificationTypeCoinBoost": "Double coins events",
+      "themeMint": "Mint",
+      "themeGrape": "Grape",
+      "themeSunny": "Sunny",
+      "themeOcean": "Ocean (dark)"
     },
     "nav": {
       "home": "Home",

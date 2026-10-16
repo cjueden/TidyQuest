@@ -140,7 +140,8 @@
       "language": "Lingua",
       "save": "Salva",
       "saved": "Salvato",
-      "logout": "Esci"
+      "logout": "Esci",
+      "themeDesc": "I tuoi colori, su ogni dispositivo dove accedi."
     },
     "settings": {
       "title": "Impostazioni",
@@ -278,7 +279,11 @@
       "kidMode": "Modalità bambino",
       "kidModeDesc": "Pulsanti grandi, meno schede, monete e obiettivo in primo piano.",
       "notificationTypeChoreApproval": "Compito in attesa di approvazione",
-      "notificationTypeCoinBoost": "Eventi monete doppie"
+      "notificationTypeCoinBoost": "Eventi monete doppie",
+      "themeMint": "Menta",
+      "themeGrape": "Uva",
+      "themeSunny": "Solare",
+      "themeOcean": "Oceano (scuro)"
     },
     "nav": {
       "home": "Home",

@@ -15,7 +15,9 @@ import { currentLocalWeek } from '../utils/periods';
 const router = Router();
 router.use(authMiddleware);
 
-const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday';
+export const THEMES = ['orange', 'blue', 'rose', 'mint', 'grape', 'sunny', 'night', 'ocean'];
+
+const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme';
 
 function normalizeNotificationTime(value: string | undefined): string | null {
   if (value === undefined) return null;
@@ -142,7 +144,7 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
     return res.status(403).json({ error: 'Cannot modify another user' });
   }
 
-  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday } = req.body;
+  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday, theme } = req.body;
 
   const updates: string[] = [];
   const values: any[] = [];
@@ -152,6 +154,11 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
   if (avatarColor !== undefined) { updates.push('avatarColor = ?'); values.push(avatarColor); }
   if (avatarPreset !== undefined) { updates.push('avatarPreset = ?'); values.push(avatarPreset); }
   if (language !== undefined) { updates.push('language = ?'); values.push(language); }
+  // Color theme (follows the person to every device; empty clears it)
+  if (theme !== undefined) {
+    if (theme !== null && theme !== '' && !THEMES.includes(theme)) return res.status(400).json({ error: 'invalid_theme' });
+    updates.push('theme = ?'); values.push(theme || null);
+  }
   // Birthday as 'MM-DD' (empty clears it)
   if (birthday !== undefined) {
     const b = typeof birthday === 'string' ? birthday.trim() : '';

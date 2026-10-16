@@ -140,7 +140,8 @@
       "language": "Sprache",
       "save": "Speichern",
       "saved": "Gespeichert",
-      "logout": "Abmelden"
+      "logout": "Abmelden",
+      "themeDesc": "Deine Farben, auf jedem Gerät, auf dem du dich anmeldest."
     },
     "settings": {
       "title": "Einstellungen",
@@ -278,7 +279,11 @@
       "kidMode": "Kindermodus",
       "kidModeDesc": "Größere Knöpfe, weniger Karten, Münzen und Ziel ganz oben.",
       "notificationTypeChoreApproval": "Aufgabe wartet auf Freigabe",
-      "notificationTypeCoinBoost": "Doppelte-Münzen-Aktionen"
+      "notificationTypeCoinBoost": "Doppelte-Münzen-Aktionen",
+      "themeMint": "Minze",
+      "themeGrape": "Traube",
+      "themeSunny": "Sonnig",
+      "themeOcean": "Ozean (dunkel)"
     },
     "nav": {
       "home": "Startseite",

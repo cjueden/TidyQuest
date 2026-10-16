@@ -117,6 +117,8 @@ const NEW_TABLES: string[] = [
 
 /** Columns added to existing tables (ignored when they already exist). */
 const NEW_COLUMNS: string[] = [
+  // Each person's color theme (NULL = the device's choice)
+  `ALTER TABLE users ADD COLUMN theme TEXT`,
   // Birthday as 'MM-DD' (for the secret Birthday Helper badge)
   // Personal notification channels and which kinds this person wants (JSON {kind: false} to turn off)
   `ALTER TABLE users ADD COLUMN ntfyTopic TEXT`,

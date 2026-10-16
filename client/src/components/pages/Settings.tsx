@@ -9,6 +9,8 @@ import { GoalRow } from '../shared/GoalRow';
 import { TrashAdmin } from '../shared/TrashAdmin';
 import { FamilyGoalAdmin } from '../shared/FamilyGoalAdmin';
 import { BirthdayInput } from '../shared/BirthdayInput';
+import { ThemePicker } from '../shared/ThemePicker';
+import { isTheme, type Theme } from '../../utils/themes';
 import { CustomBadgesAdmin } from '../shared/CustomBadgesAdmin';
 import { NotificationLog, NotifyScheduleAdmin, PeopleNotifyAdmin } from '../shared/NotifyAdmin';
 import { CsvTransfer } from '../shared/CsvTransfer';
@@ -35,6 +37,7 @@ interface FamilyUser {
   language?: string;
   /** 'MM-DD' */
   birthday?: string | null;
+  theme?: string | null;
   goalCoins?: number | null;
   goalStartAt?: string | null;
   goalEndAt?: string | null;
@@ -77,13 +80,11 @@ interface SettingsProps {
   onUpdateRole: (userId: number, role: 'admin' | 'member' | 'child') => void;
   onAddMember: (data: { username: string; password: string; displayName: string; role: 'child' }) => Promise<void>;
   onDeleteUser: (userId: number) => Promise<void>;
-  onUpdateMemberProfile: (userId: number, data: { avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null }) => Promise<void>;
+  onUpdateMemberProfile: (userId: number, data: { avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null; theme?: string | null }) => Promise<void>;
   onChangePassword: (userId: number, data: { currentPassword?: string; newPassword: string }) => Promise<void>;
   coinsByEffort: Record<number, number>;
   onSaveCoinsByEffort: (values: Record<number, number>) => Promise<void>;
   onResetCoinsByEffort: () => Promise<void>;
-  theme: 'orange' | 'blue' | 'rose' | 'night';
-  onChangeTheme: (theme: 'orange' | 'blue' | 'rose' | 'night') => void;
   onExport: () => void;
   onImport: () => void;
   onAdjustCoins?: (userId: number, amount: number, reason?: string) => Promise<void>;
@@ -108,8 +109,6 @@ export function Settings({
   coinsByEffort,
   onSaveCoinsByEffort,
   onResetCoinsByEffort,
-  theme,
-  onChangeTheme,
   onExport,
   onImport,
   onAdjustCoins,
@@ -151,6 +150,7 @@ export function Settings({
     avatarColor: string;
     avatarPreset: string;
     birthday: string;
+    theme: string;
   }>>({});
   const [memberProfileMsg, setMemberProfileMsg] = useState<Record<number, string>>({});
   const [memberGoalMsg, setMemberGoalMsg] = useState<Record<number, string>>({});
@@ -313,6 +313,7 @@ export function Settings({
         avatarColor: u.avatarColor || '#F97316',
         avatarPreset: u.avatarPreset || 'cat',
         birthday: u.birthday ?? '',
+        theme: u.theme ?? '',
       },
     }));
   };
@@ -337,6 +338,7 @@ export function Settings({
       avatarColor: p.avatarColor,
       avatarPreset: p.avatarType === 'preset' ? p.avatarPreset : null,
       birthday: p.birthday || null,
+      theme: p.theme || null,
     });
     setMemberProfileMsg((prev) => ({ ...prev, [u.id]: t('common.saved') }));
     window.setTimeout(() => {
@@ -666,24 +668,6 @@ export function Settings({
           </div>
         )}
         </>)}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: '1px solid var(--warm-border)' }}>
-          <div style={{ width: 20, height: 20, borderRadius: 6, background: 'linear-gradient(135deg, var(--warm-accent), var(--warm-accent-light))', border: '1px solid var(--warm-border)' }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.theme')}</div>
-            <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.themeDesc')}</div>
-          </div>
-          <select
-            className="tq-input"
-            value={theme}
-            onChange={(e) => onChangeTheme(e.target.value as 'orange' | 'blue' | 'rose' | 'night')}
-            style={{ width: 'auto', cursor: 'pointer' }}
-          >
-            <option value="orange">{t('settings.themeOrange')}</option>
-            <option value="blue">{t('settings.themeBlue')}</option>
-            <option value="rose">{t('settings.themeRose')}</option>
-            <option value="night">{t('settings.themeNight')}</option>
-          </select>
-        </div>
         {isAdmin && (
         <div style={{ padding: '14px 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -1337,6 +1321,8 @@ export function Settings({
                       ))}
                     </select>
                   )}
+                  <ThemePicker value={isTheme(memberProfile[u.id]?.theme) ? memberProfile[u.id].theme as Theme : null} language={user.language}
+                    onChange={(theme) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], theme } }))} />
                   <BirthdayInput value={memberProfile[u.id]?.birthday ?? ''} language={user.language}
                     onChange={(birthday) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], birthday } }))} />
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>

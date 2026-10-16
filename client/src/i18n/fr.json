@@ -140,7 +140,8 @@
       "language": "Langue",
       "save": "Enregistrer",
       "saved": "Enregistré",
-      "logout": "Se déconnecter"
+      "logout": "Se déconnecter",
+      "themeDesc": "Tes couleurs, sur chaque appareil où tu te connectes."
     },
     "settings": {
       "title": "Paramètres",
@@ -278,7 +279,11 @@
       "kidMode": "Mode enfant",
       "kidModeDesc": "Gros boutons, moins de cartes, pièces et objectif en premier.",
       "notificationTypeChoreApproval": "Tâche en attente de validation",
-      "notificationTypeCoinBoost": "Événements pièces doublées"
+      "notificationTypeCoinBoost": "Événements pièces doublées",
+      "themeMint": "Menthe",
+      "themeGrape": "Raisin",
+      "themeSunny": "Soleil",
+      "themeOcean": "Océan (sombre)"
     },
     "nav": {
       "home": "Accueil",
