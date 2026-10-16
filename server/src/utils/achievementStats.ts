@@ -5,6 +5,7 @@ import { tr } from './i18n';
 import { isSeasonalNow, taskHealth } from './schedule';
 import { getGlobalVacation, getUserVacation, resolveVacation } from './adminHelpers';
 import { localDateStr } from './dateHelpers';
+import { boostCovers, toBoost } from './boosts';
 
 /**
  * Everything the badges are measured on, for one person. Shared by the Achievements page and the
@@ -79,16 +80,16 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
   const rewardsRedeemed = count("SELECT COUNT(*) AS n FROM reward_redemptions WHERE userId = ? AND status IN ('requested', 'approved')");
   const potContributions = count('SELECT COUNT(*) AS n FROM reward_contributions WHERE userId = ?');
 
-  // Chores done while a double coins event ran in that room
-  const boosts = db.prepare('SELECT startAt, endAt, roomIds FROM coin_boosts').all() as Array<{ startAt: string; endAt: string; roomIds: string | null }>;
+  // Chores done while a double coins event covered them
+  const boosts = (db.prepare('SELECT * FROM coin_boosts').all() as any[]).map(toBoost);
   let boostCompletions = 0;
   if (boosts.length > 0) {
-    const done = db.prepare("SELECT c.completedAt, t.roomId FROM task_completions c JOIN tasks t ON t.id = c.taskId WHERE c.userId = ? AND c.status = 'approved'")
-      .all(userId) as Array<{ completedAt: string; roomId: number }>;
-    const windows = boosts.map((b) => ({ from: Date.parse(b.startAt), to: Date.parse(b.endAt), rooms: b.roomIds ? (JSON.parse(b.roomIds) as number[]) : null }));
+    const done = db.prepare("SELECT c.completedAt, c.taskId, t.roomId FROM task_completions c JOIN tasks t ON t.id = c.taskId WHERE c.userId = ? AND c.status = 'approved'")
+      .all(userId) as Array<{ completedAt: string; taskId: number; roomId: number }>;
+    const windows = boosts.map((b) => ({ from: Date.parse(b.startAt), to: Date.parse(b.endAt), b }));
     boostCompletions = done.filter((c) => {
       const at = Date.parse(c.completedAt);
-      return windows.some((w) => at >= w.from && at < w.to && (!w.rooms || w.rooms.includes(c.roomId)));
+      return windows.some((w) => at >= w.from && at < w.to && boostCovers(w.b, c.taskId, c.roomId));
     }).length;
   }
 

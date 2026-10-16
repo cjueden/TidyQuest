@@ -439,7 +439,12 @@
       "thisMonth": "Diesen Monat",
       "searchPlaceholder": "Aufgaben suchen…",
       "noMatches": "Keine Aktivität passt zu diesen Filtern.",
-      "clearFilters": "Filter zurücksetzen"
+      "clearFilters": "Filter zurücksetzen",
+      "chippedIn": "Eingezahlt: {reward}",
+      "pot_open": "Im Topf",
+      "pot_requested": "Topf voll · wartet auf ein Elternteil",
+      "pot_approved": "Belohnung genehmigt",
+      "pot_rejected": "Erstattet"
     },
     "roomDetail": {
       "name": "Name",
@@ -878,7 +883,10 @@
       "ends": "Ende",
       "rooms": "Räume:",
       "create": "Aktion starten",
-      "left": "Noch {time}"
+      "left": "Noch {time}",
+      "chores": "Aufgaben:",
+      "findChore": "Aufgabe hinzufügen…",
+      "andMore": "+{n} weitere"
     },
     "goals": {
       "repeatWeekly": "Wöchentlich",
@@ -1162,7 +1170,8 @@
       "boostEnding": "⏰ Letzte Stunde mit {multiplier}× Münzen: „{title}“ endet um {time}.",
       "test": "👋 Test von TidyQuest: Benachrichtigungen für {name} funktionieren!",
       "moreItems": "+{n} weitere",
-      "rescue": "⚡ Rettungsmission: „{task}“ bringt heute {multiplier}× Münzen. Wer es zuerst macht, gewinnt!"
+      "rescue": "⚡ Rettungsmission: „{task}“ bringt heute {multiplier}× Münzen. Wer es zuerst macht, gewinnt!",
+      "andMore": "+{n} weitere"
     },
     "notifyAdmin": {
       "peopleTitle": "Wer bekommt was",

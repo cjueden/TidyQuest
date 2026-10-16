@@ -61,7 +61,10 @@ function SharedPot({ pot, userCoins, language, onContribute }: { pot: RewardPot;
   const { t } = useTranslation(language);
   const locale = localeFor(language);
   const most = Math.min(pot.remaining, userCoins);
-  const [amount, setAmount] = useState('');
+  // Starts at 0 so a stray tap on Chip in can't spend coins
+  const [amount, setAmount] = useState('0');
+  const n = Math.round(Number(amount));
+  const valid = Number.isFinite(n) && n >= 1 && n <= most;
   const [error, setError] = useState('');
   const pct = pot.target > 0 ? Math.min(100, Math.round((pot.saved / pot.target) * 100)) : 0;
   return (
@@ -77,14 +80,13 @@ function SharedPot({ pot, userCoins, language, onContribute }: { pot: RewardPot;
         <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-accent)' }}>🎉 {t('rewardRules.potWaiting')}</div>
       ) : (
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-          <input type="number" min={1} max={most} className="tq-input-compact" value={amount} onChange={(e) => setAmount(e.target.value)}
-            placeholder={String(Math.max(1, Math.min(most, 50)))} style={{ width: 80 }} disabled={most < 1} />
-          <button className="tq-btn tq-btn-primary tq-btn-sm" disabled={most < 1 || !onContribute}
+          <input type="number" min={0} max={most} className="tq-input-compact" value={amount} onChange={(e) => setAmount(e.target.value)}
+            onFocus={(e) => e.target.select()} aria-label={t('rewardRules.chipIn')} style={{ width: 80 }} disabled={most < 1} />
+          <button className="tq-btn tq-btn-primary tq-btn-sm" disabled={!valid || !onContribute}
             onClick={async () => {
               setError('');
-              const n = Math.round(Number(amount || Math.min(most, 50)));
-              if (!n || n < 1) return;
-              try { await onContribute?.(n); setAmount(''); } catch (err) { setError(err instanceof Error ? err.message : t('common.error')); }
+              if (!valid) return;
+              try { await onContribute?.(n); setAmount('0'); } catch (err) { setError(err instanceof Error ? err.message : t('common.error')); }
             }}>
             {t('rewardRules.chipIn')}
           </button>

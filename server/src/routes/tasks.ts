@@ -17,7 +17,7 @@ import { localDateStr } from '../utils/dateHelpers';
 import { hasWeekdaySchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth } from '../utils/schedule';
 import { isNotificationTypeEnabled, sendNotification } from '../utils/notifications';
 import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatLimits';
-import { boostMultiplierForRoom } from '../utils/boosts';
+import { boostMultiplierFor } from '../utils/boosts';
 import { trashTask } from '../utils/trash';
 
 // Proof photos kids can attach to a completion (served at /api/proofs)
@@ -810,10 +810,10 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     } else {
       coins = baseCoins;
     }
-    // Double coins event running for this room: the boosted amount is stored on the completion,
+    // Double coins event running for this chore or its room: the boosted amount is stored on the completion,
     // so a parent approving it later (Strict Mode) still pays the boost
     // The Rescue Mission doesn't stack with a double coins event: the bigger multiplier wins
-    const multiplier = Math.max(boostMultiplierForRoom(task.roomId, new Date(now)), rescued ? mission!.multiplier : 1);
+    const multiplier = Math.max(boostMultiplierFor(task.id, task.roomId, new Date(now)), rescued ? mission!.multiplier : 1);
     if (multiplier > 1) coins = Math.round(coins * multiplier);
   }
 

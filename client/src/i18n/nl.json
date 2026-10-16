@@ -439,7 +439,12 @@
       "thisMonth": "Deze maand",
       "searchPlaceholder": "Zoek klusjes…",
       "noMatches": "Geen activiteit voldoet aan deze filters.",
-      "clearFilters": "Filters wissen"
+      "clearFilters": "Filters wissen",
+      "chippedIn": "Ingelegd: {reward}",
+      "pot_open": "In de pot",
+      "pot_requested": "Pot vol · wacht op een ouder",
+      "pot_approved": "Beloning goedgekeurd",
+      "pot_rejected": "Terugbetaald"
     },
     "roomDetail": {
       "name": "Naam",
@@ -878,7 +883,10 @@
       "ends": "Eindigt",
       "rooms": "Kamers:",
       "create": "Actie starten",
-      "left": "Nog {time}"
+      "left": "Nog {time}",
+      "chores": "Klusjes:",
+      "findChore": "Klusje toevoegen…",
+      "andMore": "+{n} meer"
     },
     "goals": {
       "repeatWeekly": "Elke week",
@@ -1162,7 +1170,8 @@
       "boostEnding": "⏰ Laatste uur {multiplier}× munten: ‘{title}’ eindigt om {time}.",
       "test": "👋 Test van TidyQuest: meldingen voor {name} werken!",
       "moreItems": "+{n} meer",
-      "rescue": "⚡ Reddingsmissie: ‘{task}’ levert vandaag {multiplier}× munten op. Wie het eerst doet, wint!"
+      "rescue": "⚡ Reddingsmissie: ‘{task}’ levert vandaag {multiplier}× munten op. Wie het eerst doet, wint!",
+      "andMore": "+{n} meer"
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",

@@ -216,7 +216,15 @@ const Dashboard: React.FC<DashboardProps> = ({
   // Today's Rescue Mission pays extra too (the bigger multiplier wins, like on the server)
   const mission = gamificationEnabled ? data.rescueMission ?? null : null;
   const missionBonus = (q: Quest) => (mission && mission.taskId === q.id && !mission.completedBy ? mission.multiplier : 1);
-  const boostFor = (q: Quest) => boosts.reduce((m, b) => (!b.roomIds || b.roomIds.includes(q.roomId) ? Math.max(m, b.multiplier) : m), missionBonus(q));
+  // A boost counts for a chore when nothing was picked, or its room or the chore itself was (as on the server)
+  const covers = (b: CoinBoost, q: Quest) => (!b.roomIds && !b.taskIds) || !!b.roomIds?.includes(q.roomId) || !!b.taskIds?.includes(q.id);
+  const boostFor = (q: Quest) => boosts.reduce((m, b) => (covers(b, q) ? Math.max(m, b.multiplier) : m), missionBonus(q));
+  // "Kitchen, Clean Shower & Tub, Rake +2 more"
+  const boostTargets = (b: CoinBoost) => {
+    const names = [...(b.roomIds ?? []).map((id) => rooms.find((r) => r.id === id)?.name ?? '').filter(Boolean), ...(b.taskNames ?? [])];
+    if (names.length === 0) return t('boosts.allRooms');
+    return names.slice(0, 3).join(', ') + (names.length > 3 ? ` ${t('boosts.andMore').replace('{n}', String(names.length - 3))}` : '');
+  };
   const [nowTs, setNowTs] = useState(() => Date.now());
   useEffect(() => {
     if (boosts.length === 0) return;
@@ -493,7 +501,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--warm-text)' }}>{b.title}</span>
                   <span style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
                     {t('boosts.left').replace('{time}', timeLeft(b.endAt))}
-                    {b.roomIds ? ` · ${b.roomIds.map((id) => rooms.find((r) => r.id === id)?.name ?? '').filter(Boolean).join(', ')}` : ` · ${t('boosts.allRooms')}`}
+                    {` · ${boostTargets(b)}`}
                   </span>
                 </span>
               </div>

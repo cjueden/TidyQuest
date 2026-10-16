@@ -439,7 +439,12 @@
       "thisMonth": "This month",
       "searchPlaceholder": "Search tasks…",
       "noMatches": "No activity matches these filters.",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "chippedIn": "Chipped in: {reward}",
+      "pot_open": "In the pot",
+      "pot_requested": "Pot full · waiting for a parent",
+      "pot_approved": "Reward approved",
+      "pot_rejected": "Refunded"
     },
     "roomDetail": {
       "name": "Name",
@@ -878,7 +883,10 @@
       "ends": "Ends",
       "rooms": "Rooms:",
       "create": "Start an event",
-      "left": "{time} left"
+      "left": "{time} left",
+      "chores": "Chores:",
+      "findChore": "Add a chore…",
+      "andMore": "+{n} more"
     },
     "goals": {
       "repeatWeekly": "Repeats weekly",
@@ -1162,7 +1170,8 @@
       "boostEnding": "⏰ Last hour of {multiplier}× coins: “{title}” ends at {time}.",
       "test": "👋 Test from TidyQuest: notifications for {name} work!",
       "moreItems": "+{n} more",
-      "rescue": "⚡ Rescue Mission: “{task}” pays {multiplier}× coins today. First one to do it wins!"
+      "rescue": "⚡ Rescue Mission: “{task}” pays {multiplier}× coins today. First one to do it wins!",
+      "andMore": "+{n} more"
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",
