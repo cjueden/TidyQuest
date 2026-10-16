@@ -1159,7 +1159,8 @@
       "boostStart": "⚡ Pièces ×{multiplier} : « {title} » jusqu'à {time} !",
       "boostEnding": "⏰ Dernière heure des pièces ×{multiplier} : « {title} » finit à {time}.",
       "test": "👋 Test TidyQuest : les notifications pour {name} fonctionnent !",
-      "moreItems": "+{n} de plus"
+      "moreItems": "+{n} de plus",
+      "rescue": "⚡ Mission sauvetage : « {task} » rapporte {multiplier}× pièces aujourd'hui. Le premier qui le fait gagne !"
     },
     "notifyAdmin": {
       "peopleTitle": "Qui reçoit quoi",
@@ -1207,7 +1208,9 @@
       "error_invalid_service": "Les services ressemblent à notify.mobile_app_telephone",
       "error_invalid_topic": "Les sujets : lettres, chiffres, - et _",
       "error_invalid_chat": "Les ID de chat sont des nombres (ou @nom)",
-      "error_no_channels": "Configure d'abord un canal"
+      "error_no_channels": "Configure d'abord un canal",
+      "kind_rescue": "Mission sauvetage",
+      "kindDesc_rescue": "la tâche ×2 du jour, le matin"
     },
     "todos": {
       "roomName": "À faire",
@@ -1231,6 +1234,15 @@
       "overdueDays": "{n} jours de retard",
       "overdueDay": "1 jour de retard",
       "snooze": "Reporter de 3 jours"
+    },
+    "rescue": {
+      "title": "Mission sauvetage",
+      "pays": "Rapporte {m}× pièces aujourd'hui. Le premier qui le fait gagne !",
+      "endsMidnight": "Se termine à minuit",
+      "rescuedBy": "Sauvé par {name} !",
+      "another": "Un autre",
+      "skip": "Pas aujourd'hui",
+      "choose": "Choisir…"
     }
   }
 }

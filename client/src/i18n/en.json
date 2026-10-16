@@ -1159,7 +1159,8 @@
       "boostStart": "⚡ {multiplier}× coins: “{title}” is on until {time}!",
       "boostEnding": "⏰ Last hour of {multiplier}× coins: “{title}” ends at {time}.",
       "test": "👋 Test from TidyQuest: notifications for {name} work!",
-      "moreItems": "+{n} more"
+      "moreItems": "+{n} more",
+      "rescue": "⚡ Rescue Mission: “{task}” pays {multiplier}× coins today. First one to do it wins!"
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",
@@ -1207,7 +1208,9 @@
       "error_invalid_service": "Service names look like notify.mobile_app_phone",
       "error_invalid_topic": "Topics can use letters, numbers, - and _",
       "error_invalid_chat": "Chat IDs are numbers (or @name)",
-      "error_no_channels": "Set up a channel first"
+      "error_no_channels": "Set up a channel first",
+      "kind_rescue": "Rescue Mission",
+      "kindDesc_rescue": "the day's 2× chore, in the morning"
     },
     "todos": {
       "roomName": "To-dos",
@@ -1231,6 +1234,15 @@
       "overdueDays": "{n} days overdue",
       "overdueDay": "1 day overdue",
       "snooze": "Snooze for 3 days"
+    },
+    "rescue": {
+      "title": "Rescue Mission",
+      "pays": "Pays {m}× coins today. First one to do it wins!",
+      "endsMidnight": "Ends at midnight",
+      "rescuedBy": "Rescued by {name}!",
+      "another": "Another one",
+      "skip": "None today",
+      "choose": "Choose…"
     }
   }
 }

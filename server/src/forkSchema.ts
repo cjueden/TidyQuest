@@ -126,6 +126,16 @@ const NEW_TABLES: string[] = [
     until TEXT NOT NULL,
     PRIMARY KEY (userId, taskId)
   )`,
+  // The Rescue Mission of each day (utils/rescue.ts): the chore, its multiplier, who claimed it
+  `CREATE TABLE IF NOT EXISTS rescue_missions (
+    day TEXT PRIMARY KEY,
+    taskId INTEGER REFERENCES tasks(id) ON DELETE SET NULL,
+    multiplier REAL NOT NULL DEFAULT 2,
+    completedBy INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    completionId INTEGER,
+    skipped INTEGER NOT NULL DEFAULT 0,
+    createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */

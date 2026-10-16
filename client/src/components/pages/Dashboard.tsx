@@ -148,6 +148,10 @@ interface DashboardProps {
     usualQuests?: Quest[];
     /** Chores overdue by at least their own interval, worst first */
     forgottenQuests?: Quest[];
+    /** Today's Rescue Mission: the chore that pays extra to the first one who does it */
+    rescueMission?: { day: string; taskId: number | null; multiplier: number; completedBy: number | null; completedByName: string | null; taskName: string | null; task: Quest | null } | null;
+    /** Parents: chores they can choose as the mission instead */
+    rescueChoices?: Array<{ id: number; name: string }>;
     completedToday?: CompletedTodayEntry[];
     myLevel?: LevelInfo | null;
     nextBadge?: BadgeItem | null;
@@ -207,7 +211,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   } : {};
   // Double coins events: the biggest running boost that covers a task's room (boosts don't stack)
   const boosts = gamificationEnabled ? (data.coinBoosts ?? []) : [];
-  const boostFor = (q: Quest) => boosts.reduce((m, b) => (!b.roomIds || b.roomIds.includes(q.roomId) ? Math.max(m, b.multiplier) : m), 1);
+  // Today's Rescue Mission pays extra too (the bigger multiplier wins, like on the server)
+  const mission = gamificationEnabled ? data.rescueMission ?? null : null;
+  const missionBonus = (q: Quest) => (mission && mission.taskId === q.id && !mission.completedBy ? mission.multiplier : 1);
+  const boostFor = (q: Quest) => boosts.reduce((m, b) => (!b.roomIds || b.roomIds.includes(q.roomId) ? Math.max(m, b.multiplier) : m), missionBonus(q));
   const [nowTs, setNowTs] = useState(() => Date.now());
   useEffect(() => {
     if (boosts.length === 0) return;
@@ -332,6 +339,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [showCustomize, setShowCustomize] = useState(false);
 
   const ALL_CARDS = [
+    { id: 'rescue', label: t('rescue.title') },
     { id: 'usual', label: t('home.usualTitle') },
     { id: 'forgot', label: t('home.forgotTitle') },
     { id: 'todaysQuests', label: t('dashboard.todaysQuests') },
@@ -357,14 +365,18 @@ const Dashboard: React.FC<DashboardProps> = ({
     localStorage.setItem(LS_KEY, JSON.stringify([...hiddenCards]));
   }, [hiddenCards]);
   // Kid mode keeps Home to the essentials: their quests and what they finished today
-  const KID_CARDS = new Set(['usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
+  const KID_CARDS = new Set(['rescue', 'usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
   const isVisible = (id: string) => kidMode ? KID_CARDS.has(id) : !hiddenCards.has(id);
   // Your usual: pins always; the rest only when they can be done right now (6 at most)
   const usualShown = (data.usualQuests ?? []).filter((q) => q.pinned || !doneState(q).disabled).slice(0, 6);
   // Maybe you forgot: the 3 worst for this view; while that card shows, they leave "Ready to complete"
   const forgottenShown = filterQuests(data.forgottenQuests ?? []).slice(0, 3);
   const forgottenIds = new Set(isVisible('forgot') ? forgottenShown.map((q) => q.id) : []);
+  // The mission has its own card: it leaves the other lists while that card shows
+  const missionShown = isVisible('rescue') && !!mission && (!!mission.task || !!mission.completedBy);
+  if (missionShown && mission?.taskId) forgottenIds.add(mission.taskId);
   const readyTasks = readyAll.filter((q) => !forgottenIds.has(q.id));
+  const missionAction = async (fn: () => Promise<unknown>) => { await fn(); onRefresh?.(); };
   const togglePin = async (q: Quest) => {
     if (q.pinned) await api.unpinTask(q.id); else await api.pinTask(q.id);
     onRefresh?.();
@@ -572,6 +584,39 @@ const Dashboard: React.FC<DashboardProps> = ({
         )}
 
         {/* Today's Quests Card — full width, sections: Ready to Complete / On Demand */}
+        {/* Rescue Mission: today's most-forgotten chore pays extra to the first one who does it */}
+        {missionShown && mission && (
+          <div className="tq-card tq-card-padded rescue-card" style={{ gridColumn: '1 / -1', minWidth: 0, borderColor: 'var(--warm-accent)', background: 'linear-gradient(135deg, var(--warm-accent-light), var(--warm-card))' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+              <h3 style={{ fontSize: 17, fontWeight: 900, color: 'var(--warm-text)', margin: 0 }}>⚡ {t('rescue.title')}</h3>
+              {!mission.completedBy && <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-text-muted)' }}>{t('rescue.endsMidnight')}</span>}
+            </div>
+            {mission.completedBy ? (
+              <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--health-green)' }}>
+                ✅ {mission.taskName ? `${taskName(mission.taskName, mission.task?.translationKey)} · ` : ''}{t('rescue.rescuedBy').replace('{name}', mission.completedByName ?? '?')}
+              </div>
+            ) : mission.task && (
+              <>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-accent)', marginBottom: 8 }}>{t('rescue.pays').replace('{m}', String(mission.multiplier))}</div>
+                {questRow(mission.task, { key: `rescue-${mission.task.id}`, highlight: true })}
+              </>
+            )}
+            {currentUser.role === 'admin' && !mission.completedBy && (
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10, alignItems: 'center' }}>
+                <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => void missionAction(api.rescueReroll)}>🔄 {t('rescue.another')}</button>
+                {(data.rescueChoices ?? []).length > 1 && (
+                  <select className="tq-input-compact" value="" aria-label={t('rescue.choose')} style={{ flex: '1 1 140px', width: 0, minWidth: 0, maxWidth: '100%' }}
+                    onChange={(e) => { if (e.target.value) void missionAction(() => api.rescueChoose(Number(e.target.value))); }}>
+                    <option value="">{t('rescue.choose')}</option>
+                    {(data.rescueChoices ?? []).filter((c) => c.id !== mission.taskId).map((c) => <option key={c.id} value={c.id}>{taskName(c.name, undefined)}</option>)}
+                  </select>
+                )}
+                <button className="tq-btn tq-btn-sm" onClick={() => void missionAction(api.rescueSkip)}>{t('rescue.skip')}</button>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Your usual: pinned and most-done tasks, one tap away */}
         {isVisible('usual') && usualShown.length > 0 && (
           <div className="tq-card tq-card-padded">

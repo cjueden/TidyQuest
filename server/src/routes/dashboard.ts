@@ -8,6 +8,8 @@ import { repeatCountsFor } from '../utils/repeatLimits';
 import { getActiveBoosts } from '../utils/boosts';
 import { achievementsFor } from '../utils/achievementStats';
 import { forgottenTasks, usualTasks } from '../utils/homeSections';
+import { rescueCandidates, todaysMission } from '../utils/rescue';
+import { isFeatureOn } from '../utils/features';
 
 const router = Router();
 router.use(authMiddleware);
@@ -163,8 +165,26 @@ router.get('/', (req: AuthRequest, res: Response) => {
     .sort((a, b) => Number(b.overdue) - Number(a.overdue) || String(a.doBy ?? '9999').localeCompare(String(b.doBy ?? '9999')) || a.id - b.id);
 
   // Your usual (pins, then what this person does most) and Maybe you forgot (overdue by a whole interval)
+  // Today's Rescue Mission: shown to the people who can do that chore (parents always), with its
+  // own card, so it's left out of "Maybe you forgot"
+  const missionRow = todaysMission();
+  const missionTask = missionRow ? allTasks.find((t) => t.id === missionRow.taskId) ?? null : null;
+  const missionIds: number[] = missionTask?.effectiveAssignedUserIds ?? [];
+  const missionVisible = user.role === 'admin' || (missionTask ? missionIds.length === 0 || missionIds.includes(user.id) : false);
+  const rescueMission = missionRow && missionVisible && (missionTask || missionRow.completedBy) ? {
+    day: missionRow.day,
+    taskId: missionRow.taskId,
+    multiplier: missionRow.multiplier,
+    completedBy: missionRow.completedBy,
+    completedByName: missionRow.completedBy ? (db.prepare('SELECT displayName FROM users WHERE id = ?').get(missionRow.completedBy) as { displayName: string } | undefined)?.displayName ?? null : null,
+    taskName: missionTask?.name ?? (db.prepare('SELECT name FROM tasks WHERE id = ?').get(missionRow.taskId) as { name: string } | undefined)?.name ?? null,
+    task: missionTask,
+  } : null;
+  // Parents can choose another one
+  const rescueChoices = user.role === 'admin' && isFeatureOn('rescue') ? rescueCandidates().slice(0, 8).map(({ id, name }) => ({ id, name })) : [];
+
   const usualQuests = usualTasks(allTasks, req.userId!);
-  const forgottenQuests = forgottenTasks(allTasks, req.userId!);
+  const forgottenQuests = forgottenTasks(allTasks, req.userId!, new Date(), new Set(missionRow?.taskId ? [missionRow.taskId] : []));
 
   // Backwards-compatible aliases
   const todaysQuests = [...readyToComplete, ...onDemandQuests];
@@ -295,6 +315,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     todoQuests,
     usualQuests,
     forgottenQuests,
+    rescueMission,
+    rescueChoices,
     onDemandQuests,
     nextTasks,
     completedToday,

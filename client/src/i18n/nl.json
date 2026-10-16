@@ -1159,7 +1159,8 @@
       "boostStart": "⚡ {multiplier}× munten: ‘{title}’ loopt tot {time}!",
       "boostEnding": "⏰ Laatste uur {multiplier}× munten: ‘{title}’ eindigt om {time}.",
       "test": "👋 Test van TidyQuest: meldingen voor {name} werken!",
-      "moreItems": "+{n} meer"
+      "moreItems": "+{n} meer",
+      "rescue": "⚡ Reddingsmissie: ‘{task}’ levert vandaag {multiplier}× munten op. Wie het eerst doet, wint!"
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",
@@ -1207,7 +1208,9 @@
       "error_invalid_service": "Servicenamen zien eruit als notify.mobile_app_telefoon",
       "error_invalid_topic": "Onderwerpen: letters, cijfers, - en _",
       "error_invalid_chat": "Chat-ID's zijn getallen (of @naam)",
-      "error_no_channels": "Stel eerst een kanaal in"
+      "error_no_channels": "Stel eerst een kanaal in",
+      "kind_rescue": "Reddingsmissie",
+      "kindDesc_rescue": "de 2×-taak van de dag, 's ochtends"
     },
     "todos": {
       "roomName": "To-do's",
@@ -1231,6 +1234,15 @@
       "overdueDays": "{n} dagen te laat",
       "overdueDay": "1 dag te laat",
       "snooze": "3 dagen uitstellen"
+    },
+    "rescue": {
+      "title": "Reddingsmissie",
+      "pays": "Levert vandaag {m}× munten op. Wie het eerst doet, wint!",
+      "endsMidnight": "Eindigt om middernacht",
+      "rescuedBy": "Gered door {name}!",
+      "another": "Een andere",
+      "skip": "Vandaag geen",
+      "choose": "Kiezen…"
     }
   }
 }

@@ -289,6 +289,10 @@ export const api = {
 
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
+  // Today's Rescue Mission (parents): another one, a chosen chore, or none today
+  rescueReroll: () => apiFetch<unknown>('/rescue/reroll', { method: 'POST' }),
+  rescueChoose: (taskId: number) => apiFetch<unknown>('/rescue', { method: 'PUT', body: JSON.stringify({ taskId }) }),
+  rescueSkip: () => apiFetch<unknown>('/rescue', { method: 'DELETE' }),
   // Home: pin to "Your usual", snooze in "Maybe you forgot" (for yourself)
   pinTask: (id: number) => apiFetch<{ pinned: boolean }>(`/tasks/${id}/pin`, { method: 'POST' }),
   unpinTask: (id: number) => apiFetch<{ pinned: boolean }>(`/tasks/${id}/pin`, { method: 'DELETE' }),

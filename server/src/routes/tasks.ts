@@ -10,6 +10,7 @@ import { suggestTaskIcon } from '../utils/taskIcons';
 import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '../utils/achievementNotifications';
 import { badgeInfo } from '../utils/achievementStats';
 import { pinnedTaskIds } from '../utils/homeSections';
+import { claimRescue, releaseRescue, setRescueCompletion, todaysMission } from '../utils/rescue';
 import { notifyChoreApproved, notifyChoreRejected, notifyChoreWaiting } from '../utils/notifyMessages';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
@@ -173,6 +174,7 @@ function rejectPendingCompletion(completionId: number, adminId?: number): string
   if (!completion) return 'not_found';
   if (completion.status !== 'pending') return 'completion_not_pending';
   db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
+  releaseRescue(completion.id); // a rejected Rescue Mission is open again
   if (adminId) void notifyChoreRejected(completion.userId, adminId, completion.taskName ?? '');
   return null;
 }
@@ -788,6 +790,11 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   const gamifRow = db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined;
   const gamificationOn = gamifRow ? gamifRow.value !== '0' : true;
 
+  // Today's Rescue Mission: the first completion of that chore claims its bonus (before coins are
+  // counted, so two people finishing at once can't both get it)
+  const mission = todaysMission(new Date(now));
+  const rescued = !!mission && mission.taskId === task.id && claimRescue(task.id, effectiveUserId, new Date(now));
+
   let coins: number;
   if (!gamificationOn) {
     coins = 0;
@@ -805,7 +812,8 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     }
     // Double coins event running for this room: the boosted amount is stored on the completion,
     // so a parent approving it later (Strict Mode) still pays the boost
-    const multiplier = boostMultiplierForRoom(task.roomId, new Date(now));
+    // The Rescue Mission doesn't stack with a double coins event: the bigger multiplier wins
+    const multiplier = Math.max(boostMultiplierForRoom(task.roomId, new Date(now)), rescued ? mission!.multiplier : 1);
     if (multiplier > 1) coins = Math.round(coins * multiplier);
   }
 
@@ -823,10 +831,12 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
       "INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, note) VALUES (?, ?, ?, ?, 'pending', ?)"
     ).run(task.id, effectiveUserId, now, coins, note).lastInsertRowid);
     void notifyChoreWaiting(effectiveUserId, task.name);
-    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId });
+    if (rescued) setRescueCompletion(mission!.day, pendingId);
+    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId, rescued });
   }
 
   const completionId = applyApprovedCompletion(task, task.id, effectiveUserId, coins, now, gamificationOn, { note });
+  if (rescued) setRescueCompletion(mission!.day, completionId);
   advanceRotation(task, effectiveUserId);
 
   const newAchievements = gamificationOn ? checkAndRecordNewAchievements(effectiveUserId) : [];
@@ -834,7 +844,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     void notifyAchievementUnlocksForUser(effectiveUserId);
   }
   // Titles for the pop-up: parent-made and secret badges aren't in the page data the app already has
-  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(effectiveUserId, newAchievements), completionId });
+  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(effectiveUserId, newAchievements), completionId, rescued });
 });
 
 router.get('/completions/pending', (req: AuthRequest, res: Response) => {
@@ -955,8 +965,9 @@ router.delete('/completions/:completionId', (req: AuthRequest, res: Response) =>
       .run(completion.coinsEarned, completion.userId);
   }
 
-  // Delete the completion record
+  // Delete the completion record (an undone Rescue Mission is open again)
   db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
+  releaseRescue(completion.id);
 
   // Update task.lastCompletedAt to the previous completion's completedAt (or NULL if none)
   const prev = db.prepare(
