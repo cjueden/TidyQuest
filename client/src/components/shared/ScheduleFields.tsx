@@ -29,8 +29,14 @@ export function DueOnPicker({ value, onChange, interval, t, language }: {
         }}>
         <option value="interval">{t('roomDetail.every')}</option>
         <option value="weekdays">{t('schedule.onDays')}</option>
+        <option value="once">{t('schedule.once')}</option>
       </select>
-      {value.mode === 'interval' ? interval : (
+      {value.mode === 'once' ? (
+        <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: 6 }} title={t('schedule.oneTimeDesc')}>
+          {t('schedule.doBy')}
+          <input type="date" className="tq-input-compact" value={value.doBy} onChange={(e) => onChange({ ...value, doBy: e.target.value })} />
+        </label>
+      ) : value.mode === 'interval' ? interval : (
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {WEEK_ORDER.map((d) => (
             <button type="button" key={d} style={chip(!!(value.weekdays & (1 << d)))} onClick={() => toggle(d)} aria-pressed={!!(value.weekdays & (1 << d))}>

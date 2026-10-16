@@ -18,6 +18,7 @@ import { sendDueTaskNotificationsIfNeeded } from './utils/notifications';
 import { sendCoinBoostNotificationsIfNeeded } from './utils/boosts';
 import { runScheduledNotifications } from './utils/notifySchedule';
 import notifyRoutes from './routes/notify';
+import todosRoutes from './routes/todos';
 import boostsRoutes from './routes/boosts';
 import csvRoutes from './routes/csv';
 import trashRoutes from './routes/trash';
@@ -68,6 +69,7 @@ export function createApp() {
   app.use('/api/csv', csvRoutes);
   app.use('/api/trash', trashRoutes);
   app.use('/api/notify', notifyRoutes);
+  app.use('/api/todos', todosRoutes);
 
   // 404 handler for unknown API routes
   app.use('/api/*', (_req, res) => {

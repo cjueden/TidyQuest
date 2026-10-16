@@ -29,6 +29,11 @@ export interface ScheduledTask {
   seasonStartMonth?: number | null;
   seasonEndMonth?: number | null;
   scheduleWeekdays?: number | null;
+  /** One-time chore: done once, then archived */
+  oneTime?: number | boolean | null;
+  /** One-time chore's "do by" date, 'YYYY-MM-DD' (local) */
+  doBy?: string | null;
+  createdAt?: string | null;
 }
 
 interface Vacation { isVacation: boolean; startDate: string | null }
@@ -79,8 +84,30 @@ function previousScheduledDay(mask: number, before: Date): Date {
   return localDay(before, -7);
 }
 
+/** SQLite datetime('now') ("2026-10-16 07:12:00", UTC) or an ISO string, as a Date */
+const parseStored = (v: string) => new Date(v.includes('T') ? v : `${v.replace(' ', 'T')}Z`);
+
+/**
+ * A one-time chore is due from its do-by day (or from when it was added) and overdue once that day
+ * ends (without a date: a week after it was added).
+ */
+export function oneTimeDeadline(task: ScheduledTask, now: Date = new Date()): Date {
+  if (task.doBy && /^\d{4}-\d{2}-\d{2}$/.test(task.doBy)) return new Date(`${task.doBy}T23:59:59.999`);
+  const added = task.createdAt ? parseStored(task.createdAt) : now;
+  return new Date(added.getTime() + 7 * DAY_MS);
+}
+
+/** Counts toward room and house health (not out of season, not a one-time chore). */
+export function countsForHealth(task: ScheduledTask, now: Date = new Date()): boolean {
+  return !task.oneTime && !isSeasonalNow(task, now);
+}
+
 /** When the task is next due; null for a rolling task that was never done (due now). */
 export function nextDueAt(task: ScheduledTask, now: Date = new Date()): Date | null {
+  if (task.oneTime) {
+    if (task.doBy && /^\d{4}-\d{2}-\d{2}$/.test(task.doBy)) return new Date(`${task.doBy}T00:00:00`);
+    return task.createdAt ? parseStored(task.createdAt) : null;
+  }
   const mask = weekdayMask(task);
   if (mask) {
     return task.lastCompletedAt
@@ -94,6 +121,7 @@ export function nextDueAt(task: ScheduledTask, now: Date = new Date()): Date | n
 
 /** Health 0–100 for either kind of schedule (frozen at the vacation start, like calculateHealth). */
 export function taskHealth(task: ScheduledTask, vacation: Vacation = NO_VACATION, now: Date = new Date()): number {
+  if (task.oneTime) return now.getTime() > oneTimeDeadline(task, now).getTime() ? 0 : 100;
   const mask = weekdayMask(task);
   if (!mask) return calculateHealth(task.lastCompletedAt, task.frequencyDays, vacation.isVacation, vacation.startDate);
   const at = vacation.isVacation && vacation.startDate ? new Date(vacation.startDate) : now;
@@ -167,7 +195,7 @@ export function scheduleFields(task: ScheduledTask & Parameters<typeof rotationT
   };
 }
 
-type ScheduleColumn = 'seasonStartMonth' | 'seasonEndMonth' | 'scheduleWeekdays' | 'rotationPeriod' | 'reminderTime' | 'reminderDayBefore';
+type ScheduleColumn = 'seasonStartMonth' | 'seasonEndMonth' | 'scheduleWeekdays' | 'rotationPeriod' | 'reminderTime' | 'reminderDayBefore' | 'oneTime' | 'doBy';
 export type ScheduleInput = { error: string } | { values: Partial<Record<ScheduleColumn, number | string | null>> };
 
 const blank = (v: unknown) => v === undefined || v === null || v === '';
@@ -203,6 +231,13 @@ export function readScheduleInput(body: any): ScheduleInput {
     values.reminderTime = v;
   }
   if (body && 'reminderDayBefore' in body) values.reminderDayBefore = body.reminderDayBefore ? 1 : 0;
+  // One-time chore and its optional do-by date ('YYYY-MM-DD')
+  if (body && 'oneTime' in body) values.oneTime = body.oneTime ? 1 : 0;
+  if (body && 'doBy' in body) {
+    const v = blank(body.doBy) ? null : String(body.doBy).trim();
+    if (v !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(v) || Number.isNaN(new Date(`${v}T12:00:00`).getTime()))) return { error: 'invalid_do_by' };
+    values.doBy = v;
+  }
   if (body && 'rotationPeriod' in body) {
     const p = blank(body.rotationPeriod) ? 'completion' : body.rotationPeriod;
     if (p !== 'completion' && p !== 'week') return { error: 'invalid_rotation_period' };

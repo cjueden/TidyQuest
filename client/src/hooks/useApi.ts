@@ -289,6 +289,9 @@ export const api = {
 
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
+  // "+ To-do" on Home (one-time chores, parents)
+  createTodo: (data: { name: string; assignedUserIds?: number[]; doBy?: string | null; customCoins?: number | null; roomId?: number }) =>
+    apiFetch<{ id: number; roomId: number }>('/todos', { method: 'POST', body: JSON.stringify(data) }),
   // Notifications to people (Settings → Notifications)
   getNotifySettings: () => apiFetch<NotifySettings>('/notify/settings'),
   updateNotifySettings: (data: Partial<NotifySettings> & { haToken?: string }) => apiFetch<NotifySettings>('/notify/settings', { method: 'PUT', body: JSON.stringify(data) }),

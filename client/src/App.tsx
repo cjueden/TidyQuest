@@ -253,6 +253,8 @@ function AppContent() {
         setTaskErrorMsg(t('app.alreadyDoneToday'));
       } else if (msg === 'already_done_by_other') {
         setTaskErrorMsg(t('app.alreadyDoneByOther'));
+      } else if (msg === 'already_done') {
+        setTaskErrorMsg(t('app.alreadyDone'));
       } else if (msg === 'repeat_limit_reached') {
         setTaskErrorMsg(t('repeat.limitReached'));
       } else if (msg === 'not_assigned') {

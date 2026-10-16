@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
-import { calendarDaysUntil, hasWeekdaySchedule, isSeasonalNow, nextDueAt, scheduleFields, taskHealth } from '../utils/schedule';
+import { calendarDaysUntil, hasWeekdaySchedule, isSeasonalNow, nextDueAt, oneTimeDeadline, scheduleFields, taskHealth } from '../utils/schedule';
 import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, isStrictModeEnabled, resolveVacation } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
 import { repeatCountsFor } from '../utils/repeatLimits';
@@ -25,7 +25,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const allTasks: any[] = [];
 
   // Fetch all tasks in one query and group by roomId to avoid N+1
-  const dbTasks = db.prepare('SELECT * FROM tasks').all() as any[];
+  const dbTasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL').all() as any[];
   const tasksByRoom = new Map<number, any[]>();
   for (const t of dbTasks) {
     if (!tasksByRoom.has(t.roomId)) tasksByRoom.set(t.roomId, []);
@@ -117,8 +117,10 @@ router.get('/', (req: AuthRequest, res: Response) => {
       return taskWithHealth;
     });
 
-    const nonSeasonal = tasksWithHealth.filter((t) => !t.isSeasonal);
-    const forAvg = nonSeasonal.length > 0 ? nonSeasonal : tasksWithHealth;
+    // One-time chores don't count toward health
+    const regular = tasksWithHealth.filter((t) => !t.oneTime);
+    const nonSeasonal = regular.filter((t) => !t.isSeasonal);
+    const forAvg = nonSeasonal.length > 0 ? nonSeasonal : regular;
     const totalEffort = forAvg.reduce((s, t) => s + t.effort, 0);
     const health = totalEffort > 0
       ? Math.round(forAvg.reduce((s, t) => s + t.health * t.effort, 0) / totalEffort)
@@ -128,8 +130,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
   });
 
   // House health
-  const nonSeasonal = allTasks.filter((t) => !t.isSeasonal);
-  const forHouseAvg = nonSeasonal.length > 0 ? nonSeasonal : allTasks;
+  const regularTasks = allTasks.filter((t) => !t.oneTime);
+  const nonSeasonal = regularTasks.filter((t) => !t.isSeasonal);
+  const forHouseAvg = nonSeasonal.length > 0 ? nonSeasonal : regularTasks;
   const totalEffort = forHouseAvg.reduce((s, t) => s + t.effort, 0);
   const houseHealth = totalEffort > 0
     ? Math.round(forHouseAvg.reduce((s, t) => s + t.health * t.effort, 0) / totalEffort)
@@ -137,13 +140,13 @@ router.get('/', (req: AuthRequest, res: Response) => {
 
   // Ready to complete: actually overdue (due date has passed), non-seasonal, non-on-demand
   const readyToComplete = allTasks
-    .filter((t) => !t.isSeasonal && !t.onDemand && new Date(t.dueDate).getTime() <= nowTs)
+    .filter((t) => !t.isSeasonal && !t.onDemand && !t.oneTime && new Date(t.dueDate).getTime() <= nowTs)
     .sort((a, b) => a.health - b.health)
     .slice(0, 10);
 
   // Scheduled upcoming: not yet due (due date in the future), non-seasonal, non-on-demand
   const scheduledUpcoming = allTasks
-    .filter((t) => !t.isSeasonal && !t.onDemand && new Date(t.dueDate).getTime() > nowTs)
+    .filter((t) => !t.isSeasonal && !t.onDemand && !t.oneTime && new Date(t.dueDate).getTime() > nowTs)
     .sort((a, b) => a.dueInDays - b.dueInDays || a.health - b.health)
     .slice(0, 10);
 
@@ -151,6 +154,12 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const onDemandQuests = allTasks
     .filter((t) => !t.isSeasonal && t.onDemand && t.showInDashboard)
     .sort((a, b) => a.health - b.health);
+
+  // One-time chores still to do (the To-do card): overdue first, then by do-by date, then oldest
+  const todoQuests = allTasks
+    .filter((t) => t.oneTime)
+    .map((t) => ({ ...t, overdue: Date.now() > oneTimeDeadline(t).getTime() }))
+    .sort((a, b) => Number(b.overdue) - Number(a.overdue) || String(a.doBy ?? '9999').localeCompare(String(b.doBy ?? '9999')) || a.id - b.id);
 
   // Backwards-compatible aliases
   const todaysQuests = [...readyToComplete, ...onDemandQuests];
@@ -278,6 +287,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     todaysQuests,
     readyToComplete,
     scheduledUpcoming,
+    todoQuests,
     onDemandQuests,
     nextTasks,
     completedToday,

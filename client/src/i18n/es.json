@@ -318,7 +318,8 @@
       "childrenGroup": "Niños",
       "tasksSubtitle": "Todas las tareas de todas las habitaciones",
       "waitingForApproval": "Esperando aprobación",
-      "waitingCount": "{n} esperando aprobación"
+      "waitingCount": "{n} esperando aprobación",
+      "alreadyDone": "¡Eso ya está hecho!"
     },
     "admin": {
       "whoDidThisTask": "¿Quién completó esta tarea?",
@@ -806,7 +807,8 @@
       "count": "{n} tareas",
       "countOne": "1 tarea",
       "clear": "Borrar filtros",
-      "noMatches": "Ninguna tarea coincide con estos filtros."
+      "noMatches": "Ninguna tarea coincide con estos filtros.",
+      "oneTime": "Una vez"
     },
     "approvals": {
       "title": "Esperando aprobación",
@@ -915,7 +917,10 @@
       "reminderWhen": "Cuándo",
       "reminderSameDay": "ese mismo día",
       "reminderDayBefore": "el día antes",
-      "reminderDesc": "Si aún no está hecho, recuerda otra vez 2 horas después y luego avisa a un padre."
+      "reminderDesc": "Si aún no está hecho, recuerda otra vez 2 horas después y luego avisa a un padre.",
+      "once": "Una vez",
+      "doBy": "Hacer antes del",
+      "oneTimeDesc": "Se hace una vez y desaparece (queda en Actividad)."
     },
     "trash": {
       "undo": "Deshacer",
@@ -1203,6 +1208,20 @@
       "error_invalid_topic": "Los temas: letras, números, - y _",
       "error_invalid_chat": "Los ID de chat son números (o @nombre)",
       "error_no_channels": "Configura primero un canal"
+    },
+    "todos": {
+      "roomName": "Pendientes",
+      "title": "Lista de pendientes",
+      "add": "Pendiente",
+      "namePlaceholder": "¿Qué hay que hacer? (p. ej. Arreglar la mosquitera)",
+      "doBy": "Hacer antes del",
+      "forWho": "Para",
+      "anyone": "Cualquiera",
+      "coins": "Monedas",
+      "create": "Añadir",
+      "overdue": "Atrasado",
+      "byDate": "Antes del {date}",
+      "added": "Añadido: {name}"
     }
   }
 }

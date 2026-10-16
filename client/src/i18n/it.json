@@ -318,7 +318,8 @@
       "childrenGroup": "Bambini",
       "tasksSubtitle": "Tutti i compiti di tutte le stanze",
       "waitingForApproval": "In attesa di approvazione",
-      "waitingCount": "{n} in attesa di approvazione"
+      "waitingCount": "{n} in attesa di approvazione",
+      "alreadyDone": "È già fatto!"
     },
     "admin": {
       "whoDidThisTask": "Chi ha completato questo compito?",
@@ -806,7 +807,8 @@
       "count": "{n} compiti",
       "countOne": "1 compito",
       "clear": "Azzera filtri",
-      "noMatches": "Nessun compito corrisponde a questi filtri."
+      "noMatches": "Nessun compito corrisponde a questi filtri.",
+      "oneTime": "Una volta"
     },
     "approvals": {
       "title": "In attesa di approvazione",
@@ -915,7 +917,10 @@
       "reminderWhen": "Quando",
       "reminderSameDay": "il giorno stesso",
       "reminderDayBefore": "il giorno prima",
-      "reminderDesc": "Se non è ancora fatto, ricorda di nuovo 2 ore dopo, poi avvisa un genitore."
+      "reminderDesc": "Se non è ancora fatto, ricorda di nuovo 2 ore dopo, poi avvisa un genitore.",
+      "once": "Una volta",
+      "doBy": "Da fare entro",
+      "oneTimeDesc": "Si fa una volta, poi sparisce (resta in Attività)."
     },
     "trash": {
       "undo": "Annulla",
@@ -1203,6 +1208,20 @@
       "error_invalid_topic": "Argomenti: lettere, numeri, - e _",
       "error_invalid_chat": "Gli ID chat sono numeri (o @nome)",
       "error_no_channels": "Imposta prima un canale"
+    },
+    "todos": {
+      "roomName": "Da fare",
+      "title": "Lista delle cose da fare",
+      "add": "Da fare",
+      "namePlaceholder": "Cosa c'è da fare? (es. Aggiustare la zanzariera)",
+      "doBy": "Da fare entro",
+      "forWho": "Per",
+      "anyone": "Chiunque",
+      "coins": "Monete",
+      "create": "Aggiungi",
+      "overdue": "In ritardo",
+      "byDate": "Entro il {date}",
+      "added": "Aggiunto: {name}"
     }
   }
 }

@@ -318,7 +318,8 @@
       "childrenGroup": "Children",
       "tasksSubtitle": "Every task in every room",
       "waitingForApproval": "Waiting for approval",
-      "waitingCount": "{n} waiting for approval"
+      "waitingCount": "{n} waiting for approval",
+      "alreadyDone": "That's already done!"
     },
     "admin": {
       "whoDidThisTask": "Who completed this task?",
@@ -806,7 +807,8 @@
       "count": "{n} tasks",
       "countOne": "1 task",
       "clear": "Clear filters",
-      "noMatches": "No tasks match these filters."
+      "noMatches": "No tasks match these filters.",
+      "oneTime": "One-time"
     },
     "approvals": {
       "title": "Waiting for approval",
@@ -915,7 +917,10 @@
       "reminderWhen": "When",
       "reminderSameDay": "on the day",
       "reminderDayBefore": "the day before",
-      "reminderDesc": "If it's still not done, it reminds again 2 hours later, then tells a parent."
+      "reminderDesc": "If it's still not done, it reminds again 2 hours later, then tells a parent.",
+      "once": "One time",
+      "doBy": "Do by",
+      "oneTimeDesc": "Done once, then it's gone (it stays in Activity)."
     },
     "trash": {
       "undo": "Undo",
@@ -1203,6 +1208,20 @@
       "error_invalid_topic": "Topics can use letters, numbers, - and _",
       "error_invalid_chat": "Chat IDs are numbers (or @name)",
       "error_no_channels": "Set up a channel first"
+    },
+    "todos": {
+      "roomName": "To-dos",
+      "title": "To-do list",
+      "add": "To-do",
+      "namePlaceholder": "What needs doing? (e.g. Fix the screen door)",
+      "doBy": "Do by",
+      "forWho": "For",
+      "anyone": "Anyone",
+      "coins": "Coins",
+      "create": "Add",
+      "overdue": "Overdue",
+      "byDate": "By {date}",
+      "added": "Added: {name}"
     }
   }
 }

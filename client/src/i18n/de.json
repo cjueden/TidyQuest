@@ -318,7 +318,8 @@
       "childrenGroup": "Kinder",
       "tasksSubtitle": "Alle Aufgaben aus allen Räumen",
       "waitingForApproval": "Wartet auf Freigabe",
-      "waitingCount": "{n} warten auf Freigabe"
+      "waitingCount": "{n} warten auf Freigabe",
+      "alreadyDone": "Das ist schon erledigt!"
     },
     "admin": {
       "whoDidThisTask": "Wer hat diese Aufgabe erledigt?",
@@ -806,7 +807,8 @@
       "count": "{n} Aufgaben",
       "countOne": "1 Aufgabe",
       "clear": "Filter zurücksetzen",
-      "noMatches": "Keine Aufgaben passen zu diesen Filtern."
+      "noMatches": "Keine Aufgaben passen zu diesen Filtern.",
+      "oneTime": "Einmalig"
     },
     "approvals": {
       "title": "Wartet auf Freigabe",
@@ -915,7 +917,10 @@
       "reminderWhen": "Wann",
       "reminderSameDay": "am Tag selbst",
       "reminderDayBefore": "am Vortag",
-      "reminderDesc": "Wenn es dann noch nicht erledigt ist, wird 2 Stunden später erneut erinnert, dann ein Elternteil."
+      "reminderDesc": "Wenn es dann noch nicht erledigt ist, wird 2 Stunden später erneut erinnert, dann ein Elternteil.",
+      "once": "Einmalig",
+      "doBy": "Erledigen bis",
+      "oneTimeDesc": "Einmal erledigt, dann weg (bleibt im Verlauf)."
     },
     "trash": {
       "undo": "Rückgängig",
@@ -1203,6 +1208,20 @@
       "error_invalid_topic": "Themen: Buchstaben, Zahlen, - und _",
       "error_invalid_chat": "Chat-IDs sind Zahlen (oder @name)",
       "error_no_channels": "Richte zuerst einen Kanal ein"
+    },
+    "todos": {
+      "roomName": "Erledigen",
+      "title": "To-do-Liste",
+      "add": "To-do",
+      "namePlaceholder": "Was ist zu tun? (z. B. Fliegengittertür reparieren)",
+      "doBy": "Erledigen bis",
+      "forWho": "Für",
+      "anyone": "Alle",
+      "coins": "Münzen",
+      "create": "Hinzufügen",
+      "overdue": "Überfällig",
+      "byDate": "Bis {date}",
+      "added": "Hinzugefügt: {name}"
     }
   }
 }

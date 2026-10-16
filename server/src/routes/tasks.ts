@@ -39,7 +39,7 @@ router.use(authMiddleware);
 
 function hadDueTaskOnDate(dateIsoDay: string): boolean {
   const endOfDay = new Date(`${dateIsoDay}T23:59:59.999Z`).getTime();
-  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks').all() as Array<{
+  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks WHERE archivedAt IS NULL AND oneTime = 0').all() as Array<{
     id: number; frequencyDays: number; isSeasonal: number; lastCompletedAt: string | null;
     seasonStartMonth: number | null; seasonEndMonth: number | null; scheduleWeekdays: number | null;
   }>;
@@ -86,6 +86,9 @@ function applyApprovedCompletion(
   }
 
   const taskAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ?').all(taskId) as { userId: number }[];
+
+  // A one-time chore is finished: it leaves every list (its history stays)
+  if (task.oneTime) db.prepare('UPDATE tasks SET archivedAt = ? WHERE id = ?').run(now, taskId);
 
   if (task.assignmentMode === 'shared' || task.assignmentMode === 'custom') {
     if (taskAssignees.length > 0) {
@@ -177,7 +180,7 @@ function rejectPendingCompletion(completionId: number, adminId?: number): string
 router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   const vacation = getGlobalVacation();
   const room = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(req.params.roomId) as any;
-  const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ?').all(req.params.roomId) as any[];
+  const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL').all(req.params.roomId) as any[];
   const now = new Date().toISOString();
 
   // Build users map for assignment resolution
@@ -529,7 +532,7 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
            r.name as roomName
     FROM tasks t
     JOIN rooms r ON t.roomId = r.id
-    WHERE t.isSeasonal = 0 AND t.onDemand = 0
+    WHERE t.isSeasonal = 0 AND t.onDemand = 0 AND t.archivedAt IS NULL
   `).all() as any[];
 
   const allUsers = db.prepare('SELECT id, displayName, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users').all() as any[];
@@ -601,6 +604,7 @@ router.post('/tasks/:id/duplicate', (req: AuthRequest, res: Response) => {
     seasonStartMonth: task.seasonStartMonth, seasonEndMonth: task.seasonEndMonth,
     scheduleWeekdays: task.scheduleWeekdays, rotationPeriod: task.rotationPeriod,
     reminderTime: task.reminderTime, reminderDayBefore: task.reminderDayBefore,
+    oneTime: task.oneTime, doBy: task.doBy,
   });
 
   const assignees = db.prepare('SELECT userId, coinPercentage FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number; coinPercentage: number }[];
@@ -674,6 +678,11 @@ function advanceRotation(task: any, completedByUserId: number) {
 router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as any;
   if (!task) return res.status(404).json({ error: 'Task not found' });
+  // A one-time chore is done once: archived after that, and only one completion can wait for approval
+  if (task.archivedAt) return res.status(409).json({ error: 'already_done' });
+  if (task.oneTime && db.prepare("SELECT 1 FROM task_completions WHERE taskId = ? AND status = 'pending'").get(task.id)) {
+    return res.status(409).json({ error: 'already_done_by_other' });
+  }
 
   // Enforce assignment rules
   const room = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(task.roomId) as any;
@@ -736,8 +745,8 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Block if frequency cooldown hasn't elapsed (task not yet due)
-    if (task.lastCompletedAt) {
+    // Block if frequency cooldown hasn't elapsed (task not yet due); a one-time chore can be done any time
+    if (task.lastCompletedAt && !task.oneTime) {
       const globalVac = getGlobalVacation();
       const taskAssigneesForVac = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number }[];
       const taskVac = taskAssigneesForVac.length === 1
@@ -928,6 +937,8 @@ router.delete('/completions/:completionId', (req: AuthRequest, res: Response) =>
   ).get(completion.taskId) as any;
   db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?')
     .run(prev?.completedAt || null, completion.taskId);
+  // Undoing a one-time chore's completion brings it back
+  if (!prev) db.prepare('UPDATE tasks SET archivedAt = NULL WHERE id = ? AND oneTime = 1').run(completion.taskId);
 
   res.json({ success: true, coinsDeducted: completion.coinsEarned });
 });

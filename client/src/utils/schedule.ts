@@ -6,7 +6,10 @@ import { localeFor } from './locale';
  * tasks.
  */
 export interface ScheduleValue {
-  mode: 'interval' | 'weekdays';
+  /** Every N days, on set weekdays, or one time (then it's archived) */
+  mode: 'interval' | 'weekdays' | 'once';
+  /** One time: optional do-by date 'YYYY-MM-DD' */
+  doBy: string;
   /** Bitmask like Date.getDay(): bit 0 = Sunday … bit 6 = Saturday */
   weekdays: number;
   seasonOn: boolean;
@@ -25,15 +28,18 @@ export interface ScheduledTaskFields {
   rotationPeriod?: 'completion' | 'week' | null;
   reminderTime?: string | null;
   reminderDayBefore?: number | boolean | null;
+  oneTime?: number | boolean | null;
+  doBy?: string | null;
 }
 
-export const EMPTY_SCHEDULE: ScheduleValue = { mode: 'interval', weekdays: 0, seasonOn: false, seasonStart: 4, seasonEnd: 10, rotationPeriod: 'completion', reminderTime: '', reminderDayBefore: false };
+export const EMPTY_SCHEDULE: ScheduleValue = { mode: 'interval', doBy: '', weekdays: 0, seasonOn: false, seasonStart: 4, seasonEnd: 10, rotationPeriod: 'completion', reminderTime: '', reminderDayBefore: false };
 
 export function scheduleFromTask(task: ScheduledTaskFields): ScheduleValue {
   const weekdays = Number(task.scheduleWeekdays) || 0;
   const seasonOn = !!task.seasonStartMonth && !!task.seasonEndMonth;
   return {
-    mode: weekdays ? 'weekdays' : 'interval',
+    mode: task.oneTime ? 'once' : weekdays ? 'weekdays' : 'interval',
+    doBy: task.doBy ?? '',
     weekdays,
     seasonOn,
     seasonStart: seasonOn ? Number(task.seasonStartMonth) : EMPTY_SCHEDULE.seasonStart,
@@ -48,6 +54,8 @@ export function scheduleFromTask(task: ScheduledTaskFields): ScheduleValue {
 export function schedulePayload(v: ScheduleValue, opts: { onDemand: boolean; rotating: boolean }) {
   return {
     scheduleWeekdays: !opts.onDemand && v.mode === 'weekdays' && v.weekdays ? v.weekdays : null,
+    oneTime: !opts.onDemand && v.mode === 'once',
+    doBy: !opts.onDemand && v.mode === 'once' && v.doBy ? v.doBy : null,
     seasonStartMonth: v.seasonOn ? v.seasonStart : null,
     seasonEndMonth: v.seasonOn ? v.seasonEnd : null,
     rotationPeriod: opts.rotating ? v.rotationPeriod : 'completion',

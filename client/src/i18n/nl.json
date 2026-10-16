@@ -318,7 +318,8 @@
       "childrenGroup": "Kinderen",
       "tasksSubtitle": "Alle klusjes uit alle kamers",
       "waitingForApproval": "Wacht op goedkeuring",
-      "waitingCount": "{n} wachten op goedkeuring"
+      "waitingCount": "{n} wachten op goedkeuring",
+      "alreadyDone": "Dat is al gedaan!"
     },
     "admin": {
       "whoDidThisTask": "Wie heeft dit klusje gedaan?",
@@ -806,7 +807,8 @@
       "count": "{n} klusjes",
       "countOne": "1 klusje",
       "clear": "Filters wissen",
-      "noMatches": "Geen klusjes voldoen aan deze filters."
+      "noMatches": "Geen klusjes voldoen aan deze filters.",
+      "oneTime": "Eenmalig"
     },
     "approvals": {
       "title": "Wacht op goedkeuring",
@@ -915,7 +917,10 @@
       "reminderWhen": "Wanneer",
       "reminderSameDay": "op de dag zelf",
       "reminderDayBefore": "de dag ervoor",
-      "reminderDesc": "Als het dan nog niet gedaan is, volgt 2 uur later nog een herinnering en daarna een ouder."
+      "reminderDesc": "Als het dan nog niet gedaan is, volgt 2 uur later nog een herinnering en daarna een ouder.",
+      "once": "Eenmalig",
+      "doBy": "Doen voor",
+      "oneTimeDesc": "Eén keer gedaan en dan weg (blijft in Activiteit)."
     },
     "trash": {
       "undo": "Ongedaan maken",
@@ -1203,6 +1208,20 @@
       "error_invalid_topic": "Onderwerpen: letters, cijfers, - en _",
       "error_invalid_chat": "Chat-ID's zijn getallen (of @naam)",
       "error_no_channels": "Stel eerst een kanaal in"
+    },
+    "todos": {
+      "roomName": "To-do's",
+      "title": "To-dolijst",
+      "add": "To-do",
+      "namePlaceholder": "Wat moet er gebeuren? (bijv. Hordeur repareren)",
+      "doBy": "Doen voor",
+      "forWho": "Voor",
+      "anyone": "Iedereen",
+      "coins": "Munten",
+      "create": "Toevoegen",
+      "overdue": "Te laat",
+      "byDate": "Voor {date}",
+      "added": "Toegevoegd: {name}"
     }
   }
 }

@@ -11,6 +11,7 @@ import { formatNextDue, isTaskForUser, taskNextDue } from '../../utils/tasks';
 import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker } from '../shared/ScheduleFields';
 import { EMPTY_SCHEDULE, schedulePayload, scheduleFromTask, seasonLabel, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
 import { api } from '../../hooks/useApi';
+import { localeFor } from '../../utils/locale';
 import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { ProofModal, type Proof } from '../shared/ProofModal';
@@ -580,7 +581,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       interval={<FrequencyPicker value={editForm.freqValue} unit={editForm.freqUnit}
                         t={t}
                         onChange={(v, u) => setEditForm(f => ({ ...f, freqValue: v, freqUnit: u }))} />} />}
-                    {!editForm.onDemand && <SeasonPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language} />}
+                    {!editForm.onDemand && editSchedule.mode !== 'once' && <SeasonPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language} />}
                     {!editForm.onDemand && <ReminderPicker value={editSchedule} onChange={setEditSchedule} t={t} />}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>
@@ -823,6 +824,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                 <div className="room-task-frequency" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>
                   {task.onDemand
                     ? <span style={{ color: 'var(--warm-accent)', fontWeight: 700 }}>{t('roomDetail.onDemand')}</span>
+                    : task.oneTime
+                      ? <span style={{ color: 'var(--warm-accent)', fontWeight: 700 }}>{t('schedule.once')}</span>
                     : task.scheduleWeekdays
                       ? <>{weekdaysLabel(task.scheduleWeekdays, language)}</>
                       : <>{t('roomDetail.every')} {formatFreq(task.frequencyDays, t)}</>
@@ -836,6 +839,10 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>—</div>
                   : task.outOfSeason
                   ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('schedule.offSeason')}</div>
+                  : task.oneTime
+                  ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: task.health <= 0 ? 'var(--health-red)' : 'var(--warm-text-light)' }}>
+                      {task.health <= 0 ? t('todos.overdue') : task.doBy ? t('todos.byDate').replace('{date}', new Date(`${task.doBy}T12:00:00`).toLocaleDateString(localeFor(language), { month: 'short', day: 'numeric' })) : '—'}
+                    </div>
                   : (() => { const { text, color } = formatNextDue(task.lastCompletedAt, task.frequencyDays, t, language, task.health, task.nextDueAt); return (
                       <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color }}>{text}</div>
                     ); })()
@@ -1023,7 +1030,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   interval={<FrequencyPicker value={newFreqValue} unit={newFreqUnit}
                     t={t}
                     onChange={(v, u) => { setNewFreqValue(v); setNewFreqUnit(u); }} />} />}
-                {!newTaskOnDemand && <SeasonPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language} />}
+                {!newTaskOnDemand && newSchedule.mode !== 'once' && <SeasonPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language} />}
                 {!newTaskOnDemand && <ReminderPicker value={newSchedule} onChange={setNewSchedule} t={t} />}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>

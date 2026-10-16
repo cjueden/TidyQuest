@@ -117,6 +117,11 @@ const NEW_TABLES: string[] = [
 
 /** Columns added to existing tables (ignored when they already exist). */
 const NEW_COLUMNS: string[] = [
+  // One-time chores ("Fix the screen door"): done once, then archived (archivedAt set; kept for history).
+  // doBy is an optional local date 'YYYY-MM-DD'.
+  `ALTER TABLE tasks ADD COLUMN oneTime INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE tasks ADD COLUMN doBy TEXT`,
+  `ALTER TABLE tasks ADD COLUMN archivedAt TEXT`,
   // Each person's color theme (NULL = the device's choice)
   `ALTER TABLE users ADD COLUMN theme TEXT`,
   // Birthday as 'MM-DD' (for the secret Birthday Helper badge)

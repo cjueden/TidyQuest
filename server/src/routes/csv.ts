@@ -84,7 +84,7 @@ function summarize<T extends { action: Action }>(rows: T[]) {
 router.get('/tasks', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
   const rooms = db.prepare('SELECT id, name FROM rooms ORDER BY sortOrder, id').all() as { id: number; name: string }[];
-  const tasks = db.prepare('SELECT * FROM tasks ORDER BY id').all() as any[];
+  const tasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL ORDER BY id').all() as any[];
   const usernames = new Map((db.prepare('SELECT id, username FROM users').all() as { id: number; username: string }[]).map((u) => [u.id, u.username]));
   const assignees = new Map<number, string[]>();
   for (const a of db.prepare('SELECT taskId, userId FROM task_assignees ORDER BY userId').all() as { taskId: number; userId: number }[]) {
@@ -107,7 +107,7 @@ function planTaskImport(csv: unknown) {
   const { rows, has, cell, unknownColumns } = table;
 
   const rooms = db.prepare('SELECT id, name, assignedUserId FROM rooms ORDER BY sortOrder, id').all() as { id: number; name: string; assignedUserId: number | null }[];
-  const tasks = db.prepare('SELECT * FROM tasks').all() as any[];
+  const tasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL').all() as any[];
   const users = db.prepare('SELECT id, username, displayName FROM users').all() as { id: number; username: string; displayName: string }[];
   const usernameById = new Map(users.map((u) => [u.id, u.username]));
   const assigneeIds = new Map<number, number[]>();

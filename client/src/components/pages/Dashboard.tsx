@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import HealthBar from '../shared/HealthBar';
 import { LevelStrip } from '../shared/LevelStrip';
+import { TodoQuickAdd } from '../shared/TodoQuickAdd';
+import { localeFor } from '../../utils/locale';
 import type { BadgeItem, LevelInfo } from '../../utils/badges';
 import RingGauge from '../shared/RingGauge';
 import UserAvatar from '../shared/UserAvatar';
@@ -46,6 +48,10 @@ interface Quest {
   lastCompletedAt: string | null;
   isSeasonal: boolean;
   onDemand?: boolean;
+  /** One-time chore (the To-do card) */
+  oneTime?: number | boolean;
+  doBy?: string | null;
+  overdue?: boolean;
   frequencyDays: number;
   dueDate?: string;
   dueInDays?: number;
@@ -132,6 +138,8 @@ interface DashboardProps {
     readyToComplete?: Quest[];
     scheduledUpcoming?: Quest[];
     onDemandQuests?: Quest[];
+    /** One-time chores still to do */
+    todoQuests?: Quest[];
     completedToday?: CompletedTodayEntry[];
     myLevel?: LevelInfo | null;
     nextBadge?: BadgeItem | null;
@@ -252,6 +260,64 @@ const Dashboard: React.FC<DashboardProps> = ({
     return quests.filter(q => isTaskForUser(q, currentUser.id, currentUser.role));
   };
   const readyTasks = filterQuests(allReadyTasks);
+  const todoTasks = filterQuests(data.todoQuests ?? []);
+  const [showTodoAdd, setShowTodoAdd] = useState(false);
+  const [todoNotice, setTodoNotice] = useState('');
+
+  // The Done button for a chore in the newer Home sections (To-do, Your usual, Maybe you forgot,
+  // Rescue Mission): the same rules as the lists above, for scheduled and anytime chores alike
+  const doneState = (q: Quest): { disabled: boolean; label: string } => {
+    const isAdminOrMember = currentUser.role === 'admin' || currentUser.role === 'member';
+    const hasAssignees = (q.effectiveAssignedUserIds && q.effectiveAssignedUserIds.length > 0) || q.assignedToChildren;
+    const ids = q.effectiveAssignedUserIds ?? [];
+    if (!isAdminOrMember && ids.length > 0 && !ids.includes(currentUser.id)) return { disabled: true, label: t('app.notAssigned') };
+    if (!isAdminOrMember && (q.myPendingCount ?? 0) > 0) return { disabled: true, label: t('app.waitingForApproval') };
+    if (q.onDemand) {
+      if (!isAdminOrMember && q.repeatLimit && (q.myRepeatCount ?? 0) >= q.repeatLimit) return { disabled: true, label: t(q.repeatPeriod === 'day' ? 'repeat.doneToday' : 'repeat.doneThisWeek') };
+      return { disabled: false, label: t('roomDetail.done') };
+    }
+    if (q.assignmentMode === 'shared') {
+      if (q.sharedCompletions?.some((c) => c.userId === currentUser.id) && !isAdminOrMember) return { disabled: true, label: t('app.doneBy').replace('{name}', t('common.you')) };
+    } else if (q.completedTodayBy && (!isAdminOrMember || !hasAssignees)) {
+      return { disabled: true, label: t('app.doneBy').replace('{name}', q.completedTodayBy.displayName) };
+    }
+    return { disabled: false, label: t('roomDetail.done') };
+  };
+  const finish = (q: Quest) => {
+    const isAdminOrMember = currentUser.role === 'admin' || currentUser.role === 'member';
+    const hasAssignees = (q.effectiveAssignedUserIds && q.effectiveAssignedUserIds.length > 0) || q.assignedToChildren;
+    if (isAdminOrMember && hasAssignees) setAdminModalQuest(q);
+    else onCompleteTask(q.id);
+  };
+  /** One chore row: icon, name, room, a line of extra info, coins, and its Done button */
+  const questRow = (q: Quest, opts: { key: string; info?: React.ReactNode; actions?: React.ReactNode; highlight?: boolean }) => {
+    const state = doneState(q);
+    return (
+      <div key={opts.key} {...openTaskProps(q)} style={{
+        display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, cursor: onOpenTask ? 'pointer' : undefined,
+        backgroundColor: opts.highlight ? 'var(--warm-accent-light)' : 'var(--warm-bg-subtle)',
+        border: `1.5px solid ${opts.highlight ? 'var(--warm-accent)' : 'var(--warm-border)'}`,
+      }}>
+        <div style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: q.roomColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${q.roomAccent}44` }}>
+          <TaskIcon iconKey={q.iconKey} size={24} />
+        </div>
+        <div style={{ flex: '1 1 160px', minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text)', overflowWrap: 'anywhere' }}>{taskName(q.name, q.translationKey)}</div>
+          <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{roomDisplayName(q.roomName, roomTypeById.get(q.roomId) || '')}</div>
+          {opts.info}
+          {questDetails(q)}
+        </div>
+        <span style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
+          {opts.actions}
+          {proofButton(q, !state.disabled)}
+          <button onClick={(e) => { e.stopPropagation(); if (!state.disabled) finish(q); }} disabled={state.disabled} className={state.disabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
+            style={{ padding: '8px 14px', fontSize: 12, ...(state.disabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)' } : {}) }}>
+            {state.disabled ? state.label : <><CheckIcon /> {state.label}</>}
+          </button>
+        </span>
+      </div>
+    );
+  };
   const scheduledTasks = filterQuests(allScheduledTasks);
   const onDemandTasks = filterQuests(allOnDemandTasks);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -259,6 +325,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const ALL_CARDS = [
     { id: 'todaysQuests', label: t('dashboard.todaysQuests') },
+    { id: 'todo', label: t('todos.title') },
     { id: 'scheduled', label: t('dashboard.scheduled') },
     { id: 'completedToday', label: t('dashboard.completedToday') },
     { id: 'rooms', label: t('nav.rooms') },
@@ -280,7 +347,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     localStorage.setItem(LS_KEY, JSON.stringify([...hiddenCards]));
   }, [hiddenCards]);
   // Kid mode keeps Home to the essentials: their quests and what they finished today
-  const KID_CARDS = new Set(['todaysQuests', 'completedToday']);
+  const KID_CARDS = new Set(['todaysQuests', 'todo', 'completedToday']);
   const isVisible = (id: string) => kidMode ? KID_CARDS.has(id) : !hiddenCards.has(id);
   const toggleCard = (id: string) => setHiddenCards(prev => {
     const next = new Set(prev);
@@ -617,6 +684,37 @@ const Dashboard: React.FC<DashboardProps> = ({
             )}
           </div>
         </div>}
+
+        {/* To-do: one-time chores ("Fix the screen door"); parents can add one here */}
+        {isVisible('todo') && (todoTasks.length > 0 || currentUser.role === 'admin') && (
+          <div className="tq-card tq-card-padded">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: 0 }}>📝 {t('todos.title')}</h3>
+              {currentUser.role === 'admin' && !showTodoAdd && (
+                <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => { setShowTodoAdd(true); setTodoNotice(''); }}>+ {t('todos.add')}</button>
+              )}
+            </div>
+            {showTodoAdd && (
+              <TodoQuickAdd language={language}
+                people={(users ?? []).map((u) => ({ id: u.id, displayName: u.displayName }))}
+                onCancel={() => setShowTodoAdd(false)}
+                onAdded={(name) => { setShowTodoAdd(false); setTodoNotice(t('todos.added').replace('{name}', name)); onRefresh?.(); }} />
+            )}
+            {todoNotice && <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--health-green)', marginBottom: 8 }}>{todoNotice}</div>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {(isExpanded('todo') ? todoTasks : todoTasks.slice(0, LIMIT)).map((q) => questRow(q, {
+                key: `todo-${q.id}`,
+                info: (q.doBy || q.overdue) ? (
+                  <div style={{ fontSize: 11, fontWeight: 800, marginTop: 2, color: q.overdue ? 'var(--health-red)' : 'var(--warm-text-muted)' }}>
+                    {q.overdue ? `⚠️ ${t('todos.overdue')}` : ''}{q.overdue && q.doBy ? ' · ' : ''}
+                    {q.doBy ? t('todos.byDate').replace('{date}', new Date(`${q.doBy}T12:00:00`).toLocaleDateString(localeFor(language), { weekday: 'short', month: 'short', day: 'numeric' })) : ''}
+                  </div>
+                ) : null,
+              }))}
+              {showMoreBtn('todo', todoTasks.length)}
+            </div>
+          </div>
+        )}
 
         {/* Scheduled Card — upcoming tasks not yet due */}
         {isVisible('scheduled') && scheduledTasks.length > 0 && (
