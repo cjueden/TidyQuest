@@ -142,6 +142,9 @@ export function History({ language, isAdmin, users = [], rooms = [] }: HistoryPr
 
           {history.map((h) => {
             const isAdjustment = h.type === 'adjustment';
+            // A chip-in to a shared reward (Family Goal); refunded ones are crossed out
+            const isChipIn = h.type === 'contribution';
+            const refunded = isChipIn && h.potStatus === 'rejected';
             const isDuo = h.participants && h.participants.length > 1;
             const byName = isDuo
               ? h.participants.map((p: any) => p.displayName).join(' & ')
@@ -164,7 +167,15 @@ export function History({ language, isAdmin, users = [], rooms = [] }: HistoryPr
                 <UserAvatar name={h.displayName} color={h.avatarColor} size={34} avatarType={h.avatarType} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
               )}
               <div>
-                {isAdjustment ? (
+                {isChipIn ? (
+                  <>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>🏦 {t('history.chippedIn').replace('{reward}', h.rewardTitle)}</div>
+                    <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
+                      {h.displayName} · {t(`history.pot_${h.potStatus}`)}
+                    </div>
+                    <div className="history-mobile-meta">{timeAgo(h.completedAt)}</div>
+                  </>
+                ) : isAdjustment ? (
                   <>
                     {/* A parent's coin adjustment or a goal bonus, from the coin ledger */}
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>🪙 {h.reason || t('coins.adjusted')}</div>
@@ -181,13 +192,13 @@ export function History({ language, isAdmin, users = [], rooms = [] }: HistoryPr
                   </>
                 )}
               </div>
-              <div className="history-col-room" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>{isAdjustment ? '—' : roomDisplayName(h.roomName, h.roomType || '')}</div>
+              <div className="history-col-room" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>{isAdjustment || isChipIn ? '—' : roomDisplayName(h.roomName, h.roomType || '')}</div>
               <div className="history-col-when" style={{ fontSize: 12, color: 'var(--warm-text-light)', fontWeight: 600 }}>{timeAgo(h.completedAt)}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end', fontSize: 13, fontWeight: 800, color: h.coinsEarned < 0 ? 'var(--warm-danger)' : 'var(--warm-coin)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end', fontSize: 13, fontWeight: 800, color: refunded ? 'var(--warm-text-light)' : h.coinsEarned < 0 ? 'var(--warm-danger)' : 'var(--warm-coin)', textDecoration: refunded ? 'line-through' : undefined }}>
                 {h.coinsEarned < 0 ? '' : '+'}{formatCoins(h.coinsEarned)} <CoinIcon />
               </div>
-              {isAdmin && isAdjustment && <div />}
-              {isAdmin && !isAdjustment && (
+              {isAdmin && (isAdjustment || isChipIn) && <div />}
+              {isAdmin && !isAdjustment && !isChipIn && (
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   {confirmCancel === h.id ? (
                     <div style={{ display: 'flex', gap: 4 }}>

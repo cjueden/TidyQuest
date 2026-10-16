@@ -439,7 +439,12 @@
       "thisMonth": "This month",
       "searchPlaceholder": "Search tasks…",
       "noMatches": "No activity matches these filters.",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "chippedIn": "Chipped in: {reward}",
+      "pot_open": "In the pot",
+      "pot_requested": "Pot full · waiting for a parent",
+      "pot_approved": "Reward approved",
+      "pot_rejected": "Refunded"
     },
     "roomDetail": {
       "name": "Name",

@@ -439,7 +439,12 @@
       "thisMonth": "Este mes",
       "searchPlaceholder": "Buscar tareas…",
       "noMatches": "Ninguna actividad coincide con estos filtros.",
-      "clearFilters": "Borrar filtros"
+      "clearFilters": "Borrar filtros",
+      "chippedIn": "Aportado: {reward}",
+      "pot_open": "En el bote",
+      "pot_requested": "Bote lleno · esperando a un padre",
+      "pot_approved": "Recompensa aprobada",
+      "pot_rejected": "Devuelto"
     },
     "roomDetail": {
       "name": "Nombre",

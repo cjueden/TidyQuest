@@ -439,7 +439,12 @@
       "thisMonth": "Diesen Monat",
       "searchPlaceholder": "Aufgaben suchen…",
       "noMatches": "Keine Aktivität passt zu diesen Filtern.",
-      "clearFilters": "Filter zurücksetzen"
+      "clearFilters": "Filter zurücksetzen",
+      "chippedIn": "Eingezahlt: {reward}",
+      "pot_open": "Im Topf",
+      "pot_requested": "Topf voll · wartet auf ein Elternteil",
+      "pot_approved": "Belohnung genehmigt",
+      "pot_rejected": "Erstattet"
     },
     "roomDetail": {
       "name": "Name",

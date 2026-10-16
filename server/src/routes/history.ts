@@ -98,9 +98,33 @@ router.get('/', (req: AuthRequest, res: Response) => {
       ORDER BY a.createdAt DESC, a.id DESC
     `).all(...aParams) as any[];
   }
+  // Chip-ins to shared rewards (Family Goals). The pot shows everyone's, so everyone sees them here too.
+  // potStatus: 'open' (still saving) or the request's status ('requested' | 'approved' | 'rejected' = refunded).
+  let contributions: any[] = [];
+  if (!filterRoomId) {
+    const cWhere: string[] = [];
+    const cParams: (string | number)[] = [];
+    if (filterUserId) { cWhere.push('c.userId = ?'); cParams.push(filterUserId); }
+    if (from) { cWhere.push('c.createdAt >= ?'); cParams.push(from); }
+    if (to) { cWhere.push('c.createdAt < ?'); cParams.push(to); }
+    if (q) { cWhere.push("rw.title LIKE ? ESCAPE '\\'"); cParams.push(`%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`); }
+    contributions = db.prepare(`
+      SELECT 'contribution' AS type, c.id, c.createdAt AS completedAt, -c.amount AS coinsEarned, c.rewardId,
+             rw.title AS rewardTitle, COALESCE(rr.status, 'open') AS potStatus,
+             u.id as userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
+      FROM reward_contributions c
+      JOIN rewards rw ON rw.id = c.rewardId
+      JOIN users u ON c.userId = u.id
+      LEFT JOIN reward_redemptions rr ON rr.id = c.redemptionId
+      ${cWhere.length ? `WHERE ${cWhere.join(' AND ')}` : ''}
+      ORDER BY c.createdAt DESC, c.id DESC
+    `).all(...cParams) as any[];
+  }
+
   // Stable sort: completions keep their order among themselves
-  const merged = adjustments.length
-    ? [...filtered, ...adjustments].sort((a, b) => (a.completedAt < b.completedAt ? 1 : a.completedAt > b.completedAt ? -1 : 0))
+  const extra = [...adjustments, ...contributions];
+  const merged = extra.length
+    ? [...filtered, ...extra].sort((a, b) => (a.completedAt < b.completedAt ? 1 : a.completedAt > b.completedAt ? -1 : 0))
     : filtered;
 
   const total = merged.length;

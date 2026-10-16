@@ -439,7 +439,12 @@
       "thisMonth": "Ce mois-ci",
       "searchPlaceholder": "Rechercher une tâche…",
       "noMatches": "Aucune activité ne correspond à ces filtres.",
-      "clearFilters": "Effacer les filtres"
+      "clearFilters": "Effacer les filtres",
+      "chippedIn": "Mis dans la cagnotte : {reward}",
+      "pot_open": "Dans la cagnotte",
+      "pot_requested": "Cagnotte pleine · en attente d'un parent",
+      "pot_approved": "Récompense validée",
+      "pot_rejected": "Remboursé"
     },
     "roomDetail": {
       "name": "Nom",

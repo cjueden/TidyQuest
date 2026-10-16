@@ -148,3 +148,29 @@ describe('Coin adjustments in Activity', () => {
     expect((await get(cecil.token, `?userId=${cylis.id}`)).body.history.map((h: any) => h.type)).toEqual(['completion']);
   });
 });
+
+describe('Chip-ins in Activity', () => {
+  it('lists chip-ins to shared rewards for everyone, with what happened to the pot', async () => {
+    const dad = person('Dad', 'admin');
+    const cecil = person('Cecil', 'child', 100);
+    const cylis = person('Cylis', 'child', 100);
+    const reward = (await agent.post('/api/rewards').set(auth(dad.token)).send({ title: 'Movie Night', costCoins: 50 })).body.id as number;
+    await agent.put(`/api/rewards/${reward}/rules`).set(auth(dad.token)).send({ isShared: true }).expect(200);
+    await agent.post(`/api/rewards/${reward}/contribute`).set(auth(cecil.token)).send({ amount: 20 }).expect(200);
+
+    const rows = async (token: string, query = '') => ((await agent.get(`/api/history${query}`).set(auth(token))).body.history as any[])
+      .filter((h) => h.type === 'contribution').map((h) => [h.displayName, h.coinsEarned, h.rewardTitle, h.potStatus]);
+    // Cylis sees Cecil's chip-in too (the pot shows it to everyone)
+    expect(await rows(cylis.token)).toEqual([['Cecil', -20, 'Movie Night', 'open']]);
+
+    // Cylis fills the pot: both chip-ins wait for a parent; rejecting refunds them
+    await agent.post(`/api/rewards/${reward}/contribute`).set(auth(cylis.token)).send({ amount: 30 }).expect(200);
+    expect((await rows(dad.token)).map((r) => r[3])).toEqual(['requested', 'requested']);
+    const redemption = (db.prepare('SELECT redemptionId FROM reward_contributions LIMIT 1').get() as { redemptionId: number }).redemptionId;
+    await agent.put(`/api/rewards/redemptions/${redemption}`).set(auth(dad.token)).send({ status: 'rejected' }).expect(200);
+    expect(await rows(dad.token, `?userId=${cylis.id}`)).toEqual([['Cylis', -30, 'Movie Night', 'rejected']]);
+    expect(coins(cylis.id)).toBe(100);
+    expect(await rows(dad.token, '?q=movie')).toHaveLength(2);
+    expect(await rows(dad.token, '?q=pizza')).toHaveLength(0);
+  });
+});

@@ -439,7 +439,12 @@
       "thisMonth": "Questo mese",
       "searchPlaceholder": "Cerca compiti…",
       "noMatches": "Nessuna attività corrisponde a questi filtri.",
-      "clearFilters": "Azzera filtri"
+      "clearFilters": "Azzera filtri",
+      "chippedIn": "Versato: {reward}",
+      "pot_open": "Nel salvadanaio",
+      "pot_requested": "Salvadanaio pieno · in attesa di un genitore",
+      "pot_approved": "Premio approvato",
+      "pot_rejected": "Rimborsato"
     },
     "roomDetail": {
       "name": "Nome",

@@ -439,7 +439,12 @@
       "thisMonth": "Deze maand",
       "searchPlaceholder": "Zoek klusjes…",
       "noMatches": "Geen activiteit voldoet aan deze filters.",
-      "clearFilters": "Filters wissen"
+      "clearFilters": "Filters wissen",
+      "chippedIn": "Ingelegd: {reward}",
+      "pot_open": "In de pot",
+      "pot_requested": "Pot vol · wacht op een ouder",
+      "pot_approved": "Beloning goedgekeurd",
+      "pot_rejected": "Terugbetaald"
     },
     "roomDetail": {
       "name": "Naam",
