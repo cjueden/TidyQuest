@@ -91,3 +91,28 @@ export function RotationPeriodPicker({ value, onChange, t }: {
     </div>
   );
 }
+
+/** "⏰ Remind at [19:00] [on the day | the day before]" (then again, then a parent, if it's still not done). */
+export function ReminderPicker({ value, onChange, t }: {
+  value: ScheduleValue;
+  onChange: (v: ScheduleValue) => void;
+  t: (key: string) => string;
+}) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }} title={t('schedule.reminderDesc')}>
+      <label style={labelStyle}>⏰ {t('schedule.reminder')}</label>
+      <input type="time" className="tq-input-compact" value={value.reminderTime} aria-label={t('schedule.reminder')}
+        onChange={(e) => onChange({ ...value, reminderTime: e.target.value })} />
+      {value.reminderTime && (
+        <>
+          <select className="tq-input-compact" value={value.reminderDayBefore ? 'before' : 'same'} aria-label={t('schedule.reminderWhen')}
+            onChange={(e) => onChange({ ...value, reminderDayBefore: e.target.value === 'before' })}>
+            <option value="same">{t('schedule.reminderSameDay')}</option>
+            <option value="before">{t('schedule.reminderDayBefore')}</option>
+          </select>
+          <button type="button" className="tq-btn tq-btn-sm" onClick={() => onChange({ ...value, reminderTime: '', reminderDayBefore: false })}>×</button>
+        </>
+      )}
+    </div>
+  );
+}

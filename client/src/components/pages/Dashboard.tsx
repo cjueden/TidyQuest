@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import HealthBar from '../shared/HealthBar';
+import { LevelStrip } from '../shared/LevelStrip';
+import type { BadgeItem, LevelInfo } from '../../utils/badges';
 import RingGauge from '../shared/RingGauge';
 import UserAvatar from '../shared/UserAvatar';
 import { FireIcon, CoinIcon, CheckIcon } from '../icons/UIIcons';
@@ -131,6 +133,8 @@ interface DashboardProps {
     scheduledUpcoming?: Quest[];
     onDemandQuests?: Quest[];
     completedToday?: CompletedTodayEntry[];
+    myLevel?: LevelInfo | null;
+    nextBadge?: BadgeItem | null;
     myGoal?: { goalCoins: number; currentCoins: number; progress: number; goalStartAt?: string | null; goalEndAt?: string | null; completed?: boolean; rewardCoins?: number; title?: string | null } | null;
     /** Double coins events running now */
     coinBoosts?: CoinBoost[];
@@ -219,7 +223,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       )}
     </>
   );
-  const { houseHealth, rooms, todaysQuests, nextTasks, readyToComplete, scheduledUpcoming, onDemandQuests, completedToday = [], myGoal, childrenGoals = [], pendingRewardRequests = [], currentUser, recentActivity, badges } = data;
+  const { houseHealth, rooms, todaysQuests, nextTasks, readyToComplete, scheduledUpcoming, onDemandQuests, completedToday = [], myGoal, childrenGoals = [], pendingRewardRequests = [], currentUser, recentActivity, badges, myLevel = null, nextBadge = null } = data;
 
   const BADGE_COLORS: Record<string, string> = {
     bronze: '#CD7F32',
@@ -361,6 +365,16 @@ const Dashboard: React.FC<DashboardProps> = ({
                 )}
               </div>
             )}
+            <div style={{ marginTop: 16 }}>
+              <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} big />
+            </div>
+          </div>
+        )}
+
+        {/* Level and the next badge (kid mode shows them in the card above) */}
+        {!kidMode && gamificationEnabled && myLevel && (currentUser.role !== 'admin' || myLevel.coinsEarned > 0) && (
+          <div className="tq-card" style={{ gridColumn: '1 / -1', padding: '12px 16px' }}>
+            <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} />
           </div>
         )}
 

@@ -1,5 +1,6 @@
 import db from '../database';
-import { isAnyProviderEnabled, isNotificationTypeEnabled, sendNotification } from './notifications';
+import { tr } from './i18n';
+import { notificationsOn, notifyPeople, type Builder } from './notify';
 
 /** A double (triple…) coins event, e.g. getting the house ready for a party. */
 export interface CoinBoost {
@@ -58,28 +59,38 @@ export function formatMultiplier(m: number): string {
   return String(Math.round(m * 100) / 100);
 }
 
-function roomsLabel(b: CoinBoost): string {
+function roomNames(b: CoinBoost): string {
   if (!b.roomIds) return '';
-  const names = (db.prepare(`SELECT name FROM rooms WHERE id IN (${b.roomIds.map(() => '?').join(',')}) ORDER BY sortOrder, id`)
-    .all(...b.roomIds) as { name: string }[]).map((r) => r.name);
-  return names.length > 0 ? ` in ${names.join(', ')}` : '';
+  return (db.prepare(`SELECT name FROM rooms WHERE id IN (${b.roomIds.map(() => '?').join(',')}) ORDER BY sortOrder, id`)
+    .all(...b.roomIds) as { name: string }[]).map((r) => r.name).join(', ');
 }
 
-const timeLabel = (iso: string) => new Date(iso).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+const LOCALES: Record<string, string> = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT', nl: 'nl-NL' };
+const timeLabel = (iso: string, lang = 'en') => new Date(iso).toLocaleString(LOCALES[lang] ?? 'en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+
+/** The start and last-hour messages, in a given language. */
+function boostMessage(b: CoinBoost, which: 'start' | 'ending'): Builder {
+  return (lang) => {
+    const vars = { multiplier: formatMultiplier(b.multiplier), title: b.title, time: timeLabel(b.endAt, lang) };
+    if (which === 'ending') return tr(lang, 'notify.boostEnding', vars);
+    const rooms = roomNames(b);
+    return tr(lang, 'notify.boostStart', vars) + (rooms ? ` (${rooms})` : '');
+  };
+}
 
 /**
- * Called by the periodic notification check: tells the family when a boost starts and when it has
+ * Called by the periodic notification check: tells everyone when a boost starts and when it has
  * an hour left. Each message is claimed (flag set) before sending and released if sending fails,
  * so overlapping checks can't send it twice.
  */
 export async function sendCoinBoostNotificationsIfNeeded(
   now: Date = new Date(),
-  sendFn: (message: string) => Promise<boolean> = async (message) => {
-    const r = await sendNotification(message);
-    return (r.telegram ?? false) || (r.ntfy ?? false);
+  sendFn: (message: string, build: Builder) => Promise<boolean> = async (_message, build) => {
+    await notifyPeople('everyone', 'coinBoost', build, { now });
+    return true;
   },
 ): Promise<void> {
-  if (!isAnyProviderEnabled() || !isNotificationTypeEnabled('coinBoost')) return;
+  if (!notificationsOn('coinBoost')) return;
   const nowMs = now.getTime();
 
   const claim = (id: number, column: 'notifiedStart' | 'notifiedEnding') =>
@@ -92,11 +103,11 @@ export async function sendCoinBoostNotificationsIfNeeded(
     const inLastHour = endMs - nowMs <= HOUR;
     // Short boosts (an hour or less), or a start we only notice in the last hour, get the start message only
     const skipEnding = endMs - new Date(b.startAt).getTime() <= HOUR || (inLastHour && !b.notifiedStart);
-    const label = `${formatMultiplier(b.multiplier)}× coins`;
 
     if (!b.notifiedStart && claim(b.id, 'notifiedStart')) {
       if (skipEnding) claim(b.id, 'notifiedEnding');
-      const ok = await sendFn(`⚡ ${label}: "${b.title}" is on${roomsLabel(b)} until ${timeLabel(b.endAt)}!`).catch(() => false);
+      const build = boostMessage(b, 'start');
+      const ok = await sendFn(build('en', null) ?? '', build).catch(() => false);
       if (!ok) {
         release(b.id, 'notifiedStart');
         if (skipEnding) release(b.id, 'notifiedEnding');
@@ -105,7 +116,8 @@ export async function sendCoinBoostNotificationsIfNeeded(
     }
 
     if (inLastHour && !b.notifiedEnding && claim(b.id, 'notifiedEnding')) {
-      const ok = await sendFn(`⏰ Last hour of ${label}: "${b.title}" ends at ${timeLabel(b.endAt)}.`).catch(() => false);
+      const build = boostMessage(b, 'ending');
+      const ok = await sendFn(build('en', null) ?? '', build).catch(() => false);
       if (!ok) release(b.id, 'notifiedEnding');
     }
   }

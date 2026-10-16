@@ -73,10 +73,62 @@ const NEW_TABLES: string[] = [
     deletedBy INTEGER REFERENCES users(id) ON DELETE SET NULL,
     deletedAt TEXT NOT NULL DEFAULT (datetime('now'))
   )`,
+  // Badges parents make (utils/badges.ts). metric: what counts; taskIds (JSON array) or roomId when the
+  // metric needs them; userIds (JSON array, NULL = everyone who does chores); bonusCoins paid once when earned.
+  // Earned ones are recorded in user_achievement_notifications as 'custom_<id>'.
+  `CREATE TABLE IF NOT EXISTS custom_badges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    icon TEXT NOT NULL DEFAULT '🏅',
+    metric TEXT NOT NULL,
+    taskIds TEXT,
+    roomId INTEGER REFERENCES rooms(id) ON DELETE SET NULL,
+    threshold INTEGER NOT NULL DEFAULT 1,
+    bonusCoins INTEGER NOT NULL DEFAULT 0,
+    userIds TEXT,
+    secret INTEGER NOT NULL DEFAULT 0,
+    createdBy INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
+  // Every notification sent (or tried): Settings → Notification log; dedupeKey stops repeats
+  `CREATE TABLE IF NOT EXISTS notification_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sentAt TEXT NOT NULL,
+    userId INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    channel TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    message TEXT NOT NULL,
+    ok INTEGER NOT NULL,
+    error TEXT,
+    dedupeKey TEXT
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_notification_log_dedupe ON notification_log(dedupeKey, userId)`,
+  // Messages waiting for quiet hours or school hours to end (userId NULL = family channel)
+  `CREATE TABLE IF NOT EXISTS notification_queue (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL,
+    message TEXT NOT NULL,
+    notBefore TEXT NOT NULL,
+    dedupeKey TEXT
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
 const NEW_COLUMNS: string[] = [
+  // Each person's color theme (NULL = the device's choice)
+  `ALTER TABLE users ADD COLUMN theme TEXT`,
+  // Birthday as 'MM-DD' (for the secret Birthday Helper badge)
+  // Personal notification channels and which kinds this person wants (JSON {kind: false} to turn off)
+  `ALTER TABLE users ADD COLUMN ntfyTopic TEXT`,
+  `ALTER TABLE users ADD COLUMN telegramChatId TEXT`,
+  `ALTER TABLE users ADD COLUMN haNotifyService TEXT`,
+  `ALTER TABLE users ADD COLUMN notifyPrefs TEXT`,
+  // A reminder for a task at a set time ('HH:MM') on its due day, or the evening before
+  `ALTER TABLE tasks ADD COLUMN reminderTime TEXT`,
+  `ALTER TABLE tasks ADD COLUMN reminderDayBefore INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE users ADD COLUMN birthday TEXT`,
   // Per-person views set by a parent: taskView 'all' | 'mine' (starts on Mine) | 'mineOnly' (locked)
   `ALTER TABLE users ADD COLUMN taskView TEXT NOT NULL DEFAULT 'all'`,
   `ALTER TABLE users ADD COLUMN kidMode INTEGER NOT NULL DEFAULT 0`,
@@ -116,6 +168,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'rewardContributions', table: 'reward_contributions' },
   { key: 'coinBoosts', table: 'coin_boosts' },
   { key: 'trash', table: 'trash' },
+  { key: 'customBadges', table: 'custom_badges' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

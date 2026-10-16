@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { initDatabase } from './database';
 import authRoutes from './routes/auth';
 import roomsRoutes from './routes/rooms';
@@ -15,6 +16,8 @@ import achievementsRoutes from './routes/achievements';
 import rewardsRoutes from './routes/rewards';
 import { sendDueTaskNotificationsIfNeeded } from './utils/notifications';
 import { sendCoinBoostNotificationsIfNeeded } from './utils/boosts';
+import { runScheduledNotifications } from './utils/notifySchedule';
+import notifyRoutes from './routes/notify';
 import boostsRoutes from './routes/boosts';
 import csvRoutes from './routes/csv';
 import trashRoutes from './routes/trash';
@@ -32,6 +35,15 @@ export function createApp() {
   app.use('/api', (_req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');
     next();
+  });
+
+  // Which version is running (no login needed): {"version":"0.7.0","build":"main · 7e18930"}
+  app.get('/api/version', (_req, res) => {
+    let version: string | null = null;
+    try {
+      version = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'package.json'), 'utf-8')).version ?? null;
+    } catch { /* not there in some setups */ }
+    res.json({ version, build: process.env.APP_BUILD || null });
   });
 
   // Serve uploaded avatars
@@ -55,6 +67,7 @@ export function createApp() {
   app.use('/api/boosts', boostsRoutes);
   app.use('/api/csv', csvRoutes);
   app.use('/api/trash', trashRoutes);
+  app.use('/api/notify', notifyRoutes);
 
   // 404 handler for unknown API routes
   app.use('/api/*', (_req, res) => {
@@ -81,9 +94,11 @@ if (require.main === module || !process.env.VITEST) {
     console.log(`TidyQuest server running on http://localhost:${PORT}`);
     void sendDueTaskNotificationsIfNeeded();
     void sendCoinBoostNotificationsIfNeeded();
+    void runScheduledNotifications();
     setInterval(() => {
       void sendDueTaskNotificationsIfNeeded();
       void sendCoinBoostNotificationsIfNeeded();
+      void runScheduledNotifications();
     }, 30000);
   });
 }

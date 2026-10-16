@@ -24,6 +24,7 @@ import { Achievements } from './components/pages/Achievements';
 import { Rewards } from './components/pages/Rewards';
 import { useTranslation } from './hooks/useTranslation';
 import { localeFor } from './utils/locale';
+import { isTheme, type Theme } from './utils/themes';
 
 function AppContent() {
   const { user, loading, login, register, logout, refreshUser } = useAuth();
@@ -36,17 +37,26 @@ function AppContent() {
   const [roomsLoaded, setRoomsLoaded] = useState(false);
   const [family, setFamily] = useState<any[]>([]);
   const [familySettings, setFamilySettings] = useState<any[]>([]);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [pointsPeriod, setPointsPeriod] = useState<'all' | 'week' | 'month' | 'year'>('all');
   const [pointsLeaderboard, setPointsLeaderboard] = useState<any[]>([]);
-  const [leaderboardPeriod, setLeaderboardPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('week');
+  // Home's family progress uses this week's coins (the Board page loads its own periods)
+  const [leaderboardPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('week');
   const [coinsByEffort, setCoinsByEffort] = useState<Record<number, number>>({ 1: 5, 2: 10, 3: 15, 4: 20, 5: 25 });
   const [achievementsData, setAchievementsData] = useState<any>(null);
   const [rewardsData, setRewardsData] = useState<{ rewards: any[]; mine: any[] }>({ rewards: [], mine: [] });
-  const [theme, setTheme] = useState<'orange' | 'blue' | 'rose' | 'night'>(() => {
+  // The device's theme (also the login screen's); a signed-in person's own theme wins
+  const [deviceTheme, setDeviceTheme] = useState<Theme>(() => {
     const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('tidyquest_theme') : null;
-    return (saved === 'blue' || saved === 'rose' || saved === 'night') ? saved : 'orange';
+    return isTheme(saved) ? saved : 'orange';
   });
+  const theme: Theme = isTheme(user?.theme) ? user.theme : deviceTheme;
+  const changeTheme = async (next: Theme) => {
+    setDeviceTheme(next);
+    if (user) {
+      await api.updateProfile(user.id, { theme: next });
+      await refreshUser();
+    }
+  };
   const [vacationConfig, setVacationConfig] = useState<{ vacationMode: boolean; vacationStartDate: string | null; vacationEndDate: string | null } | null>(null);
   const vacationUpdatePending = useRef(false);
   const dashboardLoadInFlight = useRef<Promise<void> | null>(null);
@@ -55,6 +65,8 @@ function AppContent() {
   const [confetti, setConfetti] = useState(false);
   const [taskErrorMsg, setTaskErrorMsg] = useState<string | null>(null);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  // Names for the pop-up from the completion itself (parent-made and secret badges aren't in the page data yet)
+  const [unlockedInfo, setUnlockedInfo] = useState<Array<{ id: string; titleKey: string | null; title: string | null }>>([]);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const openSearch = useCallback(() => setSearchOpen(true), []);
@@ -97,7 +109,6 @@ function AppContent() {
         if (dash.vacation && !vacationUpdatePending.current) setVacationConfig(dash.vacation);
         setRooms(roomsData);
         setRoomsLoaded(true);
-        setLeaderboard(lb);
         setFamily(lb);
         setFamilySettings(users);
         setCoinsByEffort(coinCfg.coinsByEffort || { 1: 5, 2: 10, 3: 15, 4: 20, 5: 25 });
@@ -228,6 +239,7 @@ function AppContent() {
         return;
       }
       if (result.newAchievements && result.newAchievements.length > 0) {
+        setUnlockedInfo(result.newAchievementInfo ?? []);
         setUnlockedAchievements(result.newAchievements);
       }
       setConfetti(true);
@@ -250,12 +262,6 @@ function AppContent() {
       }
       setTimeout(() => setTaskErrorMsg(null), 3500);
     }
-  };
-
-  const handleLeaderboardPeriodChange = async (period: 'week' | 'month' | 'quarter' | 'year') => {
-    setLeaderboardPeriod(period);
-    const lb = await api.leaderboard(period);
-    setLeaderboard(lb);
   };
 
   const handleExport = async () => {
@@ -351,7 +357,10 @@ function AppContent() {
           achievementIds={unlockedAchievements}
           onDismiss={() => setUnlockedAchievements([])}
           language={user?.language}
-          titleKeys={Object.fromEntries(((achievementsData?.me?.achievements ?? []) as Array<{ id: string; titleKey?: string }>).filter((a) => a.titleKey).map((a) => [a.id, a.titleKey as string]))}
+          titles={Object.fromEntries([
+            ...((achievementsData?.me?.achievements ?? []) as Array<{ id: string; titleKey?: string | null; title?: string | null }>),
+            ...unlockedInfo,
+          ].filter((a) => a.titleKey || a.title).map((a) => [a.id, a.titleKey ? t(a.titleKey) : a.title as string]))}
         />
       )}
 
@@ -496,7 +505,7 @@ function AppContent() {
             gamificationEnabled ? (
             <>
               <PageHeader title={t('app.leaderboardTitle')} subtitle={t('app.leaderboardSubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <Leaderboard users={leaderboard} language={user.language} period={leaderboardPeriod} onPeriodChange={handleLeaderboardPeriodChange} />
+              <Leaderboard language={user.language} />
             </>
             ) : <Navigate to="/" replace />
           } />
@@ -517,7 +526,7 @@ function AppContent() {
           <Route path="/profile" element={
             <>
               <PageHeader title={t('nav.profile')} subtitle={t('app.profileSubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <Profile user={user} onSave={async () => { await refreshUser(); }} onLogout={() => { logout(); navigate('/login', { replace: true }); }} />
+              <Profile user={user} theme={theme} onChangeTheme={changeTheme} onSave={async () => { await refreshUser(); }} onLogout={() => { logout(); navigate('/login', { replace: true }); }} />
             </>
           } />
 
@@ -573,8 +582,6 @@ function AppContent() {
                   const updated = await api.updateCoinsConfig({ useDefault: true });
                   setCoinsByEffort(updated.coinsByEffort);
                 }}
-                theme={theme}
-                onChangeTheme={setTheme}
                 onExport={handleExport}
                 onImport={handleImport}
                 rooms={rooms}

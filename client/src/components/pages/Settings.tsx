@@ -7,6 +7,12 @@ import { RewardRulesEditor } from '../shared/RewardRulesEditor';
 import { CoinBoostsAdmin } from '../shared/CoinBoostsAdmin';
 import { GoalRow } from '../shared/GoalRow';
 import { TrashAdmin } from '../shared/TrashAdmin';
+import { FamilyGoalAdmin } from '../shared/FamilyGoalAdmin';
+import { BirthdayInput } from '../shared/BirthdayInput';
+import { ThemePicker } from '../shared/ThemePicker';
+import { isTheme, type Theme } from '../../utils/themes';
+import { CustomBadgesAdmin } from '../shared/CustomBadgesAdmin';
+import { NotificationLog, NotifyScheduleAdmin, PeopleNotifyAdmin } from '../shared/NotifyAdmin';
 import { CsvTransfer } from '../shared/CsvTransfer';
 import { UndoToast, type UndoState } from '../shared/UndoToast';
 import { byFeatured, rulesSummary } from '../../utils/rewardRules';
@@ -29,6 +35,9 @@ interface FamilyUser {
   coins: number;
   currentStreak: number;
   language?: string;
+  /** 'MM-DD' */
+  birthday?: string | null;
+  theme?: string | null;
   goalCoins?: number | null;
   goalStartAt?: string | null;
   goalEndAt?: string | null;
@@ -64,20 +73,18 @@ interface PendingCompletion {
 interface SettingsProps {
   user: User;
   family: FamilyUser[];
-  /** For choosing rooms in double coins events */
-  rooms?: Array<{ id: number; name: string }>;
+  /** For choosing rooms in double coins events, and tasks for parent-made badges */
+  rooms?: Array<{ id: number; name: string; roomType?: string; tasks?: Array<{ id: number; name: string; translationKey?: string }> }>;
   vacationConfig?: VacationConfig;
   onUpdateVacation?: (data: { vacationMode?: boolean; vacationEndDate?: string | null }) => Promise<void>;
   onUpdateRole: (userId: number, role: 'admin' | 'member' | 'child') => void;
   onAddMember: (data: { username: string; password: string; displayName: string; role: 'child' }) => Promise<void>;
   onDeleteUser: (userId: number) => Promise<void>;
-  onUpdateMemberProfile: (userId: number, data: { avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string }) => Promise<void>;
+  onUpdateMemberProfile: (userId: number, data: { avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null; theme?: string | null }) => Promise<void>;
   onChangePassword: (userId: number, data: { currentPassword?: string; newPassword: string }) => Promise<void>;
   coinsByEffort: Record<number, number>;
   onSaveCoinsByEffort: (values: Record<number, number>) => Promise<void>;
   onResetCoinsByEffort: () => Promise<void>;
-  theme: 'orange' | 'blue' | 'rose' | 'night';
-  onChangeTheme: (theme: 'orange' | 'blue' | 'rose' | 'night') => void;
   onExport: () => void;
   onImport: () => void;
   onAdjustCoins?: (userId: number, amount: number, reason?: string) => Promise<void>;
@@ -102,8 +109,6 @@ export function Settings({
   coinsByEffort,
   onSaveCoinsByEffort,
   onResetCoinsByEffort,
-  theme,
-  onChangeTheme,
   onExport,
   onImport,
   onAdjustCoins,
@@ -144,6 +149,8 @@ export function Settings({
     avatarType: 'letter' | 'preset';
     avatarColor: string;
     avatarPreset: string;
+    birthday: string;
+    theme: string;
   }>>({});
   const [memberProfileMsg, setMemberProfileMsg] = useState<Record<number, string>>({});
   const [memberGoalMsg, setMemberGoalMsg] = useState<Record<number, string>>({});
@@ -163,7 +170,7 @@ export function Settings({
   const [notifChatId, setNotifChatId] = useState('');
   const [notifToken, setNotifToken] = useState('');
   const [notifTime, setNotifTime] = useState('09:00');
-  const [notifTypes, setNotifTypes] = useState<{ taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean; coinBoost?: boolean }>({ taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true });
+  const [notifTypes, setNotifTypes] = useState<{ taskDue: boolean; rewardRequest: boolean; achievementUnlocked: boolean; choreApproval?: boolean; coinBoost?: boolean; outcome?: boolean; summary?: boolean; nudge?: boolean; reminder?: boolean }>({ taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true, outcome: true, summary: true, nudge: true, reminder: true });
   const [notifHasToken, setNotifHasToken] = useState(false);
   const [notifMsg, setNotifMsg] = useState('');
   const [ntfyEnabled, setNtfyEnabled] = useState(false);
@@ -305,6 +312,8 @@ export function Settings({
         avatarType: u.avatarType === 'preset' ? 'preset' : 'letter',
         avatarColor: u.avatarColor || '#F97316',
         avatarPreset: u.avatarPreset || 'cat',
+        birthday: u.birthday ?? '',
+        theme: u.theme ?? '',
       },
     }));
   };
@@ -328,6 +337,8 @@ export function Settings({
       avatarType: p.avatarType,
       avatarColor: p.avatarColor,
       avatarPreset: p.avatarType === 'preset' ? p.avatarPreset : null,
+      birthday: p.birthday || null,
+      theme: p.theme || null,
     });
     setMemberProfileMsg((prev) => ({ ...prev, [u.id]: t('common.saved') }));
     window.setTimeout(() => {
@@ -588,6 +599,12 @@ export function Settings({
                     <input type="checkbox" checked={notifTypes.coinBoost !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, coinBoost: e.target.checked }))} style={{ marginRight: 6 }} />
                     {t('settings.notificationTypeCoinBoost')}
                   </label>
+                  {(['reminder', 'outcome', 'summary', 'nudge'] as const).map((k) => (
+                    <label key={k} style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                      <input type="checkbox" checked={notifTypes[k] !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, [k]: e.target.checked }))} style={{ marginRight: 6 }} />
+                      {t(`notifyAdmin.kind_${k}`)} <span style={{ fontWeight: 600, color: 'var(--warm-text-light)' }}>· {t(`notifyAdmin.kindDesc_${k}`)}</span>
+                    </label>
+                  ))}
                 </div>
 
                 {/* Telegram sub-toggle */}
@@ -651,24 +668,6 @@ export function Settings({
           </div>
         )}
         </>)}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: '1px solid var(--warm-border)' }}>
-          <div style={{ width: 20, height: 20, borderRadius: 6, background: 'linear-gradient(135deg, var(--warm-accent), var(--warm-accent-light))', border: '1px solid var(--warm-border)' }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.theme')}</div>
-            <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.themeDesc')}</div>
-          </div>
-          <select
-            className="tq-input"
-            value={theme}
-            onChange={(e) => onChangeTheme(e.target.value as 'orange' | 'blue' | 'rose' | 'night')}
-            style={{ width: 'auto', cursor: 'pointer' }}
-          >
-            <option value="orange">{t('settings.themeOrange')}</option>
-            <option value="blue">{t('settings.themeBlue')}</option>
-            <option value="rose">{t('settings.themeRose')}</option>
-            <option value="night">{t('settings.themeNight')}</option>
-          </select>
-        </div>
         {isAdmin && (
         <div style={{ padding: '14px 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -859,7 +858,9 @@ export function Settings({
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.version')}</div>
           </div>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text-muted)' }}>v{__APP_VERSION__}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text-muted)', textAlign: 'right' }}>
+            v{__APP_VERSION__}{__APP_BUILD__ && <span style={{ display: 'block', fontSize: 11, color: 'var(--warm-text-light)' }}>{__APP_BUILD__}</span>}
+          </span>
         </div>
       </div>
 
@@ -871,6 +872,27 @@ export function Settings({
           {pendingCompletions.length === 0 && (
             <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.noPendingValidations')}</div>
           )}
+        </div>
+      )}
+
+      {isAdmin && notifMasterEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">👪 {t('notifyAdmin.peopleTitle')}</h3>
+          <PeopleNotifyAdmin language={user.language} />
+        </div>
+      )}
+
+      {isAdmin && notifMasterEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">⏰ {t('notifyAdmin.timingTitle')}</h3>
+          <NotifyScheduleAdmin language={user.language} />
+        </div>
+      )}
+
+      {isAdmin && notifMasterEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">📜 {t('notifyAdmin.logTitle')}</h3>
+          <NotificationLog language={user.language} />
         </div>
       )}
 
@@ -908,6 +930,10 @@ export function Settings({
         <div className="tq-card tq-card-padded settings-admin-card">
           <h3 className="tq-card-title">{t('settings.goalsSection')}</h3>
           <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.goalsSectionDesc')}</div>
+          <div style={{ backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', borderRadius: 12, padding: '10px 12px', marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 6 }}>🤝 {t('board.familyGoalAdmin')}</div>
+            <FamilyGoalAdmin language={user.language} />
+          </div>
           <div style={{ display: 'grid', gap: 10 }}>
             {family
               .filter((u) => u.id !== user.id && u.role !== 'admin')
@@ -1100,6 +1126,14 @@ export function Settings({
         </div>
       )}
 
+      {isAdmin && gamificationEnabled && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">🏅 {t('badges.adminTitle')}</h3>
+          <CustomBadgesAdmin rooms={rooms} language={user.language}
+            family={family.filter((m) => m.role !== 'admin' || m.isParticipant).map((m) => ({ id: m.id, displayName: m.displayName }))} />
+        </div>
+      )}
+
       {isAdmin && (
       <div className="tq-card tq-card-padded">
         <h3 className="tq-card-title">{t('settings.dataPrivacy')}</h3>
@@ -1289,6 +1323,10 @@ export function Settings({
                       ))}
                     </select>
                   )}
+                  <ThemePicker value={isTheme(memberProfile[u.id]?.theme) ? memberProfile[u.id].theme as Theme : null} language={user.language}
+                    onChange={(theme) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], theme } }))} />
+                  <BirthdayInput value={memberProfile[u.id]?.birthday ?? ''} language={user.language}
+                    onChange={(birthday) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], birthday } }))} />
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                     <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={() => handleSaveChildProfile(u)}>{t('common.save')}</button>
                     {memberProfileMsg[u.id] && (

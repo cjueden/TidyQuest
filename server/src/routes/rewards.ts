@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
-import { isNotificationTypeEnabled, sendNotification } from '../utils/notifications';
+import { notifyPotFull, notifyRewardDecision, notifyRewardRequest } from '../utils/notifyMessages';
 import { ensureAdmin } from '../utils/adminHelpers';
 import {
   LIMIT_PERIODS, LIMIT_SCOPES, adminRulesFor, catalogFor, completePotIfFull, getRotatingPerWeek, getRules,
@@ -177,9 +177,7 @@ router.post('/:id/contribute', (req: AuthRequest, res: Response) => {
     return completePotIfFull(id);
   })();
 
-  if (redemptionId && isNotificationTypeEnabled('rewardRequest')) {
-    void sendNotification(`🎁 Saved up: the family pot for "${rule.title}" is full (${rule.costCoins} coins). It's waiting for your approval.`);
-  }
+  if (redemptionId) void notifyPotFull(rule.title, rule.costCoins);
   const user = db.prepare('SELECT coins FROM users WHERE id = ?').get(me.id) as { coins: number };
   const redemption = redemptionId
     ? db.prepare('SELECT id, rewardId, userId, costCoins, redeemedAt, status FROM reward_redemptions WHERE id = ?').get(redemptionId)
@@ -210,7 +208,11 @@ router.put('/redemptions/:id', (req: AuthRequest, res: Response) => {
      JOIN rewards r ON rr.rewardId = r.id
      JOIN users u ON rr.userId = u.id
      WHERE rr.id = ?`
-  ).get(id);
+  ).get(id) as any;
+  // Tell the kid when a request is decided
+  if (row.status === 'requested' && (status === 'approved' || status === 'rejected')) {
+    void notifyRewardDecision(row.userId, req.userId!, updated?.title ?? '', status === 'approved');
+  }
   res.json(updated);
 });
 
@@ -321,11 +323,7 @@ router.post('/:id/redeem', (req: AuthRequest, res: Response) => {
     'SELECT id, rewardId, userId, costCoins, redeemedAt, status FROM reward_redemptions WHERE id = ?'
   ).get(redemptionId);
 
-  if (isNotificationTypeEnabled('rewardRequest')) {
-    void sendNotification(
-      `🎁 Reward request: ${me.displayName} requested "${reward.title}" (${reward.costCoins} coins).`
-    );
-  }
+  void notifyRewardRequest(me.id, reward.title, reward.costCoins);
   res.json({ redemption, coins: user.coins });
 });
 

@@ -8,6 +8,8 @@ import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calculateHealth, getCoinsForEffort } from '../utils/health';
 import { suggestTaskIcon } from '../utils/taskIcons';
 import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '../utils/achievementNotifications';
+import { badgeInfo } from '../utils/achievementStats';
+import { notifyChoreApproved, notifyChoreRejected, notifyChoreWaiting } from '../utils/notifyMessages';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
 import { hasWeekdaySchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth } from '../utils/schedule';
@@ -155,16 +157,19 @@ function approvePendingCompletion(completionId: number, adminId: number): string
   });
   // The turn moves on once the parent approves (it used to stay stuck under Strict Mode)
   advanceRotation(task, completion.userId);
+  void notifyChoreApproved(completion.userId, adminId, task.name, completion.coinsEarned);
   if (gamificationOn) void notifyAchievementUnlocksForUser(completion.userId);
   return null;
 }
 
 /** Reject one waiting completion (it's removed; no coins). Returns an error code or null. */
-function rejectPendingCompletion(completionId: number): string | null {
-  const completion = db.prepare('SELECT id, status FROM task_completions WHERE id = ?').get(completionId) as { id: number; status: string } | undefined;
+function rejectPendingCompletion(completionId: number, adminId?: number): string | null {
+  const completion = db.prepare('SELECT c.id, c.status, c.userId, t.name AS taskName FROM task_completions c LEFT JOIN tasks t ON t.id = c.taskId WHERE c.id = ?')
+    .get(completionId) as { id: number; status: string; userId: number; taskName: string | null } | undefined;
   if (!completion) return 'not_found';
   if (completion.status !== 'pending') return 'completion_not_pending';
   db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
+  if (adminId) void notifyChoreRejected(completion.userId, adminId, completion.taskName ?? '');
   return null;
 }
 
@@ -595,6 +600,7 @@ router.post('/tasks/:id/duplicate', (req: AuthRequest, res: Response) => {
   saveScheduleInput(newTaskId, {
     seasonStartMonth: task.seasonStartMonth, seasonEndMonth: task.seasonEndMonth,
     scheduleWeekdays: task.scheduleWeekdays, rotationPeriod: task.rotationPeriod,
+    reminderTime: task.reminderTime, reminderDayBefore: task.reminderDayBefore,
   });
 
   const assignees = db.prepare('SELECT userId, coinPercentage FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number; coinPercentage: number }[];
@@ -804,9 +810,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     const pendingId = Number(db.prepare(
       "INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, note) VALUES (?, ?, ?, ?, 'pending', ?)"
     ).run(task.id, effectiveUserId, now, coins, note).lastInsertRowid);
-    if (isNotificationTypeEnabled('choreApproval')) {
-      void sendNotification(`✅ ${targetUser?.displayName ?? 'Someone'} finished "${task.name}" and it's waiting for your approval.`);
-    }
+    void notifyChoreWaiting(effectiveUserId, task.name);
     return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId });
   }
 
@@ -817,7 +821,8 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   if (newAchievements.length > 0) {
     void notifyAchievementUnlocksForUser(effectiveUserId);
   }
-  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, completionId });
+  // Titles for the pop-up: parent-made and secret badges aren't in the page data the app already has
+  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(effectiveUserId, newAchievements), completionId });
 });
 
 router.get('/completions/pending', (req: AuthRequest, res: Response) => {
@@ -856,7 +861,7 @@ router.delete('/completions/:completionId/reject', (req: AuthRequest, res: Respo
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
-  const error = rejectPendingCompletion(Number(req.params.completionId));
+  const error = rejectPendingCompletion(Number(req.params.completionId), req.userId);
   if (error) return res.status(PENDING_ERRORS[error]).json({ error: error === 'not_found' ? 'Completion not found' : error });
   res.json({ success: true });
 });
@@ -881,7 +886,7 @@ router.post('/completions/reject-batch', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
   const ids = batchIds(req.body);
   if (!ids) return res.status(400).json({ error: 'ids must be a non-empty array of completion ids' });
-  const results = db.transaction(() => ids.map((id) => ({ id, error: rejectPendingCompletion(id) })))();
+  const results = db.transaction(() => ids.map((id) => ({ id, error: rejectPendingCompletion(id, req.userId) })))();
   res.json({ rejected: results.filter((r) => !r.error).map((r) => r.id), skipped: results.filter((r) => r.error) });
 });
 

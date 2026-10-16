@@ -13,6 +13,9 @@ export interface ScheduleValue {
   seasonStart: number;
   seasonEnd: number;
   rotationPeriod: 'completion' | 'week';
+  /** A reminder at this time ('HH:MM', '' = none) on the due day, or the day before */
+  reminderTime: string;
+  reminderDayBefore: boolean;
 }
 
 export interface ScheduledTaskFields {
@@ -20,9 +23,11 @@ export interface ScheduledTaskFields {
   seasonStartMonth?: number | null;
   seasonEndMonth?: number | null;
   rotationPeriod?: 'completion' | 'week' | null;
+  reminderTime?: string | null;
+  reminderDayBefore?: number | boolean | null;
 }
 
-export const EMPTY_SCHEDULE: ScheduleValue = { mode: 'interval', weekdays: 0, seasonOn: false, seasonStart: 4, seasonEnd: 10, rotationPeriod: 'completion' };
+export const EMPTY_SCHEDULE: ScheduleValue = { mode: 'interval', weekdays: 0, seasonOn: false, seasonStart: 4, seasonEnd: 10, rotationPeriod: 'completion', reminderTime: '', reminderDayBefore: false };
 
 export function scheduleFromTask(task: ScheduledTaskFields): ScheduleValue {
   const weekdays = Number(task.scheduleWeekdays) || 0;
@@ -34,6 +39,8 @@ export function scheduleFromTask(task: ScheduledTaskFields): ScheduleValue {
     seasonStart: seasonOn ? Number(task.seasonStartMonth) : EMPTY_SCHEDULE.seasonStart,
     seasonEnd: seasonOn ? Number(task.seasonEndMonth) : EMPTY_SCHEDULE.seasonEnd,
     rotationPeriod: task.rotationPeriod === 'week' ? 'week' : 'completion',
+    reminderTime: task.reminderTime ?? '',
+    reminderDayBefore: !!task.reminderDayBefore,
   };
 }
 
@@ -44,6 +51,8 @@ export function schedulePayload(v: ScheduleValue, opts: { onDemand: boolean; rot
     seasonStartMonth: v.seasonOn ? v.seasonStart : null,
     seasonEndMonth: v.seasonOn ? v.seasonEnd : null,
     rotationPeriod: opts.rotating ? v.rotationPeriod : 'completion',
+    reminderTime: !opts.onDemand && v.reminderTime ? v.reminderTime : null,
+    reminderDayBefore: v.reminderDayBefore,
   };
 }
 

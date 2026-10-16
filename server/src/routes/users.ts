@@ -6,7 +6,8 @@ import bcrypt from 'bcryptjs';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { DEFAULT_COINS_BY_EFFORT, normalizeCoinsByEffortConfig } from '../utils/health';
-import { NotificationTypeSettings, sendTelegramMessageDetailed, sendNtfyMessageDetailed } from '../utils/notifications';
+import { notifyCoinsAdjusted } from '../utils/notifyMessages';
+import { NOTIFICATION_KINDS, NotificationTypeSettings, sendTelegramMessageDetailed, sendNtfyMessageDetailed } from '../utils/notifications';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, isHidePrivateRoomsEnabled, isStrictModeEnabled } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
 import { currentLocalWeek } from '../utils/periods';
@@ -14,7 +15,9 @@ import { currentLocalWeek } from '../utils/periods';
 const router = Router();
 router.use(authMiddleware);
 
-const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode';
+export const THEMES = ['orange', 'blue', 'rose', 'mint', 'grape', 'sunny', 'night', 'ocean'];
+
+const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme';
 
 function normalizeNotificationTime(value: string | undefined): string | null {
   if (value === undefined) return null;
@@ -27,23 +30,17 @@ function normalizeNotificationTypes(value: unknown): NotificationTypeSettings | 
   if (!value || typeof value !== 'object') return null;
   const raw = value as Record<string, unknown>;
   const toBool = (v: unknown, fallback: boolean) => typeof v === 'boolean' ? v : fallback;
-  return {
-    taskDue: toBool(raw.taskDue, true),
-    rewardRequest: toBool(raw.rewardRequest, true),
-    achievementUnlocked: toBool(raw.achievementUnlocked, true),
-    choreApproval: toBool(raw.choreApproval, true),
-    coinBoost: toBool(raw.coinBoost, true),
-  };
+  return Object.fromEntries(NOTIFICATION_KINDS.map((k) => [k, toBool(raw[k], true)])) as unknown as NotificationTypeSettings;
 }
 
 function readNotificationTypesSetting(): NotificationTypeSettings {
   const rawTypes = (db.prepare("SELECT value FROM app_settings WHERE key = 'notificationTypes'").get() as any)?.value
     || (db.prepare("SELECT value FROM app_settings WHERE key = 'telegramNotificationTypes'").get() as any)?.value || '';
-  if (!rawTypes) return { taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true };
+  if (!rawTypes) return (Object.fromEntries(NOTIFICATION_KINDS.map((k) => [k, true])) as unknown as NotificationTypeSettings);
   try {
-    return normalizeNotificationTypes(JSON.parse(rawTypes)) || { taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true };
+    return normalizeNotificationTypes(JSON.parse(rawTypes)) || (Object.fromEntries(NOTIFICATION_KINDS.map((k) => [k, true])) as unknown as NotificationTypeSettings);
   } catch {
-    return { taskDue: true, rewardRequest: true, achievementUnlocked: true, choreApproval: true, coinBoost: true };
+    return (Object.fromEntries(NOTIFICATION_KINDS.map((k) => [k, true])) as unknown as NotificationTypeSettings);
   }
 }
 
@@ -147,7 +144,7 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
     return res.status(403).json({ error: 'Cannot modify another user' });
   }
 
-  const { displayName, avatarType, avatarColor, avatarPreset, language } = req.body;
+  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday, theme } = req.body;
 
   const updates: string[] = [];
   const values: any[] = [];
@@ -157,6 +154,17 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
   if (avatarColor !== undefined) { updates.push('avatarColor = ?'); values.push(avatarColor); }
   if (avatarPreset !== undefined) { updates.push('avatarPreset = ?'); values.push(avatarPreset); }
   if (language !== undefined) { updates.push('language = ?'); values.push(language); }
+  // Color theme (follows the person to every device; empty clears it)
+  if (theme !== undefined) {
+    if (theme !== null && theme !== '' && !THEMES.includes(theme)) return res.status(400).json({ error: 'invalid_theme' });
+    updates.push('theme = ?'); values.push(theme || null);
+  }
+  // Birthday as 'MM-DD' (empty clears it)
+  if (birthday !== undefined) {
+    const b = typeof birthday === 'string' ? birthday.trim() : '';
+    if (b && !/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(b)) return res.status(400).json({ error: 'invalid_birthday' });
+    updates.push('birthday = ?'); values.push(b || null);
+  }
 
   if (updates.length > 0) {
     values.push(userId);
@@ -590,7 +598,11 @@ router.put('/notifications-config', (req: AuthRequest, res: Response) => {
   const tgEnabledNow = (db.prepare("SELECT value FROM app_settings WHERE key = 'telegramEnabled'").get() as any)?.value === '1';
   const ntfyEnabledNow = (db.prepare("SELECT value FROM app_settings WHERE key = 'ntfyEnabled'").get() as any)?.value === '1';
 
-  if (masterNow && !tgEnabledNow && !ntfyEnabledNow) {
+  // Personal channels (an ntfy topic, Telegram chat or Home Assistant phone per person) count too
+  const haNow = !!(db.prepare("SELECT value FROM app_settings WHERE key = 'haUrl'").get() as any)?.value
+    && !!(db.prepare("SELECT value FROM app_settings WHERE key = 'haToken'").get() as any)?.value;
+  const personalNow = !!db.prepare('SELECT 1 FROM users WHERE ntfyTopic IS NOT NULL OR telegramChatId IS NOT NULL OR haNotifyService IS NOT NULL LIMIT 1').get();
+  if (masterNow && !tgEnabledNow && !ntfyEnabledNow && !haNow && !personalNow) {
     return res.status(400).json({ error: 'At least one notification provider (Telegram or ntfy) must be enabled.' });
   }
 
@@ -692,6 +704,7 @@ router.post('/:id/adjust-coins', (req: AuthRequest, res: Response) => {
     return delta;
   })();
   const updated = db.prepare(`SELECT ${USER_SELECT} FROM users WHERE id = ?`).get(req.params.id) as any;
+  if (applied !== 0) void notifyCoinsAdjusted(targetUser.id, req.userId!, applied, reason || null);
   res.json({ ...updated, applied });
 });
 

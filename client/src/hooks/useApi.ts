@@ -97,6 +97,89 @@ export interface TaskBatchChanges {
   frequencyDays?: number;
 }
 
+export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder';
+
+export interface NotifySettings {
+  morningTime: string;
+  eveningTime: string;
+  recapDay: number;
+  recapTime: string;
+  quietStart: string;
+  quietEnd: string;
+  schoolHoursEnabled: boolean;
+  schoolStart: string;
+  schoolEnd: string;
+  haUrl: string;
+  hasHaToken: boolean;
+  haFamilyService: string;
+}
+
+export interface NotifyPerson {
+  id: number;
+  displayName: string;
+  role: string;
+  language: string;
+  ntfyTopic: string;
+  telegramChatId: string;
+  haNotifyService: string;
+  prefs: Record<NotifyKind, boolean>;
+  /** Their own channels that are set up */
+  channels: string[];
+}
+
+export interface CustomBadge {
+  id: number;
+  title: string;
+  description: string | null;
+  icon: string;
+  metric: 'task_count' | 'room_count' | 'task_weeks' | 'goal_weeks' | 'completions' | 'streak' | 'coins_earned';
+  taskIds: number[];
+  roomId: number | null;
+  threshold: number;
+  bonusCoins: number;
+  userIds: number[] | null;
+  secret: boolean;
+}
+export type CustomBadgeInput = Omit<CustomBadge, 'id'>;
+
+export type BoardPeriod = 'week' | 'lastWeek' | 'month' | 'quarter' | 'year';
+export type BoardMode = 'coins' | 'goal' | 'improved';
+
+export interface BoardPerson {
+  id: number;
+  displayName: string;
+  avatarColor: string;
+  avatarType: string | null;
+  avatarPreset: string | null;
+  avatarPhotoUrl: string | null;
+  coins: number;
+  currentStreak: number;
+  /** Coins earned in the period */
+  points: number;
+  chores: number;
+  /** Coins in the same stretch of the period before */
+  comparePoints: number;
+  improvement: number;
+  goalTarget: number | null;
+  goalPct: number | null;
+  /** What the ranking uses in this mode (null: no goal) */
+  score: number | null;
+  rank: number;
+  prevRank: number | null;
+  /** Places gained (+) or lost (−) since the period before */
+  movement: number;
+}
+
+export interface BoardData {
+  period: BoardPeriod;
+  mode: BoardMode;
+  range: { startAt: string; endAt: string };
+  people: BoardPerson[];
+  awards: Array<{ key: 'earlyBird' | 'bountyHunter' | 'allRounder' | 'room'; userIds: number[]; value: number; roomId?: number; roomName?: string }>;
+  familyGoal: { target: number; prize: string; total: number; reached: boolean } | null;
+  trophies: { weeks: Array<{ weekStart: string; userIds: number[]; coins: number }>; wins: Record<number, number> };
+}
+
 function getToken(): string | null {
   return localStorage.getItem('tidyquest_token');
 }
@@ -179,7 +262,7 @@ export const api = {
   resetTask: (id: number) =>
     apiFetch<{ success: boolean; completionsRemoved: number; coinsDeducted: number; lastCompletedAt: string }>(`/tasks/${id}/reset`, { method: 'POST' }),
   completeTask: (id: number, onBehalfOfUserId?: number, extra: { note?: string } = {}) =>
-    apiFetch<{ coinsEarned: number; health: number; pendingApproval?: boolean; newAchievements?: string[]; completionId?: number }>(`/tasks/${id}/complete`, {
+    apiFetch<{ coinsEarned: number; health: number; pendingApproval?: boolean; newAchievements?: string[]; newAchievementInfo?: Array<{ id: string; titleKey: string | null; title: string | null; icon: string }>; completionId?: number }>(`/tasks/${id}/complete`, {
       method: 'POST', body: JSON.stringify({ ...(onBehalfOfUserId ? { onBehalfOfUserId } : {}), ...extra }),
     }),
   approveCompletionsBatch: (ids: number[]) =>
@@ -206,6 +289,25 @@ export const api = {
 
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
+  // Notifications to people (Settings → Notifications)
+  getNotifySettings: () => apiFetch<NotifySettings>('/notify/settings'),
+  updateNotifySettings: (data: Partial<NotifySettings> & { haToken?: string }) => apiFetch<NotifySettings>('/notify/settings', { method: 'PUT', body: JSON.stringify(data) }),
+  getNotifyPeople: () => apiFetch<NotifyPerson[]>('/notify/people'),
+  getNotifyPerson: (id: number) => apiFetch<NotifyPerson>(`/notify/people/${id}`),
+  updateNotifyPerson: (id: number, data: { ntfyTopic?: string; telegramChatId?: string; haNotifyService?: string; prefs?: Partial<Record<NotifyKind, boolean>> }) =>
+    apiFetch<NotifyPerson>(`/notify/people/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  testNotifyPerson: (id: number) => apiFetch<{ results: Array<{ channel: string; ok: boolean; error?: string }> }>(`/notify/people/${id}/test`, { method: 'POST' }),
+  getNotifyLog: () => apiFetch<Array<{ id: number; sentAt: string; userId: number | null; displayName: string | null; channel: string; kind: string; message: string; ok: number; error: string | null }>>('/notify/log'),
+  // Badges parents make (Settings → Badges)
+  getCustomBadges: () => apiFetch<{ badges: Array<CustomBadge & { earnedBy: number }>; builtinBonusCoins: number }>('/achievements/custom'),
+  createCustomBadge: (data: CustomBadgeInput) => apiFetch<CustomBadge>('/achievements/custom', { method: 'POST', body: JSON.stringify(data) }),
+  updateCustomBadge: (id: number, data: CustomBadgeInput) => apiFetch<CustomBadge>(`/achievements/custom/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteCustomBadge: (id: number) => apiFetch<{ success: boolean }>(`/achievements/custom/${id}`, { method: 'DELETE' }),
+  setBadgeConfig: (builtinBonusCoins: number) => apiFetch<{ builtinBonusCoins: number }>('/achievements/config', { method: 'PUT', body: JSON.stringify({ builtinBonusCoins }) }),
+  getBoard: (period: BoardPeriod, mode: BoardMode) => apiFetch<BoardData>(`/leaderboard/board?period=${period}&mode=${mode}`),
+  getFamilyGoal: () => apiFetch<{ target: number; prize: string; progress: { total: number; target: number } | null }>('/leaderboard/family-goal'),
+  setFamilyGoal: (target: number, prize: string) =>
+    apiFetch<{ target: number; prize: string; progress: { total: number; target: number } | null }>('/leaderboard/family-goal', { method: 'PUT', body: JSON.stringify({ target, prize }) }),
 
   // History
   history: (limit = 20, offset = 0, filters: { userId?: number; roomId?: number; from?: string; to?: string; q?: string } = {}) => {
@@ -222,7 +324,7 @@ export const api = {
     apiFetch<any>('/users', { method: 'POST', body: JSON.stringify(data) }),
   updateSettings: (userId: number, data: { language?: string; isVacationMode?: boolean }) =>
     apiFetch<any>(`/users/${userId}/settings`, { method: 'PUT', body: JSON.stringify(data) }),
-  updateProfile: (userId: number, data: { displayName?: string; avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string }) =>
+  updateProfile: (userId: number, data: { displayName?: string; avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null; theme?: string | null }) =>
     apiFetch<any>(`/users/${userId}/profile`, { method: 'PUT', body: JSON.stringify(data) }),
   updatePassword: (userId: number, data: { currentPassword?: string; newPassword: string }) =>
     apiFetch<{ success: boolean }>(`/users/${userId}/password`, { method: 'PUT', body: JSON.stringify(data) }),
