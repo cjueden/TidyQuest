@@ -84,6 +84,36 @@ describe('Double coins events', () => {
     expect(coins(kid.user.id) - before).toBe(20);
   });
 
+  it('can be aimed at chosen chores as well as rooms', async () => {
+    const { admin, kid, room, otherRoom } = await family();
+    const task = async (roomId: number, name: string) =>
+      (await agent.post(`/api/rooms/${roomId}/tasks`).set(auth(admin.token)).send({ name, effort: 1, onDemand: true, customCoins: 10 })).body.id as number;
+    const inRoom = await task(room, 'Tidy');
+    const picked = await task(otherRoom, 'Clean Shower & Tub');
+    const nextToIt = await task(otherRoom, 'Rake');
+    expect((await agent.post('/api/boosts').set(auth(admin.token)).send({ title: 'Party prep', multiplier: 2, startAt: at(-HOUR), endAt: at(HOUR), taskIds: [99999] })).body.error).toBe('Task not found');
+    const boost = (await agent.post('/api/boosts').set(auth(admin.token))
+      .send({ title: 'Party prep', multiplier: 2, startAt: at(-HOUR), endAt: at(HOUR), roomIds: [room], taskIds: [picked, picked] })).body;
+    expect([boost.roomIds, boost.taskIds]).toEqual([[room], [picked]]);
+
+    const dash = (await agent.get('/api/dashboard').set(auth(kid.token))).body;
+    expect(dash.coinBoosts.map((x: any) => [x.taskIds, x.taskNames])).toEqual([[[picked], ['Clean Shower & Tub']]]);
+    const earned = async (taskId: number) => (await agent.post(`/api/tasks/${taskId}/complete`).set(auth(kid.token))).body.coinsEarned;
+    expect([await earned(inRoom), await earned(picked), await earned(nextToIt)]).toEqual([20, 20, 10]);
+
+    // The start notification names the room and the chore
+    for (const [key, value] of [['notificationsEnabled', '1'], ['ntfyEnabled', '1'], ['ntfyTopic', 'family']]) {
+      db.prepare('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)').run(key, value);
+    }
+    const sent: string[] = [];
+    await sendCoinBoostNotificationsIfNeeded(new Date(), async (m) => { sent.push(m); return true; });
+    expect(sent[0]).toContain('(Quests, Clean Shower & Tub)');
+
+    // Dropping the chore leaves just the room
+    const updated = (await agent.put(`/api/boosts/${boost.id}`).set(auth(admin.token)).send({ taskIds: [] })).body;
+    expect([updated.roomIds, updated.taskIds]).toEqual([[room], null]);
+  });
+
   it('shows running events on Home and nothing once they end', async () => {
     const { admin, kid } = await family();
     await agent.post('/api/boosts').set(auth(admin.token)).send({ title: 'Party prep', multiplier: 3, startAt: at(-HOUR), endAt: at(HOUR) });

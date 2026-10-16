@@ -9,8 +9,10 @@ export interface CoinBoost {
   multiplier: number;
   startAt: string;
   endAt: string;
-  /** Rooms it applies to; null = every room */
+  /** Rooms it applies to (null with no taskIds = everything) */
   roomIds: number[] | null;
+  /** Chores it applies to, on top of its rooms */
+  taskIds: number[] | null;
   createdBy: number | null;
   createdAt: string;
   notifiedStart: number;
@@ -19,7 +21,8 @@ export interface CoinBoost {
 
 const HOUR = 3600000;
 
-export function parseRoomIds(raw: unknown): number[] | null {
+/** A stored JSON id list (roomIds, taskIds); empty or missing = null */
+export function parseIds(raw: unknown): number[] | null {
   if (typeof raw !== 'string' || !raw) return null;
   try {
     const ids = JSON.parse(raw);
@@ -30,7 +33,7 @@ export function parseRoomIds(raw: unknown): number[] | null {
 }
 
 export function toBoost(row: any): CoinBoost {
-  return { ...row, multiplier: Number(row.multiplier), roomIds: parseRoomIds(row.roomIds) };
+  return { ...row, multiplier: Number(row.multiplier), roomIds: parseIds(row.roomIds), taskIds: parseIds(row.taskIds) };
 }
 
 export function getBoost(id: number): CoinBoost | null {
@@ -44,12 +47,17 @@ export function getActiveBoosts(now: Date = new Date()): CoinBoost[] {
   return (db.prepare('SELECT * FROM coin_boosts WHERE startAt <= ? AND endAt > ? ORDER BY endAt ASC, id ASC').all(iso, iso) as any[]).map(toBoost);
 }
 
-/** The multiplier for a completion in this room now: the biggest running boost that covers it (boosts don't stack). */
-export function boostMultiplierForRoom(roomId: number, now: Date = new Date()): number {
+/** Whether a boost counts for this chore: nothing picked = everything; otherwise its room or the chore itself. */
+export function boostCovers(b: Pick<CoinBoost, 'roomIds' | 'taskIds'>, taskId: number, roomId: number): boolean {
+  if (!b.roomIds && !b.taskIds) return true;
+  return !!b.roomIds?.includes(roomId) || !!b.taskIds?.includes(taskId);
+}
+
+/** The multiplier for completing this chore now: the biggest running boost that covers it (boosts don't stack). */
+export function boostMultiplierFor(taskId: number, roomId: number, now: Date = new Date()): number {
   let best = 1;
   for (const b of getActiveBoosts(now)) {
-    if (b.roomIds && !b.roomIds.includes(roomId)) continue;
-    best = Math.max(best, b.multiplier);
+    if (boostCovers(b, taskId, roomId)) best = Math.max(best, b.multiplier);
   }
   return best;
 }
@@ -59,10 +67,16 @@ export function formatMultiplier(m: number): string {
   return String(Math.round(m * 100) / 100);
 }
 
-function roomNames(b: CoinBoost): string {
-  if (!b.roomIds) return '';
-  return (db.prepare(`SELECT name FROM rooms WHERE id IN (${b.roomIds.map(() => '?').join(',')}) ORDER BY sortOrder, id`)
-    .all(...b.roomIds) as { name: string }[]).map((r) => r.name).join(', ');
+const names = (table: 'rooms' | 'tasks', ids: number[] | null, order: string) => (!ids ? [] :
+  (db.prepare(`SELECT name FROM ${table} WHERE id IN (${ids.map(() => '?').join(',')}) ORDER BY ${order}`).all(...ids) as { name: string }[]).map((r) => r.name));
+
+/** Names of the chores a boost picked (Home's banner shows them) */
+export const boostTaskNames = (b: CoinBoost) => names('tasks', b.taskIds, 'name');
+
+/** "Kitchen, Clean Shower & Tub, Vacuum Living Room +2 more"; '' when it covers everything */
+function targetNames(b: CoinBoost, lang: string): string {
+  const all = [...names('rooms', b.roomIds, 'sortOrder, id'), ...boostTaskNames(b)];
+  return all.length > 3 ? `${all.slice(0, 3).join(', ')} ${tr(lang, 'notify.andMore', { n: all.length - 3 })}` : all.join(', ');
 }
 
 const LOCALES: Record<string, string> = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES', it: 'it-IT', nl: 'nl-NL' };
@@ -73,8 +87,8 @@ function boostMessage(b: CoinBoost, which: 'start' | 'ending'): Builder {
   return (lang) => {
     const vars = { multiplier: formatMultiplier(b.multiplier), title: b.title, time: timeLabel(b.endAt, lang) };
     if (which === 'ending') return tr(lang, 'notify.boostEnding', vars);
-    const rooms = roomNames(b);
-    return tr(lang, 'notify.boostStart', vars) + (rooms ? ` (${rooms})` : '');
+    const targets = targetNames(b, lang ?? 'en');
+    return tr(lang, 'notify.boostStart', vars) + (targets ? ` (${targets})` : '');
   };
 }
 

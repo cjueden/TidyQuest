@@ -5,7 +5,7 @@ import { calendarDaysUntil, hasWeekdaySchedule, isSeasonalNow, nextDueAt, oneTim
 import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, isStrictModeEnabled, resolveVacation } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
 import { repeatCountsFor } from '../utils/repeatLimits';
-import { getActiveBoosts } from '../utils/boosts';
+import { boostTaskNames, getActiveBoosts } from '../utils/boosts';
 import { achievementsFor } from '../utils/achievementStats';
 import { forgottenTasks, usualTasks } from '../utils/homeSections';
 import { rescueCandidates, todaysMission } from '../utils/rescue';
@@ -330,7 +330,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     pendingCompletions,
     strictMode: isStrictModeEnabled(),
     // Double coins events running now (Home shows a banner and the boosted amounts)
-    coinBoosts: getActiveBoosts().map(({ id, title, multiplier, startAt, endAt, roomIds }) => ({ id, title, multiplier, startAt, endAt, roomIds })),
+    coinBoosts: getActiveBoosts().map((b) => ({ id: b.id, title: b.title, multiplier: b.multiplier, startAt: b.startAt, endAt: b.endAt, roomIds: b.roomIds, taskIds: b.taskIds, taskNames: boostTaskNames(b) })),
     currentUser: user,
     recentActivity,
     badges,

@@ -188,6 +188,8 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE rewards ADD COLUMN sortOrder INTEGER NOT NULL DEFAULT 0`,
   // Seasonal styling: 0 = keep your own theme's colors during holidays (decorations still show)
   `ALTER TABLE users ADD COLUMN holidayColors INTEGER NOT NULL DEFAULT 1`,
+  // Double coins events can also name chores (JSON array of task ids), on top of their rooms
+  `ALTER TABLE coin_boosts ADD COLUMN taskIds TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

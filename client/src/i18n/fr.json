@@ -878,7 +878,10 @@
       "ends": "Fin",
       "rooms": "Pièces :",
       "create": "Lancer un événement",
-      "left": "Encore {time}"
+      "left": "Encore {time}",
+      "chores": "Tâches :",
+      "findChore": "Ajouter une tâche…",
+      "andMore": "+{n} de plus"
     },
     "goals": {
       "repeatWeekly": "Chaque semaine",
@@ -1162,7 +1165,8 @@
       "boostEnding": "⏰ Dernière heure des pièces ×{multiplier} : « {title} » finit à {time}.",
       "test": "👋 Test TidyQuest : les notifications pour {name} fonctionnent !",
       "moreItems": "+{n} de plus",
-      "rescue": "⚡ Mission sauvetage : « {task} » rapporte {multiplier}× pièces aujourd'hui. Le premier qui le fait gagne !"
+      "rescue": "⚡ Mission sauvetage : « {task} » rapporte {multiplier}× pièces aujourd'hui. Le premier qui le fait gagne !",
+      "andMore": "+{n} de plus"
     },
     "notifyAdmin": {
       "peopleTitle": "Qui reçoit quoi",

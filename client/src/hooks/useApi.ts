@@ -46,7 +46,11 @@ export interface CoinBoost {
   multiplier: number;
   startAt: string;
   endAt: string;
+  /** Nothing picked (both null) = every chore; otherwise chores in these rooms plus these chores */
   roomIds: number[] | null;
+  taskIds: number[] | null;
+  /** The picked chores' names (Home's banner) */
+  taskNames?: string[];
 }
 
 export interface TrashItem {
@@ -500,7 +504,7 @@ export const api = {
     apiFetch<{ coins: number; pot: RewardPot; redemption: unknown }>(`/rewards/${id}/contribute`, { method: 'POST', body: JSON.stringify({ amount }) }),
   // Double coins events
   getBoosts: () => apiFetch<CoinBoost[]>('/boosts'),
-  createBoost: (data: { title: string; multiplier: number; startAt: string; endAt: string; roomIds?: number[] | null }) =>
+  createBoost: (data: { title: string; multiplier: number; startAt: string; endAt: string; roomIds?: number[] | null; taskIds?: number[] | null }) =>
     apiFetch<CoinBoost>('/boosts', { method: 'POST', body: JSON.stringify(data) }),
   deleteBoost: (id: number) => apiFetch<{ success: boolean }>(`/boosts/${id}`, { method: 'DELETE' }),
 

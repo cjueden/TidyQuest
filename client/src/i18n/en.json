@@ -878,7 +878,10 @@
       "ends": "Ends",
       "rooms": "Rooms:",
       "create": "Start an event",
-      "left": "{time} left"
+      "left": "{time} left",
+      "chores": "Chores:",
+      "findChore": "Add a chore…",
+      "andMore": "+{n} more"
     },
     "goals": {
       "repeatWeekly": "Repeats weekly",
@@ -1162,7 +1165,8 @@
       "boostEnding": "⏰ Last hour of {multiplier}× coins: “{title}” ends at {time}.",
       "test": "👋 Test from TidyQuest: notifications for {name} work!",
       "moreItems": "+{n} more",
-      "rescue": "⚡ Rescue Mission: “{task}” pays {multiplier}× coins today. First one to do it wins!"
+      "rescue": "⚡ Rescue Mission: “{task}” pays {multiplier}× coins today. First one to do it wins!",
+      "andMore": "+{n} more"
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",
