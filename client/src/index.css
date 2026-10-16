@@ -876,10 +876,21 @@ html[data-season] .main-content {
   100% { transform: translate(112vw, 0); }
 }
 
+/* The house mascot: bounces when the house is clean, sways when it's fine, droops when it's sad */
+.mascot-bounce { animation: mascotBounce 1.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.mascot-sway { animation: mascotSway 3.2s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+.mascot-droop { animation: mascotDroop 4s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+.mascot-party { animation: mascotBounce 0.9s ease-in-out infinite; transform-origin: 50% 100%; }
+.mascot-confetti { position: absolute; top: -6px; right: -6px; font-size: 22px; animation: mascotSway 0.8s ease-in-out infinite alternate; }
+.mascot-bubble::before { content: ''; position: absolute; left: -7px; top: 18px; border: 7px solid transparent; border-left: 0; border-right-color: var(--warm-border); }
+@keyframes mascotBounce { 0%, 100% { transform: translateY(0) scale(1, 1); } 45% { transform: translateY(-8px) scale(0.98, 1.03); } 60% { transform: translateY(0) scale(1.04, 0.96); } }
+@keyframes mascotSway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+@keyframes mascotDroop { from { transform: translateY(0) rotate(-1deg); } to { transform: translateY(2px) rotate(1deg); } }
+
 /* Gentle on motion: no moving decorations or confetti for people who ask for less motion */
 @media (prefers-reduced-motion: reduce) {
   .season-particles, .tq-confetti { display: none; }
-  .season-strip span { animation: none; }
+  .season-strip span, .mascot-bounce, .mascot-sway, .mascot-droop, .mascot-party, .mascot-confetti { animation: none; }
 }
 
 /* Night theme: ensure inputs and selects are readable */

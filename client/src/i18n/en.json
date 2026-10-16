@@ -1285,7 +1285,9 @@
       "seasonal": "Seasonal styling",
       "seasonalDesc": "The app dresses up for the holidays: colors, decorations and a countdown on Home.",
       "cheers": "Cheers",
-      "cheersDesc": "Cheer each other's finished chores (👏 🎉 💪 ⭐); parents can add a note and bonus when approving."
+      "cheersDesc": "Cheer each other's finished chores (👏 🎉 💪 ⭐); parents can add a note and bonus when approving.",
+      "mascot": "House mascot",
+      "mascotDesc": "A family creature on Home that grows with everyone's coins and cheers when the house is clean."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1341,6 +1343,35 @@
       "celebrationName_coins": "Coins",
       "celebrationName_fireworks": "Fireworks",
       "badgeHint": "👑 💎 Each crown or diamond badge you earn unlocks its own frame."
+    },
+    "mascot": {
+      "title": "House mascot",
+      "name": "Name",
+      "egg": "I'm about to hatch! Every chore helps.",
+      "help": "{room} needs some love!",
+      "goHelp": "Let's help",
+      "mood_happy": "The house is sparkling! ✨",
+      "mood_fine": "Looking good, team!",
+      "mood_messy": "Things are getting a little dusty…",
+      "mood_sad": "I miss our clean house…",
+      "rescue": "Rescue Mission complete! 🎉",
+      "birthday": "Happy birthday, {name}! 🎂",
+      "teamGoal": "We hit the family goal! 🎉",
+      "grows": "{n} family coins until it grows into a {stage}",
+      "maxed": "Fully grown: a legend!",
+      "stage_egg": "Egg",
+      "stage_baby": "Baby",
+      "stage_kid": "Kid",
+      "stage_grown": "Grown",
+      "stage_legendary": "Legendary",
+      "creature_dog": "Dog",
+      "creature_cat": "Cat",
+      "creature_dragon": "Dragon",
+      "creature_robot": "Robot",
+      "creature_fox": "Fox",
+      "creature_bunny": "Bunny",
+      "creature_panda": "Panda",
+      "creature_axolotl": "Axolotl"
     }
   }
 }

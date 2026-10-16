@@ -1285,7 +1285,9 @@
       "seasonal": "Stile delle feste",
       "seasonalDesc": "L'app si veste a festa: colori, decorazioni e un conto alla rovescia nella Home.",
       "cheers": "Tifo",
-      "cheersDesc": "Fate il tifo per le faccende finite degli altri (👏 🎉 💪 ⭐); i genitori possono aggiungere una nota e un bonus approvando."
+      "cheersDesc": "Fate il tifo per le faccende finite degli altri (👏 🎉 💪 ⭐); i genitori possono aggiungere una nota e un bonus approvando.",
+      "mascot": "Mascotte di casa",
+      "mascotDesc": "Una creatura di famiglia nella Home che cresce con le monete di tutti e fa festa quando la casa è pulita."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1341,6 +1343,35 @@
       "celebrationName_coins": "Monete",
       "celebrationName_fireworks": "Fuochi d'artificio",
       "badgeHint": "👑 💎 Ogni badge corona o diamante che guadagni sblocca la sua cornice."
+    },
+    "mascot": {
+      "title": "Mascotte di casa",
+      "name": "Nome",
+      "egg": "Sto per schiudermi! Ogni faccenda aiuta.",
+      "help": "{room} ha bisogno di affetto!",
+      "goHelp": "Aiutiamo",
+      "mood_happy": "La casa brilla! ✨",
+      "mood_fine": "Bel lavoro, squadra!",
+      "mood_messy": "C'è un po' di polvere in giro…",
+      "mood_sad": "Mi manca la nostra casa pulita…",
+      "rescue": "Missione di salvataggio compiuta! 🎉",
+      "birthday": "Buon compleanno, {name}! 🎂",
+      "teamGoal": "Obiettivo di famiglia raggiunto! 🎉",
+      "grows": "Mancano {n} monete di famiglia per diventare {stage}",
+      "maxed": "Cresciuta del tutto: una leggenda!",
+      "stage_egg": "Uovo",
+      "stage_baby": "Cucciolo",
+      "stage_kid": "Bambino",
+      "stage_grown": "Adulto",
+      "stage_legendary": "Leggendario",
+      "creature_dog": "Cane",
+      "creature_cat": "Gatto",
+      "creature_dragon": "Drago",
+      "creature_robot": "Robot",
+      "creature_fox": "Volpe",
+      "creature_bunny": "Coniglio",
+      "creature_panda": "Panda",
+      "creature_axolotl": "Axolotl"
     }
   }
 }

@@ -12,6 +12,7 @@ import { rescueCandidates, todaysMission } from '../utils/rescue';
 import { getFeatures, holidaysOff, isFeatureOn } from '../utils/features';
 import { cheersFor } from '../utils/cheers';
 import { cosmetics, unlocksFor } from '../utils/unlocks';
+import { mascotFor } from '../utils/mascot';
 
 const router = Router();
 router.use(authMiddleware);
@@ -330,6 +331,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     holidaysOff: holidaysOff(),
     // Everyone's frame, title and celebration (avatars and names), and what your next level unlocks
     cosmetics: cosmetics(),
+    // The house mascot (Settings → Features)
+    mascot: features.mascot ? mascotFor({ houseHealth, rooms: roomsWithHealth, rescueDone: !!missionRow?.completedBy }) : null,
     nextUnlock: unlocksFor(req.userId!).next,
     onDemandQuests,
     nextTasks,

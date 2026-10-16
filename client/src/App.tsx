@@ -446,6 +446,7 @@ function AppContent() {
               {dashboardData && (
                 <Dashboard
                   data={dashboardData}
+                  seasonCostume={season?.costume}
                   family={family}
                   users={familySettings}
                   language={user.language}

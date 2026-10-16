@@ -4,7 +4,7 @@ import db from '../database';
  * Optional extras a family can switch off (Settings → Features). All on by default; stored as JSON
  * {feature: false} in app_settings 'features'.
  */
-export const FEATURES = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'seasonal', 'cheers'] as const;
+export const FEATURES = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'seasonal', 'cheers', 'mascot'] as const;
 export type Feature = typeof FEATURES[number];
 
 export function getFeatures(): Record<Feature, boolean> {

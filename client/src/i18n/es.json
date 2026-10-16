@@ -1285,7 +1285,9 @@
       "seasonal": "Decoración de temporada",
       "seasonalDesc": "La app se disfraza en las fiestas: colores, decoraciones y una cuenta atrás en Inicio.",
       "cheers": "Ánimos",
-      "cheersDesc": "Animad las tareas terminadas de los demás (👏 🎉 💪 ⭐); los padres pueden añadir una nota y un bonus al aprobar."
+      "cheersDesc": "Animad las tareas terminadas de los demás (👏 🎉 💪 ⭐); los padres pueden añadir una nota y un bonus al aprobar.",
+      "mascot": "Mascota de la casa",
+      "mascotDesc": "Una criatura familiar en Inicio que crece con las monedas de todos y se alegra cuando la casa está limpia."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1341,6 +1343,35 @@
       "celebrationName_coins": "Monedas",
       "celebrationName_fireworks": "Fuegos artificiales",
       "badgeHint": "👑 💎 Cada insignia de corona o diamante que ganes desbloquea su propio marco."
+    },
+    "mascot": {
+      "title": "Mascota de la casa",
+      "name": "Nombre",
+      "egg": "¡Estoy a punto de nacer! Cada tarea ayuda.",
+      "help": "¡{room} necesita cariño!",
+      "goHelp": "Vamos a ayudar",
+      "mood_happy": "¡La casa brilla! ✨",
+      "mood_fine": "¡Buen trabajo, equipo!",
+      "mood_messy": "Esto se está llenando de polvo…",
+      "mood_sad": "Echo de menos nuestra casa limpia…",
+      "rescue": "¡Misión de rescate cumplida! 🎉",
+      "birthday": "¡Feliz cumpleaños, {name}! 🎂",
+      "teamGoal": "¡Meta familiar conseguida! 🎉",
+      "grows": "Faltan {n} monedas familiares para que sea {stage}",
+      "maxed": "Totalmente crecida: ¡una leyenda!",
+      "stage_egg": "Huevo",
+      "stage_baby": "Bebé",
+      "stage_kid": "Niño",
+      "stage_grown": "Adulto",
+      "stage_legendary": "Legendario",
+      "creature_dog": "Perro",
+      "creature_cat": "Gato",
+      "creature_dragon": "Dragón",
+      "creature_robot": "Robot",
+      "creature_fox": "Zorro",
+      "creature_bunny": "Conejo",
+      "creature_panda": "Panda",
+      "creature_axolotl": "Ajolote"
     }
   }
 }

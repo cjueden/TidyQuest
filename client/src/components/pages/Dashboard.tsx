@@ -18,6 +18,7 @@ import { PendingApprovals, type PendingItem } from '../shared/PendingApprovals';
 import { ProofModal, type Proof } from '../shared/ProofModal';
 import type { CheerSummary, CoinBoost } from '../../hooks/useApi';
 import { CheerBar } from '../shared/CheerBar';
+import { MascotCard, type MascotData } from '../mascot/MascotCard';
 import { formatCoins } from '../../utils/format';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { api } from '../../hooks/useApi';
@@ -161,6 +162,7 @@ interface DashboardProps {
     /** Optional extras switched on or off in Settings → Features */
     features?: { todos?: boolean; cheers?: boolean };
     nextUnlock?: { level: number; kind: string; id: string } | null;
+    mascot?: MascotData | null;
     completedToday?: CompletedTodayEntry[];
     myLevel?: LevelInfo | null;
     nextBadge?: BadgeItem | null;
@@ -189,6 +191,8 @@ interface DashboardProps {
   onRewardRequestAction: (id: number, status: 'approved' | 'rejected') => void | Promise<void>;
   gamificationEnabled?: boolean;
   leaderboardPeriod?: 'week' | 'month' | 'quarter' | 'year';
+  /** The holiday showing now dresses the mascot (seasons.ts costume) */
+  seasonCostume?: string | null;
 }
 
 /* ── Component ── */
@@ -207,6 +211,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   onRewardRequestAction,
   gamificationEnabled = true,
   leaderboardPeriod = 'week',
+  seasonCostume = null,
 }) => {
   const { taskName, roomDisplayName, timeAgo, t } = useTranslation(language);
 
@@ -356,6 +361,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [showCustomize, setShowCustomize] = useState(false);
 
   const ALL_CARDS = [
+    { id: 'mascot', label: t('mascot.title') },
     { id: 'rescue', label: t('rescue.title') },
     { id: 'usual', label: t('home.usualTitle') },
     { id: 'forgot', label: t('home.forgotTitle') },
@@ -382,7 +388,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     localStorage.setItem(LS_KEY, JSON.stringify([...hiddenCards]));
   }, [hiddenCards]);
   // Kid mode keeps Home to the essentials: their quests and what they finished today
-  const KID_CARDS = new Set(['rescue', 'usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
+  const KID_CARDS = new Set(['mascot', 'rescue', 'usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
   const isVisible = (id: string) => kidMode ? KID_CARDS.has(id) : !hiddenCards.has(id);
   // Your usual: pins always; the rest only when they can be done right now (6 at most)
   const usualShown = (data.usualQuests ?? []).filter((q) => q.pinned || !doneState(q).disabled).slice(0, 6);
@@ -497,6 +503,9 @@ const Dashboard: React.FC<DashboardProps> = ({
             <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} userId={currentUser.id} nextUnlock={data.nextUnlock} />
           </div>
         )}
+
+        {/* The house mascot: mood, what it needs, and how close it is to growing */}
+        {data.mascot && isVisible('mascot') && <MascotCard m={data.mascot} costume={seasonCostume} language={language} />}
 
         {/* Double coins events running now, with time left */}
         {boosts.length > 0 && (

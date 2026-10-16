@@ -1285,7 +1285,9 @@
       "seasonal": "Feestdagenlook",
       "seasonalDesc": "De app verkleedt zich voor de feestdagen: kleuren, versiering en een aftelling op Home.",
       "cheers": "Aanmoedigen",
-      "cheersDesc": "Moedig elkaars afgeronde klusjes aan (👏 🎉 💪 ⭐); ouders kunnen bij goedkeuren een notitie en bonus geven."
+      "cheersDesc": "Moedig elkaars afgeronde klusjes aan (👏 🎉 💪 ⭐); ouders kunnen bij goedkeuren een notitie en bonus geven.",
+      "mascot": "Huismascotte",
+      "mascotDesc": "Een gezinsdiertje op Home dat groeit met ieders munten en blij wordt van een schoon huis."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1341,6 +1343,35 @@
       "celebrationName_coins": "Munten",
       "celebrationName_fireworks": "Vuurwerk",
       "badgeHint": "👑 💎 Elke kroon- of diamantbadge die je verdient, ontgrendelt een eigen kader."
+    },
+    "mascot": {
+      "title": "Huismascotte",
+      "name": "Naam",
+      "egg": "Ik kom bijna uit het ei! Elk klusje helpt.",
+      "help": "{room} heeft wat liefde nodig!",
+      "goHelp": "Laten we helpen",
+      "mood_happy": "Het huis glimt! ✨",
+      "mood_fine": "Ziet er goed uit, team!",
+      "mood_messy": "Het wordt een beetje stoffig…",
+      "mood_sad": "Ik mis ons schone huis…",
+      "rescue": "Reddingsmissie gelukt! 🎉",
+      "birthday": "Gefeliciteerd, {name}! 🎂",
+      "teamGoal": "Gezinsdoel gehaald! 🎉",
+      "grows": "Nog {n} gezinsmunten tot het {stage} wordt",
+      "maxed": "Volgroeid: een legende!",
+      "stage_egg": "Ei",
+      "stage_baby": "Baby",
+      "stage_kid": "Kind",
+      "stage_grown": "Volwassen",
+      "stage_legendary": "Legendarisch",
+      "creature_dog": "Hond",
+      "creature_cat": "Kat",
+      "creature_dragon": "Draak",
+      "creature_robot": "Robot",
+      "creature_fox": "Vos",
+      "creature_bunny": "Konijn",
+      "creature_panda": "Panda",
+      "creature_axolotl": "Axolotl"
     }
   }
 }

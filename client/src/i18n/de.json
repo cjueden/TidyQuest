@@ -1285,7 +1285,9 @@
       "seasonal": "Festtags-Look",
       "seasonalDesc": "Die App verkleidet sich zu den Feiertagen: Farben, Deko und ein Countdown auf der Startseite.",
       "cheers": "Anfeuern",
-      "cheersDesc": "Feuert erledigte Aufgaben der anderen an (👏 🎉 💪 ⭐); Eltern können beim Genehmigen eine Notiz und einen Bonus geben."
+      "cheersDesc": "Feuert erledigte Aufgaben der anderen an (👏 🎉 💪 ⭐); Eltern können beim Genehmigen eine Notiz und einen Bonus geben.",
+      "mascot": "Haus-Maskottchen",
+      "mascotDesc": "Ein Familienwesen auf der Startseite, das mit allen Münzen wächst und sich über ein sauberes Haus freut."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1341,6 +1343,35 @@
       "celebrationName_coins": "Münzen",
       "celebrationName_fireworks": "Feuerwerk",
       "badgeHint": "👑 💎 Jedes Kronen- oder Diamant-Abzeichen, das du verdienst, schaltet seinen eigenen Rahmen frei."
+    },
+    "mascot": {
+      "title": "Haus-Maskottchen",
+      "name": "Name",
+      "egg": "Ich schlüpfe bald! Jede Aufgabe hilft.",
+      "help": "{room} braucht etwas Liebe!",
+      "goHelp": "Los, helfen",
+      "mood_happy": "Das Haus glänzt! ✨",
+      "mood_fine": "Sieht gut aus, Team!",
+      "mood_messy": "Es wird ein bisschen staubig…",
+      "mood_sad": "Ich vermisse unser sauberes Haus…",
+      "rescue": "Rettungsmission geschafft! 🎉",
+      "birthday": "Alles Gute zum Geburtstag, {name}! 🎂",
+      "teamGoal": "Familienziel erreicht! 🎉",
+      "grows": "Noch {n} Familienmünzen, bis es zu {stage} wird",
+      "maxed": "Ausgewachsen: eine Legende!",
+      "stage_egg": "Ei",
+      "stage_baby": "Baby",
+      "stage_kid": "Kind",
+      "stage_grown": "Erwachsen",
+      "stage_legendary": "Legendär",
+      "creature_dog": "Hund",
+      "creature_cat": "Katze",
+      "creature_dragon": "Drache",
+      "creature_robot": "Roboter",
+      "creature_fox": "Fuchs",
+      "creature_bunny": "Hase",
+      "creature_panda": "Panda",
+      "creature_axolotl": "Axolotl"
     }
   }
 }

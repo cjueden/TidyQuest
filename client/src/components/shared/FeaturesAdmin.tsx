@@ -4,8 +4,10 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { Toggle } from './Toggle';
 import { localeFor } from '../../utils/locale';
 import { SEASONS, setSeasonPreview, useSeasonPreview } from '../../utils/seasons';
+import { CREATURE_IDS, CREATURES, type CreatureId } from '../mascot/MascotArt';
+import { MascotPicture } from '../mascot/MascotCard';
 
-const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'seasonal'];
+const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'mascot', 'seasonal'];
 const MULTIPLIERS = [1.5, 2, 3];
 
 /** Settings → Features: optional extras, on or off for the whole family (all on to start). */
@@ -14,8 +16,13 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
   const [flags, setFlags] = useState<FeatureFlags | null>(null);
   const [multiplier, setMultiplier] = useState(2);
   const [holidaysOff, setHolidaysOff] = useState<string[]>([]);
+  const [mascot, setMascot] = useState({ creature: 'dog', name: '' });
+  const [mascotName, setMascotName] = useState('');
   const previewing = useSeasonPreview();
-  const show = (r: FeaturesView) => { setFlags(r.features); setMultiplier(r.rescueMultiplier); setHolidaysOff(r.holidaysOff ?? []); };
+  const show = (r: FeaturesView) => {
+    setFlags(r.features); setMultiplier(r.rescueMultiplier); setHolidaysOff(r.holidaysOff ?? []);
+    if (r.mascot) { setMascot(r.mascot); setMascotName(r.mascot.name); }
+  };
   useEffect(() => {
     api.getFeatures().then(show).catch(() => setFlags(null));
   }, []);
@@ -41,6 +48,27 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
                   {MULTIPLIERS.map((m) => <option key={m} value={m}>{m}×</option>)}
                 </select>
               </label>
+            )}
+            {f === 'mascot' && flags.mascot && (
+              <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {CREATURE_IDS.map((c: CreatureId) => (
+                    <button key={c} type="button" aria-pressed={mascot.creature === c} title={CREATURES[c].label} onClick={() => void save({ mascot: { creature: c } })} style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 4, borderRadius: 12, cursor: 'pointer', background: 'none',
+                      border: `2px solid ${mascot.creature === c ? 'var(--warm-accent)' : 'var(--warm-border)'}`, fontFamily: 'Nunito', fontSize: 10, fontWeight: 800, color: 'var(--warm-text-muted)',
+                    }}>
+                      <MascotPicture m={{ creature: c, stage: 'grown', mood: 'happy', event: null }} size={44} />
+                      {t(`mascot.creature_${c}`)}
+                    </button>
+                  ))}
+                </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                  {t('mascot.name')}
+                  <input className="tq-input-compact" value={mascotName} maxLength={20} onChange={(e) => setMascotName(e.target.value)}
+                    onBlur={() => { if (mascotName.trim() && mascotName.trim() !== mascot.name) void save({ mascot: { name: mascotName.trim() } }); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} style={{ flex: 1, minWidth: 0 }} />
+                </label>
+              </div>
             )}
             {f === 'seasonal' && flags.seasonal && (
               <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>

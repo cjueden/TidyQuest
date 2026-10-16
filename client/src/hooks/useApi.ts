@@ -112,6 +112,7 @@ export interface FeatureFlags {
   nextBadge: boolean;
   seasonal: boolean;
   cheers: boolean;
+  mascot: boolean;
 }
 
 /** Unlockables: what levels have unlocked for you and what you picked */
@@ -128,7 +129,7 @@ export interface UnlocksView {
 /** Cheers on one finished chore (counts in 👏 🎉 💪 ⭐ order, and the viewer's own) */
 export interface CheerSummary { counts: Array<{ emoji: string; count: number; names: string[] }>; mine: string | null }
 
-export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[] }
+export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[]; mascot: { creature: string; name: string } }
 
 export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder' | 'cheer';
 
@@ -325,7 +326,7 @@ export const api = {
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
   getFeatures: () => apiFetch<FeaturesView>('/features'),
-  updateFeatures: (data: { features?: Partial<FeatureFlags>; rescueMultiplier?: number; holidaysOff?: string[] }) =>
+  updateFeatures: (data: { features?: Partial<FeatureFlags>; rescueMultiplier?: number; holidaysOff?: string[]; mascot?: { creature?: string; name?: string } }) =>
     apiFetch<FeaturesView>('/features', { method: 'PUT', body: JSON.stringify(data) }),
   // Today's Rescue Mission (parents): another one, a chosen chore, or none today
   rescueReroll: () => apiFetch<unknown>('/rescue/reroll', { method: 'POST' }),

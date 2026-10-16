@@ -3,12 +3,13 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { FEATURES, HOLIDAYS, getFeatures, holidaysOff, rescueMultiplier } from '../utils/features';
+import { mascotSettings, saveMascot } from '../utils/mascot';
 
 /** Settings → Features: switch optional extras on or off for the whole family. */
 const router = Router();
 router.use(authMiddleware);
 
-const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier(), holidaysOff: holidaysOff() });
+const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier(), holidaysOff: holidaysOff(), mascot: mascotSettings() });
 
 router.get('/', (_req: AuthRequest, res: Response) => res.json(view()));
 
@@ -26,6 +27,11 @@ router.put('/', (req: AuthRequest, res: Response) => {
     const m = Number(req.body.rescueMultiplier);
     if (!(m >= 1.5 && m <= 5)) return res.status(400).json({ error: 'invalid_multiplier' });
     db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('rescueMultiplier', ?)").run(String(m));
+  }
+  // The house mascot: which creature and its name
+  if (req.body?.mascot !== undefined) {
+    const error = saveMascot(req.body.mascot ?? {});
+    if (error) return res.status(400).json({ error });
   }
   // Seasonal styling: holidays switched off one by one
   const hOff = req.body?.holidaysOff;
