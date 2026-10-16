@@ -9,7 +9,7 @@ import { getActiveBoosts } from '../utils/boosts';
 import { achievementsFor } from '../utils/achievementStats';
 import { forgottenTasks, usualTasks } from '../utils/homeSections';
 import { rescueCandidates, todaysMission } from '../utils/rescue';
-import { isFeatureOn } from '../utils/features';
+import { getFeatures, isFeatureOn } from '../utils/features';
 
 const router = Router();
 router.use(authMiddleware);
@@ -159,7 +159,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     .sort((a, b) => a.health - b.health);
 
   // One-time chores still to do (the To-do card): overdue first, then by do-by date, then oldest
-  const todoQuests = allTasks
+  const todoQuests = !getFeatures().todos ? [] : allTasks
     .filter((t) => t.oneTime)
     .map((t) => ({ ...t, overdue: Date.now() > oneTimeDeadline(t).getTime() }))
     .sort((a, b) => Number(b.overdue) - Number(a.overdue) || String(a.doBy ?? '9999').localeCompare(String(b.doBy ?? '9999')) || a.id - b.id);
@@ -183,8 +183,10 @@ router.get('/', (req: AuthRequest, res: Response) => {
   // Parents can choose another one
   const rescueChoices = user.role === 'admin' && isFeatureOn('rescue') ? rescueCandidates().slice(0, 8).map(({ id, name }) => ({ id, name })) : [];
 
-  const usualQuests = usualTasks(allTasks, req.userId!);
-  const forgottenQuests = forgottenTasks(allTasks, req.userId!, new Date(), new Set(missionRow?.taskId ? [missionRow.taskId] : []));
+  // Extras a family can switch off (Settings → Features)
+  const features = getFeatures();
+  const usualQuests = features.usual ? usualTasks(allTasks, req.userId!) : [];
+  const forgottenQuests = features.forgot ? forgottenTasks(allTasks, req.userId!, new Date(), new Set(missionRow?.taskId ? [missionRow.taskId] : [])) : [];
 
   // Backwards-compatible aliases
   const todaysQuests = [...readyToComplete, ...onDemandQuests];
@@ -317,6 +319,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     forgottenQuests,
     rescueMission,
     rescueChoices,
+    features,
     onDemandQuests,
     nextTasks,
     completedToday,
@@ -334,7 +337,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     ...(() => {
       const gamificationOn = (db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined)?.value !== '0';
       const mine = gamificationOn ? achievementsFor(req.userId!) : null;
-      return { myLevel: mine?.level ?? null, nextBadge: mine?.nextBadge ?? null };
+      return { myLevel: features.levels ? mine?.level ?? null : null, nextBadge: features.nextBadge ? mine?.nextBadge ?? null : null };
     })(),
     vacation: { vacationMode: vacation.isVacation, vacationStartDate: vacation.startDate, vacationEndDate: vacation.endDate },
   });

@@ -1243,6 +1243,25 @@
       "another": "Another one",
       "skip": "None today",
       "choose": "Choose…"
+    },
+    "features": {
+      "title": "Features",
+      "desc": "Turn extras on or off for the whole family.",
+      "rescue": "Rescue Mission",
+      "rescueDesc": "Each day the most-forgotten chore pays extra to the first one who does it.",
+      "multiplier": "Pays",
+      "usual": "Your usual",
+      "usualDesc": "Home: each person's pinned and most-done tasks.",
+      "forgot": "Maybe you forgot about these",
+      "forgotDesc": "Home: chores overdue by a whole interval or more.",
+      "todos": "To-dos (one-time chores)",
+      "todosDesc": "The To-do list on Home, \"+ To-do\" and \"One time\" in the task form.",
+      "boardAwards": "Board awards and trophy shelf",
+      "boardAwardsDesc": "Early Bird, room champions and past weekly winners on the Board.",
+      "levels": "Levels",
+      "levelsDesc": "Rookie to TidyQuest Champion, from coins earned.",
+      "nextBadge": "Next badge",
+      "nextBadgeDesc": "The closest badge still to earn, on Home and Achievements."
     }
   }
 }

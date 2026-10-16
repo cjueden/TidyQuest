@@ -108,6 +108,8 @@ interface RoomDetailProps {
   onRefresh?: () => void;
   /** Go to another room (after duplicating this one) */
   onOpenRoom?: (roomId: number) => void;
+  /** Offer "One time" in the task form (Settings → Features → To-dos) */
+  allowOneTime?: boolean;
   onAchievementsUnlocked?: (ids: string[]) => void;
   /** Task to scroll to and briefly highlight (from search or the task list) */
   focusTaskId?: number;
@@ -158,7 +160,7 @@ function EffortPicker({ effort, onChange }: { effort: number; onChange: (e: numb
   );
 }
 
-export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onOpenRoom, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
+export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onOpenRoom, allowOneTime = true, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const [editingTask, setEditingTask] = useState<number | null>(null);
@@ -584,7 +586,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                         <option value="week">{t('repeat.perWeek')}</option>
                       </select>
                     </div>}
-                    {!editForm.onDemand && <DueOnPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language}
+                    {!editForm.onDemand && <DueOnPicker allowOnce={allowOneTime} value={editSchedule} onChange={setEditSchedule} t={t} language={language}
                       interval={<FrequencyPicker value={editForm.freqValue} unit={editForm.freqUnit}
                         t={t}
                         onChange={(v, u) => setEditForm(f => ({ ...f, freqValue: v, freqUnit: u }))} />} />}
@@ -1038,7 +1040,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     <option value="week">{t('repeat.perWeek')}</option>
                   </select>
                 </div>}
-                {!newTaskOnDemand && <DueOnPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language}
+                {!newTaskOnDemand && <DueOnPicker allowOnce={allowOneTime} value={newSchedule} onChange={setNewSchedule} t={t} language={language}
                   interval={<FrequencyPicker value={newFreqValue} unit={newFreqUnit}
                     t={t}
                     onChange={(v, u) => { setNewFreqValue(v); setNewFreqUnit(u); }} />} />}

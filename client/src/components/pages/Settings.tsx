@@ -12,6 +12,7 @@ import { BirthdayInput } from '../shared/BirthdayInput';
 import { ThemePicker } from '../shared/ThemePicker';
 import { isTheme, type Theme } from '../../utils/themes';
 import { CustomBadgesAdmin } from '../shared/CustomBadgesAdmin';
+import { FeaturesAdmin } from '../shared/FeaturesAdmin';
 import { NotificationLog, NotifyScheduleAdmin, PeopleNotifyAdmin } from '../shared/NotifyAdmin';
 import { CsvTransfer } from '../shared/CsvTransfer';
 import { UndoToast, type UndoState } from '../shared/UndoToast';
@@ -1123,6 +1124,13 @@ export function Settings({
           <h3 className="tq-card-title">{t('boosts.title')}</h3>
           <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('boosts.desc')}</div>
           <CoinBoostsAdmin rooms={rooms} language={user.language} />
+        </div>
+      )}
+
+      {isAdmin && (
+        <div className="tq-card tq-card-padded settings-admin-card">
+          <h3 className="tq-card-title">🧩 {t('features.title')}</h3>
+          <FeaturesAdmin language={user.language} onChanged={onDataChanged} />
         </div>
       )}
 

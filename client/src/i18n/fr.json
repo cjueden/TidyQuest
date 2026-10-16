@@ -1243,6 +1243,25 @@
       "another": "Un autre",
       "skip": "Pas aujourd'hui",
       "choose": "Choisir…"
+    },
+    "features": {
+      "title": "Fonctionnalités",
+      "desc": "Active ou désactive les extras pour toute la famille.",
+      "rescue": "Mission sauvetage",
+      "rescueDesc": "Chaque jour, la tâche la plus oubliée rapporte plus au premier qui la fait.",
+      "multiplier": "Rapporte",
+      "usual": "Tes habitudes",
+      "usualDesc": "Accueil : les tâches épinglées et les plus faites de chacun.",
+      "forgot": "Tu as peut-être oublié ceux-ci",
+      "forgotDesc": "Accueil : les tâches en retard d'un intervalle entier ou plus.",
+      "todos": "À faire (tâches uniques)",
+      "todosDesc": "La liste À faire de l'accueil, « + À faire » et « Une seule fois ».",
+      "boardAwards": "Récompenses et étagère à trophées",
+      "boardAwardsDesc": "Lève-tôt, champions des pièces et gagnants passés sur le Tableau.",
+      "levels": "Niveaux",
+      "levelsDesc": "De Débutant à Champion TidyQuest, selon les pièces gagnées.",
+      "nextBadge": "Prochain badge",
+      "nextBadgeDesc": "Le badge le plus proche à obtenir, sur l'accueil et les Succès."
     }
   }
 }

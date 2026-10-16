@@ -1243,6 +1243,25 @@
       "another": "Otra",
       "skip": "Hoy ninguna",
       "choose": "Elegir…"
+    },
+    "features": {
+      "title": "Funciones",
+      "desc": "Activa o desactiva los extras para toda la familia.",
+      "rescue": "Misión de rescate",
+      "rescueDesc": "Cada día la tarea más olvidada paga más a quien la haga primero.",
+      "multiplier": "Paga",
+      "usual": "Lo de siempre",
+      "usualDesc": "Inicio: las tareas fijadas y más hechas de cada uno.",
+      "forgot": "Quizá olvidaste estas",
+      "forgotDesc": "Inicio: tareas atrasadas un intervalo completo o más.",
+      "todos": "Pendientes (tareas únicas)",
+      "todosDesc": "La lista de pendientes en Inicio, «+ Pendiente» y «Una vez».",
+      "boardAwards": "Premios y estante de trofeos",
+      "boardAwardsDesc": "Madrugador, campeones de habitación y ganadores pasados en la Clasificación.",
+      "levels": "Niveles",
+      "levelsDesc": "De Novato a Campeón TidyQuest, según las monedas ganadas.",
+      "nextBadge": "Próxima insignia",
+      "nextBadgeDesc": "La insignia más cercana por conseguir, en Inicio y Logros."
     }
   }
 }

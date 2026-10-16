@@ -11,8 +11,10 @@ const chip = (on: boolean) => ({
 });
 
 /** "Every [interval]" or "On [M T W T F S S]". */
-export function DueOnPicker({ value, onChange, interval, t, language }: {
+export function DueOnPicker({ value, onChange, interval, t, language, allowOnce = true }: {
   value: ScheduleValue;
+  /** Offer "One time" (to-dos can be switched off in Settings → Features) */
+  allowOnce?: boolean;
   onChange: (v: ScheduleValue) => void;
   interval: ReactNode;
   t: (key: string) => string;
@@ -29,7 +31,7 @@ export function DueOnPicker({ value, onChange, interval, t, language }: {
         }}>
         <option value="interval">{t('roomDetail.every')}</option>
         <option value="weekdays">{t('schedule.onDays')}</option>
-        <option value="once">{t('schedule.once')}</option>
+        {(allowOnce || value.mode === 'once') && <option value="once">{t('schedule.once')}</option>}
       </select>
       {value.mode === 'once' ? (
         <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: 6 }} title={t('schedule.oneTimeDesc')}>

@@ -1243,6 +1243,25 @@
       "another": "Eine andere",
       "skip": "Heute keine",
       "choose": "Auswählen…"
+    },
+    "features": {
+      "title": "Funktionen",
+      "desc": "Extras für die ganze Familie ein- oder ausschalten.",
+      "rescue": "Rettungsmission",
+      "rescueDesc": "Jeden Tag bringt die am meisten vergessene Aufgabe dem Ersten mehr.",
+      "multiplier": "Bringt",
+      "usual": "Deine Klassiker",
+      "usualDesc": "Start: angeheftete und meistgemachte Aufgaben jeder Person.",
+      "forgot": "Vielleicht vergessen",
+      "forgotDesc": "Start: Aufgaben, die ein ganzes Intervall oder länger überfällig sind.",
+      "todos": "To-dos (einmalige Aufgaben)",
+      "todosDesc": "Die To-do-Liste auf der Startseite, „+ To-do“ und „Einmalig“.",
+      "boardAwards": "Auszeichnungen und Trophäenregal",
+      "boardAwardsDesc": "Frühaufsteher, Raum-Champions und frühere Wochensieger in der Rangliste.",
+      "levels": "Level",
+      "levelsDesc": "Vom Anfänger zum TidyQuest-Champion, nach verdienten Münzen.",
+      "nextBadge": "Nächstes Abzeichen",
+      "nextBadgeDesc": "Das nächste erreichbare Abzeichen, auf Start und Erfolge."
     }
   }
 }

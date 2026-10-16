@@ -168,7 +168,7 @@ export function Leaderboard({ language }: { language?: string }) {
         {failed && <div className="tq-card tq-empty-state">{t('common.error')}</div>}
       </div>
 
-      {data && (
+      {data && data.awardsEnabled !== false && (
         <div className="tq-card tq-card-padded">
           <h3 style={cardTitle}>🏅 {period === 'week' ? t('board.awardsWeek') : period === 'lastWeek' ? t('board.awardsLastWeek') : `${t('board.awards')} · ${periodLabel(period)}`}</h3>
           {data.awards.length === 0 && <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--warm-text-light)' }}>{t('board.noAwards')}</div>}
@@ -190,7 +190,7 @@ export function Leaderboard({ language }: { language?: string }) {
         </div>
       )}
 
-      {data && (
+      {data && data.awardsEnabled !== false && (
         <div className="tq-card tq-card-padded">
           <h3 style={cardTitle}>🏆 {t('board.trophyShelf')}</h3>
           {data.trophies.weeks.length === 0

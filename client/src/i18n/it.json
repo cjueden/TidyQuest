@@ -1243,6 +1243,25 @@
       "another": "Un'altra",
       "skip": "Nessuna oggi",
       "choose": "Scegli…"
+    },
+    "features": {
+      "title": "Funzioni",
+      "desc": "Attiva o disattiva gli extra per tutta la famiglia.",
+      "rescue": "Missione di salvataggio",
+      "rescueDesc": "Ogni giorno l'attività più dimenticata vale di più per chi la fa per primo.",
+      "multiplier": "Vale",
+      "usual": "I tuoi soliti",
+      "usualDesc": "Home: le attività fissate e più fatte di ognuno.",
+      "forgot": "Forse hai dimenticato queste",
+      "forgotDesc": "Home: attività in ritardo di un intero intervallo o più.",
+      "todos": "Da fare (attività una tantum)",
+      "todosDesc": "La lista Da fare nella Home, «+ Da fare» e «Una volta».",
+      "boardAwards": "Premi e bacheca dei trofei",
+      "boardAwardsDesc": "Mattiniero, campioni delle stanze e vincitori passati in Classifica.",
+      "levels": "Livelli",
+      "levelsDesc": "Da Principiante a Campione TidyQuest, in base alle monete.",
+      "nextBadge": "Prossimo distintivo",
+      "nextBadgeDesc": "Il distintivo più vicino da ottenere, in Home e Traguardi."
     }
   }
 }

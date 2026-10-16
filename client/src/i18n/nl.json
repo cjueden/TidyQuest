@@ -1243,6 +1243,25 @@
       "another": "Een andere",
       "skip": "Vandaag geen",
       "choose": "Kiezen…"
+    },
+    "features": {
+      "title": "Functies",
+      "desc": "Zet extra's aan of uit voor het hele gezin.",
+      "rescue": "Reddingsmissie",
+      "rescueDesc": "Elke dag levert de meest vergeten taak extra op voor wie hem het eerst doet.",
+      "multiplier": "Levert op",
+      "usual": "Je vaste klusjes",
+      "usualDesc": "Home: ieders vastgezette en meest gedane taken.",
+      "forgot": "Misschien vergeten",
+      "forgotDesc": "Home: taken die een heel interval of meer te laat zijn.",
+      "todos": "To-do's (eenmalige taken)",
+      "todosDesc": "De to-dolijst op Home, ‘+ To-do’ en ‘Eenmalig’.",
+      "boardAwards": "Prijzen en prijzenkast",
+      "boardAwardsDesc": "Vroege vogel, ruimtekampioenen en eerdere winnaars op het Scorebord.",
+      "levels": "Levels",
+      "levelsDesc": "Van Beginner tot TidyQuest-kampioen, op basis van verdiende munten.",
+      "nextBadge": "Volgende badge",
+      "nextBadgeDesc": "De dichtstbijzijnde badge, op Home en Prestaties."
     }
   }
 }

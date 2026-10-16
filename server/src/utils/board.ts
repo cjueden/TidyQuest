@@ -1,5 +1,6 @@
 import db from '../database';
 import { startOfLocalWeek } from './periods';
+import { isFeatureOn } from './features';
 
 /**
  * The Board page: who's ahead (by coins, by their own weekly goal, or by how much they improved),
@@ -218,8 +219,10 @@ export function buildBoard(period: BoardPeriod, mode: BoardMode, now: Date = new
     mode,
     range: { startAt: ranges.current.start.toISOString(), endAt: ranges.current.end.toISOString() },
     people: result,
-    awards: awardsFor(ranges.current, ids),
+    // Awards and the trophy shelf can be switched off (Settings → Features)
+    awardsEnabled: isFeatureOn('boardAwards'),
+    awards: isFeatureOn('boardAwards') ? awardsFor(ranges.current, ids) : [],
     familyGoal: familyGoal(now),
-    trophies: trophyShelf(ids, now),
+    trophies: isFeatureOn('boardAwards') ? trophyShelf(ids, now) : { weeks: [], wins: {} },
   };
 }

@@ -152,6 +152,8 @@ interface DashboardProps {
     rescueMission?: { day: string; taskId: number | null; multiplier: number; completedBy: number | null; completedByName: string | null; taskName: string | null; task: Quest | null } | null;
     /** Parents: chores they can choose as the mission instead */
     rescueChoices?: Array<{ id: number; name: string }>;
+    /** Optional extras switched on or off in Settings → Features */
+    features?: { todos?: boolean };
     completedToday?: CompletedTodayEntry[];
     myLevel?: LevelInfo | null;
     nextBadge?: BadgeItem | null;
@@ -794,7 +796,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>}
 
         {/* To-do: one-time chores ("Fix the screen door"); parents can add one here */}
-        {isVisible('todo') && (todoTasks.length > 0 || currentUser.role === 'admin') && (
+        {isVisible('todo') && data.features?.todos !== false && (todoTasks.length > 0 || currentUser.role === 'admin') && (
           <div className="tq-card tq-card-padded">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12 }}>
               <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: 0 }}>📝 {t('todos.title')}</h3>

@@ -3,6 +3,7 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { achievementsFor, builtinBadgeBonus } from '../utils/achievementStats';
+import { getFeatures } from '../utils/features';
 import { customBadgeKey, listCustomBadges, readCustomBadgeInput, saveCustomBadge } from '../utils/badges';
 
 const router = Router();
@@ -13,7 +14,8 @@ function getUserStats(userId: number) {
   if (!user) return null;
   const result = achievementsFor(userId);
   if (!result) return null;
-  return { ...user, achievements: result.achievements, level: result.level, nextBadge: result.nextBadge };
+  const features = getFeatures();
+  return { ...user, achievements: result.achievements, level: features.levels ? result.level : null, nextBadge: features.nextBadge ? result.nextBadge : null };
 }
 
 router.get('/', (req: AuthRequest, res: Response) => {
