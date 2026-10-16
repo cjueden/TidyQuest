@@ -727,7 +727,11 @@
       "earlyBird": "Frühaufsteher",
       "earlyBirdDesc": "Erledige 5 Aufgaben vor 8 Uhr",
       "birthdayHelper": "Geburtstagshelfer",
-      "birthdayHelperDesc": "Erledige an deinem Geburtstag eine Aufgabe"
+      "birthdayHelperDesc": "Erledige an deinem Geburtstag eine Aufgabe",
+      "teamSpirit": "Teamgeist",
+      "teamSpiritDesc": "Feuere 25 Aufgaben anderer an",
+      "fanFavorite": "Publikumsliebling",
+      "fanFavoriteDesc": "Bekomme 25 Anfeuerungen für deine Aufgaben"
     },
     "taskIcons": {
       "sparkle": "Funkeln",
@@ -1171,7 +1175,8 @@
       "test": "👋 Test von TidyQuest: Benachrichtigungen für {name} funktionieren!",
       "moreItems": "+{n} weitere",
       "rescue": "⚡ Rettungsmission: „{task}“ bringt heute {multiplier}× Münzen. Wer es zuerst macht, gewinnt!",
-      "andMore": "+{n} weitere"
+      "andMore": "+{n} weitere",
+      "cheer": "{emoji} {name} hat dich für „{task}“ angefeuert"
     },
     "notifyAdmin": {
       "peopleTitle": "Wer bekommt was",
@@ -1221,7 +1226,8 @@
       "error_invalid_chat": "Chat-IDs sind Zahlen (oder @name)",
       "error_no_channels": "Richte zuerst einen Kanal ein",
       "kind_rescue": "Rettungsmission",
-      "kindDesc_rescue": "die 2×-Aufgabe des Tages, morgens"
+      "kindDesc_rescue": "die 2×-Aufgabe des Tages, morgens",
+      "kind_cheer": "Anfeuerungen für meine Aufgaben"
     },
     "todos": {
       "roomName": "Erledigen",
@@ -1274,7 +1280,9 @@
       "nextBadge": "Nächstes Abzeichen",
       "nextBadgeDesc": "Das nächste erreichbare Abzeichen, auf Start und Erfolge.",
       "seasonal": "Festtags-Look",
-      "seasonalDesc": "Die App verkleidet sich zu den Feiertagen: Farben, Deko und ein Countdown auf der Startseite."
+      "seasonalDesc": "Die App verkleidet sich zu den Feiertagen: Farben, Deko und ein Countdown auf der Startseite.",
+      "cheers": "Anfeuern",
+      "cheersDesc": "Feuert erledigte Aufgaben der anderen an (👏 🎉 💪 ⭐); Eltern können beim Genehmigen eine Notiz und einen Bonus geben."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1292,6 +1300,14 @@
       "preview": "Vorschau",
       "previewing": "Vorschau: {name}",
       "stop": "Beenden"
+    },
+    "cheers": {
+      "add": "Anfeuern",
+      "bonusReason": "⭐ Mehr als erwartet: {task}",
+      "extra": "Notiz oder Bonus",
+      "notePlaceholder": "Notiz hinzufügen (Super gemacht!)",
+      "bonus": "Bonus",
+      "none": "Keiner"
     }
   }
 }

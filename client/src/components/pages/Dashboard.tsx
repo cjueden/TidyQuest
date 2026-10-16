@@ -16,7 +16,8 @@ import { useTaskView } from '../../hooks/useTaskView';
 import { AllMineToggle } from '../shared/AllMineToggle';
 import { PendingApprovals, type PendingItem } from '../shared/PendingApprovals';
 import { ProofModal, type Proof } from '../shared/ProofModal';
-import type { CoinBoost } from '../../hooks/useApi';
+import type { CheerSummary, CoinBoost } from '../../hooks/useApi';
+import { CheerBar } from '../shared/CheerBar';
 import { formatCoins } from '../../utils/format';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { api } from '../../hooks/useApi';
@@ -115,6 +116,10 @@ interface FamilyMember {
 }
 
 interface CompletedTodayEntry {
+  completionId: number;
+  userId: number;
+  approvalNote?: string | null;
+  cheers?: CheerSummary;
   completedAt: string;
   coinsEarned: number;
   taskId: number;
@@ -153,7 +158,7 @@ interface DashboardProps {
     /** Parents: chores they can choose as the mission instead */
     rescueChoices?: Array<{ id: number; name: string }>;
     /** Optional extras switched on or off in Settings → Features */
-    features?: { todos?: boolean };
+    features?: { todos?: boolean; cheers?: boolean };
     completedToday?: CompletedTodayEntry[];
     myLevel?: LevelInfo | null;
     nextBadge?: BadgeItem | null;
@@ -589,7 +594,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {pendingCompletions.length}
               </span>
             </div>
-            <PendingApprovals items={pendingCompletions} language={language} gamificationEnabled={gamificationEnabled} onChanged={() => onRefresh?.()} />
+            <PendingApprovals items={pendingCompletions} language={language} gamificationEnabled={gamificationEnabled} extras={data.features?.cheers !== false} onChanged={() => onRefresh?.()} />
           </div>
         )}
 
@@ -878,15 +883,17 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {(isExpanded('completed') ? completedToday : completedToday.slice(0, LIMIT)).map((c, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 14, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)' }}>
+                <div key={c.completionId ?? i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 14, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)' }}>
                   <div style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: c.roomColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${c.roomAccent}44` }}>
                     <TaskIcon iconKey={c.iconKey} size={20} />
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{taskName(c.name, c.translationKey)}</div>
                     <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 600 }}>
                       {roomDisplayName(c.roomName, c.roomType || '')} &middot; {c.displayName}
                     </div>
+                    {c.approvalNote && <div style={{ fontSize: 11, color: 'var(--warm-text-secondary)', fontWeight: 600, overflowWrap: 'anywhere' }}>💬 “{c.approvalNote}”</div>}
+                    {c.cheers && <CheerBar completionId={c.completionId} cheers={c.cheers} canCheer={c.userId !== currentUser.id} language={language} />}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)' }}>
                     {gamificationEnabled && <><CoinIcon /> +{c.coinsEarned}</>}

@@ -727,7 +727,11 @@
       "earlyBird": "Lève-tôt",
       "earlyBirdDesc": "Fais 5 tâches avant 8 h",
       "birthdayHelper": "Anniversaire serviable",
-      "birthdayHelperDesc": "Fais une tâche le jour de ton anniversaire"
+      "birthdayHelperDesc": "Fais une tâche le jour de ton anniversaire",
+      "teamSpirit": "Esprit d'équipe",
+      "teamSpiritDesc": "Encourager 25 tâches faites par d'autres",
+      "fanFavorite": "Chouchou du public",
+      "fanFavoriteDesc": "Recevoir 25 encouragements sur tes tâches"
     },
     "taskIcons": {
       "sparkle": "Étincelle",
@@ -1171,7 +1175,8 @@
       "test": "👋 Test TidyQuest : les notifications pour {name} fonctionnent !",
       "moreItems": "+{n} de plus",
       "rescue": "⚡ Mission sauvetage : « {task} » rapporte {multiplier}× pièces aujourd'hui. Le premier qui le fait gagne !",
-      "andMore": "+{n} de plus"
+      "andMore": "+{n} de plus",
+      "cheer": "{emoji} {name} a applaudi ta tâche « {task} »"
     },
     "notifyAdmin": {
       "peopleTitle": "Qui reçoit quoi",
@@ -1221,7 +1226,8 @@
       "error_invalid_chat": "Les ID de chat sont des nombres (ou @nom)",
       "error_no_channels": "Configure d'abord un canal",
       "kind_rescue": "Mission sauvetage",
-      "kindDesc_rescue": "la tâche ×2 du jour, le matin"
+      "kindDesc_rescue": "la tâche ×2 du jour, le matin",
+      "kind_cheer": "Encouragements sur mes tâches"
     },
     "todos": {
       "roomName": "À faire",
@@ -1274,7 +1280,9 @@
       "nextBadge": "Prochain badge",
       "nextBadgeDesc": "Le badge le plus proche à obtenir, sur l'accueil et les Succès.",
       "seasonal": "Décor de saison",
-      "seasonalDesc": "L'appli se déguise pour les fêtes : couleurs, décorations et compte à rebours sur l'accueil."
+      "seasonalDesc": "L'appli se déguise pour les fêtes : couleurs, décorations et compte à rebours sur l'accueil.",
+      "cheers": "Encouragements",
+      "cheersDesc": "Encouragez les tâches des autres (👏 🎉 💪 ⭐) ; les parents peuvent ajouter un mot et un bonus en validant."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1292,6 +1300,14 @@
       "preview": "Aperçu",
       "previewing": "Aperçu : {name}",
       "stop": "Arrêter"
+    },
+    "cheers": {
+      "add": "Encourager",
+      "bonusReason": "⭐ Au-delà des attentes : {task}",
+      "extra": "Note ou bonus",
+      "notePlaceholder": "Ajouter un mot (Bravo !)",
+      "bonus": "Bonus",
+      "none": "Aucun"
     }
   }
 }

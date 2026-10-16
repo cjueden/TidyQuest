@@ -727,7 +727,11 @@
       "earlyBird": "Early Bird",
       "earlyBirdDesc": "Do 5 chores before 8 am",
       "birthdayHelper": "Birthday Helper",
-      "birthdayHelperDesc": "Do a chore on your birthday"
+      "birthdayHelperDesc": "Do a chore on your birthday",
+      "teamSpirit": "Team Spirit",
+      "teamSpiritDesc": "Cheer 25 chores done by others",
+      "fanFavorite": "Fan Favorite",
+      "fanFavoriteDesc": "Get 25 cheers on your chores"
     },
     "taskIcons": {
       "sparkle": "Sparkle",
@@ -1171,7 +1175,8 @@
       "test": "👋 Test from TidyQuest: notifications for {name} work!",
       "moreItems": "+{n} more",
       "rescue": "⚡ Rescue Mission: “{task}” pays {multiplier}× coins today. First one to do it wins!",
-      "andMore": "+{n} more"
+      "andMore": "+{n} more",
+      "cheer": "{emoji} {name} cheered your “{task}”"
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",
@@ -1221,7 +1226,8 @@
       "error_invalid_chat": "Chat IDs are numbers (or @name)",
       "error_no_channels": "Set up a channel first",
       "kind_rescue": "Rescue Mission",
-      "kindDesc_rescue": "the day's 2× chore, in the morning"
+      "kindDesc_rescue": "the day's 2× chore, in the morning",
+      "kind_cheer": "Cheers on my chores"
     },
     "todos": {
       "roomName": "To-dos",
@@ -1274,7 +1280,9 @@
       "nextBadge": "Next badge",
       "nextBadgeDesc": "The closest badge still to earn, on Home and Achievements.",
       "seasonal": "Seasonal styling",
-      "seasonalDesc": "The app dresses up for the holidays: colors, decorations and a countdown on Home."
+      "seasonalDesc": "The app dresses up for the holidays: colors, decorations and a countdown on Home.",
+      "cheers": "Cheers",
+      "cheersDesc": "Cheer each other's finished chores (👏 🎉 💪 ⭐); parents can add a note and bonus when approving."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1292,6 +1300,14 @@
       "preview": "Preview",
       "previewing": "Previewing {name}",
       "stop": "Stop"
+    },
+    "cheers": {
+      "add": "Cheer",
+      "bonusReason": "⭐ Above and beyond: {task}",
+      "extra": "Note or bonus",
+      "notePlaceholder": "Add a note (Great job!)",
+      "bonus": "Bonus",
+      "none": "None"
     }
   }
 }

@@ -111,11 +111,15 @@ export interface FeatureFlags {
   levels: boolean;
   nextBadge: boolean;
   seasonal: boolean;
+  cheers: boolean;
 }
+
+/** Cheers on one finished chore (counts in 👏 🎉 💪 ⭐ order, and the viewer's own) */
+export interface CheerSummary { counts: Array<{ emoji: string; count: number; names: string[] }>; mine: string | null }
 
 export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[] }
 
-export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder';
+export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder' | 'cheer';
 
 export interface NotifySettings {
   morningTime: string;
@@ -488,8 +492,10 @@ export const api = {
       roomName: string;
       displayName: string;
     }> }>('/completions/pending'),
-  approveCompletion: (completionId: number) =>
-    apiFetch<{ success: boolean }>(`/completions/${completionId}/approve`, { method: 'POST' }),
+  approveCompletion: (completionId: number, extras?: { note?: string; bonus?: number }) =>
+    apiFetch<{ success: boolean }>(`/completions/${completionId}/approve`, { method: 'POST', ...(extras ? { body: JSON.stringify(extras) } : {}) }),
+  cheer: (completionId: number, emoji: string) =>
+    apiFetch<{ cheers: CheerSummary }>('/cheers', { method: 'POST', body: JSON.stringify({ completionId, emoji }) }),
   rejectPendingCompletion: (completionId: number) =>
     apiFetch<{ success: boolean }>(`/completions/${completionId}/reject`, { method: 'DELETE' }),
 

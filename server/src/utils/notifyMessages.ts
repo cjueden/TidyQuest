@@ -54,9 +54,11 @@ export function notifyBadge(userId: number, badge: { titleKey: string | null; ti
 
 // ---------- Outcomes, to the kid only ----------
 
-export function notifyChoreApproved(childId: number, parentId: number, taskName: string, coins: number) {
+export function notifyChoreApproved(childId: number, parentId: number, taskName: string, coins: number, extras: { note?: string | null; bonus?: number } = {}) {
   const parent = nameOf(parentId);
-  return notifyPeople([childId], 'outcome', (lang) => tr(lang, 'notify.choreApproved', { parent, task: taskName, coins }));
+  // A bonus and a note from the parent ride along: "… +12 coins ⭐ +2 · “Great job!”"
+  const more = `${extras.bonus ? ` ⭐ +${extras.bonus}` : ''}${extras.note ? ` · “${extras.note}”` : ''}`;
+  return notifyPeople([childId], 'outcome', (lang) => tr(lang, 'notify.choreApproved', { parent, task: taskName, coins }) + more);
 }
 
 export function notifyChoreRejected(childId: number, parentId: number, taskName: string) {

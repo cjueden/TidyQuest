@@ -2,6 +2,8 @@ import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
+import { cheersFor } from '../utils/cheers';
+import { isFeatureOn } from '../utils/features';
 
 const router = Router();
 router.use(authMiddleware);
@@ -27,7 +29,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   if (q) { where.push("t.name LIKE ? ESCAPE '\\'"); params.push(`%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`); }
 
   const rawHistory = db.prepare(`
-    SELECT tc.id, tc.completedAt, tc.coinsEarned, tc.taskId,
+    SELECT tc.id, tc.completedAt, tc.coinsEarned, tc.taskId, tc.approvalNote,
            t.name as taskName, t.translationKey, t.roomId, t.assignmentMode,
            r.name as roomName, r.roomType,
            u.id as userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -129,6 +131,12 @@ router.get('/', (req: AuthRequest, res: Response) => {
 
   const total = merged.length;
   const history = merged.slice(offset, offset + limit);
+  // Cheers on the chores in this page
+  if (isFeatureOn('cheers')) {
+    const shown = history.filter((h) => h.type === 'completion');
+    const cheers = cheersFor(shown.map((h) => h.id), req.userId!);
+    for (const h of shown) h.cheers = cheers.get(h.id) ?? { counts: [], mine: null };
+  }
 
   // The viewer's own completions still waiting for a parent, shown above the list
   const pending = offset === 0

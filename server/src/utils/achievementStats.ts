@@ -79,6 +79,8 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
   // Rewards bought (requested or approved; refunded ones don't count) and chip-ins to a family pot
   const rewardsRedeemed = count("SELECT COUNT(*) AS n FROM reward_redemptions WHERE userId = ? AND status IN ('requested', 'approved')");
   const potContributions = count('SELECT COUNT(*) AS n FROM reward_contributions WHERE userId = ?');
+  const cheersGiven = count('SELECT COUNT(*) AS n FROM cheers WHERE fromUserId = ?');
+  const cheersReceived = count('SELECT COUNT(*) AS n FROM cheers ch JOIN task_completions c ON c.id = ch.completionId WHERE c.userId = ?');
 
   // Chores done while a double coins event covered them
   const boosts = (db.prepare('SELECT * FROM coin_boosts').all() as any[]).map(toBoost);
@@ -120,6 +122,8 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
     perfect_weeks: perfectWeeks,
     rewards_redeemed: rewardsRedeemed,
     pot_contributions: potContributions,
+    cheers_given: cheersGiven,
+    cheers_received: cheersReceived,
     boost_completions: boostCompletions,
     goal_weeks: goalWeeks,
     room_sweeps: roomSweeps,

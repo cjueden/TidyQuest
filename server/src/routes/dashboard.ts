@@ -10,6 +10,7 @@ import { achievementsFor } from '../utils/achievementStats';
 import { forgottenTasks, usualTasks } from '../utils/homeSections';
 import { rescueCandidates, todaysMission } from '../utils/rescue';
 import { getFeatures, holidaysOff, isFeatureOn } from '../utils/features';
+import { cheersFor } from '../utils/cheers';
 
 const router = Router();
 router.use(authMiddleware);
@@ -194,7 +195,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
 
   // Completed today
   const completedToday = db.prepare(`
-    SELECT tc.completedAt, tc.coinsEarned,
+    SELECT tc.id AS completionId, tc.userId, tc.completedAt, tc.coinsEarned, tc.approvalNote,
            t.id as taskId, t.name, t.translationKey, t.iconKey, t.roomId,
            r.name as roomName, r.roomType, r.color as roomColor, r.accentColor as roomAccent,
            u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -205,7 +206,12 @@ router.get('/', (req: AuthRequest, res: Response) => {
     WHERE tc.status = 'approved'
       AND date(tc.completedAt, 'localtime') = date('now', 'localtime')
     ORDER BY tc.completedAt DESC
-  `).all();
+  `).all() as any[];
+  // Cheers on today's chores
+  if (isFeatureOn('cheers')) {
+    const cheers = cheersFor(completedToday.map((c) => c.completionId), req.userId!);
+    for (const c of completedToday) c.cheers = cheers.get(c.completionId) ?? { counts: [], mine: null };
+  }
 
   // Recent activity
   const recentActivity = db.prepare(`

@@ -5,7 +5,7 @@ import { Toggle } from './Toggle';
 import { localeFor } from '../../utils/locale';
 import { SEASONS, setSeasonPreview, useSeasonPreview } from '../../utils/seasons';
 
-const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'seasonal'];
+const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'seasonal'];
 const MULTIPLIERS = [1.5, 2, 3];
 
 /** Settings → Features: optional extras, on or off for the whole family (all on to start). */

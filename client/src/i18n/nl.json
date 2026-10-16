@@ -727,7 +727,11 @@
       "earlyBird": "Vroege vogel",
       "earlyBirdDesc": "Doe 5 taken voor 8 uur",
       "birthdayHelper": "Verjaardagshelper",
-      "birthdayHelperDesc": "Doe een taak op je verjaardag"
+      "birthdayHelperDesc": "Doe een taak op je verjaardag",
+      "teamSpirit": "Teamgeest",
+      "teamSpiritDesc": "Moedig 25 klusjes van anderen aan",
+      "fanFavorite": "Publiekslieveling",
+      "fanFavoriteDesc": "Krijg 25 aanmoedigingen op je klusjes"
     },
     "taskIcons": {
       "sparkle": "Glimmer",
@@ -1171,7 +1175,8 @@
       "test": "👋 Test van TidyQuest: meldingen voor {name} werken!",
       "moreItems": "+{n} meer",
       "rescue": "⚡ Reddingsmissie: ‘{task}’ levert vandaag {multiplier}× munten op. Wie het eerst doet, wint!",
-      "andMore": "+{n} meer"
+      "andMore": "+{n} meer",
+      "cheer": "{emoji} {name} moedigde je aan voor “{task}”"
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",
@@ -1221,7 +1226,8 @@
       "error_invalid_chat": "Chat-ID's zijn getallen (of @naam)",
       "error_no_channels": "Stel eerst een kanaal in",
       "kind_rescue": "Reddingsmissie",
-      "kindDesc_rescue": "de 2×-taak van de dag, 's ochtends"
+      "kindDesc_rescue": "de 2×-taak van de dag, 's ochtends",
+      "kind_cheer": "Aanmoedigingen op mijn klusjes"
     },
     "todos": {
       "roomName": "To-do's",
@@ -1274,7 +1280,9 @@
       "nextBadge": "Volgende badge",
       "nextBadgeDesc": "De dichtstbijzijnde badge, op Home en Prestaties.",
       "seasonal": "Feestdagenlook",
-      "seasonalDesc": "De app verkleedt zich voor de feestdagen: kleuren, versiering en een aftelling op Home."
+      "seasonalDesc": "De app verkleedt zich voor de feestdagen: kleuren, versiering en een aftelling op Home.",
+      "cheers": "Aanmoedigen",
+      "cheersDesc": "Moedig elkaars afgeronde klusjes aan (👏 🎉 💪 ⭐); ouders kunnen bij goedkeuren een notitie en bonus geven."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1292,6 +1300,14 @@
       "preview": "Voorbeeld",
       "previewing": "Voorbeeld: {name}",
       "stop": "Stoppen"
+    },
+    "cheers": {
+      "add": "Aanmoedigen",
+      "bonusReason": "⭐ Meer dan verwacht: {task}",
+      "extra": "Notitie of bonus",
+      "notePlaceholder": "Notitie toevoegen (Goed gedaan!)",
+      "bonus": "Bonus",
+      "none": "Geen"
     }
   }
 }

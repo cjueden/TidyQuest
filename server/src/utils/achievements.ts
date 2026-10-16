@@ -10,7 +10,8 @@ export interface AchievementDef {
 }
 
 export type BuiltinMetric = 'completions' | 'streak' | 'coins' | 'rooms_clean' | 'weekly_tasks' | 'weekend_tasks' | 'perfect_weeks'
-  | 'rewards_redeemed' | 'pot_contributions' | 'boost_completions' | 'goal_weeks' | 'room_sweeps' | 'early_chores' | 'birthday_chores';
+  | 'rewards_redeemed' | 'pot_contributions' | 'boost_completions' | 'goal_weeks' | 'room_sweeps' | 'early_chores' | 'birthday_chores'
+  | 'cheers_given' | 'cheers_received';
 
 export const ACHIEVEMENTS: AchievementDef[] = [
   // Getting started
@@ -52,6 +53,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // Spending and teamwork
   { id: 'first_reward', titleKey: 'achievements.firstPurchase', descKey: 'achievements.firstPurchaseDesc', icon: 'coin', threshold: 1, metric: 'rewards_redeemed' },
   { id: 'team_player', titleKey: 'achievements.teamPlayer', descKey: 'achievements.teamPlayerDesc', icon: 'heart', threshold: 1, metric: 'pot_contributions' },
+  { id: 'team_spirit', titleKey: 'achievements.teamSpirit', descKey: 'achievements.teamSpiritDesc', icon: 'heart', threshold: 25, metric: 'cheers_given' },
+  { id: 'fan_favorite', titleKey: 'achievements.fanFavorite', descKey: 'achievements.fanFavoriteDesc', icon: 'star', threshold: 25, metric: 'cheers_received' },
   { id: 'double_trouble', titleKey: 'achievements.doubleTrouble', descKey: 'achievements.doubleTroubleDesc', icon: 'rocket', threshold: 1, metric: 'boost_completions' },
 
   // Weekly goals hit in a row

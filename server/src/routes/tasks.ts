@@ -19,6 +19,7 @@ import { isNotificationTypeEnabled, sendNotification } from '../utils/notificati
 import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatLimits';
 import { boostMultiplierFor } from '../utils/boosts';
 import { trashTask } from '../utils/trash';
+import { tr } from '../utils/i18n';
 
 // Proof photos kids can attach to a completion (served at /api/proofs)
 export const proofsDir = path.join(__dirname, '..', '..', '..', 'data', 'proofs');
@@ -147,7 +148,17 @@ function applyApprovedCompletion(
 }
 
 /** Approve one waiting completion: pay it out, move the rotation on. Returns an error code or null. */
-function approvePendingCompletion(completionId: number, adminId: number): string | null {
+/** Extras a parent can add when approving one chore: a note ("Great job!") and an "above and beyond" bonus */
+const APPROVAL_BONUSES = [1, 2, 5];
+function parseApprovalExtras(body: any): { note: string | null; bonus: number } | { error: string } {
+  const note = typeof body?.note === 'string' ? body.note.trim() : '';
+  if (note.length > 200) return { error: 'note_too_long' };
+  const bonus = body?.bonus == null ? 0 : Number(body.bonus);
+  if (bonus !== 0 && !APPROVAL_BONUSES.includes(bonus)) return { error: 'invalid_bonus' };
+  return { note: note || null, bonus };
+}
+
+function approvePendingCompletion(completionId: number, adminId: number, extras: { note: string | null; bonus: number } = { note: null, bonus: 0 }): string | null {
   const completion = db.prepare('SELECT id, taskId, userId, completedAt, coinsEarned, status FROM task_completions WHERE id = ?').get(completionId) as any;
   if (!completion) return 'not_found';
   if (completion.status !== 'pending') return 'completion_not_pending';
@@ -162,7 +173,15 @@ function approvePendingCompletion(completionId: number, adminId: number): string
   });
   // The turn moves on once the parent approves (it used to stay stuck under Strict Mode)
   advanceRotation(task, completion.userId);
-  void notifyChoreApproved(completion.userId, adminId, task.name, completion.coinsEarned);
+  if (extras.note) db.prepare('UPDATE task_completions SET approvalNote = ? WHERE id = ?').run(extras.note, completion.id);
+  // The bonus goes in the coin ledger as "above and beyond", in the kid's language
+  if (extras.bonus > 0) {
+    const kidLang = (db.prepare('SELECT language FROM users WHERE id = ?').get(completion.userId) as { language: string | null } | undefined)?.language ?? 'en';
+    db.prepare('UPDATE users SET coins = coins + ? WHERE id = ?').run(extras.bonus, completion.userId);
+    db.prepare('INSERT INTO coin_adjustments (userId, amount, reason, createdBy, createdAt) VALUES (?, ?, ?, ?, ?)')
+      .run(completion.userId, extras.bonus, tr(kidLang, 'cheers.bonusReason', { task: task.name }), adminId, new Date().toISOString());
+  }
+  void notifyChoreApproved(completion.userId, adminId, task.name, completion.coinsEarned, extras);
   if (gamificationOn) void notifyAchievementUnlocksForUser(completion.userId);
   return null;
 }
@@ -874,7 +893,9 @@ router.post('/completions/:completionId/approve', (req: AuthRequest, res: Respon
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
-  const error = approvePendingCompletion(Number(req.params.completionId), req.userId!);
+  const extras = parseApprovalExtras(req.body);
+  if ('error' in extras) return res.status(400).json(extras);
+  const error = approvePendingCompletion(Number(req.params.completionId), req.userId!, extras);
   if (error) return res.status(PENDING_ERRORS[error]).json({ error: error === 'not_found' ? 'Completion not found' : error === 'task_not_found' ? 'Task not found' : error });
   res.json({ success: true });
 });

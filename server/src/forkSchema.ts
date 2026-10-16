@@ -136,6 +136,15 @@ const NEW_TABLES: string[] = [
     skipped INTEGER NOT NULL DEFAULT 0,
     createdAt TEXT NOT NULL DEFAULT (datetime('now'))
   )`,
+  // Cheers on someone's finished chore: one per person per completion (👏 🎉 💪 ⭐)
+  `CREATE TABLE IF NOT EXISTS cheers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    completionId INTEGER NOT NULL REFERENCES task_completions(id) ON DELETE CASCADE,
+    fromUserId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    emoji TEXT NOT NULL,
+    createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    UNIQUE (completionId, fromUserId)
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
@@ -190,6 +199,8 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE users ADD COLUMN holidayColors INTEGER NOT NULL DEFAULT 1`,
   // Double coins events can also name chores (JSON array of task ids), on top of their rooms
   `ALTER TABLE coin_boosts ADD COLUMN taskIds TEXT`,
+  // A parent's note when approving a chore ("Great job!")
+  `ALTER TABLE task_completions ADD COLUMN approvalNote TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */
@@ -202,6 +213,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'trash', table: 'trash' },
   { key: 'customBadges', table: 'custom_badges' },
   { key: 'taskPins', table: 'task_pins' },
+  { key: 'cheers', table: 'cheers' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

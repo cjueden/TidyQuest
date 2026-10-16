@@ -727,7 +727,11 @@
       "earlyBird": "Madrugador",
       "earlyBirdDesc": "Haz 5 tareas antes de las 8",
       "birthdayHelper": "Ayudante de cumpleaños",
-      "birthdayHelperDesc": "Haz una tarea en tu cumpleaños"
+      "birthdayHelperDesc": "Haz una tarea en tu cumpleaños",
+      "teamSpirit": "Espíritu de equipo",
+      "teamSpiritDesc": "Anima 25 tareas hechas por otros",
+      "fanFavorite": "Favorito del público",
+      "fanFavoriteDesc": "Recibe 25 ánimos en tus tareas"
     },
     "taskIcons": {
       "sparkle": "Brillo",
@@ -1171,7 +1175,8 @@
       "test": "👋 Prueba de TidyQuest: ¡las notificaciones para {name} funcionan!",
       "moreItems": "+{n} más",
       "rescue": "⚡ Misión de rescate: «{task}» paga {multiplier}× monedas hoy. ¡Gana quien lo haga primero!",
-      "andMore": "+{n} más"
+      "andMore": "+{n} más",
+      "cheer": "{emoji} {name} aplaudió tu tarea «{task}»"
     },
     "notifyAdmin": {
       "peopleTitle": "Quién recibe qué",
@@ -1221,7 +1226,8 @@
       "error_invalid_chat": "Los ID de chat son números (o @nombre)",
       "error_no_channels": "Configura primero un canal",
       "kind_rescue": "Misión de rescate",
-      "kindDesc_rescue": "la tarea ×2 del día, por la mañana"
+      "kindDesc_rescue": "la tarea ×2 del día, por la mañana",
+      "kind_cheer": "Ánimos en mis tareas"
     },
     "todos": {
       "roomName": "Pendientes",
@@ -1274,7 +1280,9 @@
       "nextBadge": "Próxima insignia",
       "nextBadgeDesc": "La insignia más cercana por conseguir, en Inicio y Logros.",
       "seasonal": "Decoración de temporada",
-      "seasonalDesc": "La app se disfraza en las fiestas: colores, decoraciones y una cuenta atrás en Inicio."
+      "seasonalDesc": "La app se disfraza en las fiestas: colores, decoraciones y una cuenta atrás en Inicio.",
+      "cheers": "Ánimos",
+      "cheersDesc": "Animad las tareas terminadas de los demás (👏 🎉 💪 ⭐); los padres pueden añadir una nota y un bonus al aprobar."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1292,6 +1300,14 @@
       "preview": "Vista previa",
       "previewing": "Vista previa: {name}",
       "stop": "Parar"
+    },
+    "cheers": {
+      "add": "Animar",
+      "bonusReason": "⭐ Más allá de lo esperado: {task}",
+      "extra": "Nota o bonus",
+      "notePlaceholder": "Añade una nota (¡Buen trabajo!)",
+      "bonus": "Bonus",
+      "none": "Ninguno"
     }
   }
 }

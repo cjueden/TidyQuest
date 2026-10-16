@@ -727,7 +727,11 @@
       "earlyBird": "Mattiniero",
       "earlyBirdDesc": "Fai 5 attività prima delle 8",
       "birthdayHelper": "Aiutante di compleanno",
-      "birthdayHelperDesc": "Fai un'attività il giorno del tuo compleanno"
+      "birthdayHelperDesc": "Fai un'attività il giorno del tuo compleanno",
+      "teamSpirit": "Spirito di squadra",
+      "teamSpiritDesc": "Fai il tifo per 25 faccende fatte da altri",
+      "fanFavorite": "Beniamino del pubblico",
+      "fanFavoriteDesc": "Ricevi 25 tifi sulle tue faccende"
     },
     "taskIcons": {
       "sparkle": "Scintilla",
@@ -1171,7 +1175,8 @@
       "test": "👋 Test da TidyQuest: le notifiche per {name} funzionano!",
       "moreItems": "+{n} altre",
       "rescue": "⚡ Missione di salvataggio: «{task}» vale {multiplier}× monete oggi. Vince chi lo fa per primo!",
-      "andMore": "+{n} altre"
+      "andMore": "+{n} altre",
+      "cheer": "{emoji} {name} ha fatto il tifo per «{task}»"
     },
     "notifyAdmin": {
       "peopleTitle": "Chi riceve cosa",
@@ -1221,7 +1226,8 @@
       "error_invalid_chat": "Gli ID chat sono numeri (o @nome)",
       "error_no_channels": "Imposta prima un canale",
       "kind_rescue": "Missione di salvataggio",
-      "kindDesc_rescue": "l'attività ×2 del giorno, al mattino"
+      "kindDesc_rescue": "l'attività ×2 del giorno, al mattino",
+      "kind_cheer": "Tifo per le mie faccende"
     },
     "todos": {
       "roomName": "Da fare",
@@ -1274,7 +1280,9 @@
       "nextBadge": "Prossimo distintivo",
       "nextBadgeDesc": "Il distintivo più vicino da ottenere, in Home e Traguardi.",
       "seasonal": "Stile delle feste",
-      "seasonalDesc": "L'app si veste a festa: colori, decorazioni e un conto alla rovescia nella Home."
+      "seasonalDesc": "L'app si veste a festa: colori, decorazioni e un conto alla rovescia nella Home.",
+      "cheers": "Tifo",
+      "cheersDesc": "Fate il tifo per le faccende finite degli altri (👏 🎉 💪 ⭐); i genitori possono aggiungere una nota e un bonus approvando."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1292,6 +1300,14 @@
       "preview": "Anteprima",
       "previewing": "Anteprima: {name}",
       "stop": "Ferma"
+    },
+    "cheers": {
+      "add": "Tifa",
+      "bonusReason": "⭐ Oltre le aspettative: {task}",
+      "extra": "Nota o bonus",
+      "notePlaceholder": "Aggiungi una nota (Ottimo lavoro!)",
+      "bonus": "Bonus",
+      "none": "Nessuno"
     }
   }
 }
