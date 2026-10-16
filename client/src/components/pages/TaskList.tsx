@@ -4,7 +4,7 @@ import { TaskIcon } from '../icons/TaskIcons';
 import { CoinIcon } from '../icons/UIIcons';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
-import { formatNextDue, getNextDueDate, isTaskDue, isTaskForUser, matchesQuery, taskCoins } from '../../utils/tasks';
+import { formatNextDue, isTaskDue, isTaskForUser, matchesQuery, taskCoins, taskNextDue } from '../../utils/tasks';
 
 export interface ListTask {
   id: number;
@@ -19,6 +19,8 @@ export interface ListTask {
   health: number;
   onDemand?: boolean | number;
   isSeasonal?: boolean;
+  nextDueAt?: string | null;
+  outOfSeason?: boolean;
   assignedToChildren?: boolean;
   effectiveAssignedUserIds?: number[];
 }
@@ -114,7 +116,7 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
       return matchesQuery(q, [name, task.notes, roomName]);
     });
 
-    const dueTime = (task: ListTask) => (task.onDemand ? Infinity : getNextDueDate(task.lastCompletedAt, task.frequencyDays).getTime());
+    const dueTime = (task: ListTask) => (task.onDemand ? Infinity : taskNextDue(task).getTime());
     return filtered.sort((a, b) => {
       let cmp = 0;
       if (sort === 'due') cmp = dueTime(a.task) - dueTime(b.task);
@@ -193,7 +195,8 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
           const who = ids.length ? ids.map((id) => nameById.get(id) || '?').join(' + ') : t('taskList.openToAnyone');
           const due = task.onDemand
             ? { text: t('roomDetail.onDemand'), color: 'var(--warm-accent)' }
-            : formatNextDue(task.lastCompletedAt, task.frequencyDays, t, language, task.health);
+            : task.outOfSeason ? { text: t('schedule.offSeason'), color: 'var(--warm-text-light)' }
+            : formatNextDue(task.lastCompletedAt, task.frequencyDays, t, language, task.health, task.nextDueAt);
           return (
             <button
               key={task.id}

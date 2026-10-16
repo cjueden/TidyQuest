@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
-import { calculateHealth } from '../utils/health';
+import { calendarDaysUntil, hasWeekdaySchedule, isSeasonalNow, nextDueAt, scheduleFields, taskHealth } from '../utils/schedule';
 import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, isStrictModeEnabled, resolveVacation } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
 import { repeatCountsFor } from '../utils/repeatLimits';
@@ -81,15 +81,16 @@ router.get('/', (req: AuthRequest, res: Response) => {
       const taskVac = effectiveIds.length === 1
         ? resolveVacation(vacation, getUserVacation(effectiveIds[0]))
         : vacation;
-      const health = calculateHealth(t.lastCompletedAt, t.frequencyDays, taskVac.isVacation, taskVac.startDate);
-      const safeFreq = Math.max(1 / 24, Number(t.frequencyDays) || 7);
-      const dueDateTs = t.lastCompletedAt
-        ? new Date(t.lastCompletedAt).getTime() + safeFreq * 86400000
-        : nowTs;
-      const dueInDays = t.onDemand ? 0 : Math.max(0, Math.floor((dueDateTs - nowTs) / 86400000));
+      // Rolling interval or set weekdays, and the season (utils/schedule.ts)
+      const health = taskHealth(t, taskVac);
+      const dueDateTs = nextDueAt(t)?.getTime() ?? nowTs;
+      const dueInDays = t.onDemand ? 0
+        : hasWeekdaySchedule(t) ? calendarDaysUntil(new Date(dueDateTs))
+        : Math.max(0, Math.floor((dueDateTs - nowTs) / 86400000));
       const taskWithHealth = {
         ...t,
-        isSeasonal: !!t.isSeasonal,
+        ...scheduleFields(t, taskAssigneesForTask.map((a: any) => a.userId)),
+        isSeasonal: isSeasonalNow(t),
         assignedToChildren: !!t.assignedToChildren,
         effectiveAssignedUserId: room.assignedUserId ?? t.assignedUserId ?? null,
         assignedUserIds: taskAssigneesForTask.map((a: any) => a.userId),

@@ -877,6 +877,18 @@
       "today": "vandaag",
       "thisWeek": "deze week",
       "limitReached": "Je hebt dit al zo vaak gedaan als nu mag."
+    },
+    "schedule": {
+      "dueMode": "Hoe vaak",
+      "onDays": "Op",
+      "season": "Alleen in het seizoen",
+      "seasonDesc": "Buiten deze maanden is de taak niet aan de beurt en telt ze niet mee voor de huisgezondheid",
+      "seasonFrom": "Vanaf maand",
+      "seasonTo": "Tot maand",
+      "offSeason": "Buiten seizoen",
+      "turnChanges": "Beurt wisselt",
+      "turnEachTime": "na elke keer",
+      "turnWeekly": "elke maandag"
     }
   }
 }

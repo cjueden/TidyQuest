@@ -877,6 +877,18 @@
       "today": "heute",
       "thisWeek": "diese Woche",
       "limitReached": "Das hast du schon so oft gemacht, wie es gerade erlaubt ist."
+    },
+    "schedule": {
+      "dueMode": "Wie oft",
+      "onDays": "Am",
+      "season": "Nur in der Saison",
+      "seasonDesc": "Außerhalb dieser Monate ist die Aufgabe nicht fällig und zählt nicht zur Hausgesundheit",
+      "seasonFrom": "Von Monat",
+      "seasonTo": "Bis Monat",
+      "offSeason": "Außerhalb der Saison",
+      "turnChanges": "Wechsel",
+      "turnEachTime": "nach jeder Erledigung",
+      "turnWeekly": "jeden Montag"
     }
   }
 }

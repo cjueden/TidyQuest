@@ -10,6 +10,7 @@ import { suggestTaskIcon } from '../utils/taskIcons';
 import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '../utils/achievementNotifications';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
+import { hasWeekdaySchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth } from '../utils/schedule';
 import { isNotificationTypeEnabled, sendNotification } from '../utils/notifications';
 import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatLimits';
 import { boostMultiplierForRoom } from '../utils/boosts';
@@ -35,21 +36,24 @@ router.use(authMiddleware);
 
 function hadDueTaskOnDate(dateIsoDay: string): boolean {
   const endOfDay = new Date(`${dateIsoDay}T23:59:59.999Z`).getTime();
-  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt FROM tasks').all() as Array<{
+  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks').all() as Array<{
     id: number; frequencyDays: number; isSeasonal: number; lastCompletedAt: string | null;
+    seasonStartMonth: number | null; seasonEndMonth: number | null; scheduleWeekdays: number | null;
   }>;
 
   for (const t of tasks) {
-    if (t.isSeasonal) continue;
+    if (isSeasonalNow(t, new Date(`${dateIsoDay}T12:00:00`))) continue;
     const safeFreq = Math.max(1 / 24, Number(t.frequencyDays) || 7);
     let dueTs: number;
-    if (!t.lastCompletedAt) {
+    if (hasWeekdaySchedule(t)) {
+      dueTs = nextDueAt(t)!.getTime();
+    } else if (!t.lastCompletedAt) {
       dueTs = 0;
     } else {
       dueTs = new Date(t.lastCompletedAt).getTime() + safeFreq * 86400000;
     }
     if (dueTs <= endOfDay) {
-      const health = calculateHealth(t.lastCompletedAt, safeFreq, false, null);
+      const health = hasWeekdaySchedule(t) ? taskHealth(t) : calculateHealth(t.lastCompletedAt, safeFreq, false, null);
       if (health < 100) return true;
     }
   }
@@ -225,7 +229,8 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
     const mode = t.assignmentMode || 'first';
     return {
       ...t,
-      isSeasonal: !!t.isSeasonal,
+      ...scheduleFields(t, taskAssignedUserIds),
+      isSeasonal: isSeasonalNow(t),
       assignedToChildren: !!t.assignedToChildren,
       assignedUserIds: taskAssignedUserIds,
       assignedUsers,
@@ -237,7 +242,7 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
         const taskVac = effectiveAssignedUserIds.length === 1
           ? resolveVacation(vacation, getUserVacation(effectiveAssignedUserIds[0]))
           : vacation;
-        return calculateHealth(t.lastCompletedAt, t.frequencyDays, taskVac.isVacation, taskVac.startDate);
+        return taskHealth(t, taskVac);
       })(),
     };
   });
@@ -256,6 +261,8 @@ router.post('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
 
   const room = db.prepare('SELECT id FROM rooms WHERE id = ?').get(req.params.roomId);
   if (!room) return res.status(404).json({ error: 'Room not found' });
+  const schedule = readScheduleInput(req.body);
+  if ('error' in schedule) return res.status(400).json({ error: schedule.error });
 
   const effectiveFrequency = Math.max(1 / 24, Number(frequencyDays) || 7);
   let lastCompletedAt: string | null = null;
@@ -297,6 +304,8 @@ router.post('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   );
 
   const newTaskId = result.lastInsertRowid as number;
+  // Season, set weekdays, rotation period (utils/schedule.ts)
+  saveScheduleInput(newTaskId, schedule.values, health);
 
   // Insert multi-user assignees
   if (Array.isArray(assignedUserIds) && assignedUserIds.length > 0) {
@@ -331,6 +340,8 @@ router.put('/tasks/:id', (req: AuthRequest, res: Response) => {
   const { name, notes, frequencyDays, effort, isSeasonal, health, iconKey, assignedToChildren, assignedUserIds, assignmentMode, assignedUserPercentages, onDemand, showInDashboard, roomId, customCoins, allowEarlyCompletion } = req.body;
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as any;
   if (!task) return res.status(404).json({ error: 'Task not found' });
+  const schedule = readScheduleInput(req.body);
+  if ('error' in schedule) return res.status(400).json({ error: schedule.error });
 
   let lastCompletedAt: string | undefined;
   if (health !== undefined && health !== null) {
@@ -395,6 +406,7 @@ router.put('/tasks/:id', (req: AuthRequest, res: Response) => {
     params.push(req.params.id);
     db.prepare(`UPDATE tasks SET ${setClauses.join(', ')} WHERE id = ?`).run(...params);
   }
+  saveScheduleInput(Number(req.params.id), schedule.values, health);
 
   // Update task_assignees if provided
   if (assignedUserIds !== undefined) {
@@ -441,6 +453,7 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
 
   const tasks = db.prepare(`
     SELECT t.id, t.name, t.roomId, t.effort, t.frequencyDays, t.lastCompletedAt, t.isSeasonal, t.onDemand,
+           t.seasonStartMonth, t.seasonEndMonth, t.scheduleWeekdays,
            r.name as roomName
     FROM tasks t
     JOIN rooms r ON t.roomId = r.id
@@ -461,16 +474,19 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
   }
 
   const overdueTasks = tasks
+    .filter((t: any) => !isSeasonalNow(t))
     .map((t: any) => {
       const assigneeIds = assigneesByTask.get(t.id) || [];
       const taskVac = assigneeIds.length === 1
         ? resolveVacation(globalVac, getUserVacation(assigneeIds[0]))
         : globalVac;
-      const health = calculateHealth(t.lastCompletedAt, t.frequencyDays, taskVac.isVacation, taskVac.startDate);
+      const health = taskHealth(t, taskVac);
       if (health > 0) return null;
-      const daysOverdue = t.lastCompletedAt
-        ? Math.max(0, (Date.now() - new Date(t.lastCompletedAt).getTime()) / 86400000 - t.frequencyDays)
-        : 999;
+      const daysOverdue = hasWeekdaySchedule(t)
+        ? Math.max(0, (Date.now() - nextDueAt(t)!.getTime()) / 86400000)
+        : t.lastCompletedAt
+          ? Math.max(0, (Date.now() - new Date(t.lastCompletedAt).getTime()) / 86400000 - t.frequencyDays)
+          : 999;
       return {
         id: t.id,
         name: t.name,
@@ -509,6 +525,10 @@ router.post('/tasks/:id/duplicate', (req: AuthRequest, res: Response) => {
     task.repeatLimit ?? null, task.repeatPeriod ?? null
   );
   const newTaskId = result.lastInsertRowid as number;
+  saveScheduleInput(newTaskId, {
+    seasonStartMonth: task.seasonStartMonth, seasonEndMonth: task.seasonEndMonth,
+    scheduleWeekdays: task.scheduleWeekdays, rotationPeriod: task.rotationPeriod,
+  });
 
   const assignees = db.prepare('SELECT userId, coinPercentage FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number; coinPercentage: number }[];
   for (const a of assignees) {
@@ -550,7 +570,9 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
   ).run(task.id, now);
 
   const effectiveFrequency = Math.max(1 / 24, Number(task.frequencyDays) || 7);
-  const dirtyAt = new Date(Date.now() - effectiveFrequency * 86400000).toISOString();
+  const dirtyAt = hasWeekdaySchedule(task)
+    ? lastCompletedAtForHealth(task, 0)
+    : new Date(Date.now() - effectiveFrequency * 86400000).toISOString();
   db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(dirtyAt, task.id);
 
   res.json({
@@ -566,6 +588,7 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
 /** Rotating tasks: hand the next turn to the assignee after the one who just finished. */
 function advanceRotation(task: any, completedByUserId: number) {
   if (task.assignmentMode !== 'rotating') return;
+  if (task.rotationPeriod === 'week') return; // the turn follows the calendar week instead
   const rotationAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ? ORDER BY userId ASC').all(task.id) as { userId: number }[];
   if (rotationAssignees.length > 1) {
     const currentIdx = rotationAssignees.findIndex(a => a.userId === (task.rotationCurrentUserId ?? completedByUserId));
@@ -612,7 +635,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
 
   // Rotating mode: only the current rotation user can complete (admins/members bypass)
   if (task.assignmentMode === 'rotating' && !isAdminOrMember) {
-    const rotationUserId = task.rotationCurrentUserId;
+    const rotationUserId = rotationTurnUserId(task);
     if (rotationUserId && req.userId !== rotationUserId) {
       return res.status(409).json({ error: 'not_your_turn' });
     }
@@ -647,7 +670,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
       const taskVac = taskAssigneesForVac.length === 1
         ? resolveVacation(globalVac, getUserVacation(taskAssigneesForVac[0].userId))
         : globalVac;
-      const currentHealth = calculateHealth(task.lastCompletedAt, task.frequencyDays, taskVac.isVacation, taskVac.startDate);
+      const currentHealth = taskHealth(task, taskVac);
       if (currentHealth > 0) {
         // allowEarlyCompletion: bypass cooldown if completed on a previous calendar day
         if (task.allowEarlyCompletion) {

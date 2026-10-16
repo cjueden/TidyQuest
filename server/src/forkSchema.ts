@@ -84,6 +84,12 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE tasks ADD COLUMN repeatPeriod TEXT`,
   // A goal that sets up next week's copy of itself when its week ends (see rollOverRepeatingGoals)
   `ALTER TABLE user_goals ADD COLUMN repeatWeekly INTEGER NOT NULL DEFAULT 0`,
+  // Scheduling (utils/schedule.ts): a season (months 1–12, may wrap), set weekdays (bitmask, bit 0 =
+  // Sunday) instead of the rolling interval, and rotation by calendar week instead of per completion
+  `ALTER TABLE tasks ADD COLUMN seasonStartMonth INTEGER`,
+  `ALTER TABLE tasks ADD COLUMN seasonEndMonth INTEGER`,
+  `ALTER TABLE tasks ADD COLUMN scheduleWeekdays INTEGER`,
+  `ALTER TABLE tasks ADD COLUMN rotationPeriod TEXT NOT NULL DEFAULT 'completion'`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

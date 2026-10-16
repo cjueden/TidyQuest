@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { buildAchievements } from '../utils/achievements';
-import { calculateHealth } from '../utils/health';
+import { isSeasonalNow, taskHealth } from '../utils/schedule';
 import { getGlobalVacation, getUserVacation, resolveVacation } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
 
@@ -29,11 +29,11 @@ function getUserStats(userId: number) {
   for (const room of rooms) {
     const tasks = tasksByRoom.get(room.id) || [];
     if (tasks.length === 0) continue;
-    const nonSeasonal = tasks.filter((t: any) => !t.isSeasonal);
+    const nonSeasonal = tasks.filter((t: any) => !isSeasonalNow(t));
     const forAvg = nonSeasonal.length > 0 ? nonSeasonal : tasks;
     const totalEffort = forAvg.reduce((s: number, t: any) => s + t.effort, 0);
     const health = totalEffort > 0
-      ? Math.round(forAvg.reduce((s: number, t: any) => s + calculateHealth(t.lastCompletedAt, t.frequencyDays, vacation.isVacation, vacation.startDate) * t.effort, 0) / totalEffort)
+      ? Math.round(forAvg.reduce((s: number, t: any) => s + taskHealth(t, vacation) * t.effort, 0) / totalEffort)
       : 100;
     if (health >= 70) roomsClean++;
   }

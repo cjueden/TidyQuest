@@ -877,6 +877,18 @@
       "today": "oggi",
       "thisWeek": "questa settimana",
       "limitReached": "L'hai già fatto tutte le volte consentite per ora."
+    },
+    "schedule": {
+      "dueMode": "Frequenza",
+      "onDays": "Il",
+      "season": "Solo in stagione",
+      "seasonDesc": "Fuori da questi mesi non è in scadenza e non conta per la salute della casa",
+      "seasonFrom": "Mese di inizio",
+      "seasonTo": "Mese di fine",
+      "offSeason": "Fuori stagione",
+      "turnChanges": "Il turno cambia",
+      "turnEachTime": "dopo ogni completamento",
+      "turnWeekly": "ogni lunedì"
     }
   }
 }

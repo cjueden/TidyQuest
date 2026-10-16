@@ -7,7 +7,9 @@ import { getRoomIcon } from '../icons/RoomIcons';
 import { TaskIcon, TASK_ICON_OPTIONS } from '../icons/TaskIcons';
 import { CheckIcon, BackIcon, PlusIcon, CoinIcon } from '../icons/UIIcons';
 import { getRoomHealth } from '../../utils/health';
-import { getNextDueDate, formatNextDue, isTaskForUser } from '../../utils/tasks';
+import { formatNextDue, isTaskForUser, taskNextDue } from '../../utils/tasks';
+import { DueOnPicker, RotationPeriodPicker, SeasonPicker } from '../shared/ScheduleFields';
+import { EMPTY_SCHEDULE, schedulePayload, scheduleFromTask, seasonLabel, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
@@ -58,7 +60,7 @@ interface CompletedTodayBy {
   avatarPhotoUrl?: string;
 }
 
-interface Task {
+interface Task extends ScheduledTaskFields {
   id: number; name: string; translationKey?: string; health: number; frequencyDays: number;
   effort: number; notes?: string | null; isSeasonal: boolean; onDemand?: boolean; showInDashboard?: boolean; lastCompletedAt: string | null; iconKey?: string;
   assignedToChildren?: boolean;
@@ -76,6 +78,10 @@ interface Task {
   myRepeatCount?: number;
   allowEarlyCompletion?: boolean;
   sharedCompletions?: Array<{ userId: number; displayName: string; completionId: number }>;
+  /** When it's next due, from the server (set weekdays aware) */
+  nextDueAt?: string | null;
+  /** Outside its season right now (isSeasonal is then true too) */
+  outOfSeason?: boolean;
 }
 
 interface RoomDetailProps {
@@ -163,13 +169,15 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const [newTaskIconKey, setNewTaskIconKey] = useState('sparkle');
   const [newAssignmentType, setNewAssignmentType] = useState<'none' | 'users'>('none');
   const [newAssignmentUserIds, setNewAssignmentUserIds] = useState<number[]>([]);
-  const [newAssignmentMode, setNewAssignmentMode] = useState<'first' | 'shared' | 'custom'>('first');
+  const [newAssignmentMode, setNewAssignmentMode] = useState<'first' | 'shared' | 'custom' | 'rotating'>('first');
   const [newAssignmentPercentages, setNewAssignmentPercentages] = useState<Record<number, number>>({});
   const [addTaskError, setAddTaskError] = useState('');
   const [newTaskOnDemand, setNewTaskOnDemand] = useState(false);
   const [newTaskShowInDashboard, setNewTaskShowInDashboard] = useState(false);
   const [newRepeatLimit, setNewRepeatLimit] = useState('');
   const [newRepeatPeriod, setNewRepeatPeriod] = useState<'day' | 'week'>('week');
+  const [editSchedule, setEditSchedule] = useState<ScheduleValue>(EMPTY_SCHEDULE);
+  const [newSchedule, setNewSchedule] = useState<ScheduleValue>(EMPTY_SCHEDULE);
   const [sortKey, setSortKey] = useState<SortKey>('health');
   const [sortAsc, setSortAsc] = useState(true);
   const focusedOnce = useRef<number | null>(null);
@@ -220,7 +228,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       case 'frequency': cmp = a.frequencyDays - b.frequencyDays; break;
       case 'coins': cmp = taskCoins(a) - taskCoins(b); break;
       case 'assigned': cmp = (a.assignedUsers?.length ?? 0) - (b.assignedUsers?.length ?? 0); break;
-      case 'dueDate': cmp = getNextDueDate(a.lastCompletedAt, a.frequencyDays).getTime() - getNextDueDate(b.lastCompletedAt, b.frequencyDays).getTime(); break;
+      case 'dueDate': cmp = taskNextDue(a).getTime() - taskNextDue(b).getTime(); break;
     }
     return sortAsc ? cmp : -cmp;
   });
@@ -276,6 +284,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     }
     const displayedName = translateTask(task.name, task.translationKey);
     setEditingTask(task.id);
+    setEditSchedule(scheduleFromTask(task));
     setEditForm({ name: displayedName, originalName: displayedName, notes: task.notes || '', freqValue: value, freqUnit: unit, effort: task.effort, health: task.health, healthChanged: false, iconKey: task.iconKey || 'sparkle', onDemand: !!task.onDemand, showInDashboard: !!task.showInDashboard, assignmentType, assignmentUserIds, assignmentMode: (task.assignmentMode || 'first') as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages, customCoins: task.customCoins ?? '', allowEarlyCompletion: !!task.allowEarlyCompletion, repeatLimit: task.repeatLimit ? String(task.repeatLimit) : '', repeatPeriod: task.repeatPeriod === 'day' ? 'day' : 'week' });
   };
 
@@ -287,7 +296,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       { assignedToChildren: false, assignedUserIds: [] };
     const assignedUserPercentages = editForm.assignmentMode === 'custom' ? editForm.assignmentPercentages : undefined;
     const nameChanged = editForm.name.trim() !== editForm.originalName.trim();
-    await api.updateTask(editingTask, { ...(nameChanged ? { name: editForm.name } : {}), notes: editForm.notes, frequencyDays, effort: editForm.effort, ...(editForm.healthChanged ? { health: editForm.health } : {}), iconKey: editForm.iconKey, onDemand: editForm.onDemand, showInDashboard: editForm.showInDashboard, assignmentMode: editForm.assignmentMode, assignedUserPercentages, customCoins: editForm.customCoins !== '' ? Number(editForm.customCoins) : null, allowEarlyCompletion: editForm.allowEarlyCompletion, repeatLimit: editForm.onDemand && editForm.repeatLimit ? Number(editForm.repeatLimit) : null, repeatPeriod: editForm.repeatPeriod, ...assignmentPayload });
+    await api.updateTask(editingTask, { ...(nameChanged ? { name: editForm.name } : {}), notes: editForm.notes, frequencyDays, effort: editForm.effort, ...(editForm.healthChanged ? { health: editForm.health } : {}), iconKey: editForm.iconKey, onDemand: editForm.onDemand, showInDashboard: editForm.showInDashboard, assignmentMode: editForm.assignmentMode, assignedUserPercentages, customCoins: editForm.customCoins !== '' ? Number(editForm.customCoins) : null, allowEarlyCompletion: editForm.allowEarlyCompletion, repeatLimit: editForm.onDemand && editForm.repeatLimit ? Number(editForm.repeatLimit) : null, repeatPeriod: editForm.repeatPeriod, ...schedulePayload(editSchedule, { onDemand: editForm.onDemand, rotating: editForm.assignmentMode === 'rotating' }), ...assignmentPayload });
     const editedId = editingTask;
     setEditingTask(null);
     onRefresh?.();
@@ -351,7 +360,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
           return { disabled: true, label: t('roomDetail.done') };
         }
       } else {
-        const { text } = formatNextDue(task.lastCompletedAt, task.frequencyDays, t, language, task.health);
+        const { text } = formatNextDue(task.lastCompletedAt, task.frequencyDays, t, language, task.health, task.nextDueAt);
         return { disabled: true, label: text };
       }
     }
@@ -427,6 +436,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       ...(newTaskOnDemand && newRepeatLimit ? { repeatLimit: Number(newRepeatLimit), repeatPeriod: newRepeatPeriod } : {}),
       assignmentMode: newAssignmentMode,
       assignedUserPercentages,
+      ...schedulePayload(newSchedule, { onDemand: newTaskOnDemand, rotating: newAssignmentMode === 'rotating' }),
       ...assignmentPayload,
     });
     setNewTaskName('');
@@ -443,6 +453,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     setNewTaskOnDemand(false);
     setNewTaskShowInDashboard(false);
     setNewRepeatLimit('');
+    setNewSchedule(EMPTY_SCHEDULE);
     setShowAddTask(false);
     onRefresh?.();
   };
@@ -543,12 +554,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                         <option value="week">{t('repeat.perWeek')}</option>
                       </select>
                     </div>}
-                    {!editForm.onDemand && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.every')}</label>
-                      <FrequencyPicker value={editForm.freqValue} unit={editForm.freqUnit}
+                    {!editForm.onDemand && <DueOnPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language}
+                      interval={<FrequencyPicker value={editForm.freqValue} unit={editForm.freqUnit}
                         t={t}
-                        onChange={(v, u) => setEditForm(f => ({ ...f, freqValue: v, freqUnit: u }))} />
-                    </div>}
+                        onChange={(v, u) => setEditForm(f => ({ ...f, freqValue: v, freqUnit: u }))} />} />}
+                    {!editForm.onDemand && <SeasonPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language} />}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>
                       <EffortPicker effort={editForm.effort} onChange={(e) => setEditForm(f => ({ ...f, effort: e }))} />
@@ -664,7 +674,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                             <>
                               <div style={{ marginLeft: 70, display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
                                 <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', minWidth: 58 }}>Mode</label>
-                                <div style={{ display: 'flex', gap: 6 }}>
+                                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                                   {(['first', 'shared', 'custom', 'rotating'] as const).map(mode => (
                                     <button
                                       key={mode}
@@ -685,6 +695,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                                   ))}
                                 </div>
                               </div>
+                              {editForm.assignmentMode === 'rotating' && (
+                                <div style={{ marginLeft: 70, marginTop: 4 }}>
+                                  <RotationPeriodPicker value={editSchedule} onChange={setEditSchedule} t={t} />
+                                </div>
+                              )}
                               {editForm.assignmentMode === 'custom' && (() => {
                                 const total = editForm.assignmentUserIds.reduce((s, id) => s + (editForm.assignmentPercentages[id] ?? 0), 0);
                                 const totalOk = total === 100;
@@ -777,7 +792,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       </div>
                     )}
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
-                      {timeAgo(task.lastCompletedAt)}{task.isSeasonal ? ` · ${t('roomDetail.seasonal')}` : ''}{task.onDemand ? ` · ${t('roomDetail.onDemand')}` : ''}{task.onDemand && task.repeatLimit ? ` · ${task.myRepeatCount ?? 0}/${task.repeatLimit} ${t(task.repeatPeriod === 'day' ? 'repeat.today' : 'repeat.thisWeek')}` : ''}
+                      {timeAgo(task.lastCompletedAt)}{task.outOfSeason && task.seasonStartMonth && task.seasonEndMonth ? ` · ${t('schedule.offSeason')} (${seasonLabel(task.seasonStartMonth, task.seasonEndMonth, language)})` : task.isSeasonal ? ` · ${t('roomDetail.seasonal')}` : ''}{task.onDemand ? ` · ${t('roomDetail.onDemand')}` : ''}{task.onDemand && task.repeatLimit ? ` · ${task.myRepeatCount ?? 0}/${task.repeatLimit} ${t(task.repeatPeriod === 'day' ? 'repeat.today' : 'repeat.thisWeek')}` : ''}
                     </div>
                   </div>
                 </div>
@@ -785,7 +800,9 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                 <div className="room-task-frequency" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>
                   {task.onDemand
                     ? <span style={{ color: 'var(--warm-accent)', fontWeight: 700 }}>{t('roomDetail.onDemand')}</span>
-                    : <>{t('roomDetail.every')} {formatFreq(task.frequencyDays, t)}</>
+                    : task.scheduleWeekdays
+                      ? <>{weekdaysLabel(task.scheduleWeekdays, language)}</>
+                      : <>{t('roomDetail.every')} {formatFreq(task.frequencyDays, t)}</>
                   }
                 </div>
                 <div className="room-task-effort"><EffortDots effort={task.effort} /></div>
@@ -794,7 +811,9 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                 </div>
                 {task.onDemand
                   ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>—</div>
-                  : (() => { const { text, color } = formatNextDue(task.lastCompletedAt, task.frequencyDays, t, language, task.health); return (
+                  : task.outOfSeason
+                  ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('schedule.offSeason')}</div>
+                  : (() => { const { text, color } = formatNextDue(task.lastCompletedAt, task.frequencyDays, t, language, task.health, task.nextDueAt); return (
                       <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color }}>{text}</div>
                     ); })()
                 }
@@ -812,7 +831,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                         )}
                         {task.assignmentMode === 'rotating' && task.rotationCurrentUserId !== undefined && (
                           <div style={{ fontSize: 10, color: 'var(--warm-accent)', fontWeight: 700, marginTop: 2 }}>
-                            🔄 {task.assignedUsers.find(u => u.id === task.rotationCurrentUserId)?.displayName || '?'}
+                            🔄 {task.assignedUsers.find(u => u.id === task.rotationCurrentUserId)?.displayName || '?'}{task.rotationPeriod === 'week' ? ` · ${t('repeat.thisWeek')}` : ''}
                           </div>
                         )}
                       </span>
@@ -977,12 +996,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     <option value="week">{t('repeat.perWeek')}</option>
                   </select>
                 </div>}
-                {!newTaskOnDemand && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.every')}</label>
-                  <FrequencyPicker value={newFreqValue} unit={newFreqUnit}
+                {!newTaskOnDemand && <DueOnPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language}
+                  interval={<FrequencyPicker value={newFreqValue} unit={newFreqUnit}
                     t={t}
-                    onChange={(v, u) => { setNewFreqValue(v); setNewFreqUnit(u); }} />
-                </div>}
+                    onChange={(v, u) => { setNewFreqValue(v); setNewFreqUnit(u); }} />} />}
+                {!newTaskOnDemand && <SeasonPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language} />}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>
                   <EffortPicker effort={newTaskEffort} onChange={setNewTaskEffort} />
@@ -1075,8 +1093,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                         <>
                           <div style={{ marginLeft: 70, display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
                             <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', minWidth: 58 }}>Mode</label>
-                            <div style={{ display: 'flex', gap: 6 }}>
-                              {(['first', 'shared', 'custom'] as const).map(mode => (
+                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                              {(['first', 'shared', 'custom', 'rotating'] as const).map(mode => (
                                 <button
                                   key={mode}
                                   onClick={() => {
@@ -1091,11 +1109,16 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                                     cursor: 'pointer', fontFamily: 'Nunito',
                                   }}
                                 >
-                                  {mode === 'first' ? t('rooms.modeFirst') : mode === 'shared' ? t('rooms.modeShared') : t('rooms.modeCustom')}
+                                  {mode === 'first' ? t('rooms.modeFirst') : mode === 'shared' ? t('rooms.modeShared') : mode === 'custom' ? t('rooms.modeCustom') : t('roomDetail.rotating')}
                                 </button>
                               ))}
                             </div>
                           </div>
+                          {newAssignmentMode === 'rotating' && (
+                            <div style={{ marginLeft: 70, marginTop: 4 }}>
+                              <RotationPeriodPicker value={newSchedule} onChange={setNewSchedule} t={t} />
+                            </div>
+                          )}
                           {newAssignmentMode === 'custom' && (() => {
                             const total = newAssignmentUserIds.reduce((s, id) => s + (newAssignmentPercentages[id] ?? 0), 0);
                             const totalOk = total === 100;

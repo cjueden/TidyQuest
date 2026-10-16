@@ -877,6 +877,18 @@
       "today": "today",
       "thisWeek": "this week",
       "limitReached": "You've already done this as many times as allowed for now."
+    },
+    "schedule": {
+      "dueMode": "How often",
+      "onDays": "On",
+      "season": "Only in season",
+      "seasonDesc": "Outside these months it isn't due and doesn't count toward house health",
+      "seasonFrom": "From month",
+      "seasonTo": "To month",
+      "offSeason": "Off season",
+      "turnChanges": "Turn changes",
+      "turnEachTime": "after each completion",
+      "turnWeekly": "every Monday"
     }
   }
 }

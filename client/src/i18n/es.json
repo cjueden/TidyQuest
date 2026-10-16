@@ -877,6 +877,18 @@
       "today": "hoy",
       "thisWeek": "esta semana",
       "limitReached": "Ya lo hiciste todas las veces permitidas por ahora."
+    },
+    "schedule": {
+      "dueMode": "Frecuencia",
+      "onDays": "Los",
+      "season": "Solo en temporada",
+      "seasonDesc": "Fuera de estos meses no vence y no cuenta para la salud de la casa",
+      "seasonFrom": "Mes de inicio",
+      "seasonTo": "Mes de fin",
+      "offSeason": "Fuera de temporada",
+      "turnChanges": "El turno cambia",
+      "turnEachTime": "tras cada vez",
+      "turnWeekly": "cada lunes"
     }
   }
 }

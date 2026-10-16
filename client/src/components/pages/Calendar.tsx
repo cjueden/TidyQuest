@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { TaskIcon } from '../icons/TaskIcons';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
-import { getNextDueDate, isTaskForUser } from '../../utils/tasks';
+import { isTaskForUser, taskNextDue } from '../../utils/tasks';
 import { useTaskView } from '../../hooks/useTaskView';
 import { AllMineToggle } from '../shared/AllMineToggle';
 
@@ -19,6 +19,7 @@ interface CalendarTask {
   iconKey?: string;
   onDemand?: boolean;
   isSeasonal?: boolean;
+  nextDueAt?: string | null;
   effectiveAssignedUserIds?: number[];
   assignedToChildren?: boolean;
 }
@@ -95,7 +96,7 @@ export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps)
   const upcoming = useMemo(() => tasks
     .filter((task) => !task.onDemand && !task.isSeasonal && (!mine || isTaskForUser(task, viewer!.id, viewer!.role)))
     .map((task) => {
-      const due = getNextDueDate(task.lastCompletedAt, task.frequencyDays);
+      const due = taskNextDue(task);
       const dueDate = new Date(Math.max(due.getTime(), todayStart));
       const dueInDays = Math.max(0, Math.round((new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate()).getTime() - todayStart) / 86400000));
       return { ...task, dueDate, dueInDays };

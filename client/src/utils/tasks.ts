@@ -6,8 +6,13 @@ export function getNextDueDate(lastCompletedAt: string | null, frequencyDays: nu
   return new Date(last.getTime() + frequencyDays * 24 * 60 * 60 * 1000);
 }
 
-export function formatNextDue(lastCompletedAt: string | null, frequencyDays: number, t: (k: string) => string, language?: string, health?: number): { text: string; color: string } {
-  const nextDue = getNextDueDate(lastCompletedAt, frequencyDays);
+/** When a task is next due: the server's nextDueAt (knows set weekdays) when sent, else the rolling interval. */
+export function taskNextDue(task: { lastCompletedAt: string | null; frequencyDays: number; nextDueAt?: string | null }): Date {
+  return task.nextDueAt ? new Date(task.nextDueAt) : getNextDueDate(task.lastCompletedAt, task.frequencyDays);
+}
+
+export function formatNextDue(lastCompletedAt: string | null, frequencyDays: number, t: (k: string) => string, language?: string, health?: number, nextDueAt?: string | null): { text: string; color: string } {
+  const nextDue = taskNextDue({ lastCompletedAt, frequencyDays, nextDueAt });
   const now = new Date();
 
   // Time-based countdown for tasks due within the next 24 hours
@@ -47,8 +52,8 @@ export function taskCoins(task: { effort: number; customCoins?: number | null },
 }
 
 /** Scheduled task whose due date has passed (matches the dashboard's "Ready to complete"). */
-export function isTaskDue(task: { onDemand?: boolean | number; isSeasonal?: boolean; lastCompletedAt: string | null; frequencyDays: number }): boolean {
-  return !task.onDemand && !task.isSeasonal && getNextDueDate(task.lastCompletedAt, task.frequencyDays).getTime() <= Date.now();
+export function isTaskDue(task: { onDemand?: boolean | number; isSeasonal?: boolean; lastCompletedAt: string | null; frequencyDays: number; nextDueAt?: string | null }): boolean {
+  return !task.onDemand && !task.isSeasonal && taskNextDue(task).getTime() <= Date.now();
 }
 
 /** Lower-case and strip accents so "creme" finds "Crème". */

@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
-import { calculateHealth } from '../utils/health';
+import { isSeasonalNow, scheduleFields, taskHealth } from '../utils/schedule';
 import { suggestTaskIcon } from '../utils/taskIcons';
 import { ensureAdmin, getGlobalVacation, getUserVacation, hiddenRoomIdsFor, resolveVacation } from '../utils/adminHelpers';
 import { repeatCountsFor } from '../utils/repeatLimits';
@@ -198,7 +198,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
       const mode = t.assignmentMode || 'first';
       return {
         ...t,
-        isSeasonal: !!t.isSeasonal,
+        ...scheduleFields(t, taskAssignedUserIds),
+        isSeasonal: isSeasonalNow(t),
         assignedToChildren: !!t.assignedToChildren,
         assignedUserIds: taskAssignedUserIds,
         assignedUsers,
@@ -212,7 +213,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
           const taskVac = effectiveAssignedUserIds.length === 1
             ? resolveVacation(vacation, getUserVacation(effectiveAssignedUserIds[0]))
             : vacation;
-          return calculateHealth(t.lastCompletedAt, t.frequencyDays, taskVac.isVacation, taskVac.startDate);
+          return taskHealth(t, taskVac);
         })(),
       };
     });

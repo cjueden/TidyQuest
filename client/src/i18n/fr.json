@@ -877,6 +877,18 @@
       "today": "aujourd'hui",
       "thisWeek": "cette semaine",
       "limitReached": "Tu l'as déjà fait autant de fois que permis pour l'instant."
+    },
+    "schedule": {
+      "dueMode": "Fréquence",
+      "onDays": "Le",
+      "season": "Seulement en saison",
+      "seasonDesc": "En dehors de ces mois, la tâche n'est pas due et ne compte pas dans la santé de la maison",
+      "seasonFrom": "Mois de début",
+      "seasonTo": "Mois de fin",
+      "offSeason": "Hors saison",
+      "turnChanges": "Le tour change",
+      "turnEachTime": "après chaque réalisation",
+      "turnWeekly": "chaque lundi"
     }
   }
 }
