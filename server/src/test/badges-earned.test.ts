@@ -85,3 +85,11 @@ describe('Theme per person', () => {
     expect(((await agent.get('/api/users').set(auth(admin.token))).body as any[]).find((u) => u.id === kid.user.id).theme).toBe('ocean');
   });
 });
+
+describe('Version', () => {
+  it('says which version and build is running, without logging in', async () => {
+    const res = (await agent.get('/api/version').expect(200)).body;
+    expect(res.version).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(res).toHaveProperty('build');
+  });
+});

@@ -3,7 +3,8 @@ name: Build and Push Docker Image
 # Publishes to GitHub Container Registry (ghcr.io/<owner>/tidyquest) with the
 # built-in GITHUB_TOKEN, so no registry secrets are needed.
 #   push to main      -> :main and :sha-<short>   (staging pulls :main)
-#   published release -> :latest, :X.Y.Z, :X.Y, :X (production pulls :latest)
+#   published release -> :latest, :X.Y.Z, :X.Y, :X (production pins :X.Y.Z, see RELEASING.md)
+# Builds from main are labelled "main · <short sha>" (shown in Settings next to the version).
 
 on:
   push:
@@ -28,6 +29,11 @@ jobs:
 
       - name: Image name (registry paths must be lowercase)
         run: echo "IMAGE_NAME=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/tidyquest" >> "$GITHUB_ENV"
+
+      - name: Build label (shown in Settings; releases just show their version)
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then echo "APP_BUILD=" >> "$GITHUB_ENV";
+          else echo "APP_BUILD=${GITHUB_REF_NAME} · ${GITHUB_SHA::7}" >> "$GITHUB_ENV"; fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -63,5 +69,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            APP_BUILD=${{ env.APP_BUILD }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

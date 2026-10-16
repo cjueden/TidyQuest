@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { initDatabase } from './database';
 import authRoutes from './routes/auth';
 import roomsRoutes from './routes/rooms';
@@ -34,6 +35,15 @@ export function createApp() {
   app.use('/api', (_req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');
     next();
+  });
+
+  // Which version is running (no login needed): {"version":"0.7.0","build":"main · 7e18930"}
+  app.get('/api/version', (_req, res) => {
+    let version: string | null = null;
+    try {
+      version = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'package.json'), 'utf-8')).version ?? null;
+    } catch { /* not there in some setups */ }
+    res.json({ version, build: process.env.APP_BUILD || null });
   });
 
   // Serve uploaded avatars

@@ -858,7 +858,9 @@ export function Settings({
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.version')}</div>
           </div>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text-muted)' }}>v{__APP_VERSION__}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text-muted)', textAlign: 'right' }}>
+            v{__APP_VERSION__}{__APP_BUILD__ && <span style={{ display: 'block', fontSize: 11, color: 'var(--warm-text-light)' }}>{__APP_BUILD__}</span>}
+          </span>
         </div>
       </div>
 

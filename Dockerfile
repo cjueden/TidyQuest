@@ -4,6 +4,9 @@ COPY client/package*.json ./
 RUN npm ci
 COPY client/ ./
 COPY package.json /app/package.json
+# "main · 7e18930" on builds from main, empty on releases (set by the GitHub workflow)
+ARG APP_BUILD=""
+ENV APP_BUILD=$APP_BUILD
 RUN npm run build
 
 FROM node:22-alpine AS server-build
@@ -20,6 +23,10 @@ COPY server/package*.json ./server/
 RUN cd server && npm ci --omit=dev
 COPY --from=server-build /app/server/dist ./server/dist
 COPY --from=frontend-build /app/client/dist ./client/dist
+# The version and build label for GET /api/version
+COPY package.json ./package.json
+ARG APP_BUILD=""
+ENV APP_BUILD=$APP_BUILD
 # The server uses the app's translations for notifications (server/src/utils/i18n.ts)
 COPY client/src/i18n ./client/src/i18n
 COPY docker-entrypoint.sh /usr/local/bin/
