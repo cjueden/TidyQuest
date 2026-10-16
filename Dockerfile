@@ -20,6 +20,8 @@ COPY server/package*.json ./server/
 RUN cd server && npm ci --omit=dev
 COPY --from=server-build /app/server/dist ./server/dist
 COPY --from=frontend-build /app/client/dist ./client/dist
+# The server uses the app's translations for notifications (server/src/utils/i18n.ts)
+COPY client/src/i18n ./client/src/i18n
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
     && mkdir -p /app/data \

@@ -1,123 +1,17 @@
 import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
-import { buildAchievements } from '../utils/achievements';
-import { isSeasonalNow, taskHealth } from '../utils/schedule';
-import { getGlobalVacation, getUserVacation, resolveVacation } from '../utils/adminHelpers';
-import { localDateStr } from '../utils/dateHelpers';
+import { achievementsFor } from '../utils/achievementStats';
 
 const router = Router();
 router.use(authMiddleware);
 
 function getUserStats(userId: number) {
-  const user = db.prepare('SELECT id, displayName, role, coins, currentStreak, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users WHERE id = ?').get(userId) as any;
+  const user = db.prepare('SELECT id, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users WHERE id = ?').get(userId) as any;
   if (!user) return null;
-  const globalVac = getGlobalVacation();
-  const vacation = resolveVacation(globalVac, getUserVacation(userId));
-
-  const completionsRow = db.prepare("SELECT COUNT(*) as count FROM task_completions WHERE userId = ? AND status = 'approved'").get(userId) as { count: number };
-
-  // Rooms with health >= 70 (considered "clean") — fetch all tasks in one query
-  const rooms = db.prepare('SELECT * FROM rooms').all() as any[];
-  const allRoomTasks = db.prepare('SELECT * FROM tasks').all() as any[];
-  const tasksByRoom = new Map<number, any[]>();
-  for (const t of allRoomTasks) {
-    if (!tasksByRoom.has(t.roomId)) tasksByRoom.set(t.roomId, []);
-    tasksByRoom.get(t.roomId)!.push(t);
-  }
-  let roomsClean = 0;
-  for (const room of rooms) {
-    const tasks = tasksByRoom.get(room.id) || [];
-    if (tasks.length === 0) continue;
-    const nonSeasonal = tasks.filter((t: any) => !isSeasonalNow(t));
-    const forAvg = nonSeasonal.length > 0 ? nonSeasonal : tasks;
-    const totalEffort = forAvg.reduce((s: number, t: any) => s + t.effort, 0);
-    const health = totalEffort > 0
-      ? Math.round(forAvg.reduce((s: number, t: any) => s + taskHealth(t, vacation) * t.effort, 0) / totalEffort)
-      : 100;
-    if (health >= 70) roomsClean++;
-  }
-
-  // Tasks completed this week (Monday 00:00 local to now)
-  const now = new Date();
-  const dayOfWeek = now.getDay() || 7; // Sunday=7
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - dayOfWeek + 1);
-  monday.setHours(0, 0, 0, 0);
-  const weeklyRow = db.prepare(
-    "SELECT COUNT(*) as count FROM task_completions WHERE userId = ? AND status = 'approved' AND completedAt >= ?"
-  ).get(userId, monday.toISOString()) as { count: number };
-
-  // Tasks completed on the most recent weekend (Sat+Sun)
-  // Find the last Saturday (day 6 in local time)
-  const nowDay = now.getDay(); // 0=Sun, 6=Sat
-  const daysToLastSat = nowDay === 6 ? 0 : nowDay === 0 ? 1 : nowDay + 1;
-  const lastSat = new Date(now);
-  lastSat.setDate(now.getDate() - daysToLastSat);
-  lastSat.setHours(0, 0, 0, 0);
-  const lastSun = new Date(lastSat);
-  lastSun.setDate(lastSat.getDate() + 1);
-  lastSun.setHours(23, 59, 59, 999);
-  const weekendRow = db.prepare(
-    `SELECT COUNT(*) as count FROM task_completions WHERE userId = ? AND status = 'approved' AND completedAt >= ? AND completedAt <= ?`
-  ).get(userId, lastSat.toISOString(), lastSun.toISOString()) as { count: number };
-
-  // Perfect weeks: weeks where user completed at least 1 task every day (Mon-Sun)
-  // We count how many full weeks had all 7 days with at least one completion
-  const allCompletions = db.prepare(
-    "SELECT date(completedAt, 'localtime') as day FROM task_completions WHERE userId = ? AND status = 'approved' GROUP BY date(completedAt, 'localtime') ORDER BY day"
-  ).all(userId) as Array<{ day: string }>;
-
-  const parseDayLocal = (day: string): Date => new Date(`${day}T00:00:00`);
-  const mondayOfLocalDate = (d: Date): Date => {
-    const out = new Date(d);
-    const dow = out.getDay() || 7;
-    out.setDate(out.getDate() - dow + 1);
-    out.setHours(0, 0, 0, 0);
-    return out;
-  };
-
-  let perfectWeeks = 0;
-  if (allCompletions.length > 0) {
-    const daySet = new Set(allCompletions.map(c => c.day));
-    // Check each past full week
-    const firstDay = parseDayLocal(allCompletions[0].day);
-    const startMonday = mondayOfLocalDate(firstDay);
-
-    const thisMonday = mondayOfLocalDate(now);
-    const checkDate = new Date(startMonday);
-
-    while (checkDate < thisMonday) {
-      let allDays = true;
-      for (let d = 0; d < 7; d++) {
-        const checkDay = new Date(checkDate);
-        checkDay.setDate(checkDate.getDate() + d);
-        const dayStr = localDateStr(checkDay);
-        if (!daySet.has(dayStr)) { allDays = false; break; }
-      }
-      if (allDays) perfectWeeks++;
-      checkDate.setDate(checkDate.getDate() + 7);
-    }
-  }
-
-  return {
-    id: user.id,
-    displayName: user.displayName,
-    role: user.role,
-    avatarColor: user.avatarColor,
-    avatarType: user.avatarType,
-    avatarPreset: user.avatarPreset,
-    avatarPhotoUrl: user.avatarPhotoUrl,
-    achievements: buildAchievements({
-      completions: completionsRow.count,
-      streak: user.currentStreak || 0,
-      coins: user.coins || 0,
-      rooms_clean: roomsClean,
-      weekly_tasks: weeklyRow.count,
-      weekend_tasks: weekendRow.count,
-      perfect_weeks: perfectWeeks,
-    }),
-  };
+  const result = achievementsFor(userId);
+  if (!result) return null;
+  return { ...user, achievements: result.achievements };
 }
 
 router.get('/', (req: AuthRequest, res: Response) => {
