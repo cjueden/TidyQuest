@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import { pinnedTaskIds } from '../utils/homeSections';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { isSeasonalNow, scheduleFields, taskHealth } from '../utils/schedule';
@@ -133,8 +134,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const rooms = (db.prepare('SELECT * FROM rooms ORDER BY sortOrder, id').all() as any[]).filter((r) => !hiddenRooms.has(r.id));
   const vacation = getGlobalVacation();
 
-  // Fetch all tasks in one query, then group by roomId
-  const allTasks = db.prepare('SELECT * FROM tasks').all() as any[];
+  // Fetch all tasks in one query, then group by roomId (done one-time chores are archived, not listed)
+  const allTasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL').all() as any[];
   const tasksByRoom = new Map<number, any[]>();
   for (const t of allTasks) {
     if (!tasksByRoom.has(t.roomId)) tasksByRoom.set(t.roomId, []);
@@ -172,6 +173,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
   );
   // Anytime quests with a repeat limit: how many times the viewer did each this day/week
   const myRepeatCounts = repeatCountsFor(req.userId, allTasks);
+  // Tasks the viewer pinned to "Your usual" on Home
+  const myPins = new Set(pinnedTaskIds(req.userId!));
 
   // Batch-fetch all task_assignees
   const allTaskAssignees = db.prepare('SELECT taskId, userId, coinPercentage FROM task_assignees').all() as { taskId: number; userId: number; coinPercentage: number }[];
@@ -200,6 +203,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
         ...t,
         ...scheduleFields(t, taskAssignedUserIds),
         isSeasonal: isSeasonalNow(t),
+        pinned: myPins.has(t.id),
         assignedToChildren: !!t.assignedToChildren,
         assignedUserIds: taskAssignedUserIds,
         assignedUsers,
@@ -218,8 +222,10 @@ router.get('/', (req: AuthRequest, res: Response) => {
       };
     });
 
-    const nonSeasonal = tasksWithHealth.filter((t) => !t.isSeasonal);
-    const forAvg = nonSeasonal.length > 0 ? nonSeasonal : tasksWithHealth;
+    // One-time chores don't count toward health
+    const regular = tasksWithHealth.filter((t: any) => !t.oneTime);
+    const nonSeasonal = regular.filter((t: any) => !t.isSeasonal);
+    const forAvg = nonSeasonal.length > 0 ? nonSeasonal : regular;
     const totalEffort = forAvg.reduce((s, t) => s + t.effort, 0);
     const health = totalEffort > 0
       ? Math.round(forAvg.reduce((s, t) => s + t.health * t.effort, 0) / totalEffort)
@@ -431,7 +437,7 @@ router.post('/:id/duplicate', (req: AuthRequest, res: Response) => {
     const id = Number(db.prepare(
       'INSERT INTO rooms (name, roomType, color, accentColor, photoUrl, sortOrder, assignedUserId, zoneId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     ).run(name, room.roomType, room.color, room.accentColor, room.photoUrl ?? null, room.sortOrder, ownerUserId, room.zoneId ?? null).lastInsertRowid);
-    const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? ORDER BY id').all(room.id) as any[];
+    const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL ORDER BY id').all(room.id) as any[];
     // Every setting column is copied (so newer ones like schedules and repeat limits come along);
     // history and whose turn it is start fresh
     const fresh = ['id', 'roomId', 'lastCompletedAt', 'createdAt', 'rotationCurrentUserId'];

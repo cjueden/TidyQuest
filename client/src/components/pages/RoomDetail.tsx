@@ -11,6 +11,7 @@ import { formatNextDue, isTaskForUser, taskNextDue } from '../../utils/tasks';
 import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker } from '../shared/ScheduleFields';
 import { EMPTY_SCHEDULE, schedulePayload, scheduleFromTask, seasonLabel, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
 import { api } from '../../hooks/useApi';
+import { localeFor } from '../../utils/locale';
 import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { ProofModal, type Proof } from '../shared/ProofModal';
@@ -84,6 +85,8 @@ interface Task extends ScheduledTaskFields {
   nextDueAt?: string | null;
   /** Outside its season right now (isSeasonal is then true too) */
   outOfSeason?: boolean;
+  /** Pinned by the viewer to "Your usual" on Home */
+  pinned?: boolean;
 }
 
 interface RoomDetailProps {
@@ -105,6 +108,8 @@ interface RoomDetailProps {
   onRefresh?: () => void;
   /** Go to another room (after duplicating this one) */
   onOpenRoom?: (roomId: number) => void;
+  /** Offer "One time" in the task form (Settings → Features → To-dos) */
+  allowOneTime?: boolean;
   onAchievementsUnlocked?: (ids: string[]) => void;
   /** Task to scroll to and briefly highlight (from search or the task list) */
   focusTaskId?: number;
@@ -155,7 +160,7 @@ function EffortPicker({ effort, onChange }: { effort: number; onChange: (e: numb
   );
 }
 
-export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onOpenRoom, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
+export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onOpenRoom, allowOneTime = true, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const [editingTask, setEditingTask] = useState<number | null>(null);
@@ -401,6 +406,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     if (trashId) setUndo({ trashIds: [trashId], message: t('trash.deleted').replace('{name}', task ? translateTask(task.name, task.translationKey) : '') });
   };
 
+  const togglePin = async (task: Task) => {
+    if (task.pinned) await api.unpinTask(task.id); else await api.pinTask(task.id);
+    onRefresh?.();
+  };
+
   const handleDuplicateTask = async (taskId: number) => {
     setTaskMenuOpen(null);
     await api.duplicateTask(taskId);
@@ -576,11 +586,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                         <option value="week">{t('repeat.perWeek')}</option>
                       </select>
                     </div>}
-                    {!editForm.onDemand && <DueOnPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language}
+                    {!editForm.onDemand && <DueOnPicker allowOnce={allowOneTime} value={editSchedule} onChange={setEditSchedule} t={t} language={language}
                       interval={<FrequencyPicker value={editForm.freqValue} unit={editForm.freqUnit}
                         t={t}
                         onChange={(v, u) => setEditForm(f => ({ ...f, freqValue: v, freqUnit: u }))} />} />}
-                    {!editForm.onDemand && <SeasonPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language} />}
+                    {!editForm.onDemand && editSchedule.mode !== 'once' && <SeasonPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language} />}
                     {!editForm.onDemand && <ReminderPicker value={editSchedule} onChange={setEditSchedule} t={t} />}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>
@@ -823,6 +833,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                 <div className="room-task-frequency" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>
                   {task.onDemand
                     ? <span style={{ color: 'var(--warm-accent)', fontWeight: 700 }}>{t('roomDetail.onDemand')}</span>
+                    : task.oneTime
+                      ? <span style={{ color: 'var(--warm-accent)', fontWeight: 700 }}>{t('schedule.once')}</span>
                     : task.scheduleWeekdays
                       ? <>{weekdaysLabel(task.scheduleWeekdays, language)}</>
                       : <>{t('roomDetail.every')} {formatFreq(task.frequencyDays, t)}</>
@@ -836,6 +848,10 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>—</div>
                   : task.outOfSeason
                   ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('schedule.offSeason')}</div>
+                  : task.oneTime
+                  ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: task.health <= 0 ? 'var(--health-red)' : 'var(--warm-text-light)' }}>
+                      {task.health <= 0 ? t('todos.overdue') : task.doBy ? t('todos.byDate').replace('{date}', new Date(`${task.doBy}T12:00:00`).toLocaleDateString(localeFor(language), { month: 'short', day: 'numeric' })) : '—'}
+                    </div>
                   : (() => { const { text, color } = formatNextDue(task.lastCompletedAt, task.frequencyDays, t, language, task.health, task.nextDueAt); return (
                       <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color }}>{text}</div>
                     ); })()
@@ -869,6 +885,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   }
                 </div>
                 <div className="room-task-actions" style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', position: 'relative' }}>
+                  <button onClick={() => togglePin(task)} className="tq-btn-sm" aria-pressed={!!task.pinned}
+                    title={task.pinned ? t('home.unpin') : t('home.pin')} aria-label={task.pinned ? t('home.unpin') : t('home.pin')}
+                    style={{ background: 'none', border: '1.5px solid var(--warm-border)', borderRadius: 10, cursor: 'pointer', fontSize: 14, color: task.pinned ? 'var(--warm-accent)' : 'var(--warm-text-light)' }}>
+                    {task.pinned ? '★' : '☆'}
+                  </button>
                   {isAdmin && (
                     <>
                       <button onClick={() => startEdit(task)}
@@ -1019,11 +1040,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     <option value="week">{t('repeat.perWeek')}</option>
                   </select>
                 </div>}
-                {!newTaskOnDemand && <DueOnPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language}
+                {!newTaskOnDemand && <DueOnPicker allowOnce={allowOneTime} value={newSchedule} onChange={setNewSchedule} t={t} language={language}
                   interval={<FrequencyPicker value={newFreqValue} unit={newFreqUnit}
                     t={t}
                     onChange={(v, u) => { setNewFreqValue(v); setNewFreqUnit(u); }} />} />}
-                {!newTaskOnDemand && <SeasonPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language} />}
+                {!newTaskOnDemand && newSchedule.mode !== 'once' && <SeasonPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language} />}
                 {!newTaskOnDemand && <ReminderPicker value={newSchedule} onChange={setNewSchedule} t={t} />}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>

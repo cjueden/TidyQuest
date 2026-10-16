@@ -318,7 +318,8 @@
       "childrenGroup": "Niños",
       "tasksSubtitle": "Todas las tareas de todas las habitaciones",
       "waitingForApproval": "Esperando aprobación",
-      "waitingCount": "{n} esperando aprobación"
+      "waitingCount": "{n} esperando aprobación",
+      "alreadyDone": "¡Eso ya está hecho!"
     },
     "admin": {
       "whoDidThisTask": "¿Quién completó esta tarea?",
@@ -806,7 +807,8 @@
       "count": "{n} tareas",
       "countOne": "1 tarea",
       "clear": "Borrar filtros",
-      "noMatches": "Ninguna tarea coincide con estos filtros."
+      "noMatches": "Ninguna tarea coincide con estos filtros.",
+      "oneTime": "Una vez"
     },
     "approvals": {
       "title": "Esperando aprobación",
@@ -915,7 +917,10 @@
       "reminderWhen": "Cuándo",
       "reminderSameDay": "ese mismo día",
       "reminderDayBefore": "el día antes",
-      "reminderDesc": "Si aún no está hecho, recuerda otra vez 2 horas después y luego avisa a un padre."
+      "reminderDesc": "Si aún no está hecho, recuerda otra vez 2 horas después y luego avisa a un padre.",
+      "once": "Una vez",
+      "doBy": "Hacer antes del",
+      "oneTimeDesc": "Se hace una vez y desaparece (queda en Actividad)."
     },
     "trash": {
       "undo": "Deshacer",
@@ -1154,7 +1159,8 @@
       "boostStart": "⚡ Monedas ×{multiplier}: ¡«{title}» hasta {time}!",
       "boostEnding": "⏰ Última hora de monedas ×{multiplier}: «{title}» termina a las {time}.",
       "test": "👋 Prueba de TidyQuest: ¡las notificaciones para {name} funcionan!",
-      "moreItems": "+{n} más"
+      "moreItems": "+{n} más",
+      "rescue": "⚡ Misión de rescate: «{task}» paga {multiplier}× monedas hoy. ¡Gana quien lo haga primero!"
     },
     "notifyAdmin": {
       "peopleTitle": "Quién recibe qué",
@@ -1174,10 +1180,10 @@
       "haToken": "Token de acceso de larga duración",
       "haTokenSaved": "Token guardado (escribe para cambiarlo)",
       "haFamilyService": "Servicio de notificación familiar, p. ej. notify.familia (opcional)",
-      "haDesc": "Así cada persona puede recibir mensajes en su teléfono con la app de Home Assistant (su servicio, p. ej. notify.mobile_app_telefono_cecil).",
-      "ntfyTopic": "Tema de ntfy en su teléfono (p. ej. cecil-tareas-x7)",
+      "haDesc": "Así cada persona puede recibir mensajes en su teléfono con la app de Home Assistant (su servicio, p. ej. notify.mobile_app_telefono_alex).",
+      "ntfyTopic": "Tema de ntfy en su teléfono (p. ej. alex-tareas-x7)",
       "telegramChat": "ID de chat de Telegram",
-      "haService": "Servicio de Home Assistant (p. ej. notify.mobile_app_telefono_cecil)",
+      "haService": "Servicio de Home Assistant (p. ej. notify.mobile_app_telefono_alex)",
       "gets": "Recibe",
       "familyChannel": "canal familiar",
       "logEmpty": "Aún no se ha enviado nada.",
@@ -1202,7 +1208,60 @@
       "error_invalid_service": "Los servicios son como notify.mobile_app_telefono",
       "error_invalid_topic": "Los temas: letras, números, - y _",
       "error_invalid_chat": "Los ID de chat son números (o @nombre)",
-      "error_no_channels": "Configura primero un canal"
+      "error_no_channels": "Configura primero un canal",
+      "kind_rescue": "Misión de rescate",
+      "kindDesc_rescue": "la tarea ×2 del día, por la mañana"
+    },
+    "todos": {
+      "roomName": "Pendientes",
+      "title": "Lista de pendientes",
+      "add": "Pendiente",
+      "namePlaceholder": "¿Qué hay que hacer? (p. ej. Arreglar la mosquitera)",
+      "doBy": "Hacer antes del",
+      "forWho": "Para",
+      "anyone": "Cualquiera",
+      "coins": "Monedas",
+      "create": "Añadir",
+      "overdue": "Atrasado",
+      "byDate": "Antes del {date}",
+      "added": "Añadido: {name}"
+    },
+    "home": {
+      "usualTitle": "Lo de siempre",
+      "pin": "Fijar en Lo de siempre",
+      "unpin": "Quitar",
+      "forgotTitle": "Quizá olvidaste estas",
+      "overdueDays": "{n} días de retraso",
+      "overdueDay": "1 día de retraso",
+      "snooze": "Posponer 3 días"
+    },
+    "rescue": {
+      "title": "Misión de rescate",
+      "pays": "Paga {m}× monedas hoy. ¡Gana quien lo haga primero!",
+      "endsMidnight": "Termina a medianoche",
+      "rescuedBy": "¡Rescatado por {name}!",
+      "another": "Otra",
+      "skip": "Hoy ninguna",
+      "choose": "Elegir…"
+    },
+    "features": {
+      "title": "Funciones",
+      "desc": "Activa o desactiva los extras para toda la familia.",
+      "rescue": "Misión de rescate",
+      "rescueDesc": "Cada día la tarea más olvidada paga más a quien la haga primero.",
+      "multiplier": "Paga",
+      "usual": "Lo de siempre",
+      "usualDesc": "Inicio: las tareas fijadas y más hechas de cada uno.",
+      "forgot": "Quizá olvidaste estas",
+      "forgotDesc": "Inicio: tareas atrasadas un intervalo completo o más.",
+      "todos": "Pendientes (tareas únicas)",
+      "todosDesc": "La lista de pendientes en Inicio, «+ Pendiente» y «Una vez».",
+      "boardAwards": "Premios y estante de trofeos",
+      "boardAwardsDesc": "Madrugador, campeones de habitación y ganadores pasados en la Clasificación.",
+      "levels": "Niveles",
+      "levelsDesc": "De Novato a Campeón TidyQuest, según las monedas ganadas.",
+      "nextBadge": "Próxima insignia",
+      "nextBadgeDesc": "La insignia más cercana por conseguir, en Inicio y Logros."
     }
   }
 }

@@ -318,7 +318,8 @@
       "childrenGroup": "Children",
       "tasksSubtitle": "Every task in every room",
       "waitingForApproval": "Waiting for approval",
-      "waitingCount": "{n} waiting for approval"
+      "waitingCount": "{n} waiting for approval",
+      "alreadyDone": "That's already done!"
     },
     "admin": {
       "whoDidThisTask": "Who completed this task?",
@@ -806,7 +807,8 @@
       "count": "{n} tasks",
       "countOne": "1 task",
       "clear": "Clear filters",
-      "noMatches": "No tasks match these filters."
+      "noMatches": "No tasks match these filters.",
+      "oneTime": "One-time"
     },
     "approvals": {
       "title": "Waiting for approval",
@@ -915,7 +917,10 @@
       "reminderWhen": "When",
       "reminderSameDay": "on the day",
       "reminderDayBefore": "the day before",
-      "reminderDesc": "If it's still not done, it reminds again 2 hours later, then tells a parent."
+      "reminderDesc": "If it's still not done, it reminds again 2 hours later, then tells a parent.",
+      "once": "One time",
+      "doBy": "Do by",
+      "oneTimeDesc": "Done once, then it's gone (it stays in Activity)."
     },
     "trash": {
       "undo": "Undo",
@@ -1154,7 +1159,8 @@
       "boostStart": "⚡ {multiplier}× coins: “{title}” is on until {time}!",
       "boostEnding": "⏰ Last hour of {multiplier}× coins: “{title}” ends at {time}.",
       "test": "👋 Test from TidyQuest: notifications for {name} work!",
-      "moreItems": "+{n} more"
+      "moreItems": "+{n} more",
+      "rescue": "⚡ Rescue Mission: “{task}” pays {multiplier}× coins today. First one to do it wins!"
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",
@@ -1174,10 +1180,10 @@
       "haToken": "Long-lived access token",
       "haTokenSaved": "Token saved (type to replace)",
       "haFamilyService": "Family notify service, e.g. notify.family (optional)",
-      "haDesc": "Each person can then get messages on their phone through the Home Assistant app (their notify service, e.g. notify.mobile_app_cecils_phone).",
-      "ntfyTopic": "ntfy topic on their phone (e.g. cecil-chores-x7)",
+      "haDesc": "Each person can then get messages on their phone through the Home Assistant app (their notify service, e.g. notify.mobile_app_alexs_phone).",
+      "ntfyTopic": "ntfy topic on their phone (e.g. alex-chores-x7)",
       "telegramChat": "Telegram chat ID",
-      "haService": "Home Assistant notify service (e.g. notify.mobile_app_cecils_phone)",
+      "haService": "Home Assistant notify service (e.g. notify.mobile_app_alexs_phone)",
       "gets": "Gets",
       "familyChannel": "family channel",
       "logEmpty": "Nothing sent yet.",
@@ -1202,7 +1208,60 @@
       "error_invalid_service": "Service names look like notify.mobile_app_phone",
       "error_invalid_topic": "Topics can use letters, numbers, - and _",
       "error_invalid_chat": "Chat IDs are numbers (or @name)",
-      "error_no_channels": "Set up a channel first"
+      "error_no_channels": "Set up a channel first",
+      "kind_rescue": "Rescue Mission",
+      "kindDesc_rescue": "the day's 2× chore, in the morning"
+    },
+    "todos": {
+      "roomName": "To-dos",
+      "title": "To-do list",
+      "add": "To-do",
+      "namePlaceholder": "What needs doing? (e.g. Fix the screen door)",
+      "doBy": "Do by",
+      "forWho": "For",
+      "anyone": "Anyone",
+      "coins": "Coins",
+      "create": "Add",
+      "overdue": "Overdue",
+      "byDate": "By {date}",
+      "added": "Added: {name}"
+    },
+    "home": {
+      "usualTitle": "Your usual",
+      "pin": "Pin to Your usual",
+      "unpin": "Unpin",
+      "forgotTitle": "Maybe you forgot about these",
+      "overdueDays": "{n} days overdue",
+      "overdueDay": "1 day overdue",
+      "snooze": "Snooze for 3 days"
+    },
+    "rescue": {
+      "title": "Rescue Mission",
+      "pays": "Pays {m}× coins today. First one to do it wins!",
+      "endsMidnight": "Ends at midnight",
+      "rescuedBy": "Rescued by {name}!",
+      "another": "Another one",
+      "skip": "None today",
+      "choose": "Choose…"
+    },
+    "features": {
+      "title": "Features",
+      "desc": "Turn extras on or off for the whole family.",
+      "rescue": "Rescue Mission",
+      "rescueDesc": "Each day the most-forgotten chore pays extra to the first one who does it.",
+      "multiplier": "Pays",
+      "usual": "Your usual",
+      "usualDesc": "Home: each person's pinned and most-done tasks.",
+      "forgot": "Maybe you forgot about these",
+      "forgotDesc": "Home: chores overdue by a whole interval or more.",
+      "todos": "To-dos (one-time chores)",
+      "todosDesc": "The To-do list on Home, \"+ To-do\" and \"One time\" in the task form.",
+      "boardAwards": "Board awards and trophy shelf",
+      "boardAwardsDesc": "Early Bird, room champions and past weekly winners on the Board.",
+      "levels": "Levels",
+      "levelsDesc": "Rookie to TidyQuest Champion, from coins earned.",
+      "nextBadge": "Next badge",
+      "nextBadgeDesc": "The closest badge still to earn, on Home and Achievements."
     }
   }
 }

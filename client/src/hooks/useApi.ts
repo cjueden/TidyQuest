@@ -97,6 +97,17 @@ export interface TaskBatchChanges {
   frequencyDays?: number;
 }
 
+/** Optional extras (Settings → Features) */
+export interface FeatureFlags {
+  rescue: boolean;
+  usual: boolean;
+  forgot: boolean;
+  todos: boolean;
+  boardAwards: boolean;
+  levels: boolean;
+  nextBadge: boolean;
+}
+
 export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder';
 
 export interface NotifySettings {
@@ -175,6 +186,8 @@ export interface BoardData {
   mode: BoardMode;
   range: { startAt: string; endAt: string };
   people: BoardPerson[];
+  /** Off in Settings → Features: no awards or trophy shelf */
+  awardsEnabled?: boolean;
   awards: Array<{ key: 'earlyBird' | 'bountyHunter' | 'allRounder' | 'room'; userIds: number[]; value: number; roomId?: number; roomName?: string }>;
   familyGoal: { target: number; prize: string; total: number; reached: boolean } | null;
   trophies: { weeks: Array<{ weekStart: string; userIds: number[]; coins: number }>; wins: Record<number, number> };
@@ -289,6 +302,20 @@ export const api = {
 
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
+  getFeatures: () => apiFetch<{ features: FeatureFlags; rescueMultiplier: number }>('/features'),
+  updateFeatures: (data: { features?: Partial<FeatureFlags>; rescueMultiplier?: number }) =>
+    apiFetch<{ features: FeatureFlags; rescueMultiplier: number }>('/features', { method: 'PUT', body: JSON.stringify(data) }),
+  // Today's Rescue Mission (parents): another one, a chosen chore, or none today
+  rescueReroll: () => apiFetch<unknown>('/rescue/reroll', { method: 'POST' }),
+  rescueChoose: (taskId: number) => apiFetch<unknown>('/rescue', { method: 'PUT', body: JSON.stringify({ taskId }) }),
+  rescueSkip: () => apiFetch<unknown>('/rescue', { method: 'DELETE' }),
+  // Home: pin to "Your usual", snooze in "Maybe you forgot" (for yourself)
+  pinTask: (id: number) => apiFetch<{ pinned: boolean }>(`/tasks/${id}/pin`, { method: 'POST' }),
+  unpinTask: (id: number) => apiFetch<{ pinned: boolean }>(`/tasks/${id}/pin`, { method: 'DELETE' }),
+  snoozeTask: (id: number, days = 3) => apiFetch<{ snoozedUntil: string }>(`/tasks/${id}/snooze`, { method: 'POST', body: JSON.stringify({ days }) }),
+  // "+ To-do" on Home (one-time chores, parents)
+  createTodo: (data: { name: string; assignedUserIds?: number[]; doBy?: string | null; customCoins?: number | null; roomId?: number }) =>
+    apiFetch<{ id: number; roomId: number }>('/todos', { method: 'POST', body: JSON.stringify(data) }),
   // Notifications to people (Settings → Notifications)
   getNotifySettings: () => apiFetch<NotifySettings>('/notify/settings'),
   updateNotifySettings: (data: Partial<NotifySettings> & { haToken?: string }) => apiFetch<NotifySettings>('/notify/settings', { method: 'PUT', body: JSON.stringify(data) }),

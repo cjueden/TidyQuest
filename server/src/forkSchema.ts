@@ -113,10 +113,38 @@ const NEW_TABLES: string[] = [
     notBefore TEXT NOT NULL,
     dedupeKey TEXT
   )`,
+  // Home: tasks a person pinned to "Your usual", and chores they snoozed in "Maybe you forgot"
+  `CREATE TABLE IF NOT EXISTS task_pins (
+    userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    taskId INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (userId, taskId)
+  )`,
+  `CREATE TABLE IF NOT EXISTS task_snoozes (
+    userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    taskId INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    until TEXT NOT NULL,
+    PRIMARY KEY (userId, taskId)
+  )`,
+  // The Rescue Mission of each day (utils/rescue.ts): the chore, its multiplier, who claimed it
+  `CREATE TABLE IF NOT EXISTS rescue_missions (
+    day TEXT PRIMARY KEY,
+    taskId INTEGER REFERENCES tasks(id) ON DELETE SET NULL,
+    multiplier REAL NOT NULL DEFAULT 2,
+    completedBy INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    completionId INTEGER,
+    skipped INTEGER NOT NULL DEFAULT 0,
+    createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
 const NEW_COLUMNS: string[] = [
+  // One-time chores ("Fix the screen door"): done once, then archived (archivedAt set; kept for history).
+  // doBy is an optional local date 'YYYY-MM-DD'.
+  `ALTER TABLE tasks ADD COLUMN oneTime INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE tasks ADD COLUMN doBy TEXT`,
+  `ALTER TABLE tasks ADD COLUMN archivedAt TEXT`,
   // Each person's color theme (NULL = the device's choice)
   `ALTER TABLE users ADD COLUMN theme TEXT`,
   // Birthday as 'MM-DD' (for the secret Birthday Helper badge)
@@ -169,6 +197,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'coinBoosts', table: 'coin_boosts' },
   { key: 'trash', table: 'trash' },
   { key: 'customBadges', table: 'custom_badges' },
+  { key: 'taskPins', table: 'task_pins' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

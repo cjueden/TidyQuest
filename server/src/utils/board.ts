@@ -1,5 +1,6 @@
 import db from '../database';
 import { startOfLocalWeek } from './periods';
+import { isFeatureOn } from './features';
 
 /**
  * The Board page: who's ahead (by coins, by their own weekly goal, or by how much they improved),
@@ -119,7 +120,7 @@ function awardsFor(range: Range, ids: Set<number>): Award[] {
   if (rounder) awards.push({ key: 'allRounder', ...rounder });
 
   // Room champions: most chores done in each shared room (rooms with the most activity first). Rooms
-  // that belong to someone (Cylis's Quests) are left out: their owner would always win.
+  // that belong to someone (e.g. someone's own quest room) are left out: their owner would always win.
   const byRoom = new Map<number, { name: string; total: number; counts: Map<number, number> }>();
   for (const r of rows) {
     if (r.roomOwner != null) continue;
@@ -218,8 +219,10 @@ export function buildBoard(period: BoardPeriod, mode: BoardMode, now: Date = new
     mode,
     range: { startAt: ranges.current.start.toISOString(), endAt: ranges.current.end.toISOString() },
     people: result,
-    awards: awardsFor(ranges.current, ids),
+    // Awards and the trophy shelf can be switched off (Settings → Features)
+    awardsEnabled: isFeatureOn('boardAwards'),
+    awards: isFeatureOn('boardAwards') ? awardsFor(ranges.current, ids) : [],
     familyGoal: familyGoal(now),
-    trophies: trophyShelf(ids, now),
+    trophies: isFeatureOn('boardAwards') ? trophyShelf(ids, now) : { weeks: [], wins: {} },
   };
 }

@@ -3,12 +3,15 @@ import React from 'react';
 interface ToggleProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
+  /** What it switches, for screen readers */
+  label?: string;
 }
 
-const Toggle: React.FC<ToggleProps> = ({ checked, onChange }) => (
+const Toggle: React.FC<ToggleProps> = ({ checked, onChange, label }) => (
   <div
     role="switch"
     aria-checked={checked}
+    aria-label={label}
     tabIndex={0}
     onClick={() => onChange(!checked)}
     onKeyDown={(e) => {

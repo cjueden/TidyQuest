@@ -318,7 +318,8 @@
       "childrenGroup": "Kinderen",
       "tasksSubtitle": "Alle klusjes uit alle kamers",
       "waitingForApproval": "Wacht op goedkeuring",
-      "waitingCount": "{n} wachten op goedkeuring"
+      "waitingCount": "{n} wachten op goedkeuring",
+      "alreadyDone": "Dat is al gedaan!"
     },
     "admin": {
       "whoDidThisTask": "Wie heeft dit klusje gedaan?",
@@ -806,7 +807,8 @@
       "count": "{n} klusjes",
       "countOne": "1 klusje",
       "clear": "Filters wissen",
-      "noMatches": "Geen klusjes voldoen aan deze filters."
+      "noMatches": "Geen klusjes voldoen aan deze filters.",
+      "oneTime": "Eenmalig"
     },
     "approvals": {
       "title": "Wacht op goedkeuring",
@@ -915,7 +917,10 @@
       "reminderWhen": "Wanneer",
       "reminderSameDay": "op de dag zelf",
       "reminderDayBefore": "de dag ervoor",
-      "reminderDesc": "Als het dan nog niet gedaan is, volgt 2 uur later nog een herinnering en daarna een ouder."
+      "reminderDesc": "Als het dan nog niet gedaan is, volgt 2 uur later nog een herinnering en daarna een ouder.",
+      "once": "Eenmalig",
+      "doBy": "Doen voor",
+      "oneTimeDesc": "Eén keer gedaan en dan weg (blijft in Activiteit)."
     },
     "trash": {
       "undo": "Ongedaan maken",
@@ -1154,7 +1159,8 @@
       "boostStart": "⚡ {multiplier}× munten: ‘{title}’ loopt tot {time}!",
       "boostEnding": "⏰ Laatste uur {multiplier}× munten: ‘{title}’ eindigt om {time}.",
       "test": "👋 Test van TidyQuest: meldingen voor {name} werken!",
-      "moreItems": "+{n} meer"
+      "moreItems": "+{n} meer",
+      "rescue": "⚡ Reddingsmissie: ‘{task}’ levert vandaag {multiplier}× munten op. Wie het eerst doet, wint!"
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",
@@ -1174,10 +1180,10 @@
       "haToken": "Langdurig toegangstoken",
       "haTokenSaved": "Token opgeslagen (typ om te vervangen)",
       "haFamilyService": "Gezinsmeldingsservice, bijv. notify.gezin (optioneel)",
-      "haDesc": "Dan kan iedereen berichten krijgen via de Home Assistant-app (hun service, bijv. notify.mobile_app_telefoon_cecil).",
-      "ntfyTopic": "ntfy-onderwerp op de telefoon (bijv. cecil-taken-x7)",
+      "haDesc": "Dan kan iedereen berichten krijgen via de Home Assistant-app (hun service, bijv. notify.mobile_app_telefoon_alex).",
+      "ntfyTopic": "ntfy-onderwerp op de telefoon (bijv. alex-taken-x7)",
       "telegramChat": "Telegram-chat-ID",
-      "haService": "Home Assistant-service (bijv. notify.mobile_app_telefoon_cecil)",
+      "haService": "Home Assistant-service (bijv. notify.mobile_app_telefoon_alex)",
       "gets": "Krijgt",
       "familyChannel": "gezinskanaal",
       "logEmpty": "Nog niets verstuurd.",
@@ -1202,7 +1208,60 @@
       "error_invalid_service": "Servicenamen zien eruit als notify.mobile_app_telefoon",
       "error_invalid_topic": "Onderwerpen: letters, cijfers, - en _",
       "error_invalid_chat": "Chat-ID's zijn getallen (of @naam)",
-      "error_no_channels": "Stel eerst een kanaal in"
+      "error_no_channels": "Stel eerst een kanaal in",
+      "kind_rescue": "Reddingsmissie",
+      "kindDesc_rescue": "de 2×-taak van de dag, 's ochtends"
+    },
+    "todos": {
+      "roomName": "To-do's",
+      "title": "To-dolijst",
+      "add": "To-do",
+      "namePlaceholder": "Wat moet er gebeuren? (bijv. Hordeur repareren)",
+      "doBy": "Doen voor",
+      "forWho": "Voor",
+      "anyone": "Iedereen",
+      "coins": "Munten",
+      "create": "Toevoegen",
+      "overdue": "Te laat",
+      "byDate": "Voor {date}",
+      "added": "Toegevoegd: {name}"
+    },
+    "home": {
+      "usualTitle": "Je vaste klusjes",
+      "pin": "Vastzetten bij Je vaste klusjes",
+      "unpin": "Losmaken",
+      "forgotTitle": "Misschien vergeten",
+      "overdueDays": "{n} dagen te laat",
+      "overdueDay": "1 dag te laat",
+      "snooze": "3 dagen uitstellen"
+    },
+    "rescue": {
+      "title": "Reddingsmissie",
+      "pays": "Levert vandaag {m}× munten op. Wie het eerst doet, wint!",
+      "endsMidnight": "Eindigt om middernacht",
+      "rescuedBy": "Gered door {name}!",
+      "another": "Een andere",
+      "skip": "Vandaag geen",
+      "choose": "Kiezen…"
+    },
+    "features": {
+      "title": "Functies",
+      "desc": "Zet extra's aan of uit voor het hele gezin.",
+      "rescue": "Reddingsmissie",
+      "rescueDesc": "Elke dag levert de meest vergeten taak extra op voor wie hem het eerst doet.",
+      "multiplier": "Levert op",
+      "usual": "Je vaste klusjes",
+      "usualDesc": "Home: ieders vastgezette en meest gedane taken.",
+      "forgot": "Misschien vergeten",
+      "forgotDesc": "Home: taken die een heel interval of meer te laat zijn.",
+      "todos": "To-do's (eenmalige taken)",
+      "todosDesc": "De to-dolijst op Home, ‘+ To-do’ en ‘Eenmalig’.",
+      "boardAwards": "Prijzen en prijzenkast",
+      "boardAwardsDesc": "Vroege vogel, ruimtekampioenen en eerdere winnaars op het Scorebord.",
+      "levels": "Levels",
+      "levelsDesc": "Van Beginner tot TidyQuest-kampioen, op basis van verdiende munten.",
+      "nextBadge": "Volgende badge",
+      "nextBadgeDesc": "De dichtstbijzijnde badge, op Home en Prestaties."
     }
   }
 }

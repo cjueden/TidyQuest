@@ -9,6 +9,8 @@ import { calculateHealth, getCoinsForEffort } from '../utils/health';
 import { suggestTaskIcon } from '../utils/taskIcons';
 import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '../utils/achievementNotifications';
 import { badgeInfo } from '../utils/achievementStats';
+import { pinnedTaskIds } from '../utils/homeSections';
+import { claimRescue, releaseRescue, setRescueCompletion, todaysMission } from '../utils/rescue';
 import { notifyChoreApproved, notifyChoreRejected, notifyChoreWaiting } from '../utils/notifyMessages';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
@@ -39,7 +41,7 @@ router.use(authMiddleware);
 
 function hadDueTaskOnDate(dateIsoDay: string): boolean {
   const endOfDay = new Date(`${dateIsoDay}T23:59:59.999Z`).getTime();
-  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks').all() as Array<{
+  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks WHERE archivedAt IS NULL AND oneTime = 0').all() as Array<{
     id: number; frequencyDays: number; isSeasonal: number; lastCompletedAt: string | null;
     seasonStartMonth: number | null; seasonEndMonth: number | null; scheduleWeekdays: number | null;
   }>;
@@ -86,6 +88,9 @@ function applyApprovedCompletion(
   }
 
   const taskAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ?').all(taskId) as { userId: number }[];
+
+  // A one-time chore is finished: it leaves every list (its history stays)
+  if (task.oneTime) db.prepare('UPDATE tasks SET archivedAt = ? WHERE id = ?').run(now, taskId);
 
   if (task.assignmentMode === 'shared' || task.assignmentMode === 'custom') {
     if (taskAssignees.length > 0) {
@@ -169,6 +174,7 @@ function rejectPendingCompletion(completionId: number, adminId?: number): string
   if (!completion) return 'not_found';
   if (completion.status !== 'pending') return 'completion_not_pending';
   db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
+  releaseRescue(completion.id); // a rejected Rescue Mission is open again
   if (adminId) void notifyChoreRejected(completion.userId, adminId, completion.taskName ?? '');
   return null;
 }
@@ -177,7 +183,8 @@ function rejectPendingCompletion(completionId: number, adminId?: number): string
 router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   const vacation = getGlobalVacation();
   const room = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(req.params.roomId) as any;
-  const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ?').all(req.params.roomId) as any[];
+  const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL').all(req.params.roomId) as any[];
+  const myPins = new Set(pinnedTaskIds(req.userId!));
   const now = new Date().toISOString();
 
   // Build users map for assignment resolution
@@ -237,6 +244,7 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
       ...t,
       ...scheduleFields(t, taskAssignedUserIds),
       isSeasonal: isSeasonalNow(t),
+      pinned: myPins.has(t.id),
       assignedToChildren: !!t.assignedToChildren,
       assignedUserIds: taskAssignedUserIds,
       assignedUsers,
@@ -529,7 +537,7 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
            r.name as roomName
     FROM tasks t
     JOIN rooms r ON t.roomId = r.id
-    WHERE t.isSeasonal = 0 AND t.onDemand = 0
+    WHERE t.isSeasonal = 0 AND t.onDemand = 0 AND t.archivedAt IS NULL
   `).all() as any[];
 
   const allUsers = db.prepare('SELECT id, displayName, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users').all() as any[];
@@ -601,6 +609,7 @@ router.post('/tasks/:id/duplicate', (req: AuthRequest, res: Response) => {
     seasonStartMonth: task.seasonStartMonth, seasonEndMonth: task.seasonEndMonth,
     scheduleWeekdays: task.scheduleWeekdays, rotationPeriod: task.rotationPeriod,
     reminderTime: task.reminderTime, reminderDayBefore: task.reminderDayBefore,
+    oneTime: task.oneTime, doBy: task.doBy,
   });
 
   const assignees = db.prepare('SELECT userId, coinPercentage FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number; coinPercentage: number }[];
@@ -674,6 +683,11 @@ function advanceRotation(task: any, completedByUserId: number) {
 router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as any;
   if (!task) return res.status(404).json({ error: 'Task not found' });
+  // A one-time chore is done once: archived after that, and only one completion can wait for approval
+  if (task.archivedAt) return res.status(409).json({ error: 'already_done' });
+  if (task.oneTime && db.prepare("SELECT 1 FROM task_completions WHERE taskId = ? AND status = 'pending'").get(task.id)) {
+    return res.status(409).json({ error: 'already_done_by_other' });
+  }
 
   // Enforce assignment rules
   const room = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(task.roomId) as any;
@@ -736,8 +750,8 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Block if frequency cooldown hasn't elapsed (task not yet due)
-    if (task.lastCompletedAt) {
+    // Block if frequency cooldown hasn't elapsed (task not yet due); a one-time chore can be done any time
+    if (task.lastCompletedAt && !task.oneTime) {
       const globalVac = getGlobalVacation();
       const taskAssigneesForVac = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number }[];
       const taskVac = taskAssigneesForVac.length === 1
@@ -776,6 +790,11 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   const gamifRow = db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined;
   const gamificationOn = gamifRow ? gamifRow.value !== '0' : true;
 
+  // Today's Rescue Mission: the first completion of that chore claims its bonus (before coins are
+  // counted, so two people finishing at once can't both get it)
+  const mission = todaysMission(new Date(now));
+  const rescued = !!mission && mission.taskId === task.id && claimRescue(task.id, effectiveUserId, new Date(now));
+
   let coins: number;
   if (!gamificationOn) {
     coins = 0;
@@ -793,7 +812,8 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     }
     // Double coins event running for this room: the boosted amount is stored on the completion,
     // so a parent approving it later (Strict Mode) still pays the boost
-    const multiplier = boostMultiplierForRoom(task.roomId, new Date(now));
+    // The Rescue Mission doesn't stack with a double coins event: the bigger multiplier wins
+    const multiplier = Math.max(boostMultiplierForRoom(task.roomId, new Date(now)), rescued ? mission!.multiplier : 1);
     if (multiplier > 1) coins = Math.round(coins * multiplier);
   }
 
@@ -811,10 +831,12 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
       "INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, note) VALUES (?, ?, ?, ?, 'pending', ?)"
     ).run(task.id, effectiveUserId, now, coins, note).lastInsertRowid);
     void notifyChoreWaiting(effectiveUserId, task.name);
-    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId });
+    if (rescued) setRescueCompletion(mission!.day, pendingId);
+    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId, rescued });
   }
 
   const completionId = applyApprovedCompletion(task, task.id, effectiveUserId, coins, now, gamificationOn, { note });
+  if (rescued) setRescueCompletion(mission!.day, completionId);
   advanceRotation(task, effectiveUserId);
 
   const newAchievements = gamificationOn ? checkAndRecordNewAchievements(effectiveUserId) : [];
@@ -822,7 +844,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     void notifyAchievementUnlocksForUser(effectiveUserId);
   }
   // Titles for the pop-up: parent-made and secret badges aren't in the page data the app already has
-  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(effectiveUserId, newAchievements), completionId });
+  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(effectiveUserId, newAchievements), completionId, rescued });
 });
 
 router.get('/completions/pending', (req: AuthRequest, res: Response) => {
@@ -903,6 +925,30 @@ router.post('/completions/:completionId/photo', proofUpload.single('photo'), (re
   res.json({ photoUrl });
 });
 
+// Home "Your usual": pin a task for yourself (or unpin it)
+router.post('/tasks/:id/pin', (req: AuthRequest, res: Response) => {
+  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ?').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
+  db.prepare('INSERT OR IGNORE INTO task_pins (userId, taskId) VALUES (?, ?)').run(req.userId, req.params.id);
+  res.json({ pinned: true });
+});
+router.delete('/tasks/:id/pin', (req: AuthRequest, res: Response) => {
+  db.prepare('DELETE FROM task_pins WHERE userId = ? AND taskId = ?').run(req.userId, req.params.id);
+  res.json({ pinned: false });
+});
+
+// Home "Maybe you forgot": hide a chore from that list for a few days (for yourself)
+router.post('/tasks/:id/snooze', (req: AuthRequest, res: Response) => {
+  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ?').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
+  const days = Math.min(30, Math.max(1, Math.round(Number(req.body?.days) || 3)));
+  const until = new Date(Date.now() + days * 86400000).toISOString();
+  db.prepare('INSERT OR REPLACE INTO task_snoozes (userId, taskId, until) VALUES (?, ?, ?)').run(req.userId, req.params.id, until);
+  res.json({ snoozedUntil: until });
+});
+router.delete('/tasks/:id/snooze', (req: AuthRequest, res: Response) => {
+  db.prepare('DELETE FROM task_snoozes WHERE userId = ? AND taskId = ?').run(req.userId, req.params.id);
+  res.json({ success: true });
+});
+
 // Cancel (undo) a task completion — admin only
 router.delete('/completions/:completionId', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) {
@@ -919,8 +965,9 @@ router.delete('/completions/:completionId', (req: AuthRequest, res: Response) =>
       .run(completion.coinsEarned, completion.userId);
   }
 
-  // Delete the completion record
+  // Delete the completion record (an undone Rescue Mission is open again)
   db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
+  releaseRescue(completion.id);
 
   // Update task.lastCompletedAt to the previous completion's completedAt (or NULL if none)
   const prev = db.prepare(
@@ -928,6 +975,8 @@ router.delete('/completions/:completionId', (req: AuthRequest, res: Response) =>
   ).get(completion.taskId) as any;
   db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?')
     .run(prev?.completedAt || null, completion.taskId);
+  // Undoing a one-time chore's completion brings it back
+  if (!prev) db.prepare('UPDATE tasks SET archivedAt = NULL WHERE id = ? AND oneTime = 1').run(completion.taskId);
 
   res.json({ success: true, coinsDeducted: completion.coinsEarned });
 });

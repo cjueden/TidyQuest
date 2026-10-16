@@ -318,7 +318,8 @@
       "childrenGroup": "Kinder",
       "tasksSubtitle": "Alle Aufgaben aus allen Räumen",
       "waitingForApproval": "Wartet auf Freigabe",
-      "waitingCount": "{n} warten auf Freigabe"
+      "waitingCount": "{n} warten auf Freigabe",
+      "alreadyDone": "Das ist schon erledigt!"
     },
     "admin": {
       "whoDidThisTask": "Wer hat diese Aufgabe erledigt?",
@@ -806,7 +807,8 @@
       "count": "{n} Aufgaben",
       "countOne": "1 Aufgabe",
       "clear": "Filter zurücksetzen",
-      "noMatches": "Keine Aufgaben passen zu diesen Filtern."
+      "noMatches": "Keine Aufgaben passen zu diesen Filtern.",
+      "oneTime": "Einmalig"
     },
     "approvals": {
       "title": "Wartet auf Freigabe",
@@ -915,7 +917,10 @@
       "reminderWhen": "Wann",
       "reminderSameDay": "am Tag selbst",
       "reminderDayBefore": "am Vortag",
-      "reminderDesc": "Wenn es dann noch nicht erledigt ist, wird 2 Stunden später erneut erinnert, dann ein Elternteil."
+      "reminderDesc": "Wenn es dann noch nicht erledigt ist, wird 2 Stunden später erneut erinnert, dann ein Elternteil.",
+      "once": "Einmalig",
+      "doBy": "Erledigen bis",
+      "oneTimeDesc": "Einmal erledigt, dann weg (bleibt im Verlauf)."
     },
     "trash": {
       "undo": "Rückgängig",
@@ -1154,7 +1159,8 @@
       "boostStart": "⚡ {multiplier}× Münzen: „{title}“ läuft bis {time}!",
       "boostEnding": "⏰ Letzte Stunde mit {multiplier}× Münzen: „{title}“ endet um {time}.",
       "test": "👋 Test von TidyQuest: Benachrichtigungen für {name} funktionieren!",
-      "moreItems": "+{n} weitere"
+      "moreItems": "+{n} weitere",
+      "rescue": "⚡ Rettungsmission: „{task}“ bringt heute {multiplier}× Münzen. Wer es zuerst macht, gewinnt!"
     },
     "notifyAdmin": {
       "peopleTitle": "Wer bekommt was",
@@ -1174,10 +1180,10 @@
       "haToken": "Langlebiges Zugriffstoken",
       "haTokenSaved": "Token gespeichert (tippen zum Ersetzen)",
       "haFamilyService": "Familien-Notify-Dienst, z. B. notify.familie (optional)",
-      "haDesc": "Dann kann jede Person Nachrichten über die Home-Assistant-App bekommen (ihr Dienst, z. B. notify.mobile_app_cecils_handy).",
-      "ntfyTopic": "ntfy-Thema auf dem Handy (z. B. cecil-aufgaben-x7)",
+      "haDesc": "Dann kann jede Person Nachrichten über die Home-Assistant-App bekommen (ihr Dienst, z. B. notify.mobile_app_alex_handy).",
+      "ntfyTopic": "ntfy-Thema auf dem Handy (z. B. alex-aufgaben-x7)",
       "telegramChat": "Telegram-Chat-ID",
-      "haService": "Home-Assistant-Dienst (z. B. notify.mobile_app_cecils_handy)",
+      "haService": "Home-Assistant-Dienst (z. B. notify.mobile_app_alex_handy)",
       "gets": "Bekommt",
       "familyChannel": "Familienkanal",
       "logEmpty": "Noch nichts gesendet.",
@@ -1202,7 +1208,60 @@
       "error_invalid_service": "Dienstnamen sehen aus wie notify.mobile_app_handy",
       "error_invalid_topic": "Themen: Buchstaben, Zahlen, - und _",
       "error_invalid_chat": "Chat-IDs sind Zahlen (oder @name)",
-      "error_no_channels": "Richte zuerst einen Kanal ein"
+      "error_no_channels": "Richte zuerst einen Kanal ein",
+      "kind_rescue": "Rettungsmission",
+      "kindDesc_rescue": "die 2×-Aufgabe des Tages, morgens"
+    },
+    "todos": {
+      "roomName": "Erledigen",
+      "title": "To-do-Liste",
+      "add": "To-do",
+      "namePlaceholder": "Was ist zu tun? (z. B. Fliegengittertür reparieren)",
+      "doBy": "Erledigen bis",
+      "forWho": "Für",
+      "anyone": "Alle",
+      "coins": "Münzen",
+      "create": "Hinzufügen",
+      "overdue": "Überfällig",
+      "byDate": "Bis {date}",
+      "added": "Hinzugefügt: {name}"
+    },
+    "home": {
+      "usualTitle": "Deine Klassiker",
+      "pin": "An Deine Klassiker anheften",
+      "unpin": "Lösen",
+      "forgotTitle": "Vielleicht vergessen",
+      "overdueDays": "{n} Tage überfällig",
+      "overdueDay": "1 Tag überfällig",
+      "snooze": "3 Tage ausblenden"
+    },
+    "rescue": {
+      "title": "Rettungsmission",
+      "pays": "Bringt heute {m}× Münzen. Wer es zuerst macht, gewinnt!",
+      "endsMidnight": "Endet um Mitternacht",
+      "rescuedBy": "Gerettet von {name}!",
+      "another": "Eine andere",
+      "skip": "Heute keine",
+      "choose": "Auswählen…"
+    },
+    "features": {
+      "title": "Funktionen",
+      "desc": "Extras für die ganze Familie ein- oder ausschalten.",
+      "rescue": "Rettungsmission",
+      "rescueDesc": "Jeden Tag bringt die am meisten vergessene Aufgabe dem Ersten mehr.",
+      "multiplier": "Bringt",
+      "usual": "Deine Klassiker",
+      "usualDesc": "Start: angeheftete und meistgemachte Aufgaben jeder Person.",
+      "forgot": "Vielleicht vergessen",
+      "forgotDesc": "Start: Aufgaben, die ein ganzes Intervall oder länger überfällig sind.",
+      "todos": "To-dos (einmalige Aufgaben)",
+      "todosDesc": "Die To-do-Liste auf der Startseite, „+ To-do“ und „Einmalig“.",
+      "boardAwards": "Auszeichnungen und Trophäenregal",
+      "boardAwardsDesc": "Frühaufsteher, Raum-Champions und frühere Wochensieger in der Rangliste.",
+      "levels": "Level",
+      "levelsDesc": "Vom Anfänger zum TidyQuest-Champion, nach verdienten Münzen.",
+      "nextBadge": "Nächstes Abzeichen",
+      "nextBadgeDesc": "Das nächste erreichbare Abzeichen, auf Start und Erfolge."
     }
   }
 }

@@ -5,6 +5,7 @@ import { taskAudience } from './notifyMessages';
 import { isSeasonalNow, nextDueAt } from './schedule';
 import { localDateStr } from './dateHelpers';
 import { buildBoard } from './board';
+import { todaysMission } from './rescue';
 
 /**
  * The timed notifications, checked every minute: queued messages after quiet hours, the morning
@@ -31,7 +32,7 @@ interface TaskRow { id: number; name: string; roomId: number; onDemand: number; 
   scheduleWeekdays: number | null; seasonStartMonth: number | null; seasonEndMonth: number | null; assignmentMode: string | null;
   rotationPeriod: string | null; rotationCurrentUserId: number | null; reminderTime: string | null; reminderDayBefore: number }
 
-const scheduledTasks = (now: Date) => (db.prepare('SELECT * FROM tasks WHERE onDemand = 0').all() as TaskRow[]).filter((t) => !isSeasonalNow(t, now));
+const scheduledTasks = (now: Date) => (db.prepare('SELECT * FROM tasks WHERE onDemand = 0 AND archivedAt IS NULL').all() as TaskRow[]).filter((t) => !isSeasonalNow(t, now));
 /** Not done and due by the end of `by` */
 const dueBy = (t: TaskRow, by: Date, now: Date) => (nextDueAt(t, now)?.getTime() ?? now.getTime()) <= by.getTime();
 
@@ -58,6 +59,17 @@ async function morningSummaries(now: Date) {
     if (chores.length === 0) continue;
     await notifyPeople([kid.id], 'summary', (lang) => tr(lang, 'notify.morning', { name: kid.displayName, list: list(lang, chores) }), { now, dedupeKey: `morning:${day}` });
   }
+}
+
+/** The day's Rescue Mission, at the morning time, to the people who can do it. */
+async function rescueAnnouncement(now: Date) {
+  if (!notificationsOn('rescue') || !inWindow(now, setting('morningTime'))) return;
+  const mission = todaysMission(now);
+  if (!mission || mission.completedBy || !mission.taskId) return;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(mission.taskId) as TaskRow | undefined;
+  if (!task) return;
+  const m = String(Math.round(mission.multiplier * 100) / 100);
+  await notifyPeople(taskAudience(task), 'rescue', (lang) => tr(lang, 'notify.rescue', { task: task.name, multiplier: m }), { now, dedupeKey: `rescue:${mission.day}` });
 }
 
 async function eveningNudges(now: Date) {
@@ -131,6 +143,7 @@ export async function runScheduledNotifications(now: Date = new Date()): Promise
   try {
     await flushNotificationQueue(now);
     await morningSummaries(now);
+    await rescueAnnouncement(now);
     await eveningNudges(now);
     await weeklyRecap(now);
     await taskReminders(now);

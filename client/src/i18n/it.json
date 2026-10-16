@@ -318,7 +318,8 @@
       "childrenGroup": "Bambini",
       "tasksSubtitle": "Tutti i compiti di tutte le stanze",
       "waitingForApproval": "In attesa di approvazione",
-      "waitingCount": "{n} in attesa di approvazione"
+      "waitingCount": "{n} in attesa di approvazione",
+      "alreadyDone": "È già fatto!"
     },
     "admin": {
       "whoDidThisTask": "Chi ha completato questo compito?",
@@ -806,7 +807,8 @@
       "count": "{n} compiti",
       "countOne": "1 compito",
       "clear": "Azzera filtri",
-      "noMatches": "Nessun compito corrisponde a questi filtri."
+      "noMatches": "Nessun compito corrisponde a questi filtri.",
+      "oneTime": "Una volta"
     },
     "approvals": {
       "title": "In attesa di approvazione",
@@ -915,7 +917,10 @@
       "reminderWhen": "Quando",
       "reminderSameDay": "il giorno stesso",
       "reminderDayBefore": "il giorno prima",
-      "reminderDesc": "Se non è ancora fatto, ricorda di nuovo 2 ore dopo, poi avvisa un genitore."
+      "reminderDesc": "Se non è ancora fatto, ricorda di nuovo 2 ore dopo, poi avvisa un genitore.",
+      "once": "Una volta",
+      "doBy": "Da fare entro",
+      "oneTimeDesc": "Si fa una volta, poi sparisce (resta in Attività)."
     },
     "trash": {
       "undo": "Annulla",
@@ -1154,7 +1159,8 @@
       "boostStart": "⚡ Monete ×{multiplier}: «{title}» fino a {time}!",
       "boostEnding": "⏰ Ultima ora di monete ×{multiplier}: «{title}» finisce alle {time}.",
       "test": "👋 Test da TidyQuest: le notifiche per {name} funzionano!",
-      "moreItems": "+{n} altre"
+      "moreItems": "+{n} altre",
+      "rescue": "⚡ Missione di salvataggio: «{task}» vale {multiplier}× monete oggi. Vince chi lo fa per primo!"
     },
     "notifyAdmin": {
       "peopleTitle": "Chi riceve cosa",
@@ -1174,10 +1180,10 @@
       "haToken": "Token di accesso a lunga durata",
       "haTokenSaved": "Token salvato (scrivi per sostituirlo)",
       "haFamilyService": "Servizio di notifica di famiglia, es. notify.famiglia (facoltativo)",
-      "haDesc": "Così ognuno può ricevere i messaggi sul telefono con l'app Home Assistant (il suo servizio, es. notify.mobile_app_telefono_cecil).",
-      "ntfyTopic": "Argomento ntfy sul telefono (es. cecil-faccende-x7)",
+      "haDesc": "Così ognuno può ricevere i messaggi sul telefono con l'app Home Assistant (il suo servizio, es. notify.mobile_app_telefono_alex).",
+      "ntfyTopic": "Argomento ntfy sul telefono (es. alex-faccende-x7)",
       "telegramChat": "ID chat Telegram",
-      "haService": "Servizio Home Assistant (es. notify.mobile_app_telefono_cecil)",
+      "haService": "Servizio Home Assistant (es. notify.mobile_app_telefono_alex)",
       "gets": "Riceve",
       "familyChannel": "canale di famiglia",
       "logEmpty": "Ancora niente inviato.",
@@ -1202,7 +1208,60 @@
       "error_invalid_service": "I servizi sono tipo notify.mobile_app_telefono",
       "error_invalid_topic": "Argomenti: lettere, numeri, - e _",
       "error_invalid_chat": "Gli ID chat sono numeri (o @nome)",
-      "error_no_channels": "Imposta prima un canale"
+      "error_no_channels": "Imposta prima un canale",
+      "kind_rescue": "Missione di salvataggio",
+      "kindDesc_rescue": "l'attività ×2 del giorno, al mattino"
+    },
+    "todos": {
+      "roomName": "Da fare",
+      "title": "Lista delle cose da fare",
+      "add": "Da fare",
+      "namePlaceholder": "Cosa c'è da fare? (es. Aggiustare la zanzariera)",
+      "doBy": "Da fare entro",
+      "forWho": "Per",
+      "anyone": "Chiunque",
+      "coins": "Monete",
+      "create": "Aggiungi",
+      "overdue": "In ritardo",
+      "byDate": "Entro il {date}",
+      "added": "Aggiunto: {name}"
+    },
+    "home": {
+      "usualTitle": "I tuoi soliti",
+      "pin": "Fissa nei tuoi soliti",
+      "unpin": "Rimuovi",
+      "forgotTitle": "Forse hai dimenticato queste",
+      "overdueDays": "{n} giorni di ritardo",
+      "overdueDay": "1 giorno di ritardo",
+      "snooze": "Posticipa di 3 giorni"
+    },
+    "rescue": {
+      "title": "Missione di salvataggio",
+      "pays": "Vale {m}× monete oggi. Vince chi lo fa per primo!",
+      "endsMidnight": "Finisce a mezzanotte",
+      "rescuedBy": "Salvato da {name}!",
+      "another": "Un'altra",
+      "skip": "Nessuna oggi",
+      "choose": "Scegli…"
+    },
+    "features": {
+      "title": "Funzioni",
+      "desc": "Attiva o disattiva gli extra per tutta la famiglia.",
+      "rescue": "Missione di salvataggio",
+      "rescueDesc": "Ogni giorno l'attività più dimenticata vale di più per chi la fa per primo.",
+      "multiplier": "Vale",
+      "usual": "I tuoi soliti",
+      "usualDesc": "Home: le attività fissate e più fatte di ognuno.",
+      "forgot": "Forse hai dimenticato queste",
+      "forgotDesc": "Home: attività in ritardo di un intero intervallo o più.",
+      "todos": "Da fare (attività una tantum)",
+      "todosDesc": "La lista Da fare nella Home, «+ Da fare» e «Una volta».",
+      "boardAwards": "Premi e bacheca dei trofei",
+      "boardAwardsDesc": "Mattiniero, campioni delle stanze e vincitori passati in Classifica.",
+      "levels": "Livelli",
+      "levelsDesc": "Da Principiante a Campione TidyQuest, in base alle monete.",
+      "nextBadge": "Prossimo distintivo",
+      "nextBadgeDesc": "Il distintivo più vicino da ottenere, in Home e Traguardi."
     }
   }
 }

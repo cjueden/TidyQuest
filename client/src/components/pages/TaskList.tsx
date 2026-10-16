@@ -23,6 +23,7 @@ export interface ListTask {
   isSeasonal?: boolean;
   nextDueAt?: string | null;
   outOfSeason?: boolean;
+  oneTime?: number | boolean;
   assignedToChildren?: boolean;
   effectiveAssignedUserIds?: number[];
 }
@@ -62,7 +63,7 @@ interface TaskListProps {
   onOpenTask: (roomId: number, taskId: number) => void;
 }
 
-type Status = '' | 'due' | 'upcoming' | 'ondemand';
+type Status = '' | 'due' | 'upcoming' | 'ondemand' | 'onetime';
 type Sort = 'due' | 'name' | 'room' | 'coins';
 
 const isFor = isTaskForUser;
@@ -123,6 +124,7 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
       if (status === 'due' && !isTaskDue(task)) return false;
       if (status === 'upcoming' && (task.onDemand || task.isSeasonal || isTaskDue(task))) return false;
       if (status === 'ondemand' && !task.onDemand) return false;
+      if (status === 'onetime' && !task.oneTime) return false;
       return matchesQuery(q, [name, task.notes, roomName]);
     });
 
@@ -188,6 +190,7 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
             <option value="due">{t('taskList.dueNow')}</option>
             <option value="upcoming">{t('taskList.upcoming')}</option>
             <option value="ondemand">{t('roomDetail.onDemand')}</option>
+            <option value="onetime">{t('taskList.oneTime')}</option>
           </select>
           <select className="tq-input-compact" style={selectStyle} value={sort} onChange={(e) => setParam('sort', e.target.value === 'due' ? '' : e.target.value)}>
             <option value="due">{t('taskList.sortDue')}</option>

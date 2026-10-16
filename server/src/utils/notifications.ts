@@ -24,9 +24,11 @@ export interface NotificationTypeSettings {
   nudge: boolean;
   /** Per-task reminders at a set time, then again, then to a parent */
   reminder: boolean;
+  /** The day's Rescue Mission, in the morning */
+  rescue: boolean;
 }
 
-export const NOTIFICATION_KINDS: Array<keyof NotificationTypeSettings> = ['taskDue', 'rewardRequest', 'achievementUnlocked', 'choreApproval', 'coinBoost', 'outcome', 'summary', 'nudge', 'reminder'];
+export const NOTIFICATION_KINDS: Array<keyof NotificationTypeSettings> = ['taskDue', 'rewardRequest', 'achievementUnlocked', 'choreApproval', 'coinBoost', 'outcome', 'summary', 'nudge', 'reminder', 'rescue'];
 
 function getSetting(key: string): string {
   const row = db.prepare('SELECT value FROM app_settings WHERE key = ?').get(key) as { value?: string } | undefined;
@@ -237,7 +239,7 @@ export async function sendDueTaskNotificationsIfNeeded(now: Date = new Date()): 
 
   const today = toLocalIsoDay(now);
   const tasks = db.prepare(
-    `SELECT t.*, r.name AS roomName FROM tasks t LEFT JOIN rooms r ON r.id = t.roomId WHERE t.isSeasonal = 0 AND t.onDemand = 0`
+    `SELECT t.*, r.name AS roomName FROM tasks t LEFT JOIN rooms r ON r.id = t.roomId WHERE t.isSeasonal = 0 AND t.onDemand = 0 AND t.archivedAt IS NULL`
   ).all() as any[];
   // Loaded lazily: notifyMessages imports this module
   const { notifyTaskDue } = await import('./notifyMessages');

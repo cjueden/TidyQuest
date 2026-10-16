@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import HealthBar from '../shared/HealthBar';
 import { LevelStrip } from '../shared/LevelStrip';
+import { TodoQuickAdd } from '../shared/TodoQuickAdd';
+import { localeFor } from '../../utils/locale';
 import type { BadgeItem, LevelInfo } from '../../utils/badges';
 import RingGauge from '../shared/RingGauge';
 import UserAvatar from '../shared/UserAvatar';
@@ -46,6 +48,14 @@ interface Quest {
   lastCompletedAt: string | null;
   isSeasonal: boolean;
   onDemand?: boolean;
+  /** One-time chore (the To-do card) */
+  oneTime?: number | boolean;
+  doBy?: string | null;
+  overdue?: boolean;
+  /** Your usual: pinned by the viewer */
+  pinned?: boolean;
+  /** Maybe you forgot: whole days overdue */
+  overdueDays?: number;
   frequencyDays: number;
   dueDate?: string;
   dueInDays?: number;
@@ -132,6 +142,18 @@ interface DashboardProps {
     readyToComplete?: Quest[];
     scheduledUpcoming?: Quest[];
     onDemandQuests?: Quest[];
+    /** One-time chores still to do */
+    todoQuests?: Quest[];
+    /** The viewer's pins, then what they do most */
+    usualQuests?: Quest[];
+    /** Chores overdue by at least their own interval, worst first */
+    forgottenQuests?: Quest[];
+    /** Today's Rescue Mission: the chore that pays extra to the first one who does it */
+    rescueMission?: { day: string; taskId: number | null; multiplier: number; completedBy: number | null; completedByName: string | null; taskName: string | null; task: Quest | null } | null;
+    /** Parents: chores they can choose as the mission instead */
+    rescueChoices?: Array<{ id: number; name: string }>;
+    /** Optional extras switched on or off in Settings → Features */
+    features?: { todos?: boolean };
     completedToday?: CompletedTodayEntry[];
     myLevel?: LevelInfo | null;
     nextBadge?: BadgeItem | null;
@@ -191,7 +213,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   } : {};
   // Double coins events: the biggest running boost that covers a task's room (boosts don't stack)
   const boosts = gamificationEnabled ? (data.coinBoosts ?? []) : [];
-  const boostFor = (q: Quest) => boosts.reduce((m, b) => (!b.roomIds || b.roomIds.includes(q.roomId) ? Math.max(m, b.multiplier) : m), 1);
+  // Today's Rescue Mission pays extra too (the bigger multiplier wins, like on the server)
+  const mission = gamificationEnabled ? data.rescueMission ?? null : null;
+  const missionBonus = (q: Quest) => (mission && mission.taskId === q.id && !mission.completedBy ? mission.multiplier : 1);
+  const boostFor = (q: Quest) => boosts.reduce((m, b) => (!b.roomIds || b.roomIds.includes(q.roomId) ? Math.max(m, b.multiplier) : m), missionBonus(q));
   const [nowTs, setNowTs] = useState(() => Date.now());
   useEffect(() => {
     if (boosts.length === 0) return;
@@ -251,14 +276,76 @@ const Dashboard: React.FC<DashboardProps> = ({
     if (taskFilter === 'all') return quests;
     return quests.filter(q => isTaskForUser(q, currentUser.id, currentUser.role));
   };
-  const readyTasks = filterQuests(allReadyTasks);
+  const readyAll = filterQuests(allReadyTasks);
+  const todoTasks = filterQuests(data.todoQuests ?? []);
+  const [showTodoAdd, setShowTodoAdd] = useState(false);
+  const [todoNotice, setTodoNotice] = useState('');
+
+  // The Done button for a chore in the newer Home sections (To-do, Your usual, Maybe you forgot,
+  // Rescue Mission): the same rules as the lists above, for scheduled and anytime chores alike
+  const doneState = (q: Quest): { disabled: boolean; label: string } => {
+    const isAdminOrMember = currentUser.role === 'admin' || currentUser.role === 'member';
+    const hasAssignees = (q.effectiveAssignedUserIds && q.effectiveAssignedUserIds.length > 0) || q.assignedToChildren;
+    const ids = q.effectiveAssignedUserIds ?? [];
+    if (!isAdminOrMember && ids.length > 0 && !ids.includes(currentUser.id)) return { disabled: true, label: t('app.notAssigned') };
+    if (!isAdminOrMember && (q.myPendingCount ?? 0) > 0) return { disabled: true, label: t('app.waitingForApproval') };
+    if (q.onDemand) {
+      if (!isAdminOrMember && q.repeatLimit && (q.myRepeatCount ?? 0) >= q.repeatLimit) return { disabled: true, label: t(q.repeatPeriod === 'day' ? 'repeat.doneToday' : 'repeat.doneThisWeek') };
+      return { disabled: false, label: t('roomDetail.done') };
+    }
+    if (q.assignmentMode === 'shared') {
+      if (q.sharedCompletions?.some((c) => c.userId === currentUser.id) && !isAdminOrMember) return { disabled: true, label: t('app.doneBy').replace('{name}', t('common.you')) };
+    } else if (q.completedTodayBy && (!isAdminOrMember || !hasAssignees)) {
+      return { disabled: true, label: t('app.doneBy').replace('{name}', q.completedTodayBy.displayName) };
+    }
+    return { disabled: false, label: t('roomDetail.done') };
+  };
+  const finish = (q: Quest) => {
+    const isAdminOrMember = currentUser.role === 'admin' || currentUser.role === 'member';
+    const hasAssignees = (q.effectiveAssignedUserIds && q.effectiveAssignedUserIds.length > 0) || q.assignedToChildren;
+    if (isAdminOrMember && hasAssignees) setAdminModalQuest(q);
+    else onCompleteTask(q.id);
+  };
+  /** One chore row: icon, name, room, a line of extra info, coins, and its Done button */
+  const questRow = (q: Quest, opts: { key: string; info?: React.ReactNode; actions?: React.ReactNode; highlight?: boolean }) => {
+    const state = doneState(q);
+    return (
+      <div key={opts.key} {...openTaskProps(q)} style={{
+        display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, cursor: onOpenTask ? 'pointer' : undefined,
+        backgroundColor: opts.highlight ? 'var(--warm-accent-light)' : 'var(--warm-bg-subtle)',
+        border: `1.5px solid ${opts.highlight ? 'var(--warm-accent)' : 'var(--warm-border)'}`,
+      }}>
+        <div style={{ width: 40, height: 40, borderRadius: 14, backgroundColor: q.roomColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${q.roomAccent}44` }}>
+          <TaskIcon iconKey={q.iconKey} size={24} />
+        </div>
+        <div style={{ flex: '1 1 160px', minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text)', overflowWrap: 'anywhere' }}>{taskName(q.name, q.translationKey)}</div>
+          <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{roomDisplayName(q.roomName, roomTypeById.get(q.roomId) || '')}</div>
+          {opts.info}
+          {questDetails(q)}
+        </div>
+        <span style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
+          {opts.actions}
+          {proofButton(q, !state.disabled)}
+          <button onClick={(e) => { e.stopPropagation(); if (!state.disabled) finish(q); }} disabled={state.disabled} className={state.disabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
+            style={{ padding: '8px 14px', fontSize: 12, ...(state.disabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)' } : {}) }}>
+            {state.disabled ? state.label : <><CheckIcon /> {state.label}</>}
+          </button>
+        </span>
+      </div>
+    );
+  };
   const scheduledTasks = filterQuests(allScheduledTasks);
   const onDemandTasks = filterQuests(allOnDemandTasks);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [showCustomize, setShowCustomize] = useState(false);
 
   const ALL_CARDS = [
+    { id: 'rescue', label: t('rescue.title') },
+    { id: 'usual', label: t('home.usualTitle') },
+    { id: 'forgot', label: t('home.forgotTitle') },
     { id: 'todaysQuests', label: t('dashboard.todaysQuests') },
+    { id: 'todo', label: t('todos.title') },
     { id: 'scheduled', label: t('dashboard.scheduled') },
     { id: 'completedToday', label: t('dashboard.completedToday') },
     { id: 'rooms', label: t('nav.rooms') },
@@ -280,8 +367,26 @@ const Dashboard: React.FC<DashboardProps> = ({
     localStorage.setItem(LS_KEY, JSON.stringify([...hiddenCards]));
   }, [hiddenCards]);
   // Kid mode keeps Home to the essentials: their quests and what they finished today
-  const KID_CARDS = new Set(['todaysQuests', 'completedToday']);
+  const KID_CARDS = new Set(['rescue', 'usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
   const isVisible = (id: string) => kidMode ? KID_CARDS.has(id) : !hiddenCards.has(id);
+  // Your usual: pins always; the rest only when they can be done right now (6 at most)
+  const usualShown = (data.usualQuests ?? []).filter((q) => q.pinned || !doneState(q).disabled).slice(0, 6);
+  // Maybe you forgot: the 3 worst for this view; while that card shows, they leave "Ready to complete"
+  const forgottenShown = filterQuests(data.forgottenQuests ?? []).slice(0, 3);
+  const forgottenIds = new Set(isVisible('forgot') ? forgottenShown.map((q) => q.id) : []);
+  // The mission has its own card: it leaves the other lists while that card shows
+  const missionShown = isVisible('rescue') && !!mission && (!!mission.task || !!mission.completedBy);
+  if (missionShown && mission?.taskId) forgottenIds.add(mission.taskId);
+  const readyTasks = readyAll.filter((q) => !forgottenIds.has(q.id));
+  const missionAction = async (fn: () => Promise<unknown>) => { await fn(); onRefresh?.(); };
+  const togglePin = async (q: Quest) => {
+    if (q.pinned) await api.unpinTask(q.id); else await api.pinTask(q.id);
+    onRefresh?.();
+  };
+  const snooze = async (q: Quest) => {
+    await api.snoozeTask(q.id, 3);
+    onRefresh?.();
+  };
   const toggleCard = (id: string) => setHiddenCards(prev => {
     const next = new Set(prev);
     next.has(id) ? next.delete(id) : next.add(id);
@@ -481,6 +586,78 @@ const Dashboard: React.FC<DashboardProps> = ({
         )}
 
         {/* Today's Quests Card — full width, sections: Ready to Complete / On Demand */}
+        {/* Rescue Mission: today's most-forgotten chore pays extra to the first one who does it */}
+        {missionShown && mission && (
+          <div className="tq-card tq-card-padded rescue-card" style={{ gridColumn: '1 / -1', minWidth: 0, borderColor: 'var(--warm-accent)', background: 'linear-gradient(135deg, var(--warm-accent-light), var(--warm-card))' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+              <h3 style={{ fontSize: 17, fontWeight: 900, color: 'var(--warm-text)', margin: 0 }}>⚡ {t('rescue.title')}</h3>
+              {!mission.completedBy && <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-text-muted)' }}>{t('rescue.endsMidnight')}</span>}
+            </div>
+            {mission.completedBy ? (
+              <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--health-green)' }}>
+                ✅ {mission.taskName ? `${taskName(mission.taskName, mission.task?.translationKey)} · ` : ''}{t('rescue.rescuedBy').replace('{name}', mission.completedByName ?? '?')}
+              </div>
+            ) : mission.task && (
+              <>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-accent)', marginBottom: 8 }}>{t('rescue.pays').replace('{m}', String(mission.multiplier))}</div>
+                {questRow(mission.task, { key: `rescue-${mission.task.id}`, highlight: true })}
+              </>
+            )}
+            {currentUser.role === 'admin' && !mission.completedBy && (
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10, alignItems: 'center' }}>
+                <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => void missionAction(api.rescueReroll)}>🔄 {t('rescue.another')}</button>
+                {(data.rescueChoices ?? []).length > 1 && (
+                  <select className="tq-input-compact" value="" aria-label={t('rescue.choose')} style={{ flex: '1 1 140px', width: 0, minWidth: 0, maxWidth: '100%' }}
+                    onChange={(e) => { if (e.target.value) void missionAction(() => api.rescueChoose(Number(e.target.value))); }}>
+                    <option value="">{t('rescue.choose')}</option>
+                    {(data.rescueChoices ?? []).filter((c) => c.id !== mission.taskId).map((c) => <option key={c.id} value={c.id}>{taskName(c.name, undefined)}</option>)}
+                  </select>
+                )}
+                <button className="tq-btn tq-btn-sm" onClick={() => void missionAction(api.rescueSkip)}>{t('rescue.skip')}</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Your usual: pinned and most-done tasks, one tap away */}
+        {isVisible('usual') && usualShown.length > 0 && (
+          <div className="tq-card tq-card-padded">
+            <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: '0 0 12px' }}>⭐ {t('home.usualTitle')}</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {usualShown.map((q) => questRow(q, {
+                key: `usual-${q.id}`,
+                actions: (
+                  <button className="tq-btn tq-btn-secondary" onClick={(e) => { e.stopPropagation(); void togglePin(q); }}
+                    title={q.pinned ? t('home.unpin') : t('home.pin')} aria-label={q.pinned ? t('home.unpin') : t('home.pin')} aria-pressed={!!q.pinned}
+                    style={{ padding: '8px 10px', fontSize: 14, color: q.pinned ? 'var(--warm-accent)' : 'var(--warm-text-light)' }}>{q.pinned ? '★' : '☆'}</button>
+                ),
+              }))}
+            </div>
+          </div>
+        )}
+
+        {/* Maybe you forgot about these: overdue by a whole interval or more */}
+        {isVisible('forgot') && forgottenShown.length > 0 && (
+          <div className="tq-card tq-card-padded" style={{ borderColor: 'var(--warm-streak-border)' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: '0 0 12px' }}>🤔 {t('home.forgotTitle')}</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {forgottenShown.map((q) => questRow(q, {
+                key: `forgot-${q.id}`,
+                info: (
+                  <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--health-red)', marginTop: 2 }}>
+                    ⏰ {(q.overdueDays ?? 0) === 1 ? t('home.overdueDay') : t('home.overdueDays').replace('{n}', String(q.overdueDays ?? 0))}
+                    {q.lastCompletedAt ? ` · ${timeAgo(q.lastCompletedAt)}` : ''}
+                  </div>
+                ),
+                actions: (
+                  <button className="tq-btn tq-btn-secondary" onClick={(e) => { e.stopPropagation(); void snooze(q); }}
+                    title={t('home.snooze')} aria-label={t('home.snooze')} style={{ padding: '8px 10px', fontSize: 14 }}>💤</button>
+                ),
+              }))}
+            </div>
+          </div>
+        )}
+
         {isVisible('todaysQuests') && <div className="tq-card tq-card-padded">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: 0 }}>
@@ -617,6 +794,37 @@ const Dashboard: React.FC<DashboardProps> = ({
             )}
           </div>
         </div>}
+
+        {/* To-do: one-time chores ("Fix the screen door"); parents can add one here */}
+        {isVisible('todo') && data.features?.todos !== false && (todoTasks.length > 0 || currentUser.role === 'admin') && (
+          <div className="tq-card tq-card-padded">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: 0 }}>📝 {t('todos.title')}</h3>
+              {currentUser.role === 'admin' && !showTodoAdd && (
+                <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => { setShowTodoAdd(true); setTodoNotice(''); }}>+ {t('todos.add')}</button>
+              )}
+            </div>
+            {showTodoAdd && (
+              <TodoQuickAdd language={language}
+                people={(users ?? []).map((u) => ({ id: u.id, displayName: u.displayName }))}
+                onCancel={() => setShowTodoAdd(false)}
+                onAdded={(name) => { setShowTodoAdd(false); setTodoNotice(t('todos.added').replace('{name}', name)); onRefresh?.(); }} />
+            )}
+            {todoNotice && <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--health-green)', marginBottom: 8 }}>{todoNotice}</div>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {(isExpanded('todo') ? todoTasks : todoTasks.slice(0, LIMIT)).map((q) => questRow(q, {
+                key: `todo-${q.id}`,
+                info: (q.doBy || q.overdue) ? (
+                  <div style={{ fontSize: 11, fontWeight: 800, marginTop: 2, color: q.overdue ? 'var(--health-red)' : 'var(--warm-text-muted)' }}>
+                    {q.overdue ? `⚠️ ${t('todos.overdue')}` : ''}{q.overdue && q.doBy ? ' · ' : ''}
+                    {q.doBy ? t('todos.byDate').replace('{date}', new Date(`${q.doBy}T12:00:00`).toLocaleDateString(localeFor(language), { weekday: 'short', month: 'short', day: 'numeric' })) : ''}
+                  </div>
+                ) : null,
+              }))}
+              {showMoreBtn('todo', todoTasks.length)}
+            </div>
+          </div>
+        )}
 
         {/* Scheduled Card — upcoming tasks not yet due */}
         {isVisible('scheduled') && scheduledTasks.length > 0 && (

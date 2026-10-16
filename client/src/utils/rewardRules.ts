@@ -1,6 +1,6 @@
 import type { RewardRules } from '../hooks/useApi';
 
-/** A one-line summary of a reward's rules for the admin list, e.g. "Cecil · 1×/week · Shared". */
+/** A one-line summary of a reward's rules for the admin list, e.g. "Alex · 1×/week · Shared". */
 export function rulesSummary(r: Partial<RewardRules>, family: Array<{ id: number; displayName: string }>, t: (k: string) => string): string {
   const parts: string[] = [];
   if (r.visibleTo && r.visibleTo.length) parts.push(r.visibleTo.map((id) => family.find((m) => m.id === id)?.displayName ?? '?').join(', '));

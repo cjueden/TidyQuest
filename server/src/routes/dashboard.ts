@@ -1,12 +1,15 @@
 import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
-import { calendarDaysUntil, hasWeekdaySchedule, isSeasonalNow, nextDueAt, scheduleFields, taskHealth } from '../utils/schedule';
+import { calendarDaysUntil, hasWeekdaySchedule, isSeasonalNow, nextDueAt, oneTimeDeadline, scheduleFields, taskHealth } from '../utils/schedule';
 import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, isStrictModeEnabled, resolveVacation } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
 import { repeatCountsFor } from '../utils/repeatLimits';
 import { getActiveBoosts } from '../utils/boosts';
 import { achievementsFor } from '../utils/achievementStats';
+import { forgottenTasks, usualTasks } from '../utils/homeSections';
+import { rescueCandidates, todaysMission } from '../utils/rescue';
+import { getFeatures, isFeatureOn } from '../utils/features';
 
 const router = Router();
 router.use(authMiddleware);
@@ -25,7 +28,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const allTasks: any[] = [];
 
   // Fetch all tasks in one query and group by roomId to avoid N+1
-  const dbTasks = db.prepare('SELECT * FROM tasks').all() as any[];
+  const dbTasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL').all() as any[];
   const tasksByRoom = new Map<number, any[]>();
   for (const t of dbTasks) {
     if (!tasksByRoom.has(t.roomId)) tasksByRoom.set(t.roomId, []);
@@ -117,8 +120,10 @@ router.get('/', (req: AuthRequest, res: Response) => {
       return taskWithHealth;
     });
 
-    const nonSeasonal = tasksWithHealth.filter((t) => !t.isSeasonal);
-    const forAvg = nonSeasonal.length > 0 ? nonSeasonal : tasksWithHealth;
+    // One-time chores don't count toward health
+    const regular = tasksWithHealth.filter((t) => !t.oneTime);
+    const nonSeasonal = regular.filter((t) => !t.isSeasonal);
+    const forAvg = nonSeasonal.length > 0 ? nonSeasonal : regular;
     const totalEffort = forAvg.reduce((s, t) => s + t.effort, 0);
     const health = totalEffort > 0
       ? Math.round(forAvg.reduce((s, t) => s + t.health * t.effort, 0) / totalEffort)
@@ -128,8 +133,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
   });
 
   // House health
-  const nonSeasonal = allTasks.filter((t) => !t.isSeasonal);
-  const forHouseAvg = nonSeasonal.length > 0 ? nonSeasonal : allTasks;
+  const regularTasks = allTasks.filter((t) => !t.oneTime);
+  const nonSeasonal = regularTasks.filter((t) => !t.isSeasonal);
+  const forHouseAvg = nonSeasonal.length > 0 ? nonSeasonal : regularTasks;
   const totalEffort = forHouseAvg.reduce((s, t) => s + t.effort, 0);
   const houseHealth = totalEffort > 0
     ? Math.round(forHouseAvg.reduce((s, t) => s + t.health * t.effort, 0) / totalEffort)
@@ -137,13 +143,13 @@ router.get('/', (req: AuthRequest, res: Response) => {
 
   // Ready to complete: actually overdue (due date has passed), non-seasonal, non-on-demand
   const readyToComplete = allTasks
-    .filter((t) => !t.isSeasonal && !t.onDemand && new Date(t.dueDate).getTime() <= nowTs)
+    .filter((t) => !t.isSeasonal && !t.onDemand && !t.oneTime && new Date(t.dueDate).getTime() <= nowTs)
     .sort((a, b) => a.health - b.health)
     .slice(0, 10);
 
   // Scheduled upcoming: not yet due (due date in the future), non-seasonal, non-on-demand
   const scheduledUpcoming = allTasks
-    .filter((t) => !t.isSeasonal && !t.onDemand && new Date(t.dueDate).getTime() > nowTs)
+    .filter((t) => !t.isSeasonal && !t.onDemand && !t.oneTime && new Date(t.dueDate).getTime() > nowTs)
     .sort((a, b) => a.dueInDays - b.dueInDays || a.health - b.health)
     .slice(0, 10);
 
@@ -151,6 +157,36 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const onDemandQuests = allTasks
     .filter((t) => !t.isSeasonal && t.onDemand && t.showInDashboard)
     .sort((a, b) => a.health - b.health);
+
+  // One-time chores still to do (the To-do card): overdue first, then by do-by date, then oldest
+  const todoQuests = !getFeatures().todos ? [] : allTasks
+    .filter((t) => t.oneTime)
+    .map((t) => ({ ...t, overdue: Date.now() > oneTimeDeadline(t).getTime() }))
+    .sort((a, b) => Number(b.overdue) - Number(a.overdue) || String(a.doBy ?? '9999').localeCompare(String(b.doBy ?? '9999')) || a.id - b.id);
+
+  // Your usual (pins, then what this person does most) and Maybe you forgot (overdue by a whole interval)
+  // Today's Rescue Mission: shown to the people who can do that chore (parents always), with its
+  // own card, so it's left out of "Maybe you forgot"
+  const missionRow = todaysMission();
+  const missionTask = missionRow ? allTasks.find((t) => t.id === missionRow.taskId) ?? null : null;
+  const missionIds: number[] = missionTask?.effectiveAssignedUserIds ?? [];
+  const missionVisible = user.role === 'admin' || (missionTask ? missionIds.length === 0 || missionIds.includes(user.id) : false);
+  const rescueMission = missionRow && missionVisible && (missionTask || missionRow.completedBy) ? {
+    day: missionRow.day,
+    taskId: missionRow.taskId,
+    multiplier: missionRow.multiplier,
+    completedBy: missionRow.completedBy,
+    completedByName: missionRow.completedBy ? (db.prepare('SELECT displayName FROM users WHERE id = ?').get(missionRow.completedBy) as { displayName: string } | undefined)?.displayName ?? null : null,
+    taskName: missionTask?.name ?? (db.prepare('SELECT name FROM tasks WHERE id = ?').get(missionRow.taskId) as { name: string } | undefined)?.name ?? null,
+    task: missionTask,
+  } : null;
+  // Parents can choose another one
+  const rescueChoices = user.role === 'admin' && isFeatureOn('rescue') ? rescueCandidates().slice(0, 8).map(({ id, name }) => ({ id, name })) : [];
+
+  // Extras a family can switch off (Settings → Features)
+  const features = getFeatures();
+  const usualQuests = features.usual ? usualTasks(allTasks, req.userId!) : [];
+  const forgottenQuests = features.forgot ? forgottenTasks(allTasks, req.userId!, new Date(), new Set(missionRow?.taskId ? [missionRow.taskId] : [])) : [];
 
   // Backwards-compatible aliases
   const todaysQuests = [...readyToComplete, ...onDemandQuests];
@@ -278,6 +314,12 @@ router.get('/', (req: AuthRequest, res: Response) => {
     todaysQuests,
     readyToComplete,
     scheduledUpcoming,
+    todoQuests,
+    usualQuests,
+    forgottenQuests,
+    rescueMission,
+    rescueChoices,
+    features,
     onDemandQuests,
     nextTasks,
     completedToday,
@@ -295,7 +337,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     ...(() => {
       const gamificationOn = (db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined)?.value !== '0';
       const mine = gamificationOn ? achievementsFor(req.userId!) : null;
-      return { myLevel: mine?.level ?? null, nextBadge: mine?.nextBadge ?? null };
+      return { myLevel: features.levels ? mine?.level ?? null : null, nextBadge: features.nextBadge ? mine?.nextBadge ?? null : null };
     })(),
     vacation: { vacationMode: vacation.isVacation, vacationStartDate: vacation.startDate, vacationEndDate: vacation.endDate },
   });
