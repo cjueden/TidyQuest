@@ -11,6 +11,7 @@ let sent: Delivery[];
 
 beforeEach(() => {
   ({ agent, db } = createTestApp());
+  db.prepare("DELETE FROM app_settings WHERE key = 'features'").run(); // on, as in a real install
   sent = [];
   setNotifyTransport(async (d) => { sent.push(d); return { ok: true }; });
 });

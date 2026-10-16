@@ -19,6 +19,8 @@ export function createTestApp() {
   // Initialize schema
   runSchema(db);
   applyForkSchema(db);
+  // The Rescue Mission doubles the coins of a long-overdue chore; tests about it turn it on themselves
+  db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('features', ?)").run(JSON.stringify({ rescue: false }));
 
   // Swap the global singleton so all routes use this DB
   setDatabase(db);
