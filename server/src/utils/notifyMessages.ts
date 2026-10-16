@@ -43,7 +43,7 @@ export function notifyPotFull(reward: string, coins: number) {
   return notifyPeople('parents', 'rewardRequest', (lang) => tr(lang, 'notify.potFull', { reward, coins }));
 }
 
-/** To the person ("You earned …") and the parents ("Cecil earned …"). */
+/** To the person ("You earned …") and the parents ("Alex earned …"). */
 export function notifyBadge(userId: number, badge: { titleKey: string | null; title: string | null }) {
   const name = nameOf(userId);
   const title = (lang: string) => (badge.titleKey ? tr(lang, badge.titleKey) : badge.title ?? '');

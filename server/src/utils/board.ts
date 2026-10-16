@@ -119,7 +119,7 @@ function awardsFor(range: Range, ids: Set<number>): Award[] {
   if (rounder) awards.push({ key: 'allRounder', ...rounder });
 
   // Room champions: most chores done in each shared room (rooms with the most activity first). Rooms
-  // that belong to someone (Cylis's Quests) are left out: their owner would always win.
+  // that belong to someone (e.g. someone's own quest room) are left out: their owner would always win.
   const byRoom = new Map<number, { name: string; total: number; counts: Map<number, number> }>();
   for (const r of rows) {
     if (r.roomOwner != null) continue;
