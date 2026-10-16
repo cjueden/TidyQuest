@@ -141,7 +141,9 @@
       "save": "Save",
       "saved": "Saved",
       "logout": "Log out",
-      "themeDesc": "Your colors, on every device you sign in on."
+      "themeDesc": "Your colors, on every device you sign in on.",
+      "holidayColors": "Holiday colors",
+      "holidayColorsDesc": "During holidays, use the holiday's colors instead of your theme. Decorations show either way."
     },
     "settings": {
       "title": "Settings",
@@ -1261,7 +1263,26 @@
       "levels": "Levels",
       "levelsDesc": "Rookie to TidyQuest Champion, from coins earned.",
       "nextBadge": "Next badge",
-      "nextBadgeDesc": "The closest badge still to earn, on Home and Achievements."
+      "nextBadgeDesc": "The closest badge still to earn, on Home and Achievements.",
+      "seasonal": "Seasonal styling",
+      "seasonalDesc": "The app dresses up for the holidays: colors, decorations and a countdown on Home."
+    },
+    "seasons": {
+      "halloween": "Halloween",
+      "thanksgiving": "Thanksgiving",
+      "christmas": "Christmas",
+      "halloweenGreeting": "Happy Halloween! 👻",
+      "thanksgivingGreeting": "Happy Thanksgiving! 🦃",
+      "christmasGreeting": "Merry Christmas! 🎅",
+      "daysUntil": "{n} days until {name}",
+      "tomorrow": "{name} is tomorrow!",
+      "today": "Today is {name}!",
+      "after": "Hope you had a wonderful {name}!",
+      "day": "day",
+      "days": "days",
+      "preview": "Preview",
+      "previewing": "Previewing {name}",
+      "stop": "Stop"
     }
   }
 }

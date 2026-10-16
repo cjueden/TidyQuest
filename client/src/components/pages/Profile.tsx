@@ -6,6 +6,7 @@ import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { MyNotifications } from '../shared/MyNotifications';
 import { ThemePicker } from '../shared/ThemePicker';
+import { Toggle } from '../shared/Toggle';
 import type { Theme } from '../../utils/themes';
 import type { User } from '../../hooks/useAuth';
 
@@ -291,6 +292,14 @@ export function Profile({ user, theme, onChangeTheme, onSave, onLogout }: Profil
         <h3 className="tq-card-title" style={{ margin: 0 }}>🎨 {t('settings.theme')}</h3>
         <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('profile.themeDesc')}</div>
         <ThemePicker value={theme} onChange={(next) => void onChangeTheme(next)} language={user.language} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 8, borderTop: '1px solid var(--warm-border)' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-text)' }}>🎃 {t('profile.holidayColors')}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-light)' }}>{t('profile.holidayColorsDesc')}</div>
+          </div>
+          <Toggle checked={user.holidayColors !== 0} label={t('profile.holidayColors')}
+            onChange={async (on) => { await api.updateProfile(user.id, { holidayColors: on }); onSave(); }} />
+        </div>
       </div>
       <MyNotifications userId={user.id} language={user.language} />
     </div>

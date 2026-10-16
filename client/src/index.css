@@ -555,13 +555,218 @@ body {
   gap: var(--space-xl);
 }
 
+/* ========================================
+   SEASONAL STYLING (utils/seasons.ts)
+   After the themes so a holiday's colors win; App.tsx sets data-season-colors unless the person turned
+   holiday colors off in Profile. Light holidays first reset the extras a dark theme changes.
+   ======================================== */
+html[data-season-colors]:not([data-season-dark]) {
+  --warm-danger: #EF4444;
+  --warm-danger-bg: #FFF1F1;
+  --warm-danger-border: #FECACA;
+  --warm-badge-bg: #FDECEC;
+  --warm-badge-text: #E25A5A;
+  --warm-coin: #F59E0B;
+  --health-green-bg: #EDF7ED;
+  --health-yellow-bg: #FFF8EC;
+  --health-red-bg: #FDECEC;
+  --warm-shadow: rgba(180, 150, 100, 0.1);
+  --status-approved-text: #15803D;
+  --status-approved-bg: #DCFCE7;
+  --status-approved-border: #86EFAC;
+  --status-rejected-text: #B91C1C;
+  --status-rejected-bg: #FEE2E2;
+  --status-rejected-border: #FCA5A5;
+  --status-cancelled-text: #374151;
+  --status-cancelled-bg: #E5E7EB;
+  --status-cancelled-border: #D1D5DB;
+  --task-healthy-text: #166534;
+  --task-healthy-bg: #E8F6EC;
+  --task-healthy-border: #86EFAC;
+  --task-warning-text: #92400E;
+  --task-warning-bg: #FFF7E6;
+  --task-warning-border: #FCD34D;
+  --task-critical-text: #991B1B;
+  --task-critical-bg: #FDECEC;
+  --task-critical-border: #FCA5A5;
+}
+
+/* Halloween: dark purple night, pumpkin orange */
+html[data-season-colors='halloween'] {
+  --warm-bg: #120E1A;
+  --warm-card: #1F1830;
+  --warm-border: #3B2F52;
+  --warm-border-subtle: #2E2442;
+  --warm-text: #F3EDE4;
+  --warm-text-secondary: #D9CFE6;
+  --warm-text-muted: #A99BBE;
+  --warm-text-light: #8A7CA3;
+  --warm-accent: #F97316;
+  --warm-accent-light: #3A2418;
+  --warm-accent-hover: #FB923C;
+  --warm-bg-subtle: #261D3A;
+  --warm-bg-warm: #2C2142;
+  --warm-bg-input: #1A1426;
+  --warm-sidebar: #171222;
+  --warm-sidebar-active: #2E2140;
+  --warm-sidebar-border: #3B2F52;
+  --warm-sidebar-user-bg: #2E2140;
+  --warm-sidebar-user-border: #5B4780;
+  --warm-streak-bg: linear-gradient(135deg, #1F1830, #2E2140);
+  --warm-streak-border: #5B4780;
+  --warm-streak-text: #FDBA74;
+  --warm-streak-subtext: #F97316;
+  --warm-danger: #F87171;
+  --warm-danger-bg: #2A1F1F;
+  --warm-danger-border: #7F1D1D;
+  --warm-badge-bg: #2A1F1F;
+  --warm-badge-text: #F87171;
+  --warm-coin: #FBBF24;
+  --health-bar-track: #3B2F52;
+  --health-green-bg: #1A2E1A;
+  --health-yellow-bg: #2E2A1A;
+  --health-red-bg: #2E1A1A;
+  --warm-shadow: rgba(0, 0, 0, 0.35);
+  --warm-primary-shadow: rgba(249, 115, 22, 0.3);
+  --status-approved-text: #4ADE80;
+  --status-approved-bg: #1A2E1A;
+  --status-approved-border: #166534;
+  --status-rejected-text: #FCA5A5;
+  --status-rejected-bg: #2A1F1F;
+  --status-rejected-border: #7F1D1D;
+  --status-cancelled-text: #A99BBE;
+  --status-cancelled-bg: #261D3A;
+  --status-cancelled-border: #5B4780;
+  --task-healthy-text: #4ADE80;
+  --task-healthy-bg: #1A2E1A;
+  --task-healthy-border: #166534;
+  --task-warning-text: #FBBF24;
+  --task-warning-bg: #2E2A1A;
+  --task-warning-border: #92400E;
+  --task-critical-text: #FCA5A5;
+  --task-critical-bg: #2E1A1A;
+  --task-critical-border: #7F1D1D;
+}
+
+/* Thanksgiving: warm cream, amber and brown */
+html[data-season-colors='thanksgiving'] {
+  --warm-bg: #FBF3E6;
+  --warm-card: #FFFDF8;
+  --warm-border: #EAD9BF;
+  --warm-border-subtle: #F2E6D2;
+  --warm-text: #3B2414;
+  --warm-text-secondary: #5E3D24;
+  --warm-text-muted: #82603F;
+  --warm-text-light: #A88763;
+  --warm-accent: #C2410C;
+  --warm-accent-light: #FCEBDC;
+  --warm-accent-hover: #9A3412;
+  --warm-bg-subtle: #FDF8EF;
+  --warm-bg-warm: #F8EBD6;
+  --warm-bg-input: #FFFFFF;
+  --warm-sidebar: #FFFDF8;
+  --warm-sidebar-active: #FCEBDC;
+  --warm-sidebar-border: #EAD9BF;
+  --warm-sidebar-user-bg: #FCEBDC;
+  --warm-sidebar-user-border: #F6C99A;
+  --warm-streak-bg: linear-gradient(135deg, #FCEBDC, #F8DDBF);
+  --warm-streak-border: #F6C99A;
+  --warm-streak-text: #7C2D12;
+  --warm-streak-subtext: #9A3412;
+  --health-bar-track: #F2E6D2;
+  --warm-primary-shadow: rgba(194, 65, 12, 0.25);
+}
+
+/* Christmas: snow white, red accent, green details */
+html[data-season-colors='christmas'] {
+  --warm-bg: #F7FAFC;
+  --warm-card: #FFFFFF;
+  --warm-border: #DDE7EE;
+  --warm-border-subtle: #EAF0F4;
+  --warm-text: #1F2A24;
+  --warm-text-secondary: #3F4D45;
+  --warm-text-muted: #5F6F66;
+  --warm-text-light: #8A9A91;
+  --warm-accent: #C81E1E;
+  --warm-accent-light: #FEECEC;
+  --warm-accent-hover: #A31515;
+  --warm-bg-subtle: #FAFCFD;
+  --warm-bg-warm: #F0F7F2;
+  --warm-bg-input: #FFFFFF;
+  --warm-sidebar: #FFFFFF;
+  --warm-sidebar-active: #E9F6EE;
+  --warm-sidebar-border: #DDE7EE;
+  --warm-sidebar-user-bg: #E9F6EE;
+  --warm-sidebar-user-border: #A7DDB9;
+  --warm-streak-bg: linear-gradient(135deg, #E9F6EE, #FEECEC);
+  --warm-streak-border: #A7DDB9;
+  --warm-streak-text: #166534;
+  --warm-streak-subtext: #15803D;
+  --health-bar-track: #EAF0F4;
+  --warm-primary-shadow: rgba(200, 30, 30, 0.22);
+}
+
+/* The faint pattern behind the page (App.tsx sets --season-pattern from the holiday's entry) */
+html[data-season] .main-content {
+  background-image: var(--season-pattern);
+  background-size: 140px 140px;
+}
+
+/* Decoration strip under the header */
+.season-strip {
+  display: flex;
+  flex-wrap: wrap; /* extra emoji wrap onto hidden lines, so the strip never widens the page */
+  justify-content: space-between;
+  gap: 0 6px;
+  height: 30px;
+  overflow: hidden;
+  font-size: 18px;
+  line-height: 1;
+  margin: -8px 0 14px;
+  padding-top: 4px;
+  user-select: none;
+}
+.season-strip span { display: inline-block; transform-origin: 50% 0; animation: seasonSway 4s ease-in-out infinite alternate; }
+.season-strip span:nth-child(even) { margin-top: 5px; animation-delay: -2s; }
+
+/* Falling leaves and snow, flying bats */
+.season-particles { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 40; }
+.season-particles span { position: absolute; top: 0; left: 0; opacity: 0.55; will-change: transform; }
+.season-particles.fall span { animation: seasonFall linear infinite; }
+.season-particles.fly span { animation: seasonFly linear infinite; }
+
+@keyframes seasonSway { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+@keyframes seasonFall {
+  0% { transform: translate(0, -8vh) rotate(0deg); }
+  25% { transform: translate(18px, 22vh) rotate(60deg); }
+  50% { transform: translate(-12px, 50vh) rotate(150deg); }
+  75% { transform: translate(14px, 78vh) rotate(240deg); }
+  100% { transform: translate(0, 108vh) rotate(330deg); }
+}
+@keyframes seasonFly {
+  0% { transform: translate(-10vw, 0); }
+  25% { transform: translate(22vw, -24px); }
+  50% { transform: translate(50vw, 10px); }
+  75% { transform: translate(78vw, -18px); }
+  100% { transform: translate(112vw, 0); }
+}
+
+/* Gentle on motion: no moving decorations or confetti for people who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  .season-particles, .tq-confetti { display: none; }
+  .season-strip span { animation: none; }
+}
+
 /* Night theme: ensure inputs and selects are readable */
 html[data-theme='night'] input,
 html[data-theme='night'] textarea,
 html[data-theme='night'] select,
 html[data-theme='ocean'] input,
 html[data-theme='ocean'] textarea,
-html[data-theme='ocean'] select {
+html[data-theme='ocean'] select,
+html[data-season-dark] input,
+html[data-season-dark] textarea,
+html[data-season-dark] select {
   background-color: var(--warm-bg-input) !important;
   color: var(--warm-text) !important;
   border-color: var(--warm-border) !important;
@@ -569,11 +774,14 @@ html[data-theme='ocean'] select {
 html[data-theme='night'] input::placeholder,
 html[data-theme='night'] textarea::placeholder,
 html[data-theme='ocean'] input::placeholder,
-html[data-theme='ocean'] textarea::placeholder {
+html[data-theme='ocean'] textarea::placeholder,
+html[data-season-dark] input::placeholder,
+html[data-season-dark] textarea::placeholder {
   color: var(--warm-text-light) !important;
 }
 html[data-theme='night'] option,
-html[data-theme='ocean'] option {
+html[data-theme='ocean'] option,
+html[data-season-dark] option {
   background-color: var(--warm-card);
   color: var(--warm-text);
 }

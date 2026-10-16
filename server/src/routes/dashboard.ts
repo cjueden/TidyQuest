@@ -9,7 +9,7 @@ import { getActiveBoosts } from '../utils/boosts';
 import { achievementsFor } from '../utils/achievementStats';
 import { forgottenTasks, usualTasks } from '../utils/homeSections';
 import { rescueCandidates, todaysMission } from '../utils/rescue';
-import { getFeatures, isFeatureOn } from '../utils/features';
+import { getFeatures, holidaysOff, isFeatureOn } from '../utils/features';
 
 const router = Router();
 router.use(authMiddleware);
@@ -320,6 +320,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     rescueMission,
     rescueChoices,
     features,
+    holidaysOff: holidaysOff(),
     onDemandQuests,
     nextTasks,
     completedToday,

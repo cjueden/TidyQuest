@@ -141,7 +141,9 @@
       "save": "Opslaan",
       "saved": "Opgeslagen!",
       "logout": "Uitloggen",
-      "themeDesc": "Jouw kleuren, op elk apparaat waarop je inlogt."
+      "themeDesc": "Jouw kleuren, op elk apparaat waarop je inlogt.",
+      "holidayColors": "Feestdagkleuren",
+      "holidayColorsDesc": "Tijdens feestdagen hun kleuren gebruiken in plaats van je thema. De versiering zie je hoe dan ook."
     },
     "settings": {
       "title": "Instellingen",
@@ -1261,7 +1263,26 @@
       "levels": "Levels",
       "levelsDesc": "Van Beginner tot TidyQuest-kampioen, op basis van verdiende munten.",
       "nextBadge": "Volgende badge",
-      "nextBadgeDesc": "De dichtstbijzijnde badge, op Home en Prestaties."
+      "nextBadgeDesc": "De dichtstbijzijnde badge, op Home en Prestaties.",
+      "seasonal": "Feestdagenlook",
+      "seasonalDesc": "De app verkleedt zich voor de feestdagen: kleuren, versiering en een aftelling op Home."
+    },
+    "seasons": {
+      "halloween": "Halloween",
+      "thanksgiving": "Thanksgiving",
+      "christmas": "Kerstmis",
+      "halloweenGreeting": "Fijne Halloween! 👻",
+      "thanksgivingGreeting": "Fijne Thanksgiving! 🦃",
+      "christmasGreeting": "Vrolijk kerstfeest! 🎅",
+      "daysUntil": "Nog {n} dagen tot {name}",
+      "tomorrow": "Morgen is het {name}!",
+      "today": "Vandaag is het {name}!",
+      "after": "We hopen dat jullie een fijne {name} hadden!",
+      "day": "dag",
+      "days": "dagen",
+      "preview": "Voorbeeld",
+      "previewing": "Voorbeeld: {name}",
+      "stop": "Stoppen"
     }
   }
 }

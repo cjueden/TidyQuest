@@ -20,6 +20,8 @@ export interface User {
   kidMode?: number | boolean;
   /** Their color theme (follows them to every device); null = the device's */
   theme?: string | null;
+  /** 0 = keep their own theme's colors during holidays */
+  holidayColors?: number;
   /** 'MM-DD' */
   birthday?: string | null;
 }
