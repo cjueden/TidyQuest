@@ -556,6 +556,131 @@ body {
 }
 
 /* ========================================
+   UNLOCKABLE THEMES (levels 4, 7 and 10; utils/unlocks.ts)
+   ======================================== */
+html[data-theme='forest'] {
+  --warm-bg: #F3F8F1;
+  --warm-card: #FFFFFF;
+  --warm-border: #D9E7D3;
+  --warm-border-subtle: #E6F0E2;
+  --warm-text: #1F3324;
+  --warm-text-secondary: #3E5A44;
+  --warm-text-muted: #5F7A63;
+  --warm-text-light: #8BA38E;
+  --warm-accent: #2F855A;
+  --warm-accent-light: #E3F4EA;
+  --warm-accent-hover: #276749;
+  --warm-bg-subtle: #F8FBF7;
+  --warm-bg-warm: #EEF6EB;
+  --warm-bg-input: #FFFFFF;
+  --warm-sidebar: #FFFFFF;
+  --warm-sidebar-active: #E3F4EA;
+  --warm-sidebar-border: #D9E7D3;
+  --warm-sidebar-user-bg: #E3F4EA;
+  --warm-sidebar-user-border: #9AE6B4;
+  --warm-streak-bg: linear-gradient(135deg, #E3F4EA, #D5EEDC);
+  --warm-streak-border: #9AE6B4;
+  --warm-streak-text: #22543D;
+  --warm-streak-subtext: #276749;
+  --health-bar-track: #E6F0E2;
+  --warm-primary-shadow: rgba(47, 133, 90, 0.25);
+}
+
+/* Galaxy and Lava are dark: the same status colors as Night */
+html[data-theme='galaxy'], html[data-theme='lava'] {
+  --warm-danger: #F87171;
+  --warm-danger-bg: #2A1F1F;
+  --warm-danger-border: #7F1D1D;
+  --warm-badge-bg: #2A1F1F;
+  --warm-badge-text: #F87171;
+  --warm-coin: #FBBF24;
+  --health-green-bg: #1A2E1A;
+  --health-yellow-bg: #2E2A1A;
+  --health-red-bg: #2E1A1A;
+  --warm-shadow: rgba(0, 0, 0, 0.35);
+  --status-approved-text: #4ADE80;
+  --status-approved-bg: #1A2E1A;
+  --status-approved-border: #166534;
+  --status-rejected-text: #FCA5A5;
+  --status-rejected-bg: #2A1F1F;
+  --status-rejected-border: #7F1D1D;
+  --status-cancelled-text: #94A3B8;
+  --status-cancelled-bg: #1E293B;
+  --status-cancelled-border: #475569;
+  --task-healthy-text: #4ADE80;
+  --task-healthy-bg: #1A2E1A;
+  --task-healthy-border: #166534;
+  --task-warning-text: #FBBF24;
+  --task-warning-bg: #2E2A1A;
+  --task-warning-border: #92400E;
+  --task-critical-text: #FCA5A5;
+  --task-critical-bg: #2E1A1A;
+  --task-critical-border: #7F1D1D;
+}
+
+html[data-theme='galaxy'] {
+  --warm-bg: #0D0B1E;
+  --warm-card: #1A1735;
+  --warm-border: #332E5C;
+  --warm-border-subtle: #29244D;
+  --warm-text: #EDE9FE;
+  --warm-text-secondary: #D4CCF5;
+  --warm-text-muted: #A49BD1;
+  --warm-text-light: #8A80BD;
+  --warm-accent: #A78BFA;
+  --warm-accent-light: #2A2350;
+  --warm-accent-hover: #8B5CF6;
+  --warm-bg-subtle: #221D44;
+  --warm-bg-warm: #282152;
+  --warm-bg-input: #15122B;
+  --warm-sidebar: #120F27;
+  --warm-sidebar-active: #2A2350;
+  --warm-sidebar-border: #332E5C;
+  --warm-sidebar-user-bg: #2A2350;
+  --warm-sidebar-user-border: #5B51A0;
+  --warm-streak-bg: linear-gradient(135deg, #1A1735, #2A2350);
+  --warm-streak-border: #5B51A0;
+  --warm-streak-text: #C4B5FD;
+  --warm-streak-subtext: #A78BFA;
+  --health-bar-track: #332E5C;
+  --warm-primary-shadow: rgba(167, 139, 250, 0.3);
+}
+/* A few faint stars behind the page */
+html[data-theme='galaxy'] .main-content {
+  background-image: radial-gradient(1.5px 1.5px at 18px 24px, #FFFFFF66, transparent), radial-gradient(1px 1px at 70px 90px, #FFFFFF55, transparent),
+    radial-gradient(1.5px 1.5px at 110px 40px, #C4B5FD66, transparent), radial-gradient(1px 1px at 40px 120px, #FFFFFF44, transparent);
+  background-size: 140px 140px;
+}
+
+html[data-theme='lava'] {
+  --warm-bg: #170A08;
+  --warm-card: #2A1210;
+  --warm-border: #4E2219;
+  --warm-border-subtle: #3E1B14;
+  --warm-text: #FDECE6;
+  --warm-text-secondary: #F6CFC2;
+  --warm-text-muted: #D29A88;
+  --warm-text-light: #B07B6B;
+  --warm-accent: #F97316;
+  --warm-accent-light: #3D1A0E;
+  --warm-accent-hover: #FB923C;
+  --warm-bg-subtle: #34160F;
+  --warm-bg-warm: #3E1C12;
+  --warm-bg-input: #22100C;
+  --warm-sidebar: #1F0D0A;
+  --warm-sidebar-active: #3D1A0E;
+  --warm-sidebar-border: #4E2219;
+  --warm-sidebar-user-bg: #3D1A0E;
+  --warm-sidebar-user-border: #8C3A1F;
+  --warm-streak-bg: linear-gradient(135deg, #2A1210, #3D1A0E);
+  --warm-streak-border: #8C3A1F;
+  --warm-streak-text: #FDBA74;
+  --warm-streak-subtext: #FB923C;
+  --health-bar-track: #4E2219;
+  --warm-primary-shadow: rgba(249, 115, 22, 0.3);
+}
+
+/* ========================================
    SEASONAL STYLING (utils/seasons.ts)
    After the themes so a holiday's colors win; App.tsx sets data-season-colors unless the person turned
    holiday colors off in Profile. Light holidays first reset the extras a dark theme changes.
@@ -751,10 +876,21 @@ html[data-season] .main-content {
   100% { transform: translate(112vw, 0); }
 }
 
+/* The house mascot: bounces when the house is clean, sways when it's fine, droops when it's sad */
+.mascot-bounce { animation: mascotBounce 1.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.mascot-sway { animation: mascotSway 3.2s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+.mascot-droop { animation: mascotDroop 4s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+.mascot-party { animation: mascotBounce 0.9s ease-in-out infinite; transform-origin: 50% 100%; }
+.mascot-confetti { position: absolute; top: -6px; right: -6px; font-size: 22px; animation: mascotSway 0.8s ease-in-out infinite alternate; }
+.mascot-bubble::before { content: ''; position: absolute; left: -7px; top: 18px; border: 7px solid transparent; border-left: 0; border-right-color: var(--warm-border); }
+@keyframes mascotBounce { 0%, 100% { transform: translateY(0) scale(1, 1); } 45% { transform: translateY(-8px) scale(0.98, 1.03); } 60% { transform: translateY(0) scale(1.04, 0.96); } }
+@keyframes mascotSway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+@keyframes mascotDroop { from { transform: translateY(0) rotate(-1deg); } to { transform: translateY(2px) rotate(1deg); } }
+
 /* Gentle on motion: no moving decorations or confetti for people who ask for less motion */
 @media (prefers-reduced-motion: reduce) {
   .season-particles, .tq-confetti { display: none; }
-  .season-strip span { animation: none; }
+  .season-strip span, .mascot-bounce, .mascot-sway, .mascot-droop, .mascot-party, .mascot-confetti { animation: none; }
 }
 
 /* Night theme: ensure inputs and selects are readable */
@@ -766,7 +902,13 @@ html[data-theme='ocean'] textarea,
 html[data-theme='ocean'] select,
 html[data-season-dark] input,
 html[data-season-dark] textarea,
-html[data-season-dark] select {
+html[data-season-dark] select,
+html[data-theme='galaxy'] input,
+html[data-theme='galaxy'] textarea,
+html[data-theme='galaxy'] select,
+html[data-theme='lava'] input,
+html[data-theme='lava'] textarea,
+html[data-theme='lava'] select {
   background-color: var(--warm-bg-input) !important;
   color: var(--warm-text) !important;
   border-color: var(--warm-border) !important;
@@ -776,12 +918,18 @@ html[data-theme='night'] textarea::placeholder,
 html[data-theme='ocean'] input::placeholder,
 html[data-theme='ocean'] textarea::placeholder,
 html[data-season-dark] input::placeholder,
-html[data-season-dark] textarea::placeholder {
+html[data-season-dark] textarea::placeholder,
+html[data-theme='galaxy'] input::placeholder,
+html[data-theme='galaxy'] textarea::placeholder,
+html[data-theme='lava'] input::placeholder,
+html[data-theme='lava'] textarea::placeholder {
   color: var(--warm-text-light) !important;
 }
 html[data-theme='night'] option,
 html[data-theme='ocean'] option,
-html[data-season-dark] option {
+html[data-season-dark] option,
+html[data-theme='galaxy'] option,
+html[data-theme='lava'] option {
   background-color: var(--warm-card);
   color: var(--warm-text);
 }

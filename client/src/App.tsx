@@ -26,6 +26,9 @@ import { useTranslation } from './hooks/useTranslation';
 import { localeFor } from './utils/locale';
 import { isTheme, type Theme } from './utils/themes';
 import { activeSeason, useSeasonPreview } from './utils/seasons';
+import { CosmeticsContext, type Cosmetic } from './utils/unlocks';
+
+const NO_COSMETICS: Record<number, Cosmetic> = {};
 import { SeasonGreeting, SeasonParticles, SeasonStrip } from './components/shared/SeasonalDecor';
 
 function AppContent() {
@@ -353,8 +356,9 @@ function AppContent() {
 
   return (
     <SearchContext.Provider value={openSearch}>
+    <CosmeticsContext.Provider value={dashboardData?.cosmetics ?? NO_COSMETICS}>
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--warm-bg)' }}>
-      <ConfettiEffect show={confetti} season={season} />
+      <ConfettiEffect show={confetti} season={season} celebration={dashboardData?.cosmetics?.[user.id]?.celebration} />
       {season && <SeasonParticles season={season} />}
 
       {searchOpen && (
@@ -442,6 +446,7 @@ function AppContent() {
               {dashboardData && (
                 <Dashboard
                   data={dashboardData}
+                  seasonCostume={season?.costume}
                   family={family}
                   users={familySettings}
                   language={user.language}
@@ -533,20 +538,20 @@ function AppContent() {
           <Route path="/activity" element={
             <>
               <PageHeader title={t('nav.activity')} subtitle={t('app.activitySubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <History language={user.language} isAdmin={user.role === 'admin'} users={familySettings} rooms={rooms} />
+              <History language={user.language} isAdmin={user.role === 'admin'} users={familySettings} rooms={rooms} userId={user.id} />
             </>
           } />
           <Route path="/history" element={
             <>
               <PageHeader title={t('nav.activity')} subtitle={t('app.activitySubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <History language={user.language} isAdmin={user.role === 'admin'} users={familySettings} rooms={rooms} />
+              <History language={user.language} isAdmin={user.role === 'admin'} users={familySettings} rooms={rooms} userId={user.id} />
             </>
           } />
 
           <Route path="/profile" element={
             <>
               <PageHeader title={t('nav.profile')} subtitle={t('app.profileSubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <Profile user={user} theme={theme} onChangeTheme={changeTheme} onSave={async () => { await refreshUser(); }} onLogout={() => { logout(); navigate('/login', { replace: true }); }} />
+              <Profile user={user} theme={theme} onChangeTheme={changeTheme} onUnlocksChanged={() => { void loadDashboard(); }} onSave={async () => { await refreshUser(); }} onLogout={() => { logout(); navigate('/login', { replace: true }); }} />
             </>
           } />
 
@@ -663,6 +668,7 @@ function AppContent() {
         </Routes>
       </main>
     </div>
+    </CosmeticsContext.Provider>
     </SearchContext.Provider>
   );
 }

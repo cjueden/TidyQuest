@@ -1,3 +1,5 @@
+import { ExtraIcon } from './TaskIconsExtra';
+import { EXTRA_KEYS } from './iconGroups';
 export type TaskIconKey =
   | 'sparkle' | 'dishes' | 'sink' | 'stove' | 'counter' | 'fridge' | 'oven'
   | 'microwave' | 'kettle' | 'rangehood' | 'pantry' | 'cabinet'
@@ -827,5 +829,7 @@ function I({ k, size }: { k: string; size: number }) {
 }
 
 export function TaskIcon({ iconKey, size = 14 }: { iconKey?: string | null; size?: number }) {
-  return <I k={iconKey || 'sparkle'} size={size} />;
+  const k = iconKey || 'sparkle';
+  // The family-activity icons (pets, yard, school…) live in TaskIconsExtra.tsx
+  return EXTRA_KEYS.has(k) ? <ExtraIcon k={k} size={size} /> : <I k={k} size={size} />;
 }

@@ -7,6 +7,8 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { MyNotifications } from '../shared/MyNotifications';
 import { ThemePicker } from '../shared/ThemePicker';
 import { Toggle } from '../shared/Toggle';
+import { UnlocksCard } from '../shared/UnlocksCard';
+import { useCosmetic } from '../../utils/unlocks';
 import type { Theme } from '../../utils/themes';
 import type { User } from '../../hooks/useAuth';
 
@@ -20,11 +22,14 @@ interface ProfileProps {
   user: User;
   theme: Theme;
   onChangeTheme: (theme: Theme) => void | Promise<void>;
+  /** A frame, celebration or title was picked (the app reloads everyone's looks) */
+  onUnlocksChanged?: () => void;
   onSave: () => void;
   onLogout: () => void;
 }
 
-export function Profile({ user, theme, onChangeTheme, onSave, onLogout }: ProfileProps) {
+export function Profile({ user, theme, onChangeTheme, onUnlocksChanged, onSave, onLogout }: ProfileProps) {
+  const myLevel = useCosmetic(user.id)?.level;
   const { t } = useTranslation(user.language);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [avatarType, setAvatarType] = useState<'letter' | 'preset' | 'photo'>(user.avatarType || 'letter');
@@ -114,6 +119,7 @@ export function Profile({ user, theme, onChangeTheme, onSave, onLogout }: Profil
         {/* Avatar preview */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
           <UserAvatar
+            userId={user.id}
             name={displayName}
             color={avatarColor}
             size={80}
@@ -291,7 +297,7 @@ export function Profile({ user, theme, onChangeTheme, onSave, onLogout }: Profil
       <div className="tq-card tq-card-padded" style={{ marginTop: 16, display: 'grid', gap: 8 }}>
         <h3 className="tq-card-title" style={{ margin: 0 }}>🎨 {t('settings.theme')}</h3>
         <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('profile.themeDesc')}</div>
-        <ThemePicker value={theme} onChange={(next) => void onChangeTheme(next)} language={user.language} />
+        <ThemePicker value={theme} onChange={(next) => void onChangeTheme(next)} language={user.language} level={myLevel} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 8, borderTop: '1px solid var(--warm-border)' }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-text)' }}>🎃 {t('profile.holidayColors')}</div>
@@ -301,6 +307,7 @@ export function Profile({ user, theme, onChangeTheme, onSave, onLogout }: Profil
             onChange={async (on) => { await api.updateProfile(user.id, { holidayColors: on }); onSave(); }} />
         </div>
       </div>
+      <UnlocksCard user={user} onChanged={onUnlocksChanged} />
       <MyNotifications userId={user.id} language={user.language} />
     </div>
   );

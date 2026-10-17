@@ -20,16 +20,25 @@ export interface PendingItem {
  * Chores waiting for a parent (Strict Mode): tick several and approve or reject them together,
  * or handle one at a time. Shows the kid's note and photo when they added one.
  */
-export function PendingApprovals({ items, language, onChanged, gamificationEnabled = true }: {
+const BONUSES = [0, 1, 2, 5];
+
+export function PendingApprovals({ items, language, onChanged, gamificationEnabled = true, extras = false }: {
   items: PendingItem[];
   language?: string;
   onChanged: () => void | Promise<void>;
   gamificationEnabled?: boolean;
+  /** A note and an "above and beyond" bonus when approving one chore (Cheers) */
+  extras?: boolean;
 }) {
   const { t, taskName, roomDisplayName, timeAgo } = useTranslation(language);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState(false);
   const chosen = items.filter((i) => selected.has(i.id)).map((i) => i.id);
+  // The row whose note-and-bonus box is open
+  const [extraFor, setExtraFor] = useState<number | null>(null);
+  const [note, setNote] = useState('');
+  const [bonus, setBonus] = useState(0);
+  const openExtra = (id: number) => { setExtraFor(extraFor === id ? null : id); setNote(''); setBonus(0); };
 
   const run = async (fn: () => Promise<unknown>) => {
     setBusy(true);
@@ -96,9 +105,34 @@ export function PendingApprovals({ items, language, onChanged, gamificationEnabl
                 <img src={p.photoUrl} alt={t('approvals.proofPhoto')} style={{ maxWidth: 160, maxHeight: 120, borderRadius: 10, border: '1px solid var(--warm-border)', objectFit: 'cover' }} />
               </a>
             )}
+            {extras && extraFor === p.id && (
+              <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
+                <input className="tq-input-compact" value={note} maxLength={200} onChange={(e) => setNote(e.target.value)} placeholder={t('cheers.notePlaceholder')} style={{ minWidth: 0 }} />
+                {gamificationEnabled && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center', fontSize: 11, fontWeight: 800, color: 'var(--warm-text-muted)' }}>
+                    {t('cheers.bonus')}
+                    {BONUSES.map((b) => (
+                      <button key={b} type="button" onClick={() => setBonus(b)} style={{
+                        padding: '3px 9px', borderRadius: 99, fontSize: 11, fontWeight: 800, fontFamily: 'Nunito', cursor: 'pointer',
+                        border: `1.5px solid ${bonus === b ? 'var(--warm-accent)' : 'var(--warm-border)'}`,
+                        backgroundColor: bonus === b ? 'var(--warm-accent-light)' : 'var(--warm-card)', color: bonus === b ? 'var(--warm-accent)' : 'var(--warm-text)',
+                      }}>{b === 0 ? t('cheers.none') : `+${b}`}</button>
+                    ))}
+                  </div>
+                )}
+                <button className="tq-btn tq-btn-primary tq-btn-sm" disabled={busy} style={{ justifySelf: 'start' }}
+                  onClick={() => run(async () => { await api.approveCompletion(p.id, { note: note.trim() || undefined, bonus: bonus || undefined }); setExtraFor(null); })}>
+                  {t('settings.approve')}{bonus ? ` ⭐ +${bonus}` : ''}
+                </button>
+              </div>
+            )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
             <button className="tq-btn tq-btn-secondary tq-btn-sm" disabled={busy} onClick={() => run(() => api.approveCompletion(p.id))}>{t('settings.approve')}</button>
+            {extras && (
+              <button className="tq-btn tq-btn-secondary tq-btn-sm" disabled={busy} aria-expanded={extraFor === p.id} onClick={() => openExtra(p.id)}
+                title={t('cheers.extra')} aria-label={t('cheers.extra')}>⭐ 💬</button>
+            )}
             <button className="tq-btn tq-btn-sm" disabled={busy} onClick={() => run(() => api.rejectPendingCompletion(p.id))}
               style={{ backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}>
               {t('settings.reject')}

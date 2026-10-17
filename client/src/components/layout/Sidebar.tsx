@@ -4,6 +4,7 @@ import { FireIcon, CoinIcon, SparkleIcon } from '../icons/UIIcons';
 import { UserAvatar } from '../shared/UserAvatar';
 import { useTranslation } from '../../hooks/useTranslation';
 import { formatCoins } from '../../utils/format';
+import { UserTitle } from '../shared/UserTitle';
 import type { User } from '../../hooks/useAuth';
 
 interface SidebarProps {
@@ -204,6 +205,7 @@ export function Sidebar({ user, isMobileOpen = false, onClose, gamificationEnabl
             }}
           >
             <UserAvatar
+              userId={user.id}
               name={user.displayName}
               color={user.avatarColor}
               size={effectiveCollapsed ? 28 : 38}
@@ -214,6 +216,7 @@ export function Sidebar({ user, isMobileOpen = false, onClose, gamificationEnabl
             {!effectiveCollapsed && (
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-text)' }}>{user.displayName}</div>
+                <UserTitle userId={user.id} language={user.language} style={{ display: 'block', fontSize: 10 }} />
                 {gamificationEnabled && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>

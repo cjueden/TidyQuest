@@ -111,11 +111,36 @@ export interface FeatureFlags {
   levels: boolean;
   nextBadge: boolean;
   seasonal: boolean;
+  cheers: boolean;
+  mascot: boolean;
+  teamups: boolean;
 }
 
-export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[] }
+/** Team-ups on a chore in a list: can you start one, and has a team claimed it today? */
+export interface TeamUpInfo { canStart: boolean; teamId: number | null; claimedBy: string[] | null }
+/** Home's Team-ups card: a team-up you're on or could join */
+export interface TeamupItem {
+  id: number; taskId: number; taskName: string; roomId: number; roomName: string; createdBy: number; invitedUserId: number | null;
+  members: Array<{ id: number; displayName: string; helper: boolean }>; mine: boolean; canJoin: boolean; share: number | null;
+}
 
-export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder';
+/** Unlockables: what levels have unlocked for you and what you picked */
+export interface UnlocksView {
+  level: number;
+  items: Array<{ level: number; kind: 'frame' | 'theme' | 'celebration' | 'title'; id: string; unlocked: boolean }>;
+  badgeFrames: Array<{ id: string; titleKey: string; icon: string; unlocked: boolean }>;
+  titles: Array<{ id: string; titleKey?: string; text?: string }>;
+  titleLevel: number;
+  chosen: { frame: string | null; celebration: string; title: string | null; theme: string | null };
+  next: { level: number; kind: string; id: string } | null;
+}
+
+/** Cheers on one finished chore (counts in 👏 🎉 💪 ⭐ order, and the viewer's own) */
+export interface CheerSummary { counts: Array<{ emoji: string; count: number; names: string[] }>; mine: string | null }
+
+export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[]; mascot: { creature: string; name: string }; teamBonus: number }
+
+export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder' | 'cheer' | 'teamup';
 
 export interface NotifySettings {
   morningTime: string;
@@ -310,7 +335,7 @@ export const api = {
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
   getFeatures: () => apiFetch<FeaturesView>('/features'),
-  updateFeatures: (data: { features?: Partial<FeatureFlags>; rescueMultiplier?: number; holidaysOff?: string[] }) =>
+  updateFeatures: (data: { features?: Partial<FeatureFlags>; rescueMultiplier?: number; holidaysOff?: string[]; mascot?: { creature?: string; name?: string }; teamBonus?: number }) =>
     apiFetch<FeaturesView>('/features', { method: 'PUT', body: JSON.stringify(data) }),
   // Today's Rescue Mission (parents): another one, a chosen chore, or none today
   rescueReroll: () => apiFetch<unknown>('/rescue/reroll', { method: 'POST' }),
@@ -488,8 +513,18 @@ export const api = {
       roomName: string;
       displayName: string;
     }> }>('/completions/pending'),
-  approveCompletion: (completionId: number) =>
-    apiFetch<{ success: boolean }>(`/completions/${completionId}/approve`, { method: 'POST' }),
+  approveCompletion: (completionId: number, extras?: { note?: string; bonus?: number }) =>
+    apiFetch<{ success: boolean }>(`/completions/${completionId}/approve`, { method: 'POST', ...(extras ? { body: JSON.stringify(extras) } : {}) }),
+  startTeamup: (taskId: number, partnerId: number | null) =>
+    apiFetch<{ teamup: unknown }>('/teamups', { method: 'POST', body: JSON.stringify({ taskId, partnerId }) }),
+  joinTeamup: (id: number) => apiFetch<{ teamup: unknown }>(`/teamups/${id}/join`, { method: 'POST' }),
+  leaveTeamup: (id: number) => apiFetch<{ ok: boolean }>(`/teamups/${id}/leave`, { method: 'POST' }),
+  suggestIcon: (name: string) => apiFetch<{ iconKey: string }>(`/tasks/icon-suggestion?name=${encodeURIComponent(name)}`),
+  getUnlocks: () => apiFetch<UnlocksView>('/unlocks'),
+  updateUnlocks: (data: { frame?: string | null; celebration?: string; title?: string | null }) =>
+    apiFetch<UnlocksView>('/unlocks', { method: 'PUT', body: JSON.stringify(data) }),
+  cheer: (completionId: number, emoji: string) =>
+    apiFetch<{ cheers: CheerSummary }>('/cheers', { method: 'POST', body: JSON.stringify({ completionId, emoji }) }),
   rejectPendingCompletion: (completionId: number) =>
     apiFetch<{ success: boolean }>(`/completions/${completionId}/reject`, { method: 'DELETE' }),
 

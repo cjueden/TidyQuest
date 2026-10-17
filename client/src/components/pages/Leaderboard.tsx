@@ -5,6 +5,7 @@ import { formatCoins } from '../../utils/format';
 import { localeFor } from '../../utils/locale';
 import { FireIcon } from '../icons/UIIcons';
 import { useTranslation } from '../../hooks/useTranslation';
+import { UserTitle } from '../shared/UserTitle';
 import { api, type BoardData, type BoardMode, type BoardPeriod, type BoardPerson } from '../../hooks/useApi';
 
 const PERIODS: BoardPeriod[] = ['week', 'lastWeek', 'month', 'quarter', 'year'];
@@ -117,8 +118,9 @@ export function Leaderboard({ language }: { language?: string }) {
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 12 }}>
             {podium.map((u, i) => (
               <div key={u.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, maxWidth: 150, minWidth: 0 }}>
-                <UserAvatar name={u.displayName} color={u.avatarColor} size={podiumAvatarSizes[i]} avatarType={u.avatarType as 'letter' | 'preset' | 'photo' | undefined} avatarPreset={u.avatarPreset ?? undefined} avatarPhotoUrl={u.avatarPhotoUrl ?? undefined} />
+                <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={podiumAvatarSizes[i]} avatarType={u.avatarType as 'letter' | 'preset' | 'photo' | undefined} avatarPreset={u.avatarPreset ?? undefined} avatarPhotoUrl={u.avatarPhotoUrl ?? undefined} />
                 <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--warm-text)', margin: '6px 0', textAlign: 'center', overflowWrap: 'anywhere' }}>{u.displayName}</div>
+                <UserTitle userId={u.id} language={language} style={{ marginTop: -4, marginBottom: 4, textAlign: 'center' }} />
                 <div style={{
                   width: '100%', height: podiumHeights[i], borderRadius: '18px 18px 0 0', background: podiumGradients[i],
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -148,11 +150,12 @@ export function Leaderboard({ language }: { language?: string }) {
                 {u.movement > 0 ? `▲${u.movement}` : u.movement < 0 ? `▼${-u.movement}` : '–'}
               </span>
             </div>
-            <UserAvatar name={u.displayName} color={u.avatarColor} size={48} avatarType={u.avatarType as 'letter' | 'preset' | 'photo' | undefined} avatarPreset={u.avatarPreset ?? undefined} avatarPhotoUrl={u.avatarPhotoUrl ?? undefined} />
+            <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={48} avatarType={u.avatarType as 'letter' | 'preset' | 'photo' | undefined} avatarPreset={u.avatarPreset ?? undefined} avatarPhotoUrl={u.avatarPhotoUrl ?? undefined} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', overflowWrap: 'anywhere' }}>
                 {u.displayName}{(data?.trophies.wins[u.id] ?? 0) > 0 && <span style={{ fontSize: 12, marginLeft: 6 }} title={t('board.trophyShelf')}>🏆×{data!.trophies.wins[u.id]}</span>}
               </div>
+              <UserTitle userId={u.id} language={language} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2, flexWrap: 'wrap', fontSize: 12, color: 'var(--warm-text-light)', fontWeight: 600 }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><FireIcon /> {u.currentStreak}d {t('leaderboard.streak')}</span>
                 <span>{t('board.choresCount').replace('{n}', String(u.chores))}</span>

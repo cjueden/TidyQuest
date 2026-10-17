@@ -3,6 +3,8 @@ import { UserAvatar } from '../shared/UserAvatar';
 import { CoinIcon } from '../icons/UIIcons';
 import { formatCoins } from '../../utils/format';
 import { api } from '../../hooks/useApi';
+import { CheerBar } from '../shared/CheerBar';
+import { UserTitle } from '../shared/UserTitle';
 import { useTranslation } from '../../hooks/useTranslation';
 
 type Range = '' | 'today' | 'week' | 'month';
@@ -22,9 +24,11 @@ interface HistoryProps {
   isAdmin?: boolean;
   users?: Array<{ id: number; displayName: string; role: string; isParticipant?: boolean | number }>;
   rooms?: Array<{ id: number; name: string; roomType: string }>;
+  /** The viewer (you can't cheer your own chores) */
+  userId?: number;
 }
 
-export function History({ language, isAdmin, users = [], rooms = [] }: HistoryProps) {
+export function History({ language, isAdmin, users = [], rooms = [], userId }: HistoryProps) {
   const { taskName, t, roomDisplayName, timeAgo } = useTranslation(language);
   const [history, setHistory] = useState<any[]>([]);
   // The viewer's own chores still waiting for a parent (Strict Mode)
@@ -159,12 +163,12 @@ export function History({ language, isAdmin, users = [], rooms = [] }: HistoryPr
                 <div style={{ position: 'relative', width: 44, height: 34, flexShrink: 0 }}>
                   {h.participants.map((p: any, i: number) => (
                     <div key={p.id} style={{ position: 'absolute', left: i * 14, top: 0, zIndex: h.participants.length - i, outline: '2px solid var(--warm-card)', borderRadius: '50%' }}>
-                      <UserAvatar name={p.displayName} color={p.avatarColor} size={28} avatarType={p.avatarType} avatarPreset={p.avatarPreset} avatarPhotoUrl={p.avatarPhotoUrl} />
+                      <UserAvatar userId={p.id} name={p.displayName} color={p.avatarColor} size={28} avatarType={p.avatarType} avatarPreset={p.avatarPreset} avatarPhotoUrl={p.avatarPhotoUrl} />
                     </div>
                   ))}
                 </div>
               ) : (
-                <UserAvatar name={h.displayName} color={h.avatarColor} size={34} avatarType={h.avatarType} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
+                <UserAvatar userId={h.userId} name={h.displayName} color={h.avatarColor} size={34} avatarType={h.avatarType} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
               )}
               <div>
                 {isChipIn ? (
@@ -187,8 +191,13 @@ export function History({ language, isAdmin, users = [], rooms = [] }: HistoryPr
                 ) : (
                   <>
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{taskName(h.taskName, h.translationKey)}</div>
-                    <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('history.by')} {byName}</div>
+                    <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('history.by')} {byName}{!isDuo && <> <UserTitle userId={h.userId} language={language} style={{ fontSize: 10 }} /></>}</div>
                     <div className="history-mobile-meta">{roomDisplayName(h.roomName, h.roomType || '')} · {timeAgo(h.completedAt)}</div>
+                    {h.approvalNote && <div style={{ fontSize: 12, color: 'var(--warm-text-secondary)', fontWeight: 600, marginTop: 2, overflowWrap: 'anywhere' }}>💬 “{h.approvalNote}”</div>}
+                    {h.cheers && (
+                      <CheerBar completionId={h.id} cheers={h.cheers} language={language}
+                        canCheer={h.userId !== userId && !h.participants?.some((p: { id: number }) => p.id === userId)} />
+                    )}
                   </>
                 )}
               </div>

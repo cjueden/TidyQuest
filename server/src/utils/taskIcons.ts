@@ -11,10 +11,46 @@ export type TaskIconKey =
   | 'trash' | 'broom'
   | 'washer' | 'dryer' | 'detergent' | 'iron' | 'clothes'
   | 'tools' | 'cobweb' | 'chemicals' | 'garagedoor'
-  | 'shelf' | 'drawer' | 'closet';
+  | 'shelf' | 'drawer' | 'closet'
+  // Round 3: family activities (client/src/components/icons/TaskIconsExtra.tsx draws these)
+  | 'dog' | 'cat' | 'petfood' | 'litter' | 'poop' | 'leash' | 'petbed' | 'petmeds' | 'fishtank'
+  | 'mower' | 'rake' | 'wateringcan' | 'plant' | 'pool' | 'skimmer' | 'hose' | 'shovel' | 'weeds'
+  | 'car' | 'carwash' | 'bike'
+  | 'smokealarm' | 'extinguisher' | 'airfilter' | 'waterfilter' | 'battery' | 'lightbulb' | 'recycling' | 'mail'
+  | 'groceries' | 'cart' | 'bills' | 'piggybank' | 'calendar'
+  | 'cooking' | 'lunchbox' | 'table' | 'folding' | 'hanger'
+  | 'homework' | 'backpack' | 'reportcard' | 'bus' | 'alarmclock' | 'bedtime' | 'hairbrush' | 'shoes' | 'toys' | 'reading'
+  | 'briefcase' | 'phone' | 'trophy' | 'star' | 'streak' | 'medal' | 'heart';
+
+/**
+ * Family activities, checked before the room-by-room rules below (so "Wash Dog & Cat Beds" is a pet
+ * bed, not a bed, and "Smoke Alarm Batteries" a smoke alarm). English words, matched as whole words.
+ */
+const ACTIVITY_RULES: Array<[RegExp, TaskIconKey]> = [
+  [/\blitter\b/, 'litter'], [/\bpoop\b|\bpooper/, 'poop'], [/\bflea|\bheartworm|\bpet meds?\b|\bvet\b/, 'petmeds'],
+  [/\bwalk\b.*\bdogs?\b|\bdogs?\b.*\bwalk/, 'leash'], [/\bfeed|\bpet food\b|\bpet bowls?\b/, 'petfood'],
+  [/\b(dog|cat|pet)s?\b.*\bbeds?\b/, 'petbed'], [/\baquarium\b|\bfish tank\b/, 'fishtank'],
+  [/\bdogs?\b|\bpupp(y|ies)\b/, 'dog'], [/\bcats?\b|\bkitten/, 'cat'],
+  [/\bskim/, 'skimmer'], [/\bpool\b/, 'pool'], [/\bmow/, 'mower'], [/\brake\b|\bleaves\b/, 'rake'],
+  [/\bwater\b.*\bplants?\b/, 'wateringcan'], [/\bhose\b/, 'hose'], [/\bweed/, 'weeds'], [/\bplants?\b|\bgarden/, 'plant'], [/\bsnow\b|\bshovel/, 'shovel'],
+  [/\bcars?\b.*\bwash|\bwash\b.*\bcars?\b/, 'carwash'], [/\bcars?\b|\bvacuum the car/, 'car'], [/\bbikes?\b|\bbicycle/, 'bike'],
+  [/\bsmoke\b|\bco alarm/, 'smokealarm'], [/\bextinguisher/, 'extinguisher'], [/\bhvac\b|\bair filter|\bfurnace filter/, 'airfilter'],
+  [/\bwater filter/, 'waterfilter'], [/\bbatter(y|ies)\b/, 'battery'], [/\blight ?bulbs?\b|\bbulbs?\b/, 'lightbulb'], [/\bmail\b|\bpost office\b/, 'mail'],
+  [/\bgrocer/, 'groceries'], [/\bshopping\b|\berrand/, 'cart'], [/\bbills?\b|\bbudget/, 'bills'], [/\bsav(e|ing)s?\b|\bpiggy/, 'piggybank'], [/\bcalendar\b|\bplanner\b/, 'calendar'],
+  [/\bcook|\bmeal\b|\bdinner prep/, 'cooking'], [/\blunch/, 'lunchbox'], [/\bset\b.*\btable\b|\btable\b.*\bset\b/, 'table'],
+  [/\bfold(s|ing|ed)?\b/, 'folding'], [/\bhang\b|\bhangers?\b/, 'hanger'],
+  [/\bbedtime\b|\bbed time\b/, 'bedtime'], [/\bteeth\b|\btooth/, 'toothbrush'],
+  [/\bhomework\b|\bstudy|\bschoolwork/, 'homework'], [/\bbackpack|\blaunch pad\b/, 'backpack'], [/\breport card|\bgrades?\b|\btest scores?\b/, 'reportcard'],
+  [/\bbus\b/, 'bus'], [/\bstreak/, 'streak'], [/\bwake\b|\bon time\b|\balarm clock/, 'alarmclock'],
+  [/\bhair\b/, 'hairbrush'], [/\bshoes?\b/, 'shoes'], [/\btoys?\b/, 'toys'], [/\bread(ing)?\b|\bbooks?\b/, 'reading'],
+  [/\bwork\b|\bjob\b|\bshift\b/, 'briefcase'], [/\bphone\b|\bcheck[- ]in\b/, 'phone'],
+  [/\bmedal\b/, 'medal'], [/\btroph|\bwin\b|\bwinner|\baward/, 'trophy'], [/\bawesome\b|\bstar\b/, 'star'], [/\bkind(ness)?\b|\bhelp(ed|ing)? (a |your )?(sibling|brother|sister)/, 'heart'],
+];
 
 export function suggestTaskIcon(name?: string | null, translationKey?: string | null): TaskIconKey {
   const s = `${name || ''} ${translationKey || ''}`.toLowerCase();
+
+  for (const [re, key] of ACTIVITY_RULES) if (re.test(s)) return key;
 
   // Kitchen
   if (s.includes('dish') || s.includes('dishwasher') || s.includes('vaisselle') || s.includes('geschirrspul') || s.includes('lavaplatos')) return 'dishes';

@@ -13,7 +13,7 @@ import { getNotificationTypeSettings, getNtfySettings, getTelegramSettings, send
 
 export type NotifyKind = keyof NotificationTypeSettings;
 /** Only to the person's own channels: the family channel would be noise for everyone else */
-const PRIVATE_KINDS: NotifyKind[] = ['outcome', 'summary', 'nudge'];
+const PRIVATE_KINDS: NotifyKind[] = ['outcome', 'summary', 'nudge', 'cheer'];
 
 export interface Person {
   id: number;

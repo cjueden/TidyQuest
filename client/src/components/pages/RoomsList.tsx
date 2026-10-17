@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import HealthBar from '../shared/HealthBar';
 import { getRoomIcon } from '../icons/RoomIcons';
-import { TaskIcon, TASK_ICON_OPTIONS } from '../icons/TaskIcons';
+import { TaskIcon } from '../icons/TaskIcons';
+import { IconPicker } from '../shared/IconPicker';
 import { PlusIcon, TrashIcon } from '../icons/UIIcons';
 import UserAvatar from '../shared/UserAvatar';
 import { getHealthColor, getRoomHealth } from '../../utils/health';
@@ -748,18 +749,8 @@ export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCre
                                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', textTransform: 'uppercase', marginBottom: 6 }}>
                                   {t('rooms.icon')}
                                 </div>
-                                <select
-                                  value={task.iconKey || 'sparkle'}
-                                  onChange={(e) => updateTask(idx, { iconKey: e.target.value })}
-                                  className="tq-input-compact" style={{ width: '100%', cursor: 'pointer', fontSize: 11 }}
-                                >
-                                  {TASK_ICON_OPTIONS
-                                    .slice()
-                                    .sort((a, b) => t(`taskIcons.${a.key}`).localeCompare(t(`taskIcons.${b.key}`)))
-                                    .map((opt) => (
-                                      <option key={opt.key} value={opt.key}>{t(`taskIcons.${opt.key}`)}</option>
-                                    ))}
-                                </select>
+                                <IconPicker value={task.iconKey || 'sparkle'} onChange={(k) => updateTask(idx, { iconKey: k })} language={language}
+                                  taskName={taskName(task.name, task.translationKey)} compact />
                               </div>
 
                             </div>

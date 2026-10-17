@@ -21,6 +21,9 @@ import notifyRoutes from './routes/notify';
 import todosRoutes from './routes/todos';
 import rescueRoutes from './routes/rescue';
 import featuresRoutes from './routes/features';
+import cheersRoutes from './routes/cheers';
+import unlocksRoutes from './routes/unlocks';
+import teamupsRoutes from './routes/teamups';
 import boostsRoutes from './routes/boosts';
 import csvRoutes from './routes/csv';
 import trashRoutes from './routes/trash';
@@ -74,6 +77,9 @@ export function createApp() {
   app.use('/api/todos', todosRoutes);
   app.use('/api/rescue', rescueRoutes);
   app.use('/api/features', featuresRoutes);
+  app.use('/api/cheers', cheersRoutes);
+  app.use('/api/unlocks', unlocksRoutes);
+  app.use('/api/teamups', teamupsRoutes);
 
   // 404 handler for unknown API routes
   app.use('/api/*', (_req, res) => {

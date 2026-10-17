@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { UserAvatar } from '../shared/UserAvatar';
 import { EffortDots } from '../shared/EffortDots';
 import { Toggle } from '../shared/Toggle';
@@ -23,6 +23,7 @@ import { AVATAR_PRESETS } from '../icons/AvatarPresets';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { User } from '../../hooks/useAuth';
 import { api, type RewardRules } from '../../hooks/useApi';
+import { CosmeticsContext } from '../../utils/unlocks';
 import { localeFor } from '../../utils/locale';
 
 interface FamilyUser {
@@ -119,6 +120,8 @@ export function Settings({
   onDataChanged,
 }: SettingsProps) {
   const { t } = useTranslation(user.language);
+  // Each person's level, so a parent sees which themes a kid has unlocked
+  const cosmetics = useContext(CosmeticsContext);
   const isAdmin = user.role === 'admin';
   const [showAddMember, setShowAddMember] = useState(false);
   const [newMemberName, setNewMemberName] = useState('');
@@ -724,7 +727,7 @@ export function Settings({
               return (
                 <div key={u.id} style={{ padding: '8px 10px', borderRadius: 12, backgroundColor: 'var(--warm-bg-subtle)', border: '1px solid var(--warm-border)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <UserAvatar name={u.displayName} color={u.avatarColor} size={28} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
+                    <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={28} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{u.displayName}</div>
                       {isOn && u.vacationStartDate && (
@@ -1203,7 +1206,7 @@ export function Settings({
           {family.map((u) => (
             <div key={u.id} className="family-member-card" style={{ backgroundColor: 'var(--warm-bg-warm)', borderRadius: 16, border: '1.5px solid var(--warm-border)', padding: '14px 16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <UserAvatar name={u.displayName} color={u.avatarColor} size={44} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
+                <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={44} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
                 <div style={{ flex: 1 }}>
                   <div className="family-member-title-row" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--warm-text)' }}>{u.displayName}</div>
@@ -1331,7 +1334,7 @@ export function Settings({
                       ))}
                     </select>
                   )}
-                  <ThemePicker value={isTheme(memberProfile[u.id]?.theme) ? memberProfile[u.id].theme as Theme : null} language={user.language}
+                  <ThemePicker value={isTheme(memberProfile[u.id]?.theme) ? memberProfile[u.id].theme as Theme : null} language={user.language} level={cosmetics[u.id]?.level}
                     onChange={(theme) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], theme } }))} />
                   <BirthdayInput value={memberProfile[u.id]?.birthday ?? ''} language={user.language}
                     onChange={(birthday) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], birthday } }))} />

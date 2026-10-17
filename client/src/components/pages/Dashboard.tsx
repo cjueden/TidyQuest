@@ -16,7 +16,11 @@ import { useTaskView } from '../../hooks/useTaskView';
 import { AllMineToggle } from '../shared/AllMineToggle';
 import { PendingApprovals, type PendingItem } from '../shared/PendingApprovals';
 import { ProofModal, type Proof } from '../shared/ProofModal';
-import type { CoinBoost } from '../../hooks/useApi';
+import type { CheerSummary, CoinBoost, TeamUpInfo, TeamupItem } from '../../hooks/useApi';
+import { CheerBar } from '../shared/CheerBar';
+import { MascotCard, type MascotData } from '../mascot/MascotCard';
+import { TeamUpButton, TeamUpDialog, TeamUpsCard } from '../shared/TeamUp';
+import { claimedLabel } from '../../utils/teamups';
 import { formatCoins } from '../../utils/format';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { api } from '../../hooks/useApi';
@@ -66,6 +70,8 @@ interface Quest {
   assignmentMode?: 'first' | 'shared';
   sharedCompletions?: Array<{ userId: number; displayName: string }>;
   completedTodayBy?: { userId: number; displayName: string; avatarColor: string } | null;
+  /** Team-ups: can you start one, and has a team claimed it today? */
+  teamUp?: TeamUpInfo | null;
   /** The viewer's own completions of this task still waiting for a parent (Strict Mode) */
   myPendingCount?: number;
   notes?: string | null;
@@ -89,6 +95,7 @@ interface CurrentUser {
 }
 
 interface ActivityEntry {
+  userId?: number;
   displayName: string;
   avatarColor: string;
   avatarType?: string;
@@ -115,6 +122,10 @@ interface FamilyMember {
 }
 
 interface CompletedTodayEntry {
+  completionId: number;
+  userId: number;
+  approvalNote?: string | null;
+  cheers?: CheerSummary;
   completedAt: string;
   coinsEarned: number;
   taskId: number;
@@ -153,7 +164,10 @@ interface DashboardProps {
     /** Parents: chores they can choose as the mission instead */
     rescueChoices?: Array<{ id: number; name: string }>;
     /** Optional extras switched on or off in Settings → Features */
-    features?: { todos?: boolean };
+    features?: { todos?: boolean; cheers?: boolean };
+    nextUnlock?: { level: number; kind: string; id: string } | null;
+    mascot?: MascotData | null;
+    teamups?: TeamupItem[];
     completedToday?: CompletedTodayEntry[];
     myLevel?: LevelInfo | null;
     nextBadge?: BadgeItem | null;
@@ -182,6 +196,8 @@ interface DashboardProps {
   onRewardRequestAction: (id: number, status: 'approved' | 'rejected') => void | Promise<void>;
   gamificationEnabled?: boolean;
   leaderboardPeriod?: 'week' | 'month' | 'quarter' | 'year';
+  /** The holiday showing now dresses the mascot (seasons.ts costume) */
+  seasonCostume?: string | null;
 }
 
 /* ── Component ── */
@@ -200,6 +216,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   onRewardRequestAction,
   gamificationEnabled = true,
   leaderboardPeriod = 'week',
+  seasonCostume = null,
 }) => {
   const { taskName, roomDisplayName, timeAgo, t } = useTranslation(language);
 
@@ -292,6 +309,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   // The Done button for a chore in the newer Home sections (To-do, Your usual, Maybe you forgot,
   // Rescue Mission): the same rules as the lists above, for scheduled and anytime chores alike
   const doneState = (q: Quest): { disabled: boolean; label: string } => {
+    const claimed = claimedLabel(q.teamUp);
+    if (claimed) return { disabled: true, label: claimed };
     const isAdminOrMember = currentUser.role === 'admin' || currentUser.role === 'member';
     const hasAssignees = (q.effectiveAssignedUserIds && q.effectiveAssignedUserIds.length > 0) || q.assignedToChildren;
     const ids = q.effectiveAssignedUserIds ?? [];
@@ -334,6 +353,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
         <span style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
           {opts.actions}
+          <TeamUpButton info={q.teamUp} onClick={() => setTeamPick(q)} language={language} />
           {proofButton(q, !state.disabled)}
           <button onClick={(e) => { e.stopPropagation(); if (!state.disabled) finish(q); }} disabled={state.disabled} className={state.disabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
             style={{ padding: '8px 14px', fontSize: 12, ...(state.disabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)' } : {}) }}>
@@ -347,8 +367,12 @@ const Dashboard: React.FC<DashboardProps> = ({
   const onDemandTasks = filterQuests(allOnDemandTasks);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [showCustomize, setShowCustomize] = useState(false);
+  // The chore someone is picking a team-up partner for
+  const [teamPick, setTeamPick] = useState<Quest | null>(null);
 
   const ALL_CARDS = [
+    { id: 'mascot', label: t('mascot.title') },
+    { id: 'teamups', label: t('teamups.title') },
     { id: 'rescue', label: t('rescue.title') },
     { id: 'usual', label: t('home.usualTitle') },
     { id: 'forgot', label: t('home.forgotTitle') },
@@ -375,7 +399,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     localStorage.setItem(LS_KEY, JSON.stringify([...hiddenCards]));
   }, [hiddenCards]);
   // Kid mode keeps Home to the essentials: their quests and what they finished today
-  const KID_CARDS = new Set(['rescue', 'usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
+  const KID_CARDS = new Set(['mascot', 'teamups', 'rescue', 'usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
   const isVisible = (id: string) => kidMode ? KID_CARDS.has(id) : !hiddenCards.has(id);
   // Your usual: pins always; the rest only when they can be done right now (6 at most)
   const usualShown = (data.usualQuests ?? []).filter((q) => q.pinned || !doneState(q).disabled).slice(0, 6);
@@ -479,7 +503,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               </div>
             )}
             <div style={{ marginTop: 16 }}>
-              <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} big />
+              <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} big userId={currentUser.id} nextUnlock={data.nextUnlock} />
             </div>
           </div>
         )}
@@ -487,8 +511,22 @@ const Dashboard: React.FC<DashboardProps> = ({
         {/* Level and the next badge (kid mode shows them in the card above) */}
         {!kidMode && gamificationEnabled && myLevel && (currentUser.role !== 'admin' || myLevel.coinsEarned > 0) && (
           <div className="tq-card" style={{ gridColumn: '1 / -1', padding: '12px 16px' }}>
-            <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} />
+            <LevelStrip level={myLevel} nextBadge={nextBadge} language={language} userId={currentUser.id} nextUnlock={data.nextUnlock} />
           </div>
+        )}
+
+        {/* The house mascot: mood, what it needs, and how close it is to growing */}
+        {data.mascot && isVisible('mascot') && <MascotCard m={data.mascot} costume={seasonCostume} language={language} />}
+
+        {/* Team-ups you're on, and invites you can join */}
+        {isVisible('teamups') && (
+          <TeamUpsCard items={data.teamups ?? []} userId={currentUser.id} language={language}
+            onDone={(taskId) => onCompleteTask(taskId)} onChanged={() => onRefresh?.()} />
+        )}
+        {teamPick && (
+          <TeamUpDialog task={{ id: teamPick.id, name: taskName(teamPick.name, teamPick.translationKey) }} language={language}
+            people={(users ?? []).filter((u) => u.id !== currentUser.id && ((teamPick.effectiveAssignedUserIds ?? []).length === 0 || teamPick.effectiveAssignedUserIds!.includes(u.id)))}
+            onClose={() => setTeamPick(null)} onStarted={() => onRefresh?.()} />
         )}
 
         {/* Double coins events running now, with time left */}
@@ -589,7 +627,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {pendingCompletions.length}
               </span>
             </div>
-            <PendingApprovals items={pendingCompletions} language={language} gamificationEnabled={gamificationEnabled} onChanged={() => onRefresh?.()} />
+            <PendingApprovals items={pendingCompletions} language={language} gamificationEnabled={gamificationEnabled} extras={data.features?.cheers !== false} onChanged={() => onRefresh?.()} />
           </div>
         )}
 
@@ -710,6 +748,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 btnDisabled = true;
                 btnLabel = t('app.waitingForApproval');
               }
+              const claimed = claimedLabel(q.teamUp);
+              if (claimed) { btnDisabled = true; btnLabel = claimed; }
               const handleDone = () => {
                 if (btnDisabled) return;
                 if (isAdminOrMember && hasAssignees) setAdminModalQuest(q);
@@ -730,6 +770,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <div style={{ marginTop: 5 }}><HealthBar value={q.health} height={6} showLabel={false} /></div>
                   </div>
                   <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                  <TeamUpButton info={q.teamUp} onClick={() => setTeamPick(q)} language={language} />
                   {proofButton(q, !btnDisabled)}
                   <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={btnDisabled} className={btnDisabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
                     style={{ padding: '8px 14px', fontSize: 12, ...(btnDisabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
@@ -758,7 +799,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                   const notMine = !isAdminOrMember && ids.length > 0 && !ids.includes(currentUser.id);
                   const pending = q.myPendingCount ?? 0;
                   const usedUp = !isAdminOrMember && !!q.repeatLimit && (q.myRepeatCount ?? 0) >= q.repeatLimit;
-                  const blocked = notMine || usedUp;
+                  const claimed = claimedLabel(q.teamUp);
+                  const blocked = notMine || usedUp || !!claimed;
                   const handleDone = () => {
                     if (blocked) return;
                     if (isAdminOrMember && hasAssignees) setAdminModalQuest(q);
@@ -788,10 +830,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                         {questDetails(q)}
                       </div>
                       <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                      <TeamUpButton info={q.teamUp} onClick={() => setTeamPick(q)} language={language} />
                       {proofButton(q, !blocked)}
                       <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={blocked} className={blocked ? 'tq-btn' : 'tq-btn tq-btn-primary'}
                         style={{ padding: '8px 14px', fontSize: 12, ...(blocked ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
-                        {notMine ? t('app.notAssigned') : usedUp ? t(q.repeatPeriod === 'day' ? 'repeat.doneToday' : 'repeat.doneThisWeek') : <><CheckIcon /> {t('roomDetail.done')}</>}
+                        {claimed ? claimed : notMine ? t('app.notAssigned') : usedUp ? t(q.repeatPeriod === 'day' ? 'repeat.doneToday' : 'repeat.doneThisWeek') : <><CheckIcon /> {t('roomDetail.done')}</>}
                       </button>
                       </span>
                     </div>
@@ -878,15 +921,17 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {(isExpanded('completed') ? completedToday : completedToday.slice(0, LIMIT)).map((c, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 14, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)' }}>
+                <div key={c.completionId ?? i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 14, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)' }}>
                   <div style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: c.roomColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1.5px solid ${c.roomAccent}44` }}>
                     <TaskIcon iconKey={c.iconKey} size={20} />
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{taskName(c.name, c.translationKey)}</div>
                     <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 600 }}>
                       {roomDisplayName(c.roomName, c.roomType || '')} &middot; {c.displayName}
                     </div>
+                    {c.approvalNote && <div style={{ fontSize: 11, color: 'var(--warm-text-secondary)', fontWeight: 600, overflowWrap: 'anywhere' }}>💬 “{c.approvalNote}”</div>}
+                    {c.cheers && <CheerBar completionId={c.completionId} cheers={c.cheers} canCheer={c.userId !== currentUser.id} language={language} />}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)' }}>
                     {gamificationEnabled && <><CoinIcon /> +{c.coinsEarned}</>}
@@ -1060,7 +1105,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           <div style={{ display: 'grid', gap: 8 }}>
             {coinsSortedFamily.slice(0, 6).map((u) => (
               <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <UserAvatar name={u.displayName} color={u.avatarColor} size={28} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
+                <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={28} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
                 <div style={{ flex: 1, fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{u.displayName}</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 800, color: 'var(--warm-coin)' }}>
                   {formatCoins(u.coins)} <CoinIcon />
@@ -1200,7 +1245,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 #{i + 1}
               </div>
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <UserAvatar name={u.displayName} color={u.avatarColor} size={32} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
+                <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={32} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
                 {badges?.[u.id] && (
                   <span
                     title={t(`achievements.badge_${badges[u.id]}`)}
@@ -1271,7 +1316,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 borderBottom: i < 4 ? '1px solid var(--warm-border-subtle)' : 'none',
               }}
             >
-              <UserAvatar name={h.displayName} color={h.avatarColor} size={28} avatarType={h.avatarType as any} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
+              <UserAvatar userId={h.userId} name={h.displayName} color={h.avatarColor} size={28} avatarType={h.avatarType as any} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>
                   {taskName(h.taskName, h.translationKey)}

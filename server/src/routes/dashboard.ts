@@ -10,6 +10,10 @@ import { achievementsFor } from '../utils/achievementStats';
 import { forgottenTasks, usualTasks } from '../utils/homeSections';
 import { rescueCandidates, todaysMission } from '../utils/rescue';
 import { getFeatures, holidaysOff, isFeatureOn } from '../utils/features';
+import { cheersFor } from '../utils/cheers';
+import { cosmetics, unlocksFor } from '../utils/unlocks';
+import { mascotFor } from '../utils/mascot';
+import { groupTeamPending, teamUpInfo, teamupsFor } from '../utils/teamups';
 
 const router = Router();
 router.use(authMiddleware);
@@ -109,6 +113,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
         myRepeatCount: myRepeatCounts.get(t.id) || 0,
         sharedCompletions: sharedCompletionsByTask.get(t.id) || [],
         completedTodayBy: completedTodayByTask.get(t.id) || null,
+        teamUp: teamUpInfo(t, req.userId!),
         health,
         dueDate: new Date(dueDateTs).toISOString(),
         dueInDays,
@@ -194,7 +199,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
 
   // Completed today
   const completedToday = db.prepare(`
-    SELECT tc.completedAt, tc.coinsEarned,
+    SELECT tc.id AS completionId, tc.userId, tc.completedAt, tc.coinsEarned, tc.approvalNote,
            t.id as taskId, t.name, t.translationKey, t.iconKey, t.roomId,
            r.name as roomName, r.roomType, r.color as roomColor, r.accentColor as roomAccent,
            u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -205,7 +210,12 @@ router.get('/', (req: AuthRequest, res: Response) => {
     WHERE tc.status = 'approved'
       AND date(tc.completedAt, 'localtime') = date('now', 'localtime')
     ORDER BY tc.completedAt DESC
-  `).all();
+  `).all() as any[];
+  // Cheers on today's chores
+  if (isFeatureOn('cheers')) {
+    const cheers = cheersFor(completedToday.map((c) => c.completionId), req.userId!);
+    for (const c of completedToday) c.cheers = cheers.get(c.completionId) ?? { counts: [], mine: null };
+  }
 
   // Recent activity
   const recentActivity = db.prepare(`
@@ -267,7 +277,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   // Chores waiting for a parent's approval (Strict Mode), newest first
   const pendingCompletions = user.role === 'admin'
     ? db.prepare(`
-      SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl,
+      SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl, tc.teamupId,
              t.name AS taskName, t.translationKey, t.roomId, t.iconKey, r.name AS roomName, r.roomType, r.color AS roomColor,
              u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
       FROM task_completions tc
@@ -276,8 +286,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
       JOIN users u ON tc.userId = u.id
       WHERE tc.status = 'pending'
       ORDER BY tc.completedAt DESC
-      LIMIT 100`).all()
+      LIMIT 100`).all() as any[]
     : [];
+  const pendingCompletionsGrouped = groupTeamPending(pendingCompletions);
 
   const pendingRewardRequests = user.role === 'admin'
     ? db.prepare(
@@ -321,13 +332,20 @@ router.get('/', (req: AuthRequest, res: Response) => {
     rescueChoices,
     features,
     holidaysOff: holidaysOff(),
+    // Everyone's frame, title and celebration (avatars and names), and what your next level unlocks
+    cosmetics: cosmetics(),
+    // Today's team-ups you're on or could join
+    teamups: features.teamups ? teamupsFor(req.userId!) : [],
+    // The house mascot (Settings → Features)
+    mascot: features.mascot ? mascotFor({ houseHealth, rooms: roomsWithHealth, rescueDone: !!missionRow?.completedBy }) : null,
+    nextUnlock: unlocksFor(req.userId!).next,
     onDemandQuests,
     nextTasks,
     completedToday,
     myGoal,
     childrenGoals,
     pendingRewardRequests,
-    pendingCompletions,
+    pendingCompletions: pendingCompletionsGrouped,
     strictMode: isStrictModeEnabled(),
     // Double coins events running now (Home shows a banner and the boosted amounts)
     coinBoosts: getActiveBoosts().map((b) => ({ id: b.id, title: b.title, multiplier: b.multiplier, startAt: b.startAt, endAt: b.endAt, roomIds: b.roomIds, taskIds: b.taskIds, taskNames: boostTaskNames(b) })),
