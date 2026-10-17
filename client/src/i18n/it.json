@@ -1489,6 +1489,19 @@
       "search": "Cerca icone…",
       "none": "Nessuna icona trovata.",
       "done": "Fatto"
+    },
+    "guide": {
+      "title": "Guida e aiuto",
+      "subtitle": "Configurazione, come funziona tutto e soluzioni",
+      "settingsDesc": "Come configurare tutto, come tutto è collegato e cosa fare quando qualcosa non va.",
+      "open": "Apri la guida",
+      "troubleshooting": "Risoluzione problemi",
+      "intro": "Tutto su come configurare e usare TidyQuest. Tocca un argomento per aprirlo, o cerca.",
+      "englishOnly": "Per ora la guida è in inglese.",
+      "search": "Cerca nella guida…",
+      "contents": "Indice",
+      "forParents": "Per i genitori",
+      "noMatch": "Niente nella guida corrisponde."
     }
   }
 }

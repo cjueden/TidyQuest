@@ -1489,6 +1489,19 @@
       "search": "Symbole suchen…",
       "none": "Keine passenden Symbole.",
       "done": "Fertig"
+    },
+    "guide": {
+      "title": "Anleitung & Hilfe",
+      "subtitle": "Einrichten, wie alles funktioniert, und Lösungen",
+      "settingsDesc": "Wie du alles einrichtest, wie alles zusammenhängt und was zu tun ist, wenn etwas nicht stimmt.",
+      "open": "Anleitung öffnen",
+      "troubleshooting": "Fehlerbehebung",
+      "intro": "Alles zum Einrichten und Benutzen von TidyQuest. Tippe auf ein Thema oder suche.",
+      "englishOnly": "Die Anleitung ist vorerst auf Englisch.",
+      "search": "Anleitung durchsuchen…",
+      "contents": "Inhalt",
+      "forParents": "Für Eltern",
+      "noMatch": "Nichts in der Anleitung passt dazu."
     }
   }
 }

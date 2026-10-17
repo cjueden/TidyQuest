@@ -1,0 +1,361 @@
+/**
+ * The in-app guide (Settings → Guide & help → /guide). English for now; another language can add its own
+ * GUIDE_<lang> array with the same section ids and be returned by guideFor().
+ */
+export type GuideBlock =
+  | { p: string }
+  | { ul: string[] }
+  | { ol: string[] }
+  /** Where to find it, e.g. "Settings → Features" */
+  | { where: string }
+  | { tip: string }
+  /** A how-it-connects chain, read top to bottom */
+  | { flow: Array<{ title: string; text: string }> }
+  /** Troubleshooting: what you see, then why and what to do */
+  | { qa: Array<{ q: string; a: string[] }> }
+  | { h: string };
+
+export interface GuideSection {
+  id: string;
+  icon: string;
+  title: string;
+  /** Mostly for parents (shown with a tag) */
+  parents?: boolean;
+  blocks: GuideBlock[];
+}
+
+const GUIDE_EN: GuideSection[] = [
+  {
+    id: 'start',
+    icon: '🚀',
+    title: 'Getting started',
+    parents: true,
+    blocks: [
+      { p: 'TidyQuest turns housework into a game: chores earn coins, coins buy rewards, and levels, badges and a family mascot keep everyone going. Here is the order that works best for setting it up.' },
+      { ol: [
+        'Install it (see "Installing and updating"), open it in a browser and sign up. The first person to sign up becomes a parent (admin).',
+        'Add everyone in Settings → Family Members: a name, a login and a role (see "People and roles"). Set each kid’s Task view and Kid mode there too.',
+        'Make your rooms on the Rooms page. A room type adds suggested chores you can untick. Give a room to one person ("assigned to") to make it theirs, like a bedroom.',
+        'Add or adjust chores in each room: how often, effort or coins, who can do it, and an icon (see "Chores").',
+        'Set the coin values in Settings → Coins per effort, then build the Rewards Catalog with prices kids can reach (see "Coins, rewards and goals").',
+        'Give each kid a weekly goal in Settings → Goals by member, with a bonus for reaching it. The same section has the family team goal shown on the Board.',
+        'Turn on Strict Mode in Settings → General if a parent should approve kids’ chores before the coins count.',
+        'Set up notifications (see "Notifications"): a family channel, then each person’s own phone if you like.',
+        'Look through Settings → Features and switch off any extras you don’t want (Rescue Mission, mascot, team-ups, holidays…).',
+        'Download a backup in Settings → Data & Privacy once everything is set up, and now and then after that.',
+      ] },
+      { tip: 'Start small: a handful of chores per kid and a few cheap rewards they can earn in the first week. You can add more any time.' },
+    ],
+  },
+  {
+    id: 'connections',
+    icon: '🔗',
+    title: 'How it all connects',
+    blocks: [
+      { p: 'Almost everything starts with a chore being done. This is the chain, from tapping Done to the rewards at the end.' },
+      { flow: [
+        { title: '1. A chore comes due', text: 'Each chore has a schedule (every N days, set weekdays, or anytime). Its health drops from 100% to 0% over its interval; house health on Home is the average of all chores, weighted by effort.' },
+        { title: '2. Someone taps Done', text: 'Alone, or as a team-up. With Strict Mode on, a kid’s chore waits for a parent to approve it; nothing below happens until then (except that the coins are already worked out).' },
+        { title: '3. Coins are worked out', text: 'Custom coins if the chore has them, otherwise Coins per effort. Then the biggest multiplier that applies: a double coins event or today’s Rescue Mission (they don’t stack). Team-ups split the coins plus a team bonus; each share gets the multiplier.' },
+        { title: '4. The coins go to work', text: 'They add to the person’s balance (to spend on rewards), their lifetime coins (levels and unlocks), their weekly goal (bonus when reached), the Board (ranks, awards, the family goal) and the family’s total (the mascot grows).' },
+        { title: '5. Everything else updates', text: 'The chore’s health resets to 100%, streaks continue, badges are checked (and may pay bonus coins), the chore shows in Activity and "Completed today", and others can cheer it.' },
+        { title: '6. Spending', text: 'A kid requests a reward and a parent approves it; the price comes off their balance. Shared rewards fill a pot that several people chip into; when it’s full a parent approves it, and a rejection gives everyone their coins back.' },
+      ] },
+      { h: 'Two kinds of coins' },
+      { ul: [
+        'Balance: what you can spend now. It goes down when you buy a reward or chip into a pot.',
+        'Lifetime coins earned: chores plus coins given by a parent. It never goes down and decides your level.',
+      ] },
+      { h: 'What happens by itself' },
+      { ul: [
+        'Each morning: today’s Rescue Mission is picked (the most-forgotten chore pays extra), and kids can get a "today’s chores" summary. Parents get a recap on Sundays.',
+        'During the day: reminders for chores with a set time, then again 2 hours later, then a note to a parent.',
+        'Evening: nudges about what’s still undone, a streak about to break, or a goal that’s close.',
+        'Monday: a new week starts (weeks run Monday to Sunday) and weekly goals that repeat set themselves up again. A goal’s bonus is paid the moment it’s reached.',
+        'Midnight: team-up invites end, and "Completed today" starts over.',
+      ] },
+    ],
+  },
+  {
+    id: 'people',
+    icon: '👨‍👩‍👧‍👦',
+    title: 'People and roles',
+    parents: true,
+    blocks: [
+      { where: 'Settings → Family Members' },
+      { ul: [
+        'Parent (admin): can change everything, approves chores and rewards under Strict Mode, and counts as a "helper" when teaming up with a kid.',
+        'Member: an older kid or another adult. Doesn’t need approval and can mark chores done for others.',
+        'Child: earns coins; under Strict Mode their chores wait for a parent.',
+      ] },
+      { h: 'Per-person settings' },
+      { ul: [
+        'Participates in tasks: off for a parent who only manages; they won’t earn coins or appear on the Board.',
+        'Task view: All (they choose), Starts on Mine, or Only theirs (locked).',
+        'Kid mode: bigger buttons, fewer cards, coins and goal up front.',
+        'Theme and holiday colors follow the person to every device (they can change them in Profile).',
+        'Vacation per member: protects their streak and freezes their chores’ health while away.',
+        'Adjust coins: add or take away coins with a reason; it shows in their coin history and Activity.',
+        'Password: a parent can set a new one if someone forgets theirs.',
+      ] },
+      { tip: 'Turn on "Hide other people’s private rooms from kids" in Settings → General if kids shouldn’t see, say, a parent’s own room.' },
+    ],
+  },
+  {
+    id: 'rooms',
+    icon: '🏠',
+    title: 'Rooms and zones',
+    parents: true,
+    blocks: [
+      { p: 'Rooms hold chores. A room assigned to one person is theirs: only they (and parents/members) can do its chores, and it never takes part in team-ups.' },
+      { ul: [
+        'Create a room on the Rooms page; a room type adds suggested chores you can pick from.',
+        'Zones group rooms on the Rooms page (for example "Upstairs" or "Parents’ Quests").',
+        'A room’s health is the average of its chores; the worst room is the one the mascot asks for help with.',
+      ] },
+    ],
+  },
+  {
+    id: 'chores',
+    icon: '🧽',
+    title: 'Chores',
+    parents: true,
+    blocks: [
+      { where: 'Rooms → a room → Add Task, or the ✏️ on a chore' },
+      { h: 'Schedule' },
+      { ul: [
+        'Every N days: due again N days after it was last done. Its health falls over those days.',
+        'Set weekdays: due on chosen days of the week instead.',
+        'Only in season: only due between two months (outside them it doesn’t count toward house health).',
+        'On demand (anytime): no schedule; it can be done whenever. Turn on "Show in Dashboard" to list it on Home, and set a repeat limit (per day or week) if it could be farmed.',
+        'One-time (to-do): done once, then it’s gone from the lists (it stays in Activity). Optional "Do by" date. Quick-add one with "+ To-do" on Home.',
+        'Allow early completion: lets a chore be redone on any new calendar day, even before it’s due (useful for daily routines).',
+        'Remind at: a reminder at a set time on the day (or the evening before).',
+      ] },
+      { h: 'Coins' },
+      { ul: [
+        'Effort (1–5) sets the coins from Settings → Coins per effort. Custom coins override that for one chore.',
+        'Rescue Mission and double coins events multiply them on the day.',
+      ] },
+      { h: 'Who can do it' },
+      { ul: [
+        'Nobody assigned: anyone. The first person to finish it gets the coins ("first one wins").',
+        'Assigned to some people: only they can do it.',
+        'Shared: each assignee does their part and gets an even share.',
+        'Custom split: each assignee gets a set percentage.',
+        'Rotating: turn by turn, per completion or per calendar week.',
+      ] },
+      { h: 'Icon' },
+      { p: 'Tap the icon button to open the picker. It shows a live preview of the chore, suggests an icon from the chore’s name, and has a search and every icon grouped by area. A new chore left on the ✨ gets the suggested icon automatically.' },
+      { h: 'Finishing a chore' },
+      { ul: [
+        'Tap Done on Home, in the room, or on the Tasks page. The 📎 button adds a note or photo as proof.',
+        'Parents and members can mark a chore done for someone else ("who did it?").',
+        'A mistake can be undone from Activity (parents) or the chore’s "Done by" line.',
+      ] },
+    ],
+  },
+  {
+    id: 'home',
+    icon: '🏡',
+    title: 'Home and the other pages',
+    blocks: [
+      { ul: [
+        'Home: the holiday greeting, your level, the mascot, team-ups, Rescue Mission, Your usual, Maybe you forgot, Today’s Quests, To-do, Completed today and more. "Customise" chooses which cards you see.',
+        'Rooms: every room and its chores. Tasks: every chore in one searchable list.',
+        'Calendar: what’s due when, and what was done.',
+        'Activity: everything that happened (chores, coin changes, chip-ins), with filters and cheers.',
+        'Board: rankings by coins, goal % or most improved, awards like Early Bird and room champions, the trophy shelf and the family goal.',
+        'Achievements: badges, your level and what’s next. Rewards: the catalog and your requests.',
+        'Search: the 🔍 button, or press / or Ctrl+K on a keyboard.',
+      ] },
+    ],
+  },
+  {
+    id: 'rewards',
+    icon: '🎁',
+    title: 'Coins, rewards and goals',
+    blocks: [
+      { where: 'Settings → Rewards Catalog, Goals by member, Coins per effort' },
+      { h: 'Rewards' },
+      { ul: [
+        'Each reward has a price. Kids request it; a parent approves or turns it down.',
+        'Rules per reward: a limit (per day, week, month or ever; per person or for everyone), a date window, Rotating (only a few show each week), who can see it, a different price per person, and a category.',
+        'Shared saving: anyone can chip coins into a pot; when it’s full it goes to a parent. The chip-in box starts at 0, and each chip-in shows in Activity.',
+      ] },
+      { h: 'Goals' },
+      { ul: [
+        'Weekly goal per person: a coin target with an optional bonus when reached (paid automatically). "Repeats weekly" sets up next week’s goal by itself.',
+        'Family team goal (in Goals by member): a weekly coin target for everyone together, with a prize, shown on the Board. Set it to 0 to turn it off.',
+      ] },
+      { h: 'Coins from a parent' },
+      { ul: [
+        'Adjust coins (Family Members) adds or takes away coins with a reason.',
+        'When approving a chore, ⭐💬 adds a note and an "above and beyond" bonus (+1, +2 or +5).',
+        'Double coins events (Settings → Double coins events): a multiplier for a time window, for everything, chosen rooms, or chosen chores.',
+      ] },
+    ],
+  },
+  {
+    id: 'extras',
+    icon: '✨',
+    title: 'Game extras',
+    blocks: [
+      { where: 'Settings → Features (each one can be switched off for the family)' },
+      { ul: [
+        'Rescue Mission: each day the most-forgotten chore pays extra (2× by default) to the first person who does it.',
+        'Your usual / Maybe you forgot: Home shows the chores you do most (and ones you pin), and chores overdue by a whole interval.',
+        'To-dos: one-time chores and the To-do card.',
+        'Board awards and trophy shelf. Levels and Next badge.',
+        'Cheers: 👏 🎉 💪 ⭐ on anyone else’s finished chore (Home’s "Completed today" and Activity). The same emoji again takes it back. The person gets a private notification.',
+        'Team-ups: 🤝 on a chore worth 6 or more coins invites one person or anyone. Once someone joins, the chore is the team’s for the day. Either one taps Done; coins split evenly plus a team bonus (10, 20 or 30%). A parent with a kid is a helper and the kid keeps all the coins. Never on someone’s own room, one-person or rotating chores.',
+        'House mascot: one of 8 creatures, picked and named here. It grows with the family’s lifetime coins (hatches at 500, then 2,000, 5,000 and 10,000), its mood follows house health, and it reacts to birthdays, the family goal and the Rescue Mission.',
+        'Seasonal styling: Halloween in October, Thanksgiving in November, Christmas in December: colors, decorations, a countdown and a costume for the mascot. Each holiday has its own switch and a Preview button.',
+      ] },
+      { h: 'Levels and unlocks' },
+      { p: 'Levels come from lifetime coins (level 2 at 50, 5 at 500, 10 at 2,250). Each level unlocks something; pick them in Profile → Unlocks.' },
+      { ul: [
+        'Frames: bronze (2), silver (6), gold (9), rainbow (10). Crown and diamond badges unlock their own frames.',
+        'Celebrations: falling coins (3), fireworks (8). Themes: Forest (4), Galaxy (7), Lava (10). The first 8 themes are free.',
+        'Titles (5): your level’s title or any badge you’ve earned, shown on Home, the Board, the sidebar and Activity.',
+      ] },
+      { h: 'Badges' },
+      { p: 'Built-in badges unlock by themselves. Parents can make their own in Settings → Badges (for example "Homework 4 weeks in a row"), with optional bonus coins, and set coins for every built-in badge.' },
+    ],
+  },
+  {
+    id: 'notifications',
+    icon: '🔔',
+    title: 'Notifications',
+    parents: true,
+    blocks: [
+      { where: 'Settings → General → Notifications, then Who gets what, Timing & quiet hours and Notification log' },
+      { ol: [
+        'Turn notifications on and pick which kinds the family gets.',
+        'Set up a family channel: ntfy (a server URL and a topic everyone subscribes to in the ntfy app), Telegram (a bot token and a chat ID), or a Home Assistant notify service. Use the test button.',
+        'Optionally give each person their own channel in "Who gets what": their own ntfy topic, Telegram chat, or Home Assistant phone. They then get messages in their own language, and can turn kinds off in Profile.',
+        'Set quiet hours (messages wait and go out when they end) and whether kids’ messages wait during school hours on weekdays.',
+      ] },
+      { ul: [
+        'Private kinds (approved/turned down, summaries, nudges, cheers) only go to a person’s own channel, never the family channel.',
+        'The Notification log shows what was sent, queued or failed, and why.',
+      ] },
+    ],
+  },
+  {
+    id: 'data',
+    icon: '💾',
+    title: 'Backups, spreadsheets and deleted items',
+    parents: true,
+    blocks: [
+      { ul: [
+        'Settings → Data & Privacy → Export: a full JSON backup. Keep one before big changes.',
+        'Import restores a backup and REPLACES everything. Everyone except the parent doing the import gets a new random password, so set new passwords in Family Members afterwards.',
+        'Settings → Spreadsheets: download chores or rewards, edit them in any spreadsheet app, and load them back. You see a preview first and nothing is deleted.',
+        'Settings → Recently deleted: deleted chores and rewards stay for a while, with their history, and can be restored.',
+      ] },
+    ],
+  },
+  {
+    id: 'install',
+    icon: '🛠️',
+    title: 'Installing and updating',
+    parents: true,
+    blocks: [
+      { ul: [
+        'TidyQuest runs as one Docker container with a data folder (the database, avatars and proof photos). Back up that folder.',
+        'Set JWT_SECRET to a long random string, and TZ to your time zone (for example America/New_York). Without TZ the server uses UTC, and "today", midnight and the week would be off by hours.',
+        'Releases are tagged (for example 0.9.0). Pin that number in docker-compose.yml, then run "docker compose pull && docker compose up -d". The ":main" image is the newest code, for trying things out first.',
+        'Settings → General shows the version running. To roll back, put the previous version number back and start it again (take a backup first: the database only moves forward).',
+        'Phone notifications from the app itself and installing it as an app need a secure (https://) address; until then use ntfy or Telegram.',
+      ] },
+    ],
+  },
+  {
+    id: 'troubleshooting',
+    icon: '🧰',
+    title: 'Troubleshooting',
+    blocks: [
+      { qa: [
+        { q: 'The Done button is grey', a: [
+          'Its label says why: "Not assigned" (someone else’s chore), "Waiting for approval" (a parent hasn’t approved your last one yet), "Done by …" (someone already did it today), "Done today / this week" (an anytime chore’s repeat limit), or "🤝 names" (a team has claimed it today).',
+          'If Done gives a "not yet due" message: the chore isn’t due again yet. A parent can turn on "Allow early completion" for daily routines.',
+        ] },
+        { q: 'I tapped Done but got no coins', a: [
+          'With Strict Mode on, a kid’s chore waits for a parent. It shows as waiting in Activity and on the parent’s Home under "Waiting for approval".',
+          'If Gamification is off (Settings → General), there are no coins at all.',
+          'If a parent turned it down, the chore is open again; under team-ups it goes back to the team.',
+        ] },
+        { q: 'A chore isn’t showing on Home', a: [
+          'Today’s Quests lists chores that are due, most-overdue first (up to 10). Others are in their room and on the Tasks page.',
+          'Anytime chores need "Show in Dashboard" turned on.',
+          'Out of season (Only in season) or set weekdays: it isn’t due today.',
+          'Your Task view may be on "Mine" (the switch at the top), or a parent set it to "Only theirs".',
+          'One-time chores are in the To-do card, and are gone once done.',
+        ] },
+        { q: 'A kid can’t see a room or chore', a: [
+          'Settings → General → "Hide other people’s private rooms from kids" hides rooms that belong to someone else.',
+          'Their Task view may be "Only theirs" (Settings → Family Members).',
+        ] },
+        { q: 'The coins for a chore look wrong', a: [
+          'Custom coins win over Coins per effort.',
+          'A double coins event or the Rescue Mission multiplies them (the bigger one wins; they don’t stack).',
+          'Team-ups split the coins plus the team bonus; a parent helper gets nothing so the kid keeps it all.',
+          'Badge bonuses and parent bonuses show as separate lines in Activity.',
+        ] },
+        { q: 'Notifications don’t arrive', a: [
+          'Check in order: notifications are on and the kind is ticked (Settings → General); the channel works (use the test button); the person hasn’t turned that kind off (Profile).',
+          'Private kinds (outcomes, summaries, nudges, cheers) need the person’s own channel.',
+          'Quiet hours and school hours hold messages until they end.',
+          'The Notification log shows each message and any error.',
+        ] },
+        { q: 'Days, midnight or the week are off by a few hours', a: [
+          'Set the TZ environment variable on the server to your time zone and restart it (see "Installing and updating").',
+        ] },
+        { q: 'A rotating chore seems stuck on one person', a: [
+          'Check its rotation: "per completion" moves on after each completion (after approval under Strict Mode); "per week" moves on each Monday.',
+          'Parents and members can always do it for whoever’s turn it is.',
+        ] },
+        { q: 'There’s no 🤝 Team up button', a: [
+          'Team-ups need a chore worth 6 or more coins that isn’t in someone’s own room, isn’t assigned to just one person, and isn’t rotating.',
+          'Only one team-up per chore per day; check the Team-ups card on Home.',
+          'Settings → Features → Team-ups must be on.',
+        ] },
+        { q: 'A theme, frame or celebration is locked', a: [
+          'It unlocks at a level (🔒 shows which). Levels come from lifetime coins and never go down.',
+        ] },
+        { q: 'The mascot is still an egg, or looks sad', a: [
+          'It hatches at 500 family coins (everyone’s chores together, all time), then grows at 2,000, 5,000 and 10,000.',
+          'Its mood follows house health: below 50% it asks for help with the messiest room; tap "Let’s help".',
+        ] },
+        { q: 'No holiday decorations or colors', a: [
+          'Settings → Features → Seasonal styling, and that holiday’s own switch, must be on. It follows the device’s date.',
+          'Profile → Holiday colors off keeps your own theme (decorations still show).',
+          'Phones set to reduce motion don’t show falling or flying decorations, or confetti.',
+        ] },
+        { q: 'A streak broke while we were away', a: [
+          'Use Vacation Mode (whole house, Settings → General) or vacation per member (Family Members) before leaving; it protects streaks and freezes chore health.',
+        ] },
+        { q: 'Someone can’t log in', a: [
+          'After 20 tries in 15 minutes from one device, logins are blocked for a while; wait and try again.',
+          'A parent can set a new password in Settings → Family Members.',
+          'After importing a backup, everyone except the parent who imported it needs a new password.',
+        ] },
+        { q: 'I deleted something by mistake', a: [
+          'Settings → Recently deleted can bring chores and rewards back, with their history.',
+          'A chore marked done by mistake can be undone from Activity (parents).',
+        ] },
+        { q: 'Is the app up to date?', a: [
+          'Settings → General shows the version. See "Installing and updating" to update or roll back.',
+        ] },
+      ] },
+    ],
+  },
+];
+
+/** Translated guides go here by language code; the rest get English */
+const GUIDES: Record<string, GuideSection[]> = { en: GUIDE_EN };
+
+export function guideFor(language?: string): GuideSection[] {
+  return GUIDES[language ?? 'en'] ?? GUIDE_EN;
+}
