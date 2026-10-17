@@ -1489,6 +1489,19 @@
       "search": "Iconen zoeken…",
       "none": "Geen iconen gevonden.",
       "done": "Klaar"
+    },
+    "guide": {
+      "title": "Handleiding & hulp",
+      "subtitle": "Instellen, hoe alles werkt, en oplossingen",
+      "settingsDesc": "Hoe je alles instelt, hoe alles samenhangt en wat je doet als iets niet klopt.",
+      "open": "Handleiding openen",
+      "troubleshooting": "Problemen oplossen",
+      "intro": "Alles over het instellen en gebruiken van TidyQuest. Tik op een onderwerp of zoek.",
+      "englishOnly": "De handleiding is voorlopig in het Engels.",
+      "search": "Zoeken in de handleiding…",
+      "contents": "Inhoud",
+      "forParents": "Voor ouders",
+      "noMatch": "Niets in de handleiding komt overeen."
     }
   }
 }

@@ -24,6 +24,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import type { User } from '../../hooks/useAuth';
 import { api, type RewardRules } from '../../hooks/useApi';
 import { CosmeticsContext } from '../../utils/unlocks';
+import { useNavigate } from 'react-router-dom';
 import { localeFor } from '../../utils/locale';
 
 interface FamilyUser {
@@ -122,6 +123,7 @@ export function Settings({
   const { t } = useTranslation(user.language);
   // Each person's level, so a parent sees which themes a kid has unlocked
   const cosmetics = useContext(CosmeticsContext);
+  const navigate = useNavigate();
   const isAdmin = user.role === 'admin';
   const [showAddMember, setShowAddMember] = useState(false);
   const [newMemberName, setNewMemberName] = useState('');
@@ -560,6 +562,15 @@ export function Settings({
 
   return (
     <div className="page-enter settings-grid">
+      {/* The guide: setup, how it all connects, troubleshooting (its own page) */}
+      <div className="tq-card tq-card-padded" style={{ display: 'grid', gap: 8 }}>
+        <h3 className="tq-card-title" style={{ margin: 0 }}>📖 {t('guide.title')}</h3>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--warm-text-light)' }}>{t('guide.settingsDesc')}</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <button type="button" className="tq-btn tq-btn-primary tq-btn-sm" onClick={() => navigate('/guide')}>{t('guide.open')}</button>
+          <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => navigate('/guide#troubleshooting')}>🧰 {t('guide.troubleshooting')}</button>
+        </div>
+      </div>
       <div className="tq-card tq-card-padded">
         <h3 className="tq-card-title">{t('settings.general')}</h3>
         {user.role !== 'child' && (<>

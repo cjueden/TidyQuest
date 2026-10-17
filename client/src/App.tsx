@@ -18,6 +18,7 @@ import { Leaderboard } from './components/pages/Leaderboard';
 import { History } from './components/pages/History';
 import { Settings } from './components/pages/Settings';
 import { Profile } from './components/pages/Profile';
+import { Guide } from './components/pages/Guide';
 import { Login } from './components/pages/Login';
 import { Register } from './components/pages/Register';
 import { Achievements } from './components/pages/Achievements';
@@ -555,6 +556,12 @@ function AppContent() {
             </>
           } />
 
+          <Route path="/guide" element={
+            <>
+              <PageHeader title={t('guide.title')} subtitle={t('guide.subtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
+              <Guide language={user.language} />
+            </>
+          } />
           <Route path="/settings" element={
             <>
               <PageHeader title={t('nav.settings')} subtitle={t('app.settingsSubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />

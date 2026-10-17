@@ -1489,6 +1489,19 @@
       "search": "Search icons…",
       "none": "No icons match.",
       "done": "Done"
+    },
+    "guide": {
+      "title": "Guide & help",
+      "subtitle": "Setting up, how it all works, and fixes",
+      "settingsDesc": "How to set everything up, how it all connects, and what to do when something looks wrong.",
+      "open": "Open the guide",
+      "troubleshooting": "Troubleshooting",
+      "intro": "Everything about setting up and using TidyQuest. Tap a topic to open it, or search.",
+      "englishOnly": "The guide is in English for now.",
+      "search": "Search the guide…",
+      "contents": "Contents",
+      "forParents": "For parents",
+      "noMatch": "Nothing in the guide matches that."
     }
   }
 }
