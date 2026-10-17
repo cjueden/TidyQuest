@@ -99,6 +99,8 @@ interface SettingsProps {
 
 const COLORS = ['#F97316', '#9B72CF', '#4AABDE', '#5CB85C', '#D4A017', '#E25A5A', '#38BDF8', '#EC4899'];
 
+const REWARDS_SHOWN = 12;
+
 export function Settings({
   user,
   family,
@@ -434,6 +436,8 @@ export function Settings({
     setEditingRewardCost(String(r.costCoins));
   };
 
+  // The catalog shows the first rewards; "Show all" opens the rest (a family can have 100+)
+  const [showAllRewards, setShowAllRewards] = useState(false);
   // The admin list in the "Featured" order kids see first; ↑/↓ swaps neighbours and saves the whole order
   const orderedRewards = [...rewardsAdmin].sort((a, b) => Number(b.isActive !== false) - Number(a.isActive !== false) || byFeatured(a, b));
   const moveReward = async (id: number, step: -1 | 1) => {
@@ -561,7 +565,7 @@ export function Settings({
   };
 
   return (
-    <div className="page-enter settings-grid">
+    <div className="page-enter settings-page">
       {/* The guide: setup, how it all connects, troubleshooting (its own page) */}
       <div className="tq-card tq-card-padded" style={{ display: 'grid', gap: 8 }}>
         <h3 className="tq-card-title" style={{ margin: 0 }}>📖 {t('guide.title')}</h3>
@@ -571,451 +575,514 @@ export function Settings({
           <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => navigate('/guide#troubleshooting')}>🧰 {t('guide.troubleshooting')}</button>
         </div>
       </div>
-      <div className="tq-card tq-card-padded">
-        <h3 className="tq-card-title">{t('settings.general')}</h3>
-        {user.role !== 'child' && (<>
-        {/* Master Notifications toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: (isAdmin && notifMasterEnabled) ? 'none' : '1px solid var(--warm-border)' }}>
-          <BellIcon />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.notifications')}</div>
-            <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.notificationsDesc')}</div>
-          </div>
-          <Toggle checked={notifMasterEnabled} onChange={isAdmin ? setNotifMasterEnabled : () => {}} />
-        </div>
-        {isAdmin && (
-          <div style={{ display: 'grid', gap: 8, marginTop: notifMasterEnabled ? 10 : 0, marginBottom: 8, padding: notifMasterEnabled ? 10 : 0, border: notifMasterEnabled ? '1px solid var(--warm-border)' : 'none', borderRadius: 10 }}>
-            {notifMasterEnabled ? (
-              <>
-                {/* Notification time */}
-                <div style={{ display: 'grid', gap: 4 }}>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.notificationTime')}</label>
-                  <input type="time" className="tq-input" value={notifTime} onChange={(e) => setNotifTime(e.target.value || '09:00')} />
-                </div>
-                {/* Notification types */}
-                <div style={{ display: 'grid', gap: 6, marginTop: 2 }}>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
-                    <input type="checkbox" checked={notifTypes.taskDue} onChange={(e) => setNotifTypes((prev) => ({ ...prev, taskDue: e.target.checked }))} style={{ marginRight: 6 }} />
-                    {t('settings.notificationTypeTaskDue')}
-                  </label>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
-                    <input type="checkbox" checked={notifTypes.rewardRequest} onChange={(e) => setNotifTypes((prev) => ({ ...prev, rewardRequest: e.target.checked }))} style={{ marginRight: 6 }} />
-                    {t('settings.notificationTypeRewardRequest')}
-                  </label>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
-                    <input type="checkbox" checked={notifTypes.achievementUnlocked} onChange={(e) => setNotifTypes((prev) => ({ ...prev, achievementUnlocked: e.target.checked }))} style={{ marginRight: 6 }} />
-                    {t('settings.notificationTypeAchievementUnlocked')}
-                  </label>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
-                    <input type="checkbox" checked={notifTypes.choreApproval !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, choreApproval: e.target.checked }))} style={{ marginRight: 6 }} />
-                    {t('settings.notificationTypeChoreApproval')}
-                  </label>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
-                    <input type="checkbox" checked={notifTypes.coinBoost !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, coinBoost: e.target.checked }))} style={{ marginRight: 6 }} />
-                    {t('settings.notificationTypeCoinBoost')}
-                  </label>
-                  {(['reminder', 'outcome', 'summary', 'nudge'] as const).map((k) => (
-                    <label key={k} style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
-                      <input type="checkbox" checked={notifTypes[k] !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, [k]: e.target.checked }))} style={{ marginRight: 6 }} />
-                      {t(`notifyAdmin.kind_${k}`)} <span style={{ fontWeight: 600, color: 'var(--warm-text-light)' }}>· {t(`notifyAdmin.kindDesc_${k}`)}</span>
-                    </label>
-                  ))}
-                </div>
-
-                {/* Telegram sub-toggle */}
-                <div style={{ marginTop: 8, padding: 10, border: '1px solid var(--warm-border)', borderRadius: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21.2 4.4L2.4 11.1c-.6.2-.6.7 0 .9l4.8 1.5 1.8 5.8c.2.5.7.5 1 .2l2.6-2.1 5.1 3.7c.5.4 1.1.1 1.2-.5L22.2 5.4c.2-.8-.4-1.3-1-1z" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinejoin="round" fill="none"/></svg>
-                    <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--warm-text)' }}>Telegram</div>
-                    <Toggle checked={telegramEnabled} onChange={setTelegramEnabled} />
-                  </div>
-                  {telegramEnabled && (
-                    <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
-                      <input className="tq-input" value={notifChatId} onChange={(e) => setNotifChatId(e.target.value)} placeholder={t('settings.telegramChatId')} />
-                      <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>{t('settings.telegramChatIdHint')}</div>
-                      <input type="password" className="tq-input" value={notifToken} onChange={(e) => setNotifToken(e.target.value)} placeholder={notifHasToken ? t('settings.telegramTokenConfigured') : t('settings.telegramToken')} />
-                      <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>{t('settings.telegramTokenHint')}</div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={saveNotifications}>{t('common.save')}</button>
-                        <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={testTelegram}>{t('settings.sendTestNotification')}</button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* ntfy sub-toggle */}
-                <div style={{ padding: 10, border: '1px solid var(--warm-border)', borderRadius: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2a7 7 0 0 0-7 7v3l-1.5 2h17L17 12V9a7 7 0 0 0-7-7z" stroke="var(--warm-text-light)" strokeWidth="1.5" fill="none"/><path d="M8 16a2 2 0 0 0 4 0" stroke="var(--warm-text-light)" strokeWidth="1.5" fill="none"/></svg>
-                    <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--warm-text)' }}>ntfy</div>
-                    <Toggle checked={ntfyEnabled} onChange={setNtfyEnabled} />
-                  </div>
-                  {ntfyEnabled && (
-                    <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
-                      <div style={{ display: 'grid', gap: 4 }}>
-                        <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.ntfyServerUrl')}</label>
-                        <input className="tq-input" value={ntfyServerUrl} onChange={(e) => setNtfyServerUrl(e.target.value)} placeholder="https://ntfy.sh" />
-                      </div>
-                      <div style={{ display: 'grid', gap: 4 }}>
-                        <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.ntfyTopic')}</label>
-                        <input className="tq-input" value={ntfyTopic} onChange={(e) => setNtfyTopic(e.target.value)} placeholder={t('settings.ntfyTopicPlaceholder')} />
-                      </div>
-                      <div style={{ display: 'grid', gap: 4 }}>
-                        <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.ntfyToken')}</label>
-                        <input type="password" className="tq-input" value={ntfyToken} onChange={(e) => setNtfyToken(e.target.value)} placeholder={ntfyHasToken ? t('settings.ntfyTokenConfigured') : t('settings.ntfyTokenPlaceholder')} />
-                        <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>{t('settings.ntfyTokenHint')}</div>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={saveNotifications}>{t('common.save')}</button>
-                        <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={testNtfy}>{t('settings.sendTestNotification')}</button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {notifMsg && <div style={{ fontSize: 11, color: notifMsg.includes('✓') || notifMsg.includes('saved') || notifMsg.includes('sent') || notifMsg.includes('enregistr') || notifMsg.includes('envoy') ? 'var(--health-green)' : 'var(--warm-text-muted)', fontWeight: 700 }}>{notifMsg}</div>}
-              </>
-            ) : (
-              <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>
-                {t('settings.notificationsDisabledHint')}
+      {/* Two columns that each grow at their own height, grouped; one column on phones. Long lists go full width below. */}
+      <div className={`settings-cols${isAdmin ? '' : ' settings-cols-single'}`}>
+        <div className="settings-col">
+          <div className="settings-group-title">🏠 {t('settingsGroups.household')}</div>
+          <div className="tq-card tq-card-padded">
+            <h3 className="tq-card-title">{t('settings.general')}</h3>
+            {user.role !== 'child' && (<>
+            {/* Master Notifications toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: (isAdmin && notifMasterEnabled) ? 'none' : '1px solid var(--warm-border)' }}>
+              <BellIcon />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.notifications')}</div>
+                <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.notificationsDesc')}</div>
               </div>
-            )}
-          </div>
-        )}
-        </>)}
-        {isAdmin && (
-        <div style={{ padding: '14px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="8" r="4" stroke="var(--warm-text-light)" strokeWidth="1.5" fill="none" />
-              <path d="M5 17L6.5 13H13.5L15 17" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.vacationMode')}</div>
-              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.vacationDesc')}</div>
-              {vacationEnabled && vacationConfig?.vacationStartDate && (
-                <div style={{ fontSize: 11, color: 'var(--warm-accent)', marginTop: 2 }}>
-                  {t('settings.vacationSince')} {new Date(vacationConfig.vacationStartDate).toLocaleDateString()}
-                </div>
-              )}
+              <Toggle checked={notifMasterEnabled} onChange={isAdmin ? setNotifMasterEnabled : () => {}} />
             </div>
-            <Toggle
-              checked={vacationEnabled}
-              onChange={async (val) => {
-                setVacationEnabled(val);
-                if (!val) setVacationEndDate(null);
-                void onUpdateVacation?.({ vacationMode: val }).catch(() => {
-                  setVacationEnabled(!val);
-                });
-              }}
-            />
-          </div>
-          {vacationEnabled && (
-            <div style={{ marginTop: 10, paddingLeft: 34, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--warm-text-light)' }}>
-                {t('settings.vacationReturnDate')}
-              </label>
-              <input
-                type="date"
-                className="tq-input-compact"
-                value={vacationEndDate ? vacationEndDate.slice(0, 10) : ''}
-                min={new Date().toISOString().slice(0, 10)}
-                onChange={async (e) => {
-                  const val = e.target.value || null;
-                  setVacationEndDate(val);
-                  void onUpdateVacation?.({ vacationEndDate: val }).catch(() => {
-                    setVacationEndDate(vacationConfig?.vacationEndDate ?? null);
-                  });
-                }}
-              />
-            </div>
-          )}
-          {/* Per-user vacation toggles */}
-          <div style={{ marginTop: 14, paddingLeft: 34, display: 'grid', gap: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-secondary)', marginBottom: 2 }}>{t('settings.perUserVacation')}</div>
-            {family.filter((u) => u.role !== 'admin').map((u) => {
-              const isOn = !!(memberVacation[u.id] ?? u.isVacationMode);
-              return (
-                <div key={u.id} style={{ padding: '8px 10px', borderRadius: 12, backgroundColor: 'var(--warm-bg-subtle)', border: '1px solid var(--warm-border)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={28} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{u.displayName}</div>
-                      {isOn && u.vacationStartDate && (
-                        <div style={{ fontSize: 10, color: 'var(--warm-accent)' }}>{t('settings.vacationSince')} {new Date(u.vacationStartDate).toLocaleDateString()}</div>
+            {isAdmin && (
+              <div style={{ display: 'grid', gap: 8, marginTop: notifMasterEnabled ? 10 : 0, marginBottom: 8, padding: notifMasterEnabled ? 10 : 0, border: notifMasterEnabled ? '1px solid var(--warm-border)' : 'none', borderRadius: 10 }}>
+                {notifMasterEnabled ? (
+                  <>
+                    {/* Notification time */}
+                    <div style={{ display: 'grid', gap: 4 }}>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.notificationTime')}</label>
+                      <input type="time" className="tq-input" value={notifTime} onChange={(e) => setNotifTime(e.target.value || '09:00')} />
+                    </div>
+                    {/* Notification types */}
+                    <div style={{ display: 'grid', gap: 6, marginTop: 2 }}>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                        <input type="checkbox" checked={notifTypes.taskDue} onChange={(e) => setNotifTypes((prev) => ({ ...prev, taskDue: e.target.checked }))} style={{ marginRight: 6 }} />
+                        {t('settings.notificationTypeTaskDue')}
+                      </label>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                        <input type="checkbox" checked={notifTypes.rewardRequest} onChange={(e) => setNotifTypes((prev) => ({ ...prev, rewardRequest: e.target.checked }))} style={{ marginRight: 6 }} />
+                        {t('settings.notificationTypeRewardRequest')}
+                      </label>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                        <input type="checkbox" checked={notifTypes.achievementUnlocked} onChange={(e) => setNotifTypes((prev) => ({ ...prev, achievementUnlocked: e.target.checked }))} style={{ marginRight: 6 }} />
+                        {t('settings.notificationTypeAchievementUnlocked')}
+                      </label>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                        <input type="checkbox" checked={notifTypes.choreApproval !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, choreApproval: e.target.checked }))} style={{ marginRight: 6 }} />
+                        {t('settings.notificationTypeChoreApproval')}
+                      </label>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                        <input type="checkbox" checked={notifTypes.coinBoost !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, coinBoost: e.target.checked }))} style={{ marginRight: 6 }} />
+                        {t('settings.notificationTypeCoinBoost')}
+                      </label>
+                      {(['reminder', 'outcome', 'summary', 'nudge'] as const).map((k) => (
+                        <label key={k} style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                          <input type="checkbox" checked={notifTypes[k] !== false} onChange={(e) => setNotifTypes((prev) => ({ ...prev, [k]: e.target.checked }))} style={{ marginRight: 6 }} />
+                          {t(`notifyAdmin.kind_${k}`)} <span style={{ fontWeight: 600, color: 'var(--warm-text-light)' }}>· {t(`notifyAdmin.kindDesc_${k}`)}</span>
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* Telegram sub-toggle */}
+                    <div style={{ marginTop: 8, padding: 10, border: '1px solid var(--warm-border)', borderRadius: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21.2 4.4L2.4 11.1c-.6.2-.6.7 0 .9l4.8 1.5 1.8 5.8c.2.5.7.5 1 .2l2.6-2.1 5.1 3.7c.5.4 1.1.1 1.2-.5L22.2 5.4c.2-.8-.4-1.3-1-1z" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinejoin="round" fill="none"/></svg>
+                        <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--warm-text)' }}>Telegram</div>
+                        <Toggle checked={telegramEnabled} onChange={setTelegramEnabled} />
+                      </div>
+                      {telegramEnabled && (
+                        <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
+                          <input className="tq-input" value={notifChatId} onChange={(e) => setNotifChatId(e.target.value)} placeholder={t('settings.telegramChatId')} />
+                          <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>{t('settings.telegramChatIdHint')}</div>
+                          <input type="password" className="tq-input" value={notifToken} onChange={(e) => setNotifToken(e.target.value)} placeholder={notifHasToken ? t('settings.telegramTokenConfigured') : t('settings.telegramToken')} />
+                          <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>{t('settings.telegramTokenHint')}</div>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={saveNotifications}>{t('common.save')}</button>
+                            <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={testTelegram}>{t('settings.sendTestNotification')}</button>
+                          </div>
+                        </div>
                       )}
                     </div>
-                    <Toggle checked={isOn} onChange={async (val) => {
-                      setMemberVacation((prev) => ({ ...prev, [u.id]: val }));
-                      try {
-                        await api.updateUserVacation(u.id, { isVacationMode: val });
-                      } catch {
-                        setMemberVacation((prev) => ({ ...prev, [u.id]: !val }));
-                      }
-                    }} />
+
+                    {/* ntfy sub-toggle */}
+                    <div style={{ padding: 10, border: '1px solid var(--warm-border)', borderRadius: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2a7 7 0 0 0-7 7v3l-1.5 2h17L17 12V9a7 7 0 0 0-7-7z" stroke="var(--warm-text-light)" strokeWidth="1.5" fill="none"/><path d="M8 16a2 2 0 0 0 4 0" stroke="var(--warm-text-light)" strokeWidth="1.5" fill="none"/></svg>
+                        <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--warm-text)' }}>ntfy</div>
+                        <Toggle checked={ntfyEnabled} onChange={setNtfyEnabled} />
+                      </div>
+                      {ntfyEnabled && (
+                        <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
+                          <div style={{ display: 'grid', gap: 4 }}>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.ntfyServerUrl')}</label>
+                            <input className="tq-input" value={ntfyServerUrl} onChange={(e) => setNtfyServerUrl(e.target.value)} placeholder="https://ntfy.sh" />
+                          </div>
+                          <div style={{ display: 'grid', gap: 4 }}>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.ntfyTopic')}</label>
+                            <input className="tq-input" value={ntfyTopic} onChange={(e) => setNtfyTopic(e.target.value)} placeholder={t('settings.ntfyTopicPlaceholder')} />
+                          </div>
+                          <div style={{ display: 'grid', gap: 4 }}>
+                            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.ntfyToken')}</label>
+                            <input type="password" className="tq-input" value={ntfyToken} onChange={(e) => setNtfyToken(e.target.value)} placeholder={ntfyHasToken ? t('settings.ntfyTokenConfigured') : t('settings.ntfyTokenPlaceholder')} />
+                            <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>{t('settings.ntfyTokenHint')}</div>
+                          </div>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={saveNotifications}>{t('common.save')}</button>
+                            <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={testNtfy}>{t('settings.sendTestNotification')}</button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {notifMsg && <div style={{ fontSize: 11, color: notifMsg.includes('✓') || notifMsg.includes('saved') || notifMsg.includes('sent') || notifMsg.includes('enregistr') || notifMsg.includes('envoy') ? 'var(--health-green)' : 'var(--warm-text-muted)', fontWeight: 700 }}>{notifMsg}</div>}
+                  </>
+                ) : (
+                  <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>
+                    {t('settings.notificationsDisabledHint')}
                   </div>
-                  {isOn && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, paddingLeft: 38 }}>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-light)', whiteSpace: 'nowrap' }}>
-                        {t('settings.vacationReturnDate')}
-                      </label>
-                      <input
-                        type="date"
-                        className="tq-input-compact"
-                        value={u.vacationEndDate ? u.vacationEndDate.slice(0, 10) : ''}
-                        min={new Date().toISOString().slice(0, 10)}
-                        onChange={async (e) => {
-                          const val = e.target.value || null;
-                          try {
-                            await api.updateUserVacation(u.id, { vacationEndDate: val });
-                          } catch { /* ignore */ }
-                        }}
-                        style={{ fontSize: 11 }}
-                      />
+                )}
+              </div>
+            )}
+            </>)}
+            {isAdmin && (
+            <div style={{ padding: '14px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <circle cx="10" cy="8" r="4" stroke="var(--warm-text-light)" strokeWidth="1.5" fill="none" />
+                  <path d="M5 17L6.5 13H13.5L15 17" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.vacationMode')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.vacationDesc')}</div>
+                  {vacationEnabled && vacationConfig?.vacationStartDate && (
+                    <div style={{ fontSize: 11, color: 'var(--warm-accent)', marginTop: 2 }}>
+                      {t('settings.vacationSince')} {new Date(vacationConfig.vacationStartDate).toLocaleDateString()}
                     </div>
                   )}
                 </div>
-              );
-            })}
-          </div>
-        </div>
-        )}
-        {isAdmin && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M10 2a4 4 0 0 1 4 4v1h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1V6a4 4 0 0 1 4-4zm0 1.5A2.5 2.5 0 0 0 7.5 6v1h5V6A2.5 2.5 0 0 0 10 3.5z" fill="var(--warm-text-light)" />
-            </svg>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.registrationEnabled')}</div>
-              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.registrationEnabledDesc')}</div>
-            </div>
-            <Toggle
-              checked={registrationEnabled}
-              onChange={async (val) => {
-                setRegistrationEnabled(val);
-                await api.updateRegistrationConfig({ registrationEnabled: val }).catch(() => {
-                  setRegistrationEnabled(!val);
-                });
-              }}
-            />
-          </div>
-        )}
-        {isAdmin && gamificationEnabled && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M4 6h12M4 10h12M4 14h12" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M14 4l2 2-2 2" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.strictMode')}</div>
-              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.strictModeDesc')}</div>
-            </div>
-            <Toggle
-              checked={strictModeEnabled}
-              onChange={async (val) => {
-                setStrictModeEnabled(val);
-                await api.updateStrictModeConfig({ strictMode: val }).catch(() => {
-                  setStrictModeEnabled(!val);
-                });
-              }}
-            />
-          </div>
-        )}
-        {isAdmin && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <rect x="3" y="8" width="14" height="9" rx="2" stroke="var(--warm-text-light)" strokeWidth="1.5" />
-              <path d="M6.5 8V6a3.5 3.5 0 017 0v2" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.hidePrivateRooms')}</div>
-              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.hidePrivateRoomsDesc')}</div>
-            </div>
-            <Toggle
-              checked={hidePrivateRooms}
-              onChange={async (val) => {
-                setHidePrivateRooms(val);
-                await api.updateKidsConfig({ hidePrivateRooms: val }).catch(() => setHidePrivateRooms(!val));
-              }}
-            />
-          </div>
-        )}
-        {isAdmin && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M10 1l2.5 5.5L18 7.5l-4 4 1 5.5L10 14.5 4.5 17l1-5.5-4-4 5.5-1z" fill="var(--warm-text-light)" />
-            </svg>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.gamificationEnabled')}</div>
-              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.gamificationEnabledDesc')}</div>
-            </div>
-            <Toggle
-              checked={gamificationEnabled}
-              onChange={async (val) => {
-                onGamificationChange?.(val);
-                await api.updateGamificationConfig({ gamificationEnabled: val }).catch(() => {
-                  onGamificationChange?.(!val);
-                });
-              }}
-            />
-          </div>
-        )}
-        {!isAdmin && (
-          <div style={{ marginTop: 8, fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>
-            {t('settings.adminRequired')}
-          </div>
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <circle cx="10" cy="10" r="8" stroke="var(--warm-text-light)" strokeWidth="1.5" />
-            <path d="M10 6v4.5l3 1.5" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.version')}</div>
-          </div>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text-muted)', textAlign: 'right' }}>
-            v{__APP_VERSION__}{__APP_BUILD__ && <span style={{ display: 'block', fontSize: 11, color: 'var(--warm-text-light)' }}>{__APP_BUILD__}</span>}
-          </span>
-        </div>
-      </div>
-
-      {isAdmin && strictModeEnabled && (
-        <div className="tq-card settings-admin-card" style={{ padding: 24 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-text)', margin: '0 0 12px' }}>{t('settings.pendingValidations')}</h3>
-          <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.pendingValidationsDesc')}</div>
-          <PendingApprovals items={pendingCompletions} language={user.language} gamificationEnabled={gamificationEnabled} onChanged={loadPendingCompletions} />
-          {pendingCompletions.length === 0 && (
-            <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.noPendingValidations')}</div>
-          )}
-        </div>
-      )}
-
-      {isAdmin && notifMasterEnabled && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">👪 {t('notifyAdmin.peopleTitle')}</h3>
-          <PeopleNotifyAdmin language={user.language} />
-        </div>
-      )}
-
-      {isAdmin && notifMasterEnabled && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">⏰ {t('notifyAdmin.timingTitle')}</h3>
-          <NotifyScheduleAdmin language={user.language} />
-        </div>
-      )}
-
-      {isAdmin && notifMasterEnabled && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">📜 {t('notifyAdmin.logTitle')}</h3>
-          <NotificationLog language={user.language} />
-        </div>
-      )}
-
-      {isAdmin && gamificationEnabled && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">{t('settings.coinsPerEffort')}</h3>
-          <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.coinsPerEffortDesc')}</div>
-          <div style={{ display: 'grid', gap: 8, marginBottom: 10 }}>
-            {[1, 2, 3, 4, 5].map((e) => (
-                <div key={e} className="coins-effort-row" style={{ display: 'grid', gridTemplateColumns: '120px 1fr 130px', alignItems: 'center', gap: 10, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', borderRadius: 12, padding: '8px 10px' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('roomDetail.effort')} {e}</div>
-                  <div className="coins-effort-dots"><EffortDots effort={e} /></div>
-                  <div className="coins-effort-value" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CoinIcon />
-                    <input
-                      type="number"
-                      className="tq-input"
-                    min={0}
-                    value={coinsDraft[e] ?? coinsByEffort[e] ?? e * 5}
-                    onChange={(ev) => setCoinsDraft((prev) => ({ ...prev, [e]: Math.max(0, parseInt(ev.target.value || '0', 10)) }))}
-                    title={`${t('roomDetail.effort')} ${e}`}
+                <Toggle
+                  checked={vacationEnabled}
+                  onChange={async (val) => {
+                    setVacationEnabled(val);
+                    if (!val) setVacationEndDate(null);
+                    void onUpdateVacation?.({ vacationMode: val }).catch(() => {
+                      setVacationEnabled(!val);
+                    });
+                  }}
+                />
+              </div>
+              {vacationEnabled && (
+                <div style={{ marginTop: 10, paddingLeft: 34, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--warm-text-light)' }}>
+                    {t('settings.vacationReturnDate')}
+                  </label>
+                  <input
+                    type="date"
+                    className="tq-input-compact"
+                    value={vacationEndDate ? vacationEndDate.slice(0, 10) : ''}
+                    min={new Date().toISOString().slice(0, 10)}
+                    onChange={async (e) => {
+                      const val = e.target.value || null;
+                      setVacationEndDate(val);
+                      void onUpdateVacation?.({ vacationEndDate: val }).catch(() => {
+                        setVacationEndDate(vacationConfig?.vacationEndDate ?? null);
+                      });
+                    }}
                   />
                 </div>
+              )}
+              {/* Per-user vacation toggles */}
+              <div style={{ marginTop: 14, paddingLeft: 34, display: 'grid', gap: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-secondary)', marginBottom: 2 }}>{t('settings.perUserVacation')}</div>
+                {family.filter((u) => u.role !== 'admin').map((u) => {
+                  const isOn = !!(memberVacation[u.id] ?? u.isVacationMode);
+                  return (
+                    <div key={u.id} style={{ padding: '8px 10px', borderRadius: 12, backgroundColor: 'var(--warm-bg-subtle)', border: '1px solid var(--warm-border)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <UserAvatar userId={u.id} name={u.displayName} color={u.avatarColor} size={28} avatarType={u.avatarType as any} avatarPreset={u.avatarPreset} avatarPhotoUrl={u.avatarPhotoUrl} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>{u.displayName}</div>
+                          {isOn && u.vacationStartDate && (
+                            <div style={{ fontSize: 10, color: 'var(--warm-accent)' }}>{t('settings.vacationSince')} {new Date(u.vacationStartDate).toLocaleDateString()}</div>
+                          )}
+                        </div>
+                        <Toggle checked={isOn} onChange={async (val) => {
+                          setMemberVacation((prev) => ({ ...prev, [u.id]: val }));
+                          try {
+                            await api.updateUserVacation(u.id, { isVacationMode: val });
+                          } catch {
+                            setMemberVacation((prev) => ({ ...prev, [u.id]: !val }));
+                          }
+                        }} />
+                      </div>
+                      {isOn && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, paddingLeft: 38 }}>
+                          <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-light)', whiteSpace: 'nowrap' }}>
+                            {t('settings.vacationReturnDate')}
+                          </label>
+                          <input
+                            type="date"
+                            className="tq-input-compact"
+                            value={u.vacationEndDate ? u.vacationEndDate.slice(0, 10) : ''}
+                            min={new Date().toISOString().slice(0, 10)}
+                            onChange={async (e) => {
+                              const val = e.target.value || null;
+                              try {
+                                await api.updateUserVacation(u.id, { vacationEndDate: val });
+                              } catch { /* ignore */ }
+                            }}
+                            style={{ fontSize: 11 }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            )}
+            {isAdmin && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 2a4 4 0 0 1 4 4v1h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1V6a4 4 0 0 1 4-4zm0 1.5A2.5 2.5 0 0 0 7.5 6v1h5V6A2.5 2.5 0 0 0 10 3.5z" fill="var(--warm-text-light)" />
+                </svg>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.registrationEnabled')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.registrationEnabledDesc')}</div>
+                </div>
+                <Toggle
+                  checked={registrationEnabled}
+                  onChange={async (val) => {
+                    setRegistrationEnabled(val);
+                    await api.updateRegistrationConfig({ registrationEnabled: val }).catch(() => {
+                      setRegistrationEnabled(!val);
+                    });
+                  }}
+                />
+              </div>
+            )}
+            {isAdmin && gamificationEnabled && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 6h12M4 10h12M4 14h12" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M14 4l2 2-2 2" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.strictMode')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.strictModeDesc')}</div>
+                </div>
+                <Toggle
+                  checked={strictModeEnabled}
+                  onChange={async (val) => {
+                    setStrictModeEnabled(val);
+                    await api.updateStrictModeConfig({ strictMode: val }).catch(() => {
+                      setStrictModeEnabled(!val);
+                    });
+                  }}
+                />
+              </div>
+            )}
+            {isAdmin && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <rect x="3" y="8" width="14" height="9" rx="2" stroke="var(--warm-text-light)" strokeWidth="1.5" />
+                  <path d="M6.5 8V6a3.5 3.5 0 017 0v2" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.hidePrivateRooms')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.hidePrivateRoomsDesc')}</div>
+                </div>
+                <Toggle
+                  checked={hidePrivateRooms}
+                  onChange={async (val) => {
+                    setHidePrivateRooms(val);
+                    await api.updateKidsConfig({ hidePrivateRooms: val }).catch(() => setHidePrivateRooms(!val));
+                  }}
+                />
+              </div>
+            )}
+            {isAdmin && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 1l2.5 5.5L18 7.5l-4 4 1 5.5L10 14.5 4.5 17l1-5.5-4-4 5.5-1z" fill="var(--warm-text-light)" />
+                </svg>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.gamificationEnabled')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.gamificationEnabledDesc')}</div>
+                </div>
+                <Toggle
+                  checked={gamificationEnabled}
+                  onChange={async (val) => {
+                    onGamificationChange?.(val);
+                    await api.updateGamificationConfig({ gamificationEnabled: val }).catch(() => {
+                      onGamificationChange?.(!val);
+                    });
+                  }}
+                />
+              </div>
+            )}
+            {!isAdmin && (
+              <div style={{ marginTop: 8, fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700 }}>
+                {t('settings.adminRequired')}
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="8" stroke="var(--warm-text-light)" strokeWidth="1.5" />
+                <path d="M10 6v4.5l3 1.5" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.version')}</div>
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--warm-text-muted)', textAlign: 'right' }}>
+                v{__APP_VERSION__}{__APP_BUILD__ && <span style={{ display: 'block', fontSize: 11, color: 'var(--warm-text-light)' }}>{__APP_BUILD__}</span>}
+              </span>
+            </div>
+          </div>
+          {isAdmin && strictModeEnabled && <div className="settings-group-title">✅ {t('settingsGroups.approvals')}</div>}
+          {isAdmin && strictModeEnabled && (
+            <div className="tq-card settings-admin-card" style={{ padding: 24 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-text)', margin: '0 0 12px' }}>{t('settings.pendingValidations')}</h3>
+              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.pendingValidationsDesc')}</div>
+              <PendingApprovals items={pendingCompletions} language={user.language} gamificationEnabled={gamificationEnabled} onChanged={loadPendingCompletions} />
+              {pendingCompletions.length === 0 && (
+                <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.noPendingValidations')}</div>
+              )}
+            </div>
+          )}
+          {isAdmin && gamificationEnabled && <div className="settings-group-title">🪙 {t('settingsGroups.coinsGoals')}</div>}
+          {isAdmin && gamificationEnabled && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">{t('settings.coinsPerEffort')}</h3>
+              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.coinsPerEffortDesc')}</div>
+              <div style={{ display: 'grid', gap: 8, marginBottom: 10 }}>
+                {[1, 2, 3, 4, 5].map((e) => (
+                    <div key={e} className="coins-effort-row" style={{ display: 'grid', gridTemplateColumns: '96px minmax(0, 1fr) 116px', alignItems: 'center', gap: 10, backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', borderRadius: 12, padding: '8px 10px' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('roomDetail.effort')} {e}</div>
+                      <div className="coins-effort-dots"><EffortDots effort={e} /></div>
+                      <div className="coins-effort-value" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <CoinIcon />
+                        <input
+                          type="number"
+                          className="tq-input"
+                        min={0}
+                        value={coinsDraft[e] ?? coinsByEffort[e] ?? e * 5}
+                        onChange={(ev) => setCoinsDraft((prev) => ({ ...prev, [e]: Math.max(0, parseInt(ev.target.value || '0', 10)) }))}
+                        title={`${t('roomDetail.effort')} ${e}`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={saveCoins}>{t('common.save')}</button>
+                <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={resetCoins}>{t('settings.useDefaultCoins')}</button>
+              </div>
+            </div>
+          )}
+          {isAdmin && gamificationEnabled && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">{t('settings.goalsSection')}</h3>
+              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.goalsSectionDesc')}</div>
+              <div style={{ backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', borderRadius: 12, padding: '10px 12px', marginBottom: 10 }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 6 }}>🤝 {t('board.familyGoalAdmin')}</div>
+                <FamilyGoalAdmin language={user.language} />
+              </div>
+              <div style={{ display: 'grid', gap: 10 }}>
+                {family
+                  .filter((u) => u.id !== user.id && u.role !== 'admin')
+                  .map((u) => (
+                    <div key={u.id} style={{ backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', borderRadius: 12, padding: '10px 12px' }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 8 }}>{u.displayName}</div>
+                      <div style={{ display: 'grid', gap: 6, marginBottom: 8 }}>
+                        {(memberGoals[u.id] || []).map((g) => (
+                          <GoalRow key={g.id} goal={g} language={user.language} formatDate={formatDate} onChanged={loadAdminGoals} onDelete={() => handleDeleteGoal(g.id, u.id)} />
+                        ))}
+                      </div>
+                      {memberGoalMsg[u.id] && (
+                        <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{memberGoalMsg[u.id]}</div>
+                      )}
+                      <div className="goal-member-form" style={{ display: 'grid', gridTemplateColumns: '1.4fr 100px 90px 130px auto', gap: 8 }}>
+                        <input
+                          className="tq-input"
+                          value={goalDraft[u.id]?.title || ''}
+                          onChange={(e) => setGoalDraft((prev) => ({ ...prev, [u.id]: { ...(prev[u.id] || { title: '', goalCoins: '', rewardCoins: '', endAt: '' }), title: e.target.value } }))}
+                          placeholder={t('settings.goalTitle')}
+                        />
+                        <input
+                          type="number"
+                          className="tq-input"
+                          min={1}
+                          value={goalDraft[u.id]?.goalCoins || ''}
+                          onChange={(e) => setGoalDraft((prev) => ({ ...prev, [u.id]: { ...(prev[u.id] || { title: '', goalCoins: '', rewardCoins: '', endAt: '' }), goalCoins: e.target.value } }))}
+                          placeholder={t('settings.goalCoins')}
+                        />
+                        <input
+                          type="number"
+                          className="tq-input"
+                          min={0}
+                          value={goalDraft[u.id]?.rewardCoins || ''}
+                          onChange={(e) => setGoalDraft((prev) => ({ ...prev, [u.id]: { ...(prev[u.id] || { title: '', goalCoins: '', rewardCoins: '', endAt: '' }), rewardCoins: e.target.value } }))}
+                          placeholder={t('settings.goalReward')}
+                          title={t('settings.goalRewardDesc')}
+                        />
+                        <input
+                          type="date"
+                          className="tq-input goal-member-end-date"
+                          value={goalDraft[u.id]?.endAt || ''}
+                          onChange={(e) => setGoalDraft((prev) => ({ ...prev, [u.id]: { ...(prev[u.id] || { title: '', goalCoins: '', rewardCoins: '', endAt: '' }), endAt: e.target.value } }))}
+                          title={t('settings.goalEnd')}
+                          lang={locale}
+                          style={{ minWidth: 0 }}
+                        />
+                        <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => handleAddGoal(u)}>{t('settings.addGoal')}</button>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginTop: 6 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={!!goalRepeat[u.id]} onChange={(e) => setGoalRepeat((prev) => ({ ...prev, [u.id]: e.target.checked }))} style={{ accentColor: 'var(--warm-accent)' }} />
+                          {t('goals.repeatWeekly')}
+                        </label>
+                        {/* Template: a weekly win this week, reusing their last target and bonus */}
+                        <button className="tq-btn tq-btn-sm" onClick={() => {
+                          const last = (memberGoals[u.id] || [])[0];
+                          setGoalDraft((prev) => ({ ...prev, [u.id]: { title: t('goals.weeklyWinTitle'), goalCoins: String(last?.goalCoins ?? 100), rewardCoins: String(last?.rewardCoins ?? 20), endAt: '' } }));
+                          setGoalRepeat((prev) => ({ ...prev, [u.id]: true }));
+                        }}>⭐ {t('goals.weeklyWinTemplate')}</button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="settings-col">
+          {isAdmin && notifMasterEnabled && <div className="settings-group-title">🔔 {t('settingsGroups.notifications')}</div>}
+          {isAdmin && notifMasterEnabled && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">👪 {t('notifyAdmin.peopleTitle')}</h3>
+              <PeopleNotifyAdmin language={user.language} />
+            </div>
+          )}
+          {isAdmin && notifMasterEnabled && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">⏰ {t('notifyAdmin.timingTitle')}</h3>
+              <NotifyScheduleAdmin language={user.language} />
+            </div>
+          )}
+          {isAdmin && notifMasterEnabled && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">📜 {t('notifyAdmin.logTitle')}</h3>
+              <NotificationLog language={user.language} />
+            </div>
+          )}
+          {isAdmin && <div className="settings-group-title">✨ {t('settingsGroups.gameExtras')}</div>}
+          {isAdmin && gamificationEnabled && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">{t('boosts.title')}</h3>
+              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('boosts.desc')}</div>
+              <CoinBoostsAdmin rooms={rooms} language={user.language} />
+            </div>
+          )}
+          {isAdmin && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">🧩 {t('features.title')}</h3>
+              <FeaturesAdmin language={user.language} onChanged={onDataChanged} />
+            </div>
+          )}
+          {isAdmin && gamificationEnabled && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">🏅 {t('badges.adminTitle')}</h3>
+              <CustomBadgesAdmin rooms={rooms} language={user.language}
+                family={family.filter((m) => m.role !== 'admin' || m.isParticipant).map((m) => ({ id: m.id, displayName: m.displayName }))} />
+            </div>
+          )}
+          {isAdmin && <div className="settings-group-title">💾 {t('settingsGroups.data')}</div>}
+          {isAdmin && (
+          <div className="tq-card tq-card-padded">
+            <h3 className="tq-card-title">{t('settings.dataPrivacy')}</h3>
+            {[
+              { icon: <DownloadIcon />, title: t('settings.exportData'), desc: t('settings.exportDesc'), btn: t('settings.download'), action: onExport },
+              { icon: <UploadIcon />, title: t('settings.importData'), desc: t('settings.importDesc'), btn: t('settings.upload'), action: onImport },
+              { icon: <LockIcon />, title: t('settings.privacy'), desc: t('settings.privacyDesc'), btn: null, action: null },
+            ].map((s, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < 2 ? '1px solid var(--warm-border)' : 'none' }}>
+                {s.icon}
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{s.title}</div>
+                  <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{s.desc}</div>
+                </div>
+                {s.btn && (
+                  <button className="tq-btn tq-btn-sm" onClick={isAdmin ? s.action! : () => {}} disabled={!isAdmin} style={{ backgroundColor: 'var(--warm-accent-light)', color: 'var(--warm-accent)', border: '1.5px solid var(--warm-accent)' }}>
+                    {s.btn}
+                  </button>
+                )}
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={saveCoins}>{t('common.save')}</button>
-            <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={resetCoins}>{t('settings.useDefaultCoins')}</button>
-          </div>
+          )}
+          {isAdmin && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">{t('csv.title')}</h3>
+              <CsvTransfer language={user.language} onImported={() => { onDataChanged?.(); void loadRewardsAdmin(); }} />
+            </div>
+          )}
+          {isAdmin && (
+            <div className="tq-card tq-card-padded settings-admin-card">
+              <h3 className="tq-card-title">{t('trash.title')}</h3>
+              <TrashAdmin rooms={rooms} language={user.language} reloadKey={trashVersion}
+                onRestored={() => { onDataChanged?.(); void loadRewardsAdmin(); }} />
+            </div>
+          )}
         </div>
-      )}
-
-      {isAdmin && gamificationEnabled && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">{t('settings.goalsSection')}</h3>
-          <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('settings.goalsSectionDesc')}</div>
-          <div style={{ backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', borderRadius: 12, padding: '10px 12px', marginBottom: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 6 }}>🤝 {t('board.familyGoalAdmin')}</div>
-            <FamilyGoalAdmin language={user.language} />
-          </div>
-          <div style={{ display: 'grid', gap: 10 }}>
-            {family
-              .filter((u) => u.id !== user.id && u.role !== 'admin')
-              .map((u) => (
-                <div key={u.id} style={{ backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', borderRadius: 12, padding: '10px 12px' }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 8 }}>{u.displayName}</div>
-                  <div style={{ display: 'grid', gap: 6, marginBottom: 8 }}>
-                    {(memberGoals[u.id] || []).map((g) => (
-                      <GoalRow key={g.id} goal={g} language={user.language} formatDate={formatDate} onChanged={loadAdminGoals} onDelete={() => handleDeleteGoal(g.id, u.id)} />
-                    ))}
-                  </div>
-                  {memberGoalMsg[u.id] && (
-                    <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{memberGoalMsg[u.id]}</div>
-                  )}
-                  <div className="goal-member-form" style={{ display: 'grid', gridTemplateColumns: '1.4fr 100px 90px 130px auto', gap: 8 }}>
-                    <input
-                      className="tq-input"
-                      value={goalDraft[u.id]?.title || ''}
-                      onChange={(e) => setGoalDraft((prev) => ({ ...prev, [u.id]: { ...(prev[u.id] || { title: '', goalCoins: '', rewardCoins: '', endAt: '' }), title: e.target.value } }))}
-                      placeholder={t('settings.goalTitle')}
-                    />
-                    <input
-                      type="number"
-                      className="tq-input"
-                      min={1}
-                      value={goalDraft[u.id]?.goalCoins || ''}
-                      onChange={(e) => setGoalDraft((prev) => ({ ...prev, [u.id]: { ...(prev[u.id] || { title: '', goalCoins: '', rewardCoins: '', endAt: '' }), goalCoins: e.target.value } }))}
-                      placeholder={t('settings.goalCoins')}
-                    />
-                    <input
-                      type="number"
-                      className="tq-input"
-                      min={0}
-                      value={goalDraft[u.id]?.rewardCoins || ''}
-                      onChange={(e) => setGoalDraft((prev) => ({ ...prev, [u.id]: { ...(prev[u.id] || { title: '', goalCoins: '', rewardCoins: '', endAt: '' }), rewardCoins: e.target.value } }))}
-                      placeholder={t('settings.goalReward')}
-                      title={t('settings.goalRewardDesc')}
-                    />
-                    <input
-                      type="date"
-                      className="tq-input goal-member-end-date"
-                      value={goalDraft[u.id]?.endAt || ''}
-                      onChange={(e) => setGoalDraft((prev) => ({ ...prev, [u.id]: { ...(prev[u.id] || { title: '', goalCoins: '', rewardCoins: '', endAt: '' }), endAt: e.target.value } }))}
-                      title={t('settings.goalEnd')}
-                      lang={locale}
-                      style={{ minWidth: 0 }}
-                    />
-                    <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => handleAddGoal(u)}>{t('settings.addGoal')}</button>
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginTop: 6 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)', cursor: 'pointer' }}>
-                      <input type="checkbox" checked={!!goalRepeat[u.id]} onChange={(e) => setGoalRepeat((prev) => ({ ...prev, [u.id]: e.target.checked }))} style={{ accentColor: 'var(--warm-accent)' }} />
-                      {t('goals.repeatWeekly')}
-                    </label>
-                    {/* Template: a weekly win this week, reusing their last target and bonus */}
-                    <button className="tq-btn tq-btn-sm" onClick={() => {
-                      const last = (memberGoals[u.id] || [])[0];
-                      setGoalDraft((prev) => ({ ...prev, [u.id]: { title: t('goals.weeklyWinTitle'), goalCoins: String(last?.goalCoins ?? 100), rewardCoins: String(last?.rewardCoins ?? 20), endAt: '' } }));
-                      setGoalRepeat((prev) => ({ ...prev, [u.id]: true }));
-                    }}>⭐ {t('goals.weeklyWinTemplate')}</button>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
+      </div>
+      {isAdmin && gamificationEnabled && <div className="settings-group-title">🎁 {t('settingsGroups.rewards')}</div>}
       {isAdmin && gamificationEnabled && (
         <div className="tq-card tq-card-padded settings-admin-card">
           <h3 className="tq-card-title">{t('settings.rewardsSection')}</h3>
@@ -1033,7 +1100,7 @@ export function Settings({
             <button className="tq-btn tq-btn-sm" onClick={async () => { await api.updateRotationConfig(Math.max(0, Math.round(Number(rotatingPerWeek) || 0))); await loadRewardsAdmin(); }}>{t('common.save')}</button>
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
-            {orderedRewards.map((r, index) => (
+            {(showAllRewards ? orderedRewards : orderedRewards.slice(0, REWARDS_SHOWN)).map((r, index) => (
               <div key={r.id} className="rewards-list-row" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.4fr 100px auto', gap: 8, alignItems: 'center', border: '1px solid var(--warm-border)', borderRadius: 10, padding: '8px 10px', backgroundColor: r.isActive ? 'var(--warm-bg-subtle)' : 'var(--warm-bg-warm)' }}>
                 {editingRewardId === r.id ? (
                   <>
@@ -1112,6 +1179,11 @@ export function Settings({
               </div>
             ))}
           </div>
+          {orderedRewards.length > REWARDS_SHOWN && (
+            <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" style={{ marginTop: 8 }} onClick={() => setShowAllRewards((v) => !v)}>
+              {showAllRewards ? t('settings.showFewerRewards') : t('settings.showAllRewards').replace('{n}', String(orderedRewards.length))}
+            </button>
+          )}
           <datalist id="reward-categories">{rewardCategories.map((c) => <option key={c} value={c} />)}</datalist>
           <div style={{ marginTop: 14 }}>
             <h4 className="tq-card-title" style={{ fontSize: 13 }}>{t('settings.rewardRequests')}</h4>
@@ -1132,69 +1204,7 @@ export function Settings({
           </div>
         </div>
       )}
-
-      {isAdmin && gamificationEnabled && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">{t('boosts.title')}</h3>
-          <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, marginBottom: 10 }}>{t('boosts.desc')}</div>
-          <CoinBoostsAdmin rooms={rooms} language={user.language} />
-        </div>
-      )}
-
-      {isAdmin && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">🧩 {t('features.title')}</h3>
-          <FeaturesAdmin language={user.language} onChanged={onDataChanged} />
-        </div>
-      )}
-
-      {isAdmin && gamificationEnabled && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">🏅 {t('badges.adminTitle')}</h3>
-          <CustomBadgesAdmin rooms={rooms} language={user.language}
-            family={family.filter((m) => m.role !== 'admin' || m.isParticipant).map((m) => ({ id: m.id, displayName: m.displayName }))} />
-        </div>
-      )}
-
-      {isAdmin && (
-      <div className="tq-card tq-card-padded">
-        <h3 className="tq-card-title">{t('settings.dataPrivacy')}</h3>
-        {[
-          { icon: <DownloadIcon />, title: t('settings.exportData'), desc: t('settings.exportDesc'), btn: t('settings.download'), action: onExport },
-          { icon: <UploadIcon />, title: t('settings.importData'), desc: t('settings.importDesc'), btn: t('settings.upload'), action: onImport },
-          { icon: <LockIcon />, title: t('settings.privacy'), desc: t('settings.privacyDesc'), btn: null, action: null },
-        ].map((s, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < 2 ? '1px solid var(--warm-border)' : 'none' }}>
-            {s.icon}
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{s.title}</div>
-              <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{s.desc}</div>
-            </div>
-            {s.btn && (
-              <button className="tq-btn tq-btn-sm" onClick={isAdmin ? s.action! : () => {}} disabled={!isAdmin} style={{ backgroundColor: 'var(--warm-accent-light)', color: 'var(--warm-accent)', border: '1.5px solid var(--warm-accent)' }}>
-                {s.btn}
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-      )}
-
-      {isAdmin && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">{t('csv.title')}</h3>
-          <CsvTransfer language={user.language} onImported={() => { onDataChanged?.(); void loadRewardsAdmin(); }} />
-        </div>
-      )}
-
-      {isAdmin && (
-        <div className="tq-card tq-card-padded settings-admin-card">
-          <h3 className="tq-card-title">{t('trash.title')}</h3>
-          <TrashAdmin rooms={rooms} language={user.language} reloadKey={trashVersion}
-            onRestored={() => { onDataChanged?.(); void loadRewardsAdmin(); }} />
-        </div>
-      )}
-
+      <div className="settings-group-title">👨‍👩‍👧‍👦 {t('settingsGroups.family')}</div>
       <div className="tq-card tq-card-padded settings-admin-card family-members-card" style={{ gridColumn: '1 / -1' }}>
         <div className="family-members-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
           <h3 className="tq-card-title" style={{ margin: 0 }}>{t('settings.familyMembers')}</h3>

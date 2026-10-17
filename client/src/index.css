@@ -549,11 +549,34 @@ body {
 }
 
 /* Settings grid — via CSS class, not inline */
-.settings-grid {
+/* Settings: grouped cards in two columns that each grow at their own height (no stretched cards) */
+.settings-page {
+  display: grid;
+  gap: var(--space-xl);
+}
+.settings-cols {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-xl);
+  align-items: start;
 }
+.settings-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+.settings-group-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--warm-text-light);
+  margin: var(--space-sm) 2px calc(-1 * var(--space-sm));
+}
+.settings-col > .settings-group-title:first-child { margin-top: 0; }
+/* Kids only see a card or two: one column */
+.settings-cols.settings-cols-single { grid-template-columns: 1fr; }
 
 /* ========================================
    UNLOCKABLE THEMES (levels 4, 7 and 10; utils/unlocks.ts)
@@ -1042,7 +1065,7 @@ html[data-theme='lava'] option {
   }
 
   /* Page-specific responsive grids */
-  .settings-grid {
+  .settings-cols {
     grid-template-columns: 1fr;
   }
 

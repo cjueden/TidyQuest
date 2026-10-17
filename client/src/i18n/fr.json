@@ -288,7 +288,9 @@
       "themeOcean": "Océan (sombre)",
       "themeForest": "Forêt",
       "themeGalaxy": "Galaxie",
-      "themeLava": "Lave"
+      "themeLava": "Lave",
+      "showAllRewards": "Voir les {n} récompenses",
+      "showFewerRewards": "Voir moins"
     },
     "nav": {
       "home": "Accueil",
@@ -1563,6 +1565,16 @@
       "contents": "Sommaire",
       "forParents": "Pour les parents",
       "noMatch": "Rien dans le guide ne correspond."
+    },
+    "settingsGroups": {
+      "household": "Maison",
+      "approvals": "Validations",
+      "notifications": "Notifications",
+      "data": "Données",
+      "family": "Famille",
+      "coinsGoals": "Pièces et objectifs",
+      "gameExtras": "Extras du jeu",
+      "rewards": "Récompenses"
     }
   }
 }

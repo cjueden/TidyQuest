@@ -288,7 +288,9 @@
       "themeOcean": "Oceaan (donker)",
       "themeForest": "Bos",
       "themeGalaxy": "Melkweg",
-      "themeLava": "Lava"
+      "themeLava": "Lava",
+      "showAllRewards": "Alle {n} beloningen tonen",
+      "showFewerRewards": "Minder tonen"
     },
     "nav": {
       "home": "Home",
@@ -1563,6 +1565,16 @@
       "contents": "Inhoud",
       "forParents": "Voor ouders",
       "noMatch": "Niets in de handleiding komt overeen."
+    },
+    "settingsGroups": {
+      "household": "Huishouden",
+      "approvals": "Goedkeuringen",
+      "notifications": "Meldingen",
+      "data": "Gegevens",
+      "family": "Gezin",
+      "coinsGoals": "Munten & doelen",
+      "gameExtras": "Spelextra's",
+      "rewards": "Beloningen"
     }
   }
 }
