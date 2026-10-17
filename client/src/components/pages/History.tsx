@@ -26,9 +26,11 @@ interface HistoryProps {
   rooms?: Array<{ id: number; name: string; roomType: string }>;
   /** The viewer (you can't cheer your own chores) */
   userId?: number;
+  /** The house mascot cheers every chore too (🐾) */
+  mascotName?: string | null;
 }
 
-export function History({ language, isAdmin, users = [], rooms = [], userId }: HistoryProps) {
+export function History({ language, isAdmin, users = [], rooms = [], userId, mascotName }: HistoryProps) {
   const { taskName, t, roomDisplayName, timeAgo } = useTranslation(language);
   const [history, setHistory] = useState<any[]>([]);
   // The viewer's own chores still waiting for a parent (Strict Mode)
@@ -148,6 +150,7 @@ export function History({ language, isAdmin, users = [], rooms = [], userId }: H
             const isAdjustment = h.type === 'adjustment';
             // A chip-in to a shared reward (Family Goal); refunded ones are crossed out
             const isChipIn = h.type === 'contribution';
+            const isPurchase = h.type === 'mascotPurchase';
             const refunded = isChipIn && h.potStatus === 'rejected';
             const isDuo = h.participants && h.participants.length > 1;
             const byName = isDuo
@@ -171,7 +174,13 @@ export function History({ language, isAdmin, users = [], rooms = [], userId }: H
                 <UserAvatar userId={h.userId} name={h.displayName} color={h.avatarColor} size={34} avatarType={h.avatarType} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
               )}
               <div>
-                {isChipIn ? (
+                {isPurchase ? (
+                  <>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('history.boughtForMascot').replace('{item}', t(`mascot.item_${h.itemId}`))}</div>
+                    <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{h.displayName}</div>
+                    <div className="history-mobile-meta">{timeAgo(h.completedAt)}</div>
+                  </>
+                ) : isChipIn ? (
                   <>
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>🏦 {t('history.chippedIn').replace('{reward}', h.rewardTitle)}</div>
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
@@ -195,19 +204,19 @@ export function History({ language, isAdmin, users = [], rooms = [], userId }: H
                     <div className="history-mobile-meta">{roomDisplayName(h.roomName, h.roomType || '')} · {timeAgo(h.completedAt)}</div>
                     {h.approvalNote && <div style={{ fontSize: 12, color: 'var(--warm-text-secondary)', fontWeight: 600, marginTop: 2, overflowWrap: 'anywhere' }}>💬 “{h.approvalNote}”</div>}
                     {h.cheers && (
-                      <CheerBar completionId={h.id} cheers={h.cheers} language={language}
+                      <CheerBar completionId={h.id} cheers={h.cheers} language={language} mascotName={mascotName}
                         canCheer={h.userId !== userId && !h.participants?.some((p: { id: number }) => p.id === userId)} />
                     )}
                   </>
                 )}
               </div>
-              <div className="history-col-room" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>{isAdjustment || isChipIn ? '—' : roomDisplayName(h.roomName, h.roomType || '')}</div>
+              <div className="history-col-room" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>{isAdjustment || isChipIn || isPurchase ? '—' : roomDisplayName(h.roomName, h.roomType || '')}</div>
               <div className="history-col-when" style={{ fontSize: 12, color: 'var(--warm-text-light)', fontWeight: 600 }}>{timeAgo(h.completedAt)}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end', fontSize: 13, fontWeight: 800, color: refunded ? 'var(--warm-text-light)' : h.coinsEarned < 0 ? 'var(--warm-danger)' : 'var(--warm-coin)', textDecoration: refunded ? 'line-through' : undefined }}>
                 {h.coinsEarned < 0 ? '' : '+'}{formatCoins(h.coinsEarned)} <CoinIcon />
               </div>
-              {isAdmin && (isAdjustment || isChipIn) && <div />}
-              {isAdmin && !isAdjustment && !isChipIn && (
+              {isAdmin && (isAdjustment || isChipIn || isPurchase) && <div />}
+              {isAdmin && !isAdjustment && !isChipIn && !isPurchase && (
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   {confirmCancel === h.id ? (
                     <div style={{ display: 'flex', gap: 4 }}>

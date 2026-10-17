@@ -539,13 +539,13 @@ function AppContent() {
           <Route path="/activity" element={
             <>
               <PageHeader title={t('nav.activity')} subtitle={t('app.activitySubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <History language={user.language} isAdmin={user.role === 'admin'} users={familySettings} rooms={rooms} userId={user.id} />
+              <History language={user.language} isAdmin={user.role === 'admin'} users={familySettings} rooms={rooms} userId={user.id} mascotName={dashboardData?.mascot?.name} />
             </>
           } />
           <Route path="/history" element={
             <>
               <PageHeader title={t('nav.activity')} subtitle={t('app.activitySubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
-              <History language={user.language} isAdmin={user.role === 'admin'} users={familySettings} rooms={rooms} userId={user.id} />
+              <History language={user.language} isAdmin={user.role === 'admin'} users={familySettings} rooms={rooms} userId={user.id} mascotName={dashboardData?.mascot?.name} />
             </>
           } />
 

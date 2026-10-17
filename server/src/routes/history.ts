@@ -124,8 +124,26 @@ router.get('/', (req: AuthRequest, res: Response) => {
     `).all(...cParams) as any[];
   }
 
+  // Accessories bought for the house mascot (everyone sees them, like the outfit itself)
+  let purchases: any[] = [];
+  if (!filterRoomId) {
+    const pWhere: string[] = [];
+    const pParams: (string | number)[] = [];
+    if (filterUserId) { pWhere.push('p.userId = ?'); pParams.push(filterUserId); }
+    if (from) { pWhere.push('p.createdAt >= ?'); pParams.push(from); }
+    if (to) { pWhere.push('p.createdAt < ?'); pParams.push(to); }
+    if (q) { pWhere.push('p.itemId LIKE ?'); pParams.push(`%${q.replace(/\s+/g, '')}%`); }
+    purchases = db.prepare(`
+      SELECT 'mascotPurchase' AS type, p.id, p.createdAt AS completedAt, -p.price AS coinsEarned, p.itemId,
+             u.id as userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
+      FROM mascot_purchases p JOIN users u ON u.id = p.userId
+      ${pWhere.length ? `WHERE ${pWhere.join(' AND ')}` : ''}
+      ORDER BY p.createdAt DESC, p.id DESC
+    `).all(...pParams) as any[];
+  }
+
   // Stable sort: completions keep their order among themselves
-  const extra = [...adjustments, ...contributions];
+  const extra = [...adjustments, ...contributions, ...purchases];
   const merged = extra.length
     ? [...filtered, ...extra].sort((a, b) => (a.completedAt < b.completedAt ? 1 : a.completedAt > b.completedAt ? -1 : 0))
     : filtered;

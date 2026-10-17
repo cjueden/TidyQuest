@@ -25,7 +25,7 @@ describe('Settings → Features', () => {
     // The test setup starts with the Rescue Mission off; turn it on at 3×
     expect((await agent.put('/api/features').set(auth(kid.token)).send({ features: { rescue: true } })).status).toBe(403);
     const on = (await agent.put('/api/features').set(auth(admin.token)).send({ features: { rescue: true }, rescueMultiplier: 3 })).body;
-    expect(on).toEqual({ features: { rescue: true, usual: true, forgot: true, todos: true, boardAwards: true, levels: true, nextBadge: true, seasonal: true, cheers: true, mascot: true, teamups: true }, rescueMultiplier: 3, holidaysOff: [], mascot: { creature: 'dog', name: 'Dusty' }, teamBonus: 20 });
+    expect(on).toEqual({ features: { rescue: true, usual: true, forgot: true, todos: true, boardAwards: true, levels: true, nextBadge: true, seasonal: true, cheers: true, mascot: true, teamups: true, mascotShop: true }, rescueMultiplier: 3, holidaysOff: [], mascot: { creature: 'dog', name: 'Dusty', bedtimeFrom: '21:00', bedtimeTo: '07:00' }, teamBonus: 20 });
     expect((await agent.get('/api/features').set(auth(kid.token))).body.rescueMultiplier).toBe(3);
     let d = (await agent.get('/api/dashboard').set(auth(kid.token))).body;
     expect(d.rescueMission).toMatchObject({ taskId: chore, multiplier: 3 });
