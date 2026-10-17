@@ -4,7 +4,8 @@ import { HealthBar } from '../shared/HealthBar';
 import { RingGauge } from '../shared/RingGauge';
 import { EffortDots } from '../shared/EffortDots';
 import { getRoomIcon } from '../icons/RoomIcons';
-import { TaskIcon, TASK_ICON_OPTIONS } from '../icons/TaskIcons';
+import { TaskIcon } from '../icons/TaskIcons';
+import { IconPicker } from '../shared/IconPicker';
 import { CheckIcon, BackIcon, PlusIcon, CoinIcon } from '../icons/UIIcons';
 import { getRoomHealth } from '../../utils/health';
 import { formatNextDue, isTaskForUser, taskNextDue } from '../../utils/tasks';
@@ -458,7 +459,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       frequencyDays,
       effort: newTaskEffort,
       health: newTaskHealth,
-      iconKey: newTaskIconKey,
+      // Left on the sparkle: the server picks the icon the name suggests
+      iconKey: newTaskIconKey !== 'sparkle' ? newTaskIconKey : undefined,
       onDemand: newTaskOnDemand,
       showInDashboard: newTaskShowInDashboard,
       ...(newTaskOnDemand && newRepeatLimit ? { repeatLimit: Number(newRepeatLimit), repeatPeriod: newRepeatPeriod } : {}),
@@ -649,18 +651,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', minWidth: 58 }}>{t('roomDetail.icon')}</label>
-                    <select
-                      value={editForm.iconKey}
-                      onChange={(e) => setEditForm((f) => ({ ...f, iconKey: e.target.value }))}
-                      className="tq-input-compact"
-                    >
-                      {TASK_ICON_OPTIONS
-                        .slice()
-                        .sort((a, b) => t(`taskIcons.${a.key}`).localeCompare(t(`taskIcons.${b.key}`)))
-                        .map((opt) => (
-                          <option key={opt.key} value={opt.key}>{t(`taskIcons.${opt.key}`)}</option>
-                        ))}
-                    </select>
+                    <IconPicker value={editForm.iconKey} onChange={(k) => setEditForm((f) => ({ ...f, iconKey: k }))} language={language}
+                      taskName={editForm.name} roomName={room.name} roomColor={room.color} coins={coinsByEffort?.[editForm.effort]} />
                   </div>
                   {/* Task assignment — only show if room has no room-level assignment */}
                   {!room.assignedUserId && (
@@ -1085,18 +1077,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', minWidth: 58 }}>{t('roomDetail.icon')}</label>
-                <select
-                  value={newTaskIconKey}
-                  onChange={(e) => setNewTaskIconKey(e.target.value)}
-                  className="tq-input-compact"
-                >
-                  {TASK_ICON_OPTIONS
-                    .slice()
-                    .sort((a, b) => t(`taskIcons.${a.key}`).localeCompare(t(`taskIcons.${b.key}`)))
-                    .map((opt) => (
-                      <option key={opt.key} value={opt.key}>{t(`taskIcons.${opt.key}`)}</option>
-                    ))}
-                </select>
+                <IconPicker value={newTaskIconKey} onChange={setNewTaskIconKey} language={language}
+                  taskName={newTaskName} roomName={room.name} roomColor={room.color} coins={coinsByEffort?.[newTaskEffort]} />
               </div>
               {!room.assignedUserId && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

@@ -256,6 +256,11 @@ function rejectPendingCompletion(completionId: number, adminId?: number): string
 }
 
 // List tasks for a room
+// The icon a chore's name suggests (the icon picker shows it while you type)
+router.get('/tasks/icon-suggestion', (req: AuthRequest, res: Response) => {
+  res.json({ iconKey: suggestTaskIcon(typeof req.query.name === 'string' ? req.query.name.slice(0, 200) : '') });
+});
+
 router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   const vacation = getGlobalVacation();
   const room = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(req.params.roomId) as any;

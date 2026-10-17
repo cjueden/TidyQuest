@@ -519,6 +519,7 @@ export const api = {
     apiFetch<{ teamup: unknown }>('/teamups', { method: 'POST', body: JSON.stringify({ taskId, partnerId }) }),
   joinTeamup: (id: number) => apiFetch<{ teamup: unknown }>(`/teamups/${id}/join`, { method: 'POST' }),
   leaveTeamup: (id: number) => apiFetch<{ ok: boolean }>(`/teamups/${id}/leave`, { method: 'POST' }),
+  suggestIcon: (name: string) => apiFetch<{ iconKey: string }>(`/tasks/icon-suggestion?name=${encodeURIComponent(name)}`),
   getUnlocks: () => apiFetch<UnlocksView>('/unlocks'),
   updateUnlocks: (data: { frame?: string | null; celebration?: string; title?: string | null }) =>
     apiFetch<UnlocksView>('/unlocks', { method: 'PUT', body: JSON.stringify(data) }),
