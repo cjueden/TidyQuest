@@ -37,7 +37,7 @@ export function saveMascot(input: { creature?: unknown; name?: unknown; bedtimeF
   const next = mascotSettings();
   if (input.creature !== undefined) {
     if (!(CREATURES as readonly string[]).includes(String(input.creature))) return 'invalid_creature';
-    next.creature = String(input.creature);
+    if (String(input.creature) !== next.creature) Object.assign(next, switchMascot(String(input.creature)));
   }
   if (input.name !== undefined) {
     const name = String(input.name ?? '').trim();
@@ -53,8 +53,50 @@ export function saveMascot(input: { creature?: unknown; name?: unknown; bedtimeF
   return null;
 }
 
-/** Everyone's chore coins, all time: what the mascot grows with */
+/** Everyone's chore coins, all time */
 export const familyCoinsTotal = () => (db.prepare("SELECT COALESCE(SUM(coinsEarned), 0) AS n FROM task_completions WHERE status = 'approved'").get() as { n: number }).n;
+
+/**
+ * Swapping mascots: each creature the family has had keeps its own growth, name and outfit. The active one
+ * grows with the family coins earned while it's active (mascotOffset = the family total when it took over,
+ * minus what it had already); the others rest in 'mascotPets'. A creature the family hasn't had starts as an
+ * egg. Before any swap the offset is 0, so the first mascot has every family coin ever earned.
+ */
+const DEFAULT_NAMES: Record<string, string> = { dog: 'Dusty', cat: 'Whiskers', dragon: 'Sparky', robot: 'Bolt', fox: 'Rusty', bunny: 'Clover', panda: 'Bamboo', axolotl: 'Axel' };
+type Pet = { name: string; progress: number; outfit: Outfit };
+const setting = (key: string) => (db.prepare('SELECT value FROM app_settings WHERE key = ?').get(key) as { value: string } | undefined)?.value;
+const setSetting = (key: string, value: string) => db.prepare('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)').run(key, value);
+
+/** The resting mascots, by creature */
+export function mascotPets(): Record<string, Pet> {
+  try { return JSON.parse(setting('mascotPets') ?? '{}'); } catch { return {}; }
+}
+/** How far the active mascot has grown: family coins since it took over, plus what it already had */
+export const mascotProgress = () => Math.max(0, familyCoinsTotal() - (Number(setting('mascotOffset')) || 0));
+export const stageIndexFor = (coins: number) => STAGES.reduce((i, s, n) => (coins >= s.from ? n : i), 0);
+
+function switchMascot(to: string): { creature: string; name: string } {
+  const current = mascotSettings();
+  const pets = mascotPets();
+  pets[current.creature] = { name: current.name, progress: mascotProgress(), outfit: mascotOutfit() };
+  const returning = pets[to];
+  delete pets[to];
+  setSetting('mascotOffset', String(familyCoinsTotal() - (returning?.progress ?? 0)));
+  setSetting('mascotPets', JSON.stringify(pets));
+  saveOutfit(returning?.outfit ?? {});
+  return { creature: to, name: returning?.name ?? DEFAULT_NAMES[to] ?? DEFAULT.name };
+}
+
+/** Every creature for the Settings picker: the active one, the resting ones (name, stage) and the rest (new eggs) */
+export function mascotRoster() {
+  const current = mascotSettings();
+  const pets = mascotPets();
+  return CREATURES.map((creature) => {
+    if (creature === current.creature) return { creature, status: 'active', name: current.name, stage: STAGES[stageIndexFor(mascotProgress())].stage };
+    const pet = pets[creature];
+    return pet ? { creature, status: 'resting', name: pet.name, stage: STAGES[stageIndexFor(pet.progress)].stage } : { creature, status: 'new', name: DEFAULT_NAMES[creature], stage: 'egg' };
+  });
+}
 
 export function moodFor(houseHealth: number): 'happy' | 'fine' | 'messy' | 'sad' {
   return houseHealth >= 80 ? 'happy' : houseHealth >= 50 ? 'fine' : houseHealth >= 25 ? 'messy' : 'sad';
@@ -63,8 +105,9 @@ export function moodFor(houseHealth: number): 'happy' | 'fine' | 'messy' | 'sad'
 /** Everything Home needs to draw the mascot */
 export function mascotFor(opts: { houseHealth: number; rooms: Array<{ id: number; name: string; health: number }>; rescueDone: boolean; now?: Date }) {
   const now = opts.now ?? new Date();
-  const familyCoins = familyCoinsTotal();
-  const idx = STAGES.reduce((i, s, n) => (familyCoins >= s.from ? n : i), 0);
+  // This mascot's own growth (see switchMascot)
+  const familyCoins = mascotProgress();
+  const idx = stageIndexFor(familyCoins);
   const mood = moodFor(opts.houseHealth);
   const messiest = [...opts.rooms].sort((a, b) => a.health - b.health)[0];
   // Birthdays are stored 'MM-DD'
@@ -137,7 +180,7 @@ export function buyAccessory(userId: number, itemId: string): { error: string } 
   const item = SHOP.find((i) => i.id === itemId);
   if (!item) return { error: 'unknown_item' };
   // Nothing to wear (or to peek at) until it hatches
-  if (familyCoinsTotal() < STAGES[1].from) return { error: 'not_hatched' };
+  if (mascotProgress() < STAGES[1].from) return { error: 'not_hatched' };
   const me = db.prepare('SELECT coins, displayName FROM users WHERE id = ?').get(userId) as { coins: number; displayName: string } | undefined;
   if (!me) return { error: 'not_found' };
   if (me.coins < item.price) return { error: 'not_enough_coins' };

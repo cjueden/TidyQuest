@@ -1503,7 +1503,9 @@
       "item_cape": "Capa",
       "item_wings": "Alas",
       "shopAfterHatch": "🛍️ ¡Mi tienda abre cuando nazca!",
-      "error_not_hatched": "La tienda abre cuando nazca la mascota."
+      "error_not_hatched": "La tienda abre cuando nazca la mascota.",
+      "newEgg": "Huevo nuevo",
+      "confirmNewEgg": "¿Empezar un huevo nuevo ({creature})? {name} conserva su crecimiento, nombre y atuendo, y podéis volver cuando queráis."
     },
     "teamups": {
       "title": "En equipo",

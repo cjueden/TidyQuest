@@ -1503,7 +1503,9 @@
       "item_cape": "Mantello",
       "item_wings": "Ali",
       "shopAfterHatch": "🛍️ Il mio negozio apre quando mi schiudo!",
-      "error_not_hatched": "Il negozio apre quando la mascotte si schiude."
+      "error_not_hatched": "Il negozio apre quando la mascotte si schiude.",
+      "newEgg": "Uovo nuovo",
+      "confirmNewEgg": "Iniziare un nuovo uovo ({creature})? {name} tiene la sua crescita, il nome e i vestiti, e potete tornare indietro quando volete."
     },
     "teamups": {
       "title": "In squadra",

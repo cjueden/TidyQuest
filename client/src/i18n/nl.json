@@ -1503,7 +1503,9 @@
       "item_cape": "Cape",
       "item_wings": "Vleugels",
       "shopAfterHatch": "🛍️ Mijn winkel gaat open als ik uitkom!",
-      "error_not_hatched": "De winkel gaat open als de mascotte uitkomt."
+      "error_not_hatched": "De winkel gaat open als de mascotte uitkomt.",
+      "newEgg": "Nieuw ei",
+      "confirmNewEgg": "Een nieuw ei beginnen ({creature})? {name} houdt zijn groei, naam en outfit, en je kunt altijd terugwisselen."
     },
     "teamups": {
       "title": "Samen doen",

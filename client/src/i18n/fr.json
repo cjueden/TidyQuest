@@ -1503,7 +1503,9 @@
       "item_cape": "Cape",
       "item_wings": "Ailes",
       "shopAfterHatch": "🛍️ Ma boutique ouvre quand j'éclos !",
-      "error_not_hatched": "La boutique ouvre quand la mascotte éclôt."
+      "error_not_hatched": "La boutique ouvre quand la mascotte éclôt.",
+      "newEgg": "Nouvel œuf",
+      "confirmNewEgg": "Commencer un nouvel œuf ({creature}) ? {name} garde sa croissance, son nom et sa tenue, et vous pouvez revenir à tout moment."
     },
     "teamups": {
       "title": "En équipe",

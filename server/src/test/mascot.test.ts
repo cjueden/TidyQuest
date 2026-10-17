@@ -106,4 +106,40 @@ describe('House mascot', () => {
     const v = (await agent.put('/api/features').set(auth(admin.token)).send({ mascot: { bedtimeFrom: '20:30', bedtimeTo: '06:45' } })).body;
     expect(v.mascot).toEqual({ creature: 'dog', name: 'Dusty', bedtimeFrom: '20:30', bedtimeTo: '06:45' });
   });
+
+  it('swaps to a new creature as an egg, and an old one comes back with its growth, name and outfit', async () => {
+    const admin = await createAdmin(agent);
+    const room = (await agent.post('/api/rooms').set(auth(admin.token)).send({ name: 'Kitchen', roomType: 'other' })).body.id;
+    const task = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name: 'Dishes', effort: 1, frequencyDays: 1 })).body.id;
+    const earn = (coins: number) => db.prepare("INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status) VALUES (?, ?, ?, ?, 'approved')")
+      .run(task, admin.user.id, new Date(Date.now() - 3600000).toISOString(), coins);
+    const mascot = async () => (await agent.get('/api/dashboard').set(auth(admin.token))).body.mascot;
+    const swap = (creature: string) => agent.put('/api/features').set(auth(admin.token)).send({ mascot: { creature } });
+    db.prepare('UPDATE users SET coins = 50 WHERE id = ?').run(admin.user.id);
+
+    earn(600); // Dusty hatches and gets a hat
+    await agent.post('/api/mascot/buy').set(auth(admin.token)).send({ itemId: 'wizardHat' }).expect(200);
+    expect(await mascot()).toMatchObject({ creature: 'dog', name: 'Dusty', stage: 'baby', familyCoins: 600 });
+
+    // A new creature starts over as an egg, with its own name and nothing to wear (and no shop yet)
+    const view = (await swap('cat')).body;
+    expect(view.mascotRoster.filter((r: any) => r.status !== 'new')).toEqual([
+      { creature: 'dog', status: 'resting', name: 'Dusty', stage: 'baby' },
+      { creature: 'cat', status: 'active', name: 'Whiskers', stage: 'egg' },
+    ]);
+    expect(await mascot()).toMatchObject({ creature: 'cat', name: 'Whiskers', stage: 'egg', familyCoins: 0, outfit: {} });
+    expect((await agent.post('/api/mascot/buy').set(auth(admin.token)).send({ itemId: 'bow' })).body.error).toBe('not_hatched');
+    earn(100);
+    expect((await mascot()).familyCoins).toBe(100);
+
+    // Back to Dusty: exactly where it left off (the cat's coins were the cat's), hat and all
+    await swap('dog').expect(200);
+    expect(await mascot()).toMatchObject({ creature: 'dog', name: 'Dusty', stage: 'baby', familyCoins: 600, outfit: { head: { id: 'wizardHat' } } });
+    earn(1500);
+    expect(await mascot()).toMatchObject({ stage: 'kid', familyCoins: 2100 });
+    // And the cat waits with its 100
+    await swap('cat').expect(200);
+    expect(await mascot()).toMatchObject({ creature: 'cat', name: 'Whiskers', familyCoins: 100, stage: 'egg' });
+  });
 });
+

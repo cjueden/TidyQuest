@@ -1503,7 +1503,9 @@
       "item_cape": "Umhang",
       "item_wings": "Flügel",
       "shopAfterHatch": "🛍️ Mein Laden öffnet, wenn ich schlüpfe!",
-      "error_not_hatched": "Der Laden öffnet, wenn das Maskottchen schlüpft."
+      "error_not_hatched": "Der Laden öffnet, wenn das Maskottchen schlüpft.",
+      "newEgg": "Neues Ei",
+      "confirmNewEgg": "Ein neues Ei starten ({creature})? {name} behält Wachstum, Namen und Outfit, und ihr könnt jederzeit zurückwechseln."
     },
     "teamups": {
       "title": "Teamwork",

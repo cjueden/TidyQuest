@@ -140,7 +140,9 @@ export interface UnlocksView {
 /** Cheers on one finished chore (counts in 👏 🎉 💪 ⭐ order, and the viewer's own) */
 export interface CheerSummary { counts: Array<{ emoji: string; count: number; names: string[] }>; mine: string | null }
 
-export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[]; mascot: { creature: string; name: string; bedtimeFrom: string; bedtimeTo: string }; teamBonus: number }
+export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[]; mascot: { creature: string; name: string; bedtimeFrom: string; bedtimeTo: string }; teamBonus: number;
+  /** Every creature: the active one, resting ones (with their name and stage) and new eggs */
+  mascotRoster?: Array<{ creature: string; status: 'active' | 'resting' | 'new'; name: string; stage: string }> }
 
 export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder' | 'cheer' | 'teamup';
 
