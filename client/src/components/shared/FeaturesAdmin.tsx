@@ -19,11 +19,13 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
   const [mascot, setMascot] = useState({ creature: 'dog', name: '', bedtimeFrom: '21:00', bedtimeTo: '07:00' });
   const [mascotName, setMascotName] = useState('');
   const [teamBonus, setTeamBonus] = useState(20);
+  const [roster, setRoster] = useState<NonNullable<FeaturesView['mascotRoster']>>([]);
   const previewing = useSeasonPreview();
   const show = (r: FeaturesView) => {
     setFlags(r.features); setMultiplier(r.rescueMultiplier); setHolidaysOff(r.holidaysOff ?? []);
     if (r.mascot) { setMascot(r.mascot); setMascotName(r.mascot.name); }
     if (r.teamBonus) setTeamBonus(r.teamBonus);
+    if (r.mascotRoster) setRoster(r.mascotRoster);
   };
   useEffect(() => {
     api.getFeatures().then(show).catch(() => setFlags(null));
@@ -62,15 +64,27 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
             {f === 'mascot' && flags.mascot && (
               <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {CREATURE_IDS.map((c: CreatureId) => (
-                    <button key={c} type="button" aria-pressed={mascot.creature === c} title={CREATURES[c].label} onClick={() => void save({ mascot: { creature: c } })} style={{
+                  {CREATURE_IDS.map((c: CreatureId) => {
+                    // Each creature keeps its own growth: a new one starts as an egg, an old one comes back as it was
+                    const r = roster.find((x) => x.creature === c);
+                    const pick = () => {
+                      if (mascot.creature === c) return;
+                      if (r?.status === 'new' && !window.confirm(t('mascot.confirmNewEgg').replace('{creature}', t(`mascot.creature_${c}`)).replace('{name}', mascot.name))) return;
+                      void save({ mascot: { creature: c } });
+                    };
+                    return (
+                    <button key={c} type="button" aria-pressed={mascot.creature === c} title={CREATURES[c].label} onClick={pick} style={{
                       display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 4, borderRadius: 12, cursor: 'pointer', background: 'none',
                       border: `2px solid ${mascot.creature === c ? 'var(--warm-accent)' : 'var(--warm-border)'}`, fontFamily: 'Nunito', fontSize: 10, fontWeight: 800, color: 'var(--warm-text-muted)',
                     }}>
                       <MascotPicture m={{ creature: c, stage: 'grown', mood: 'happy', event: null }} size={44} />
                       {t(`mascot.creature_${c}`)}
+                      <span style={{ fontSize: 9, fontWeight: 700, color: r?.status === 'active' ? 'var(--warm-accent)' : 'var(--warm-text-light)' }}>
+                        {!r || r.status === 'new' ? `🥚 ${t('mascot.newEgg')}` : `${r.status === 'active' ? '✓ ' : ''}${r.name} · ${t(`mascot.stage_${r.stage}`)}`}
+                      </span>
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)', flexWrap: 'wrap' }}>
                   😴 {t('mascot.bedtime')}

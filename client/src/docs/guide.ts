@@ -209,9 +209,10 @@ const GUIDE_EN: GuideSection[] = [
         'Board awards and trophy shelf. Levels and Next badge.',
         'Cheers: 👏 🎉 💪 ⭐ on anyone else’s finished chore (Home’s "Completed today" and Activity). The same emoji again takes it back. The person gets a private notification.',
         'Team-ups: 🤝 on a chore worth 6 or more coins invites one person or anyone. Once someone joins, the chore is the team’s for the day. Either one taps Done; coins split evenly plus a team bonus (10, 20 or 30%). A parent with a kid is a helper and the kid keeps all the coins. Never on someone’s own room, one-person or rotating chores.',
-        'House mascot: one of 8 creatures, picked and named here. It grows with the family’s lifetime coins (hatches at 500, then 2,000, 5,000 and 10,000), its mood follows house health, and it reacts to birthdays, the family goal and the Rescue Mission.',
+        'House mascot: one of 8 creatures, picked and named here. It grows with the family coins earned while it’s the active mascot (hatches at 500, then 2,000, 5,000 and 10,000), its mood follows house health, and it reacts to birthdays, the family goal and the Rescue Mission.',
+        'Swapping mascots: picking a creature you haven’t had starts it as a new egg. Each creature keeps its own growth, name and outfit, so switching back brings it back exactly as it was. The tummy and bedtime are shared.',
         'Playing with the mascot: tap it for a reaction. Its 🍪 tummy fills 5% with every chore (a team-up counts once) and empties over 2 days; when it’s low it just says it’s hungry. "What should I do?" suggests a chore you can do right now. It adds a 🐾 cheer to every finished chore. It sleeps during the family bedtime (set under the mascot in Features, 9 pm to 7 am by default).',
-        'Mascot shop (its own switch): anyone can buy it an accessory for 1 to 5 coins. There’s one shared outfit and no closet: a new item goes on right away for everyone and replaces whatever was in that spot (head, face, neck or back). Whoever bought an item, or a parent, can take it off for free. Purchases show in Activity. Turning the shop off hides it and the outfit.',
+        'Mascot shop (its own switch): anyone can buy it an accessory for 1 to 5 coins. There’s one shared outfit and no closet: a new item goes on right away for everyone and replaces whatever was in that spot (head, face, neck or back). Whoever bought an item, or a parent, can take it off for free. Purchases show in Activity. The shop opens once the mascot hatches. Turning the shop off hides it and the outfit.',
         'Seasonal styling: Halloween in October, Thanksgiving in November, Christmas in December: colors, decorations, a countdown and a costume for the mascot. Each holiday has its own switch and a Preview button.',
       ] },
       { h: 'Levels and unlocks' },
@@ -333,6 +334,9 @@ const GUIDE_EN: GuideSection[] = [
         { q: 'An accessory someone bought disappeared', a: [
           'There’s one shared outfit and no closet, so buying a new item replaces whatever was in that spot. Activity shows who bought what.',
           'Whoever bought it, or a parent, can also take it off. If the shop causes arguments, a parent can switch it off in Settings → Features.',
+        ] },
+        { q: 'The mascot turned back into an egg', a: [
+          'Someone picked a different creature in Settings → Features: a creature you haven’t had starts as an egg. The old one keeps its growth, name and outfit; pick it again to bring it back.',
         ] },
         { q: 'The mascot is asleep, or says it’s hungry', a: [
           'It sleeps during the family bedtime (Settings → Features, under the mascot), by each device’s clock.',

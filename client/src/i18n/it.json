@@ -288,7 +288,9 @@
       "themeOcean": "Oceano (scuro)",
       "themeForest": "Foresta",
       "themeGalaxy": "Galassia",
-      "themeLava": "Lava"
+      "themeLava": "Lava",
+      "showAllRewards": "Mostra tutti i {n} premi",
+      "showFewerRewards": "Mostra meno"
     },
     "nav": {
       "home": "Home",
@@ -1499,7 +1501,11 @@
       "item_necklace": "Collana a cuore",
       "item_balloon": "Palloncino",
       "item_cape": "Mantello",
-      "item_wings": "Ali"
+      "item_wings": "Ali",
+      "shopAfterHatch": "🛍️ Il mio negozio apre quando mi schiudo!",
+      "error_not_hatched": "Il negozio apre quando la mascotte si schiude.",
+      "newEgg": "Uovo nuovo",
+      "confirmNewEgg": "Iniziare un nuovo uovo ({creature})? {name} tiene la sua crescita, il nome e i vestiti, e potete tornare indietro quando volete."
     },
     "teamups": {
       "title": "In squadra",
@@ -1561,6 +1567,16 @@
       "contents": "Indice",
       "forParents": "Per i genitori",
       "noMatch": "Niente nella guida corrisponde."
+    },
+    "settingsGroups": {
+      "household": "Casa",
+      "approvals": "Approvazioni",
+      "notifications": "Notifiche",
+      "data": "Dati",
+      "family": "Famiglia",
+      "coinsGoals": "Monete e obiettivi",
+      "gameExtras": "Extra del gioco",
+      "rewards": "Premi"
     }
   }
 }

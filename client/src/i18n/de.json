@@ -288,7 +288,9 @@
       "themeOcean": "Ozean (dunkel)",
       "themeForest": "Wald",
       "themeGalaxy": "Galaxie",
-      "themeLava": "Lava"
+      "themeLava": "Lava",
+      "showAllRewards": "Alle {n} Belohnungen zeigen",
+      "showFewerRewards": "Weniger zeigen"
     },
     "nav": {
       "home": "Startseite",
@@ -1499,7 +1501,11 @@
       "item_necklace": "Herzkette",
       "item_balloon": "Luftballon",
       "item_cape": "Umhang",
-      "item_wings": "Flügel"
+      "item_wings": "Flügel",
+      "shopAfterHatch": "🛍️ Mein Laden öffnet, wenn ich schlüpfe!",
+      "error_not_hatched": "Der Laden öffnet, wenn das Maskottchen schlüpft.",
+      "newEgg": "Neues Ei",
+      "confirmNewEgg": "Ein neues Ei starten ({creature})? {name} behält Wachstum, Namen und Outfit, und ihr könnt jederzeit zurückwechseln."
     },
     "teamups": {
       "title": "Teamwork",
@@ -1561,6 +1567,16 @@
       "contents": "Inhalt",
       "forParents": "Für Eltern",
       "noMatch": "Nichts in der Anleitung passt dazu."
+    },
+    "settingsGroups": {
+      "household": "Haushalt",
+      "approvals": "Genehmigungen",
+      "notifications": "Benachrichtigungen",
+      "data": "Daten",
+      "family": "Familie",
+      "coinsGoals": "Münzen & Ziele",
+      "gameExtras": "Spiel-Extras",
+      "rewards": "Belohnungen"
     }
   }
 }

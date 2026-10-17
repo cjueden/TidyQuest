@@ -288,7 +288,9 @@
       "themeOcean": "Ocean (dark)",
       "themeForest": "Forest",
       "themeGalaxy": "Galaxy",
-      "themeLava": "Lava"
+      "themeLava": "Lava",
+      "showAllRewards": "Show all {n} rewards",
+      "showFewerRewards": "Show fewer"
     },
     "nav": {
       "home": "Home",
@@ -1499,7 +1501,11 @@
       "item_necklace": "Heart necklace",
       "item_balloon": "Balloon",
       "item_cape": "Cape",
-      "item_wings": "Wings"
+      "item_wings": "Wings",
+      "shopAfterHatch": "🛍️ My shop opens when I hatch!",
+      "error_not_hatched": "The shop opens when the mascot hatches.",
+      "newEgg": "New egg",
+      "confirmNewEgg": "Start a new {creature} egg? {name} keeps its growth, name and outfit, and you can switch back any time."
     },
     "teamups": {
       "title": "Team-ups",
@@ -1561,6 +1567,16 @@
       "contents": "Contents",
       "forParents": "For parents",
       "noMatch": "Nothing in the guide matches that."
+    },
+    "settingsGroups": {
+      "household": "Household",
+      "approvals": "Approvals",
+      "notifications": "Notifications",
+      "data": "Data",
+      "family": "Family",
+      "coinsGoals": "Coins & goals",
+      "gameExtras": "Game extras",
+      "rewards": "Rewards"
     }
   }
 }

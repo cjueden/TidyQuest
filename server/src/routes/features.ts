@@ -3,14 +3,14 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { FEATURES, HOLIDAYS, getFeatures, holidaysOff, rescueMultiplier } from '../utils/features';
-import { mascotSettings, saveMascot } from '../utils/mascot';
+import { mascotRoster, mascotSettings, saveMascot } from '../utils/mascot';
 import { TEAM_BONUSES, teamBonus } from '../utils/teamups';
 
 /** Settings → Features: switch optional extras on or off for the whole family. */
 const router = Router();
 router.use(authMiddleware);
 
-const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier(), holidaysOff: holidaysOff(), mascot: mascotSettings(), teamBonus: teamBonus() });
+const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier(), holidaysOff: holidaysOff(), mascot: mascotSettings(), mascotRoster: mascotRoster(), teamBonus: teamBonus() });
 
 router.get('/', (_req: AuthRequest, res: Response) => res.json(view()));
 

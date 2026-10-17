@@ -288,7 +288,9 @@
       "themeOcean": "Oceaan (donker)",
       "themeForest": "Bos",
       "themeGalaxy": "Melkweg",
-      "themeLava": "Lava"
+      "themeLava": "Lava",
+      "showAllRewards": "Alle {n} beloningen tonen",
+      "showFewerRewards": "Minder tonen"
     },
     "nav": {
       "home": "Home",
@@ -1499,7 +1501,11 @@
       "item_necklace": "Hartjesketting",
       "item_balloon": "Ballon",
       "item_cape": "Cape",
-      "item_wings": "Vleugels"
+      "item_wings": "Vleugels",
+      "shopAfterHatch": "🛍️ Mijn winkel gaat open als ik uitkom!",
+      "error_not_hatched": "De winkel gaat open als de mascotte uitkomt.",
+      "newEgg": "Nieuw ei",
+      "confirmNewEgg": "Een nieuw ei beginnen ({creature})? {name} houdt zijn groei, naam en outfit, en je kunt altijd terugwisselen."
     },
     "teamups": {
       "title": "Samen doen",
@@ -1561,6 +1567,16 @@
       "contents": "Inhoud",
       "forParents": "Voor ouders",
       "noMatch": "Niets in de handleiding komt overeen."
+    },
+    "settingsGroups": {
+      "household": "Huishouden",
+      "approvals": "Goedkeuringen",
+      "notifications": "Meldingen",
+      "data": "Gegevens",
+      "family": "Gezin",
+      "coinsGoals": "Munten & doelen",
+      "gameExtras": "Spelextra's",
+      "rewards": "Beloningen"
     }
   }
 }

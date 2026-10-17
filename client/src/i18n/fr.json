@@ -288,7 +288,9 @@
       "themeOcean": "Océan (sombre)",
       "themeForest": "Forêt",
       "themeGalaxy": "Galaxie",
-      "themeLava": "Lave"
+      "themeLava": "Lave",
+      "showAllRewards": "Voir les {n} récompenses",
+      "showFewerRewards": "Voir moins"
     },
     "nav": {
       "home": "Accueil",
@@ -1499,7 +1501,11 @@
       "item_necklace": "Collier cœur",
       "item_balloon": "Ballon",
       "item_cape": "Cape",
-      "item_wings": "Ailes"
+      "item_wings": "Ailes",
+      "shopAfterHatch": "🛍️ Ma boutique ouvre quand j'éclos !",
+      "error_not_hatched": "La boutique ouvre quand la mascotte éclôt.",
+      "newEgg": "Nouvel œuf",
+      "confirmNewEgg": "Commencer un nouvel œuf ({creature}) ? {name} garde sa croissance, son nom et sa tenue, et vous pouvez revenir à tout moment."
     },
     "teamups": {
       "title": "En équipe",
@@ -1561,6 +1567,16 @@
       "contents": "Sommaire",
       "forParents": "Pour les parents",
       "noMatch": "Rien dans le guide ne correspond."
+    },
+    "settingsGroups": {
+      "household": "Maison",
+      "approvals": "Validations",
+      "notifications": "Notifications",
+      "data": "Données",
+      "family": "Famille",
+      "coinsGoals": "Pièces et objectifs",
+      "gameExtras": "Extras du jeu",
+      "rewards": "Récompenses"
     }
   }
 }
