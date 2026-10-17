@@ -151,7 +151,7 @@ export function teamUpInfo(t: { id: number; roomId: number; customCoins?: number
   };
 }
 
-/** Waiting completions: a team's chore is one item ("Cecil + Cylis", coins added up), approved or turned down together */
+/** Waiting completions: a team's chore is one item ("Sam + Alex", coins added up), approved or turned down together */
 export function groupTeamPending<T extends { teamupId?: number | null; displayName: string; coinsEarned: number }>(rows: T[]): T[] {
   const firstOf = new Map<number, T>();
   return rows.filter((p) => {
