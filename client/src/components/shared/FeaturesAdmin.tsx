@@ -7,7 +7,7 @@ import { SEASONS, setSeasonPreview, useSeasonPreview } from '../../utils/seasons
 import { CREATURE_IDS, CREATURES, type CreatureId } from '../mascot/MascotArt';
 import { MascotPicture } from '../mascot/MascotCard';
 
-const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'mascot', 'seasonal'];
+const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'teamups', 'mascot', 'seasonal'];
 const MULTIPLIERS = [1.5, 2, 3];
 
 /** Settings → Features: optional extras, on or off for the whole family (all on to start). */
@@ -18,10 +18,12 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
   const [holidaysOff, setHolidaysOff] = useState<string[]>([]);
   const [mascot, setMascot] = useState({ creature: 'dog', name: '' });
   const [mascotName, setMascotName] = useState('');
+  const [teamBonus, setTeamBonus] = useState(20);
   const previewing = useSeasonPreview();
   const show = (r: FeaturesView) => {
     setFlags(r.features); setMultiplier(r.rescueMultiplier); setHolidaysOff(r.holidaysOff ?? []);
     if (r.mascot) { setMascot(r.mascot); setMascotName(r.mascot.name); }
+    if (r.teamBonus) setTeamBonus(r.teamBonus);
   };
   useEffect(() => {
     api.getFeatures().then(show).catch(() => setFlags(null));
@@ -46,6 +48,14 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
                 {t('features.multiplier')}
                 <select className="tq-input-compact" value={multiplier} onChange={(e) => void save({ rescueMultiplier: Number(e.target.value) })}>
                   {MULTIPLIERS.map((m) => <option key={m} value={m}>{m}×</option>)}
+                </select>
+              </label>
+            )}
+            {f === 'teamups' && flags.teamups && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                {t('features.teamBonus')}
+                <select className="tq-input-compact" value={teamBonus} onChange={(e) => void save({ teamBonus: Number(e.target.value) })}>
+                  {[10, 20, 30].map((b) => <option key={b} value={b}>+{b}%</option>)}
                 </select>
               </label>
             )}

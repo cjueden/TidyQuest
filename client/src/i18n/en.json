@@ -734,7 +734,13 @@
       "teamSpirit": "Team Spirit",
       "teamSpiritDesc": "Cheer 25 chores done by others",
       "fanFavorite": "Fan Favorite",
-      "fanFavoriteDesc": "Get 25 cheers on your chores"
+      "fanFavoriteDesc": "Get 25 cheers on your chores",
+      "betterTogether": "Better Together",
+      "betterTogetherDesc": "Do 5 chores as a team",
+      "dreamTeam": "Dream Team",
+      "dreamTeamDesc": "Do 25 chores as a team",
+      "unstoppableCrew": "Unstoppable Crew",
+      "unstoppableCrewDesc": "Do 100 chores as a team"
     },
     "taskIcons": {
       "sparkle": "Sparkle",
@@ -1179,7 +1185,10 @@
       "moreItems": "+{n} more",
       "rescue": "⚡ Rescue Mission: “{task}” pays {multiplier}× coins today. First one to do it wins!",
       "andMore": "+{n} more",
-      "cheer": "{emoji} {name} cheered your “{task}”"
+      "cheer": "{emoji} {name} cheered your “{task}”",
+      "teamupInvite": "🤝 {name} wants help with “{task}”",
+      "teamupAnyone": "🤝 {name} is looking for a teammate for “{task}”",
+      "teamupJoined": "🤝 {name} joined you for “{task}”"
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",
@@ -1230,7 +1239,8 @@
       "error_no_channels": "Set up a channel first",
       "kind_rescue": "Rescue Mission",
       "kindDesc_rescue": "the day's 2× chore, in the morning",
-      "kind_cheer": "Cheers on my chores"
+      "kind_cheer": "Cheers on my chores",
+      "kind_teamup": "Team-up invites"
     },
     "todos": {
       "roomName": "To-dos",
@@ -1287,7 +1297,10 @@
       "cheers": "Cheers",
       "cheersDesc": "Cheer each other's finished chores (👏 🎉 💪 ⭐); parents can add a note and bonus when approving.",
       "mascot": "House mascot",
-      "mascotDesc": "A family creature on Home that grows with everyone's coins and cheers when the house is clean."
+      "mascotDesc": "A family creature on Home that grows with everyone's coins and cheers when the house is clean.",
+      "teamups": "Team-ups",
+      "teamupsDesc": "Do a chore together (6+ coins): split the coins plus a team bonus.",
+      "teamBonus": "Team bonus"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1372,6 +1385,27 @@
       "creature_bunny": "Bunny",
       "creature_panda": "Panda",
       "creature_axolotl": "Axolotl"
+    },
+    "teamups": {
+      "title": "Team-ups",
+      "teamUp": "Team up",
+      "pickPartner": "Who do you want to do it with?",
+      "how": "Split the coins plus a team bonus. A parent helping a kid is a helper: the kid keeps all the coins.",
+      "anyone": "Anyone",
+      "wantsHelp": "{name} wants your help",
+      "lookingFor": "{name} is looking for a teammate",
+      "join": "Join",
+      "waiting": "Waiting for a teammate…",
+      "team": "Team: {names}",
+      "share": "{n} coins each",
+      "helper": "helper",
+      "cancel": "Call it off",
+      "leave": "Leave",
+      "done": "Done together",
+      "error_not_teamable": "This chore can't be done as a team.",
+      "error_already_teamed": "Someone already started a team-up on this chore today.",
+      "error_invalid_partner": "They can't do this chore.",
+      "error_not_assigned": "This chore isn't yours to team up on."
     }
   }
 }

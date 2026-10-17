@@ -734,7 +734,13 @@
       "teamSpirit": "Spirito di squadra",
       "teamSpiritDesc": "Fai il tifo per 25 faccende fatte da altri",
       "fanFavorite": "Beniamino del pubblico",
-      "fanFavoriteDesc": "Ricevi 25 tifi sulle tue faccende"
+      "fanFavoriteDesc": "Ricevi 25 tifi sulle tue faccende",
+      "betterTogether": "Meglio insieme",
+      "betterTogetherDesc": "Fai 5 faccende in squadra",
+      "dreamTeam": "Squadra da sogno",
+      "dreamTeamDesc": "Fai 25 faccende in squadra",
+      "unstoppableCrew": "Squadra inarrestabile",
+      "unstoppableCrewDesc": "Fai 100 faccende in squadra"
     },
     "taskIcons": {
       "sparkle": "Scintilla",
@@ -1179,7 +1185,10 @@
       "moreItems": "+{n} altre",
       "rescue": "⚡ Missione di salvataggio: «{task}» vale {multiplier}× monete oggi. Vince chi lo fa per primo!",
       "andMore": "+{n} altre",
-      "cheer": "{emoji} {name} ha fatto il tifo per «{task}»"
+      "cheer": "{emoji} {name} ha fatto il tifo per «{task}»",
+      "teamupInvite": "🤝 {name} vuole aiuto con «{task}»",
+      "teamupAnyone": "🤝 {name} cerca un compagno per «{task}»",
+      "teamupJoined": "🤝 {name} si è unito a te per «{task}»"
     },
     "notifyAdmin": {
       "peopleTitle": "Chi riceve cosa",
@@ -1230,7 +1239,8 @@
       "error_no_channels": "Imposta prima un canale",
       "kind_rescue": "Missione di salvataggio",
       "kindDesc_rescue": "l'attività ×2 del giorno, al mattino",
-      "kind_cheer": "Tifo per le mie faccende"
+      "kind_cheer": "Tifo per le mie faccende",
+      "kind_teamup": "Inviti di squadra"
     },
     "todos": {
       "roomName": "Da fare",
@@ -1287,7 +1297,10 @@
       "cheers": "Tifo",
       "cheersDesc": "Fate il tifo per le faccende finite degli altri (👏 🎉 💪 ⭐); i genitori possono aggiungere una nota e un bonus approvando.",
       "mascot": "Mascotte di casa",
-      "mascotDesc": "Una creatura di famiglia nella Home che cresce con le monete di tutti e fa festa quando la casa è pulita."
+      "mascotDesc": "Una creatura di famiglia nella Home che cresce con le monete di tutti e fa festa quando la casa è pulita.",
+      "teamups": "In squadra",
+      "teamupsDesc": "Fare una faccenda insieme (6+ monete): monete divise più un bonus di squadra.",
+      "teamBonus": "Bonus di squadra"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1372,6 +1385,27 @@
       "creature_bunny": "Coniglio",
       "creature_panda": "Panda",
       "creature_axolotl": "Axolotl"
+    },
+    "teamups": {
+      "title": "In squadra",
+      "teamUp": "Fai squadra",
+      "pickPartner": "Con chi vuoi farla?",
+      "how": "Le monete si dividono, più un bonus di squadra. Un genitore che aiuta un bambino è un aiutante: il bambino tiene tutte le monete.",
+      "anyone": "Chiunque",
+      "wantsHelp": "{name} vuole il tuo aiuto",
+      "lookingFor": "{name} cerca un compagno",
+      "join": "Partecipa",
+      "waiting": "In attesa di un compagno…",
+      "team": "Squadra: {names}",
+      "share": "{n} monete a testa",
+      "helper": "aiutante",
+      "cancel": "Annulla",
+      "leave": "Esci",
+      "done": "Fatto insieme",
+      "error_not_teamable": "Questa faccenda non si può fare in squadra.",
+      "error_already_teamed": "Qualcuno ha già iniziato una squadra su questa faccenda oggi.",
+      "error_invalid_partner": "Questa persona non può fare la faccenda.",
+      "error_not_assigned": "Questa faccenda non è tua."
     }
   }
 }

@@ -80,6 +80,7 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
   const rewardsRedeemed = count("SELECT COUNT(*) AS n FROM reward_redemptions WHERE userId = ? AND status IN ('requested', 'approved')");
   const potContributions = count('SELECT COUNT(*) AS n FROM reward_contributions WHERE userId = ?');
   const cheersGiven = count('SELECT COUNT(*) AS n FROM cheers WHERE fromUserId = ?');
+  const teamUps = count("SELECT COUNT(DISTINCT teamupId) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND teamupId IS NOT NULL");
   const cheersReceived = count('SELECT COUNT(*) AS n FROM cheers ch JOIN task_completions c ON c.id = ch.completionId WHERE c.userId = ?');
 
   // Chores done while a double coins event covered them
@@ -124,6 +125,7 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
     pot_contributions: potContributions,
     cheers_given: cheersGiven,
     cheers_received: cheersReceived,
+    team_ups: teamUps,
     boost_completions: boostCompletions,
     goal_weeks: goalWeeks,
     room_sweeps: roomSweeps,

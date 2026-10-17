@@ -145,6 +145,23 @@ const NEW_TABLES: string[] = [
     createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     UNIQUE (completionId, fromUserId)
   )`,
+  // Team-ups: doing one chore together today (utils/teamups.ts). status 'open' | 'done' | 'cancelled'
+  `CREATE TABLE IF NOT EXISTS teamups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    taskId INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    day TEXT NOT NULL,
+    createdBy INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    invitedUserId INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    status TEXT NOT NULL DEFAULT 'open',
+    createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
+  `CREATE TABLE IF NOT EXISTS teamup_members (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    teamupId INTEGER NOT NULL REFERENCES teamups(id) ON DELETE CASCADE,
+    userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    joinedAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    UNIQUE (teamupId, userId)
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
@@ -205,6 +222,8 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE users ADD COLUMN avatarFrame TEXT`,
   `ALTER TABLE users ADD COLUMN celebration TEXT`,
   `ALTER TABLE users ADD COLUMN title TEXT`,
+  // A completion done as a team (each member gets one, all with the same teamupId)
+  `ALTER TABLE task_completions ADD COLUMN teamupId INTEGER`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */
@@ -218,6 +237,8 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'customBadges', table: 'custom_badges' },
   { key: 'taskPins', table: 'task_pins' },
   { key: 'cheers', table: 'cheers' },
+  { key: 'teamups', table: 'teamups' },
+  { key: 'teamupMembers', table: 'teamup_members' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

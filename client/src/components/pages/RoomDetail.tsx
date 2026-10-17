@@ -16,6 +16,9 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { ProofModal, type Proof } from '../shared/ProofModal';
 import { UndoToast, type UndoState } from '../shared/UndoToast';
+import { TeamUpButton, TeamUpDialog } from '../shared/TeamUp';
+import { claimedLabel } from '../../utils/teamups';
+import type { TeamUpInfo } from '../../hooks/useApi';
 import { DuplicateRoom } from '../shared/DuplicateRoom';
 
 const FREQ_UNITS = [
@@ -71,6 +74,8 @@ interface Task extends ScheduledTaskFields {
   assignedUsers?: Array<{ id: number; displayName: string; avatarColor: string; avatarType?: string; avatarPreset?: string; avatarPhotoUrl?: string; coinPercentage?: number }>;
   effectiveAssignedUserIds?: number[];
   completedTodayBy?: CompletedTodayBy | null;
+  /** Team-ups: can you start one, and has a team claimed it today? */
+  teamUp?: TeamUpInfo | null;
   assignmentMode?: 'first' | 'shared' | 'custom' | 'rotating';
   rotationCurrentUserId?: number | null;
   customCoins?: number | null;
@@ -191,6 +196,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const [sortAsc, setSortAsc] = useState(true);
   const focusedOnce = useRef<number | null>(null);
   const [proofTask, setProofTask] = useState<Task | null>(null);
+  // The chore someone is picking a team-up partner for
+  const [teamPick, setTeamPick] = useState<Task | null>(null);
   const canAddProof = !!strictMode && currentUserRole === 'child';
   const [undo, setUndo] = useState<UndoState | null>(null);
   const [showDuplicate, setShowDuplicate] = useState(false);
@@ -324,6 +331,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
 
   // Determine if Done button should be disabled for a task
   function getDoneButtonState(task: Task): { disabled: boolean; label: string } {
+    const claimed = claimedLabel(task.teamUp);
+    if (claimed) return { disabled: true, label: claimed };
     if (currentUserRole !== 'admin' && currentUserRole !== 'member') {
       const effectiveIds = task.effectiveAssignedUserIds;
       if (effectiveIds && effectiveIds.length > 0 && currentUserId !== undefined) {
@@ -965,6 +974,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     const btn = getDoneButtonState(task);
                     return (
                       <>
+                      <TeamUpButton info={task.teamUp} onClick={() => setTeamPick(task)} language={language} />
                       {canAddProof && !btn.disabled && (
                         <button onClick={() => setProofTask(task)} className="tq-btn tq-btn-secondary tq-btn-sm" title={t('proof.addProof')} aria-label={t('proof.addProof')}>📎</button>
                       )}
@@ -1253,6 +1263,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
         ) : null}
       </div>
     </div>
+    {teamPick && (
+      <TeamUpDialog task={{ id: teamPick.id, name: translateTask(teamPick.name, teamPick.translationKey) }} language={language}
+        people={(users ?? []).filter((u) => u.id !== currentUserId && ((teamPick.effectiveAssignedUserIds ?? []).length === 0 || teamPick.effectiveAssignedUserIds!.includes(u.id)))}
+        onClose={() => setTeamPick(null)} onStarted={() => onRefresh?.()} />
+    )}
     {proofTask && (
       <ProofModal
         taskTitle={translateTask(proofTask.name, proofTask.translationKey)}

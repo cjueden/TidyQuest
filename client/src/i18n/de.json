@@ -734,7 +734,13 @@
       "teamSpirit": "Teamgeist",
       "teamSpiritDesc": "Feuere 25 Aufgaben anderer an",
       "fanFavorite": "Publikumsliebling",
-      "fanFavoriteDesc": "Bekomme 25 Anfeuerungen für deine Aufgaben"
+      "fanFavoriteDesc": "Bekomme 25 Anfeuerungen für deine Aufgaben",
+      "betterTogether": "Gemeinsam stärker",
+      "betterTogetherDesc": "5 Aufgaben im Team",
+      "dreamTeam": "Traumteam",
+      "dreamTeamDesc": "25 Aufgaben im Team",
+      "unstoppableCrew": "Unaufhaltsame Crew",
+      "unstoppableCrewDesc": "100 Aufgaben im Team"
     },
     "taskIcons": {
       "sparkle": "Funkeln",
@@ -1179,7 +1185,10 @@
       "moreItems": "+{n} weitere",
       "rescue": "⚡ Rettungsmission: „{task}“ bringt heute {multiplier}× Münzen. Wer es zuerst macht, gewinnt!",
       "andMore": "+{n} weitere",
-      "cheer": "{emoji} {name} hat dich für „{task}“ angefeuert"
+      "cheer": "{emoji} {name} hat dich für „{task}“ angefeuert",
+      "teamupInvite": "🤝 {name} braucht Hilfe bei „{task}“",
+      "teamupAnyone": "🤝 {name} sucht einen Teampartner für „{task}“",
+      "teamupJoined": "🤝 {name} macht bei „{task}“ mit"
     },
     "notifyAdmin": {
       "peopleTitle": "Wer bekommt was",
@@ -1230,7 +1239,8 @@
       "error_no_channels": "Richte zuerst einen Kanal ein",
       "kind_rescue": "Rettungsmission",
       "kindDesc_rescue": "die 2×-Aufgabe des Tages, morgens",
-      "kind_cheer": "Anfeuerungen für meine Aufgaben"
+      "kind_cheer": "Anfeuerungen für meine Aufgaben",
+      "kind_teamup": "Team-Einladungen"
     },
     "todos": {
       "roomName": "Erledigen",
@@ -1287,7 +1297,10 @@
       "cheers": "Anfeuern",
       "cheersDesc": "Feuert erledigte Aufgaben der anderen an (👏 🎉 💪 ⭐); Eltern können beim Genehmigen eine Notiz und einen Bonus geben.",
       "mascot": "Haus-Maskottchen",
-      "mascotDesc": "Ein Familienwesen auf der Startseite, das mit allen Münzen wächst und sich über ein sauberes Haus freut."
+      "mascotDesc": "Ein Familienwesen auf der Startseite, das mit allen Münzen wächst und sich über ein sauberes Haus freut.",
+      "teamups": "Teamwork",
+      "teamupsDesc": "Eine Aufgabe zusammen machen (ab 6 Münzen): Münzen teilen plus Team-Bonus.",
+      "teamBonus": "Team-Bonus"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1372,6 +1385,27 @@
       "creature_bunny": "Hase",
       "creature_panda": "Panda",
       "creature_axolotl": "Axolotl"
+    },
+    "teamups": {
+      "title": "Teamwork",
+      "teamUp": "Zusammen machen",
+      "pickPartner": "Mit wem willst du es machen?",
+      "how": "Die Münzen werden geteilt, plus ein Team-Bonus. Ein Elternteil, das einem Kind hilft, ist Helfer: Das Kind behält alle Münzen.",
+      "anyone": "Egal wer",
+      "wantsHelp": "{name} braucht deine Hilfe",
+      "lookingFor": "{name} sucht einen Teampartner",
+      "join": "Mitmachen",
+      "waiting": "Warte auf einen Teampartner…",
+      "team": "Team: {names}",
+      "share": "{n} Münzen pro Person",
+      "helper": "Helfer",
+      "cancel": "Absagen",
+      "leave": "Aussteigen",
+      "done": "Zusammen erledigt",
+      "error_not_teamable": "Diese Aufgabe geht nicht im Team.",
+      "error_already_teamed": "Für diese Aufgabe gibt es heute schon ein Team.",
+      "error_invalid_partner": "Diese Person kann die Aufgabe nicht machen.",
+      "error_not_assigned": "Diese Aufgabe ist nicht deine."
     }
   }
 }

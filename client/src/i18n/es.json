@@ -734,7 +734,13 @@
       "teamSpirit": "Espíritu de equipo",
       "teamSpiritDesc": "Anima 25 tareas hechas por otros",
       "fanFavorite": "Favorito del público",
-      "fanFavoriteDesc": "Recibe 25 ánimos en tus tareas"
+      "fanFavoriteDesc": "Recibe 25 ánimos en tus tareas",
+      "betterTogether": "Mejor juntos",
+      "betterTogetherDesc": "Haz 5 tareas en equipo",
+      "dreamTeam": "Equipo de ensueño",
+      "dreamTeamDesc": "Haz 25 tareas en equipo",
+      "unstoppableCrew": "Equipo imparable",
+      "unstoppableCrewDesc": "Haz 100 tareas en equipo"
     },
     "taskIcons": {
       "sparkle": "Brillo",
@@ -1179,7 +1185,10 @@
       "moreItems": "+{n} más",
       "rescue": "⚡ Misión de rescate: «{task}» paga {multiplier}× monedas hoy. ¡Gana quien lo haga primero!",
       "andMore": "+{n} más",
-      "cheer": "{emoji} {name} aplaudió tu tarea «{task}»"
+      "cheer": "{emoji} {name} aplaudió tu tarea «{task}»",
+      "teamupInvite": "🤝 {name} quiere ayuda con «{task}»",
+      "teamupAnyone": "🤝 {name} busca compañero para «{task}»",
+      "teamupJoined": "🤝 {name} se unió a ti para «{task}»"
     },
     "notifyAdmin": {
       "peopleTitle": "Quién recibe qué",
@@ -1230,7 +1239,8 @@
       "error_no_channels": "Configura primero un canal",
       "kind_rescue": "Misión de rescate",
       "kindDesc_rescue": "la tarea ×2 del día, por la mañana",
-      "kind_cheer": "Ánimos en mis tareas"
+      "kind_cheer": "Ánimos en mis tareas",
+      "kind_teamup": "Invitaciones de equipo"
     },
     "todos": {
       "roomName": "Pendientes",
@@ -1287,7 +1297,10 @@
       "cheers": "Ánimos",
       "cheersDesc": "Animad las tareas terminadas de los demás (👏 🎉 💪 ⭐); los padres pueden añadir una nota y un bonus al aprobar.",
       "mascot": "Mascota de la casa",
-      "mascotDesc": "Una criatura familiar en Inicio que crece con las monedas de todos y se alegra cuando la casa está limpia."
+      "mascotDesc": "Una criatura familiar en Inicio que crece con las monedas de todos y se alegra cuando la casa está limpia.",
+      "teamups": "En equipo",
+      "teamupsDesc": "Hacer una tarea juntos (6+ monedas): monedas repartidas más un bonus de equipo.",
+      "teamBonus": "Bonus de equipo"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1372,6 +1385,27 @@
       "creature_bunny": "Conejo",
       "creature_panda": "Panda",
       "creature_axolotl": "Ajolote"
+    },
+    "teamups": {
+      "title": "En equipo",
+      "teamUp": "Hacer equipo",
+      "pickPartner": "¿Con quién quieres hacerlo?",
+      "how": "Las monedas se reparten, más un bonus de equipo. Un padre que ayuda a un niño es ayudante: el niño se queda todas las monedas.",
+      "anyone": "Cualquiera",
+      "wantsHelp": "{name} quiere tu ayuda",
+      "lookingFor": "{name} busca compañero",
+      "join": "Unirme",
+      "waiting": "Esperando compañero…",
+      "team": "Equipo: {names}",
+      "share": "{n} monedas cada uno",
+      "helper": "ayudante",
+      "cancel": "Cancelar",
+      "leave": "Salir",
+      "done": "Hecho en equipo",
+      "error_not_teamable": "Esta tarea no se puede hacer en equipo.",
+      "error_already_teamed": "Alguien ya empezó un equipo para esta tarea hoy.",
+      "error_invalid_partner": "Esa persona no puede hacer esta tarea.",
+      "error_not_assigned": "Esta tarea no es tuya."
     }
   }
 }

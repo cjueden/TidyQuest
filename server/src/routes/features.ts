@@ -4,12 +4,13 @@ import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { FEATURES, HOLIDAYS, getFeatures, holidaysOff, rescueMultiplier } from '../utils/features';
 import { mascotSettings, saveMascot } from '../utils/mascot';
+import { TEAM_BONUSES, teamBonus } from '../utils/teamups';
 
 /** Settings → Features: switch optional extras on or off for the whole family. */
 const router = Router();
 router.use(authMiddleware);
 
-const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier(), holidaysOff: holidaysOff(), mascot: mascotSettings() });
+const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier(), holidaysOff: holidaysOff(), mascot: mascotSettings(), teamBonus: teamBonus() });
 
 router.get('/', (_req: AuthRequest, res: Response) => res.json(view()));
 
@@ -27,6 +28,12 @@ router.put('/', (req: AuthRequest, res: Response) => {
     const m = Number(req.body.rescueMultiplier);
     if (!(m >= 1.5 && m <= 5)) return res.status(400).json({ error: 'invalid_multiplier' });
     db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('rescueMultiplier', ?)").run(String(m));
+  }
+  // Team-ups: the bonus on top of the split, in percent
+  if (req.body?.teamBonus !== undefined) {
+    const b = Number(req.body.teamBonus);
+    if (!TEAM_BONUSES.includes(b)) return res.status(400).json({ error: 'invalid_team_bonus' });
+    db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('teamBonus', ?)").run(String(b));
   }
   // The house mascot: which creature and its name
   if (req.body?.mascot !== undefined) {

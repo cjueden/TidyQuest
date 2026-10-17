@@ -734,7 +734,13 @@
       "teamSpirit": "Teamgeest",
       "teamSpiritDesc": "Moedig 25 klusjes van anderen aan",
       "fanFavorite": "Publiekslieveling",
-      "fanFavoriteDesc": "Krijg 25 aanmoedigingen op je klusjes"
+      "fanFavoriteDesc": "Krijg 25 aanmoedigingen op je klusjes",
+      "betterTogether": "Samen sterker",
+      "betterTogetherDesc": "Doe 5 klusjes als team",
+      "dreamTeam": "Droomteam",
+      "dreamTeamDesc": "Doe 25 klusjes als team",
+      "unstoppableCrew": "Onstuitbare ploeg",
+      "unstoppableCrewDesc": "Doe 100 klusjes als team"
     },
     "taskIcons": {
       "sparkle": "Glimmer",
@@ -1179,7 +1185,10 @@
       "moreItems": "+{n} meer",
       "rescue": "⚡ Reddingsmissie: ‘{task}’ levert vandaag {multiplier}× munten op. Wie het eerst doet, wint!",
       "andMore": "+{n} meer",
-      "cheer": "{emoji} {name} moedigde je aan voor “{task}”"
+      "cheer": "{emoji} {name} moedigde je aan voor “{task}”",
+      "teamupInvite": "🤝 {name} wil hulp bij “{task}”",
+      "teamupAnyone": "🤝 {name} zoekt een teamgenoot voor “{task}”",
+      "teamupJoined": "🤝 {name} doet mee met “{task}”"
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",
@@ -1230,7 +1239,8 @@
       "error_no_channels": "Stel eerst een kanaal in",
       "kind_rescue": "Reddingsmissie",
       "kindDesc_rescue": "de 2×-taak van de dag, 's ochtends",
-      "kind_cheer": "Aanmoedigingen op mijn klusjes"
+      "kind_cheer": "Aanmoedigingen op mijn klusjes",
+      "kind_teamup": "Uitnodigingen om samen te doen"
     },
     "todos": {
       "roomName": "To-do's",
@@ -1287,7 +1297,10 @@
       "cheers": "Aanmoedigen",
       "cheersDesc": "Moedig elkaars afgeronde klusjes aan (👏 🎉 💪 ⭐); ouders kunnen bij goedkeuren een notitie en bonus geven.",
       "mascot": "Huismascotte",
-      "mascotDesc": "Een gezinsdiertje op Home dat groeit met ieders munten en blij wordt van een schoon huis."
+      "mascotDesc": "Een gezinsdiertje op Home dat groeit met ieders munten en blij wordt van een schoon huis.",
+      "teamups": "Samen doen",
+      "teamupsDesc": "Een klusje samen doen (6+ munten): munten delen plus een teambonus.",
+      "teamBonus": "Teambonus"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1372,6 +1385,27 @@
       "creature_bunny": "Konijn",
       "creature_panda": "Panda",
       "creature_axolotl": "Axolotl"
+    },
+    "teamups": {
+      "title": "Samen doen",
+      "teamUp": "Samen doen",
+      "pickPartner": "Met wie wil je het doen?",
+      "how": "De munten worden gedeeld, plus een teambonus. Een ouder die een kind helpt is helper: het kind houdt alle munten.",
+      "anyone": "Iedereen",
+      "wantsHelp": "{name} wil je hulp",
+      "lookingFor": "{name} zoekt een teamgenoot",
+      "join": "Meedoen",
+      "waiting": "Wachten op een teamgenoot…",
+      "team": "Team: {names}",
+      "share": "{n} munten per persoon",
+      "helper": "helper",
+      "cancel": "Afblazen",
+      "leave": "Stoppen",
+      "done": "Samen klaar",
+      "error_not_teamable": "Dit klusje kan niet samen.",
+      "error_already_teamed": "Iemand is vandaag al een team begonnen voor dit klusje.",
+      "error_invalid_partner": "Die persoon kan dit klusje niet doen.",
+      "error_not_assigned": "Dit klusje is niet van jou."
     }
   }
 }

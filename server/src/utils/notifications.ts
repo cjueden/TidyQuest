@@ -28,9 +28,11 @@ export interface NotificationTypeSettings {
   rescue: boolean;
   /** Someone cheered a chore you did */
   cheer: boolean;
+  /** Someone asked you to team up on a chore, or joined yours */
+  teamup: boolean;
 }
 
-export const NOTIFICATION_KINDS: Array<keyof NotificationTypeSettings> = ['taskDue', 'rewardRequest', 'achievementUnlocked', 'choreApproval', 'coinBoost', 'outcome', 'summary', 'nudge', 'reminder', 'rescue', 'cheer'];
+export const NOTIFICATION_KINDS: Array<keyof NotificationTypeSettings> = ['taskDue', 'rewardRequest', 'achievementUnlocked', 'choreApproval', 'coinBoost', 'outcome', 'summary', 'nudge', 'reminder', 'rescue', 'cheer', 'teamup'];
 
 function getSetting(key: string): string {
   const row = db.prepare('SELECT value FROM app_settings WHERE key = ?').get(key) as { value?: string } | undefined;

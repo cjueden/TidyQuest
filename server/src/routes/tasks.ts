@@ -20,6 +20,7 @@ import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatL
 import { boostMultiplierFor } from '../utils/boosts';
 import { trashTask } from '../utils/trash';
 import { tr } from '../utils/i18n';
+import { baseCoinsOf, endTeamupsFor, groupTeamPending, openTeamupFor, teamShares, teamUpInfo, type Teamup } from '../utils/teamups';
 
 // Proof photos kids can attach to a completion (served at /api/proofs)
 export const proofsDir = path.join(__dirname, '..', '..', '..', 'data', 'proofs');
@@ -159,9 +160,19 @@ function parseApprovalExtras(body: any): { note: string | null; bonus: number } 
 }
 
 function approvePendingCompletion(completionId: number, adminId: number, extras: { note: string | null; bonus: number } = { note: null, bonus: 0 }): string | null {
-  const completion = db.prepare('SELECT id, taskId, userId, completedAt, coinsEarned, status FROM task_completions WHERE id = ?').get(completionId) as any;
+  const completion = db.prepare('SELECT id, taskId, userId, completedAt, coinsEarned, status, teamupId FROM task_completions WHERE id = ?').get(completionId) as any;
   if (!completion) return 'not_found';
   if (completion.status !== 'pending') return 'completion_not_pending';
+  // A team's chore is approved once for everyone on it
+  if (completion.teamupId) {
+    const team = db.prepare("SELECT id FROM task_completions WHERE teamupId = ? AND status = 'pending' AND id != ?").all(completion.teamupId, completion.id) as { id: number }[];
+    for (const other of team) approveOne(other.id, adminId, extras);
+  }
+  return approveOne(completionId, adminId, extras);
+}
+
+function approveOne(completionId: number, adminId: number, extras: { note: string | null; bonus: number }): string | null {
+  const completion = db.prepare('SELECT id, taskId, userId, completedAt, coinsEarned, status FROM task_completions WHERE id = ?').get(completionId) as any;
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(completion.taskId) as any;
   if (!task) return 'task_not_found';
   const gamifRow = db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined;
@@ -175,7 +186,7 @@ function approvePendingCompletion(completionId: number, adminId: number, extras:
   advanceRotation(task, completion.userId);
   if (extras.note) db.prepare('UPDATE task_completions SET approvalNote = ? WHERE id = ?').run(extras.note, completion.id);
   // The bonus goes in the coin ledger as "above and beyond", in the kid's language
-  if (extras.bonus > 0) {
+  if (extras.bonus > 0 && completion.coinsEarned > 0) { // not to a parent helping on a team
     const kidLang = (db.prepare('SELECT language FROM users WHERE id = ?').get(completion.userId) as { language: string | null } | undefined)?.language ?? 'en';
     db.prepare('UPDATE users SET coins = coins + ? WHERE id = ?').run(extras.bonus, completion.userId);
     db.prepare('INSERT INTO coin_adjustments (userId, amount, reason, createdBy, createdAt) VALUES (?, ?, ?, ?, ?)')
@@ -186,12 +197,58 @@ function approvePendingCompletion(completionId: number, adminId: number, extras:
   return null;
 }
 
+/**
+ * Done as a team: each member gets a completion (their share of the coins, times any double coins or
+ * Rescue Mission multiplier). Under Strict Mode a kid's team waits for one approval for everyone.
+ */
+function completeAsTeam(task: any, team: Teamup, tapperId: number, tapperIsAdult: boolean, now: string, note: string | null) {
+  const gamifRow = db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined;
+  const gamificationOn = gamifRow ? gamifRow.value !== '0' : true;
+  const mission = todaysMission(new Date(now));
+  const rescued = !!mission && mission.taskId === task.id && claimRescue(task.id, tapperId, new Date(now));
+  const multiplier = Math.max(boostMultiplierFor(task.id, task.roomId, new Date(now)), rescued ? mission!.multiplier : 1);
+  const shares = teamShares(gamificationOn ? baseCoinsOf(task) : 0, team.members);
+  const needsApproval = isStrictModeEnabled() && !tapperIsAdult && team.members.some((m) => m.role === 'child');
+  const ids: number[] = [];
+  const earned = new Map<number, number>();
+  for (const m of team.members) {
+    let coins = shares.get(m.userId) ?? 0;
+    if (coins > 0 && multiplier > 1) coins = Math.round(coins * multiplier);
+    earned.set(m.userId, coins);
+    const id = needsApproval
+      ? Number(db.prepare("INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, note, teamupId) VALUES (?, ?, ?, ?, 'pending', ?, ?)")
+        .run(task.id, m.userId, now, coins, note, team.id).lastInsertRowid)
+      : applyApprovedCompletion(task, task.id, m.userId, coins, now, gamificationOn, { note });
+    if (!needsApproval) db.prepare('UPDATE task_completions SET teamupId = ? WHERE id = ?').run(team.id, id);
+    ids.push(id);
+  }
+  db.prepare("UPDATE teamups SET status = 'done' WHERE id = ?").run(team.id);
+  if (rescued) setRescueCompletion(mission!.day, ids[0]);
+  if (needsApproval) {
+    void notifyChoreWaiting(team.members.find((m) => m.role === 'child')!.userId, task.name);
+    return { coinsEarned: 0, health: task.health, pendingApproval: true, completionId: ids[0], rescued, team: true };
+  }
+  const newAchievements = gamificationOn ? checkAndRecordNewAchievements(tapperId) : [];
+  for (const m of team.members) if (gamificationOn) void notifyAchievementUnlocksForUser(m.userId);
+  return { coinsEarned: earned.get(tapperId) ?? 0, health: 100, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(tapperId, newAchievements), completionId: ids[0], rescued, team: true };
+}
+
 /** Reject one waiting completion (it's removed; no coins). Returns an error code or null. */
 function rejectPendingCompletion(completionId: number, adminId?: number): string | null {
-  const completion = db.prepare('SELECT c.id, c.status, c.userId, t.name AS taskName FROM task_completions c LEFT JOIN tasks t ON t.id = c.taskId WHERE c.id = ?')
-    .get(completionId) as { id: number; status: string; userId: number; taskName: string | null } | undefined;
+  const completion = db.prepare('SELECT c.id, c.status, c.userId, c.teamupId, t.name AS taskName FROM task_completions c LEFT JOIN tasks t ON t.id = c.taskId WHERE c.id = ?')
+    .get(completionId) as { id: number; status: string; userId: number; teamupId: number | null; taskName: string | null } | undefined;
   if (!completion) return 'not_found';
   if (completion.status !== 'pending') return 'completion_not_pending';
+  // A team's chore is turned down for everyone, and goes back to the team to try again
+  if (completion.teamupId) {
+    const team = db.prepare("SELECT id, userId FROM task_completions WHERE teamupId = ? AND status = 'pending' AND id != ?").all(completion.teamupId, completion.id) as { id: number; userId: number }[];
+    for (const other of team) {
+      db.prepare('DELETE FROM task_completions WHERE id = ?').run(other.id);
+      releaseRescue(other.id);
+      if (adminId) void notifyChoreRejected(other.userId, adminId, completion.taskName ?? '');
+    }
+    db.prepare("UPDATE teamups SET status = 'open' WHERE id = ?").run(completion.teamupId);
+  }
   db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
   releaseRescue(completion.id); // a rejected Rescue Mission is open again
   if (adminId) void notifyChoreRejected(completion.userId, adminId, completion.taskName ?? '');
@@ -269,6 +326,7 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
       assignedUsers,
       effectiveAssignedUserIds,
       completedTodayBy: completedTodayByTask.get(t.id) || null,
+      teamUp: teamUpInfo(t, req.userId!),
       assignmentMode: mode,
       sharedCompletions: (mode === 'shared' || mode === 'custom') ? (sharedCompletionsByTask.get(t.id) || []) : undefined,
       health: (() => {
@@ -722,6 +780,13 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     ? Number(onBehalfOfUserId)
     : req.userId!;
 
+  // Team-ups: once someone has joined, the chore belongs to the team for the day
+  const team = openTeamupFor(task.id);
+  const teamClaimed = !!team && team.members.length >= 2;
+  if (teamClaimed && !team!.members.some((m) => m.userId === effectiveUserId)) {
+    return res.status(409).json({ error: 'claimed_by_team', names: team!.members.map((m) => m.displayName) });
+  }
+
   if (room?.assignedUserId !== null && room?.assignedUserId !== undefined) {
     // Room-level assignment: only the assigned user, admins, and members can complete
     if (!isAdminOrMember && req.userId !== room.assignedUserId) {
@@ -802,6 +867,11 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     }
   }
 
+  if (teamClaimed) {
+    const note = typeof req.body.note === 'string' && req.body.note.trim() ? req.body.note.trim().slice(0, 500) : null;
+    return res.json(completeAsTeam(task, team!, effectiveUserId, isAdminOrMember, new Date().toISOString(), note));
+  }
+
   // Fetch assignees once — needed for coin splitting and lastCompletedAt logic
   const taskAssignees = db.prepare('SELECT userId, coinPercentage FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number; coinPercentage: number }[];
 
@@ -851,11 +921,13 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     ).run(task.id, effectiveUserId, now, coins, note).lastInsertRowid);
     void notifyChoreWaiting(effectiveUserId, task.name);
     if (rescued) setRescueCompletion(mission!.day, pendingId);
+    endTeamupsFor(task.id);
     return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId, rescued });
   }
 
   const completionId = applyApprovedCompletion(task, task.id, effectiveUserId, coins, now, gamificationOn, { note });
   if (rescued) setRescueCompletion(mission!.day, completionId);
+  endTeamupsFor(task.id);
   advanceRotation(task, effectiveUserId);
 
   const newAchievements = gamificationOn ? checkAndRecordNewAchievements(effectiveUserId) : [];
@@ -872,7 +944,7 @@ router.get('/completions/pending', (req: AuthRequest, res: Response) => {
   }
 
   const pending = db.prepare(`
-    SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl,
+    SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl, tc.teamupId,
            t.name AS taskName, t.translationKey, t.roomId, t.assignmentMode, t.effort,
            r.name AS roomName, r.roomType,
            u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -882,9 +954,9 @@ router.get('/completions/pending', (req: AuthRequest, res: Response) => {
     JOIN users u ON tc.userId = u.id
     WHERE tc.status = 'pending'
     ORDER BY tc.completedAt DESC
-  `).all();
+  `).all() as any[];
 
-  res.json({ pending });
+  res.json({ pending: groupTeamPending(pending) });
 });
 
 const PENDING_ERRORS: Record<string, number> = { not_found: 404, task_not_found: 404, completion_not_pending: 409 };

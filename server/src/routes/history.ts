@@ -29,7 +29,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   if (q) { where.push("t.name LIKE ? ESCAPE '\\'"); params.push(`%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`); }
 
   const rawHistory = db.prepare(`
-    SELECT tc.id, tc.completedAt, tc.coinsEarned, tc.taskId, tc.approvalNote,
+    SELECT tc.id, tc.completedAt, tc.coinsEarned, tc.taskId, tc.approvalNote, tc.teamupId,
            t.name as taskName, t.translationKey, t.roomId, t.assignmentMode,
            r.name as roomName, r.roomType,
            u.id as userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -47,16 +47,17 @@ router.get('/', (req: AuthRequest, res: Response) => {
 
   for (const row of rawHistory) {
     row.type = 'completion';
-    if (row.assignmentMode === 'shared') {
-      const key = `${row.taskId}:${row.completedAt.slice(0, 10)}`;
+    // A team-up is one entry with everyone on the team, like a shared chore
+    if (row.assignmentMode === 'shared' || row.teamupId) {
+      const key = row.teamupId ? `team:${row.teamupId}` : `${row.taskId}:${row.completedAt.slice(0, 10)}`;
       if (seenSharedKeys.has(key)) continue;
       seenSharedKeys.add(key);
 
-      const partners = rawHistory.filter((r: any) =>
+      const partners = rawHistory.filter((r: any) => row.teamupId ? r.teamupId === row.teamupId : (
         r.taskId === row.taskId &&
         r.completedAt.slice(0, 10) === row.completedAt.slice(0, 10) &&
-        r.assignmentMode === 'shared'
-      );
+        r.assignmentMode === 'shared' && !r.teamupId
+      ));
 
       grouped.push({
         ...row,
