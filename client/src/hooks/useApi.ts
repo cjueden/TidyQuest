@@ -1,3 +1,4 @@
+import type { Outfit } from '../components/mascot/MascotCard';
 const API_BASE = '/api';
 
 export interface RewardPot {
@@ -114,6 +115,7 @@ export interface FeatureFlags {
   cheers: boolean;
   mascot: boolean;
   teamups: boolean;
+  mascotShop: boolean;
 }
 
 /** Team-ups on a chore in a list: can you start one, and has a team claimed it today? */
@@ -138,7 +140,7 @@ export interface UnlocksView {
 /** Cheers on one finished chore (counts in 👏 🎉 💪 ⭐ order, and the viewer's own) */
 export interface CheerSummary { counts: Array<{ emoji: string; count: number; names: string[] }>; mine: string | null }
 
-export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[]; mascot: { creature: string; name: string }; teamBonus: number }
+export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[]; mascot: { creature: string; name: string; bedtimeFrom: string; bedtimeTo: string }; teamBonus: number }
 
 export type NotifyKind = 'taskDue' | 'rewardRequest' | 'achievementUnlocked' | 'choreApproval' | 'coinBoost' | 'outcome' | 'summary' | 'nudge' | 'reminder' | 'cheer' | 'teamup';
 
@@ -335,7 +337,7 @@ export const api = {
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
   getFeatures: () => apiFetch<FeaturesView>('/features'),
-  updateFeatures: (data: { features?: Partial<FeatureFlags>; rescueMultiplier?: number; holidaysOff?: string[]; mascot?: { creature?: string; name?: string }; teamBonus?: number }) =>
+  updateFeatures: (data: { features?: Partial<FeatureFlags>; rescueMultiplier?: number; holidaysOff?: string[]; mascot?: { creature?: string; name?: string; bedtimeFrom?: string; bedtimeTo?: string }; teamBonus?: number }) =>
     apiFetch<FeaturesView>('/features', { method: 'PUT', body: JSON.stringify(data) }),
   // Today's Rescue Mission (parents): another one, a chosen chore, or none today
   rescueReroll: () => apiFetch<unknown>('/rescue/reroll', { method: 'POST' }),
@@ -515,6 +517,10 @@ export const api = {
     }> }>('/completions/pending'),
   approveCompletion: (completionId: number, extras?: { note?: string; bonus?: number }) =>
     apiFetch<{ success: boolean }>(`/completions/${completionId}/approve`, { method: 'POST', ...(extras ? { body: JSON.stringify(extras) } : {}) }),
+  buyAccessory: (itemId: string) =>
+    apiFetch<{ outfit: Outfit; coins: number }>('/mascot/buy', { method: 'POST', body: JSON.stringify({ itemId }) }),
+  takeOffAccessory: (slot: string) =>
+    apiFetch<{ outfit: Outfit }>('/mascot/take-off', { method: 'POST', body: JSON.stringify({ slot }) }),
   startTeamup: (taskId: number, partnerId: number | null) =>
     apiFetch<{ teamup: unknown }>('/teamups', { method: 'POST', body: JSON.stringify({ taskId, partnerId }) }),
   joinTeamup: (id: number) => apiFetch<{ teamup: unknown }>(`/teamups/${id}/join`, { method: 'POST' }),

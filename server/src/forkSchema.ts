@@ -155,6 +155,14 @@ const NEW_TABLES: string[] = [
     status TEXT NOT NULL DEFAULT 'open',
     createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
   )`,
+  // Accessories bought for the house mascot (the outfit itself is app_settings 'mascotOutfit')
+  `CREATE TABLE IF NOT EXISTS mascot_purchases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    itemId TEXT NOT NULL,
+    price INTEGER NOT NULL,
+    createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
   `CREATE TABLE IF NOT EXISTS teamup_members (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     teamupId INTEGER NOT NULL REFERENCES teamups(id) ON DELETE CASCADE,
@@ -239,6 +247,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'cheers', table: 'cheers' },
   { key: 'teamups', table: 'teamups' },
   { key: 'teamupMembers', table: 'teamup_members' },
+  { key: 'mascotPurchases', table: 'mascot_purchases' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

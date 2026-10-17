@@ -1,5 +1,6 @@
 import db from '../database';
 import { familyGoal } from './board';
+import { isFeatureOn } from './features';
 
 /**
  * The house mascot (round 3): one shared creature on Home. It grows with the family's coins, its mood
@@ -7,7 +8,8 @@ import { familyGoal } from './board';
  * reacts to a Rescue Mission, birthdays and a won family goal. The drawings live in the client.
  */
 export const CREATURES = ['dog', 'cat', 'dragon', 'robot', 'fox', 'bunny', 'panda', 'axolotl'] as const;
-const DEFAULT = { creature: 'dog', name: 'Dusty' };
+const DEFAULT = { creature: 'dog', name: 'Dusty', bedtimeFrom: '21:00', bedtimeTo: '07:00' };
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 /** Family coins (all time) at which it grows: egg → baby → kid → grown → legendary */
 export const STAGES = [
   { stage: 'egg', from: 0 },
@@ -17,18 +19,21 @@ export const STAGES = [
   { stage: 'legendary', from: 10000 },
 ] as const;
 
-export function mascotSettings(): { creature: string; name: string } {
+export function mascotSettings(): { creature: string; name: string; bedtimeFrom: string; bedtimeTo: string } {
   try {
     const raw = (db.prepare("SELECT value FROM app_settings WHERE key = 'mascot'").get() as { value: string } | undefined)?.value;
     const v = raw ? JSON.parse(raw) : {};
     return {
       creature: (CREATURES as readonly string[]).includes(v.creature) ? v.creature : DEFAULT.creature,
       name: typeof v.name === 'string' && v.name.trim() ? v.name.trim().slice(0, 20) : DEFAULT.name,
+      // Family bedtime ('HH:MM', by each device's clock): it sleeps from bedtimeFrom to bedtimeTo
+      bedtimeFrom: HHMM.test(v.bedtimeFrom) ? v.bedtimeFrom : DEFAULT.bedtimeFrom,
+      bedtimeTo: HHMM.test(v.bedtimeTo) ? v.bedtimeTo : DEFAULT.bedtimeTo,
     };
   } catch { return DEFAULT; }
 }
 
-export function saveMascot(input: { creature?: unknown; name?: unknown }): string | null {
+export function saveMascot(input: { creature?: unknown; name?: unknown; bedtimeFrom?: unknown; bedtimeTo?: unknown }): string | null {
   const next = mascotSettings();
   if (input.creature !== undefined) {
     if (!(CREATURES as readonly string[]).includes(String(input.creature))) return 'invalid_creature';
@@ -38,6 +43,11 @@ export function saveMascot(input: { creature?: unknown; name?: unknown }): strin
     const name = String(input.name ?? '').trim();
     if (!name || name.length > 20) return 'invalid_name';
     next.name = name;
+  }
+  for (const key of ['bedtimeFrom', 'bedtimeTo'] as const) {
+    if (input[key] === undefined) continue;
+    if (!HHMM.test(String(input[key]))) return 'invalid_bedtime';
+    next[key] = String(input[key]);
   }
   db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('mascot', ?)").run(JSON.stringify(next));
   return null;
@@ -69,5 +79,81 @@ export function mascotFor(opts: { houseHealth: number; rooms: Array<{ id: number
     messiestRoom: mood === 'messy' || mood === 'sad' ? (messiest ? { id: messiest.id, name: messiest.name } : null) : null,
     event: birthday ? 'birthday' : goalWon ? 'teamGoal' : opts.rescueDone ? 'rescue' : null,
     birthdayName: birthday,
+    tummy: tummy(now),
+    // The shop and the shared outfit (Settings → Features → Mascot shop)
+    shop: isFeatureOn('mascotShop') ? SHOP : null,
+    outfit: isFeatureOn('mascotShop') ? mascotOutfit() : {},
   };
+}
+
+/**
+ * The tummy (0–100): each chore done fills 5% (a team-up counts once) and it drains from full to empty over
+ * 2 days. Worked out from the last week of chores, so nothing needs storing; going back a week means any
+ * starting guess has long since emptied or filled up.
+ */
+export const TUMMY_PER_CHORE = 5;
+const DRAIN_PER_MS = 100 / (48 * 3600000);
+export function tummy(now: Date = new Date()): number {
+  const since = new Date(now.getTime() - 7 * 24 * 3600000).toISOString();
+  const rows = db.prepare("SELECT completedAt, teamupId FROM task_completions WHERE status = 'approved' AND completedAt >= ? ORDER BY completedAt")
+    .all(since) as Array<{ completedAt: string; teamupId: number | null }>;
+  const teams = new Set<number>();
+  let level = 0;
+  let at = Date.parse(since);
+  for (const r of rows) {
+    if (r.teamupId != null) { if (teams.has(r.teamupId)) continue; teams.add(r.teamupId); }
+    const t = Math.min(Date.parse(r.completedAt), now.getTime());
+    level = Math.min(100, Math.max(0, level - (t - at) * DRAIN_PER_MS) + TUMMY_PER_CHORE);
+    at = t;
+  }
+  return Math.round(Math.max(0, level - (now.getTime() - at) * DRAIN_PER_MS));
+}
+
+/** The accessory shop: 1–5 coins each, one item per spot. The crown stays a free Legendary reward. */
+export const SHOP: Array<{ id: string; slot: 'head' | 'face' | 'neck' | 'back'; price: number }> = [
+  { id: 'bow', slot: 'head', price: 1 }, { id: 'beanie', slot: 'head', price: 2 }, { id: 'flowerCrown', slot: 'head', price: 3 },
+  { id: 'headphones', slot: 'head', price: 3 }, { id: 'cowboyHat', slot: 'head', price: 4 }, { id: 'pirateHat', slot: 'head', price: 4 },
+  { id: 'wizardHat', slot: 'head', price: 5 },
+  { id: 'glasses', slot: 'face', price: 2 }, { id: 'sunglasses', slot: 'face', price: 3 }, { id: 'heroMask', slot: 'face', price: 4 },
+  { id: 'bandana', slot: 'neck', price: 1 }, { id: 'bowTie', slot: 'neck', price: 2 }, { id: 'necklace', slot: 'neck', price: 3 },
+  { id: 'balloon', slot: 'back', price: 1 }, { id: 'cape', slot: 'back', price: 5 }, { id: 'wings', slot: 'back', price: 5 },
+];
+export type Outfit = Partial<Record<'head' | 'face' | 'neck' | 'back', { id: string; by: number; byName: string; at: string }>>;
+
+export function mascotOutfit(): Outfit {
+  try {
+    const raw = (db.prepare("SELECT value FROM app_settings WHERE key = 'mascotOutfit'").get() as { value: string } | undefined)?.value;
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+const saveOutfit = (o: Outfit) => db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('mascotOutfit', ?)").run(JSON.stringify(o));
+
+/** Buy an accessory: it goes on right away for everyone, replacing what was in that spot (there's no closet). */
+export function buyAccessory(userId: number, itemId: string): { error: string } | { outfit: Outfit; coins: number } {
+  if (!isFeatureOn('mascot') || !isFeatureOn('mascotShop')) return { error: 'feature_off' };
+  const item = SHOP.find((i) => i.id === itemId);
+  if (!item) return { error: 'unknown_item' };
+  const me = db.prepare('SELECT coins, displayName FROM users WHERE id = ?').get(userId) as { coins: number; displayName: string } | undefined;
+  if (!me) return { error: 'not_found' };
+  if (me.coins < item.price) return { error: 'not_enough_coins' };
+  const outfit = mascotOutfit();
+  db.transaction(() => {
+    db.prepare('UPDATE users SET coins = coins - ? WHERE id = ?').run(item.price, userId);
+    db.prepare('INSERT INTO mascot_purchases (userId, itemId, price) VALUES (?, ?, ?)').run(userId, item.id, item.price);
+    outfit[item.slot] = { id: item.id, by: userId, byName: me.displayName, at: new Date().toISOString() };
+    saveOutfit(outfit);
+  })();
+  return { outfit, coins: me.coins - item.price };
+}
+
+/** Take an item off (free): only whoever bought it, or a parent */
+export function takeOffAccessory(userId: number, slot: string): { error: string } | { outfit: Outfit } {
+  const outfit = mascotOutfit();
+  const worn = outfit[slot as keyof Outfit];
+  if (!worn) return { error: 'not_found' };
+  const role = (db.prepare('SELECT role FROM users WHERE id = ?').get(userId) as { role: string } | undefined)?.role;
+  if (worn.by !== userId && role !== 'admin') return { error: 'not_yours' };
+  delete outfit[slot as keyof Outfit];
+  saveOutfit(outfit);
+  return { outfit };
 }

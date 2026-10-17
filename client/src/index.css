@@ -881,6 +881,16 @@ html[data-season] .main-content {
 .mascot-sway { animation: mascotSway 3.2s ease-in-out infinite alternate; transform-origin: 50% 100%; }
 .mascot-droop { animation: mascotDroop 4s ease-in-out infinite alternate; transform-origin: 50% 100%; }
 .mascot-party { animation: mascotBounce 0.9s ease-in-out infinite; transform-origin: 50% 100%; }
+.mascot-hop { animation: mascotHop 0.6s ease-out; transform-origin: 50% 100%; }
+.mascot-spin { animation: mascotSpin 0.7s ease-in-out; transform-origin: 50% 60%; }
+.mascot-sleep { animation: mascotBreathe 3.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.mascot-zzz { position: absolute; top: -4px; right: 0; font-size: 22px; animation: mascotFloat 2.4s ease-in-out infinite; }
+.mascot-fed { position: absolute; top: 30%; left: 50%; font-size: 22px; pointer-events: none; animation: mascotFed 1.6s ease-out forwards; }
+@keyframes mascotHop { 0% { transform: translateY(0); } 35% { transform: translateY(-18px) scale(1.04); } 70% { transform: translateY(0) scale(1.06, 0.94); } 100% { transform: translateY(0); } }
+@keyframes mascotSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes mascotBreathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.02, 0.98); } }
+@keyframes mascotFloat { 0%, 100% { transform: translateY(0); opacity: 0.7; } 50% { transform: translateY(-8px); opacity: 1; } }
+@keyframes mascotFed { 0% { transform: translate(40px, -30px) scale(1); opacity: 1; } 70% { transform: translate(-50%, 0) scale(0.8); opacity: 1; } 100% { transform: translate(-50%, 10px) scale(0.2); opacity: 0; } }
 .mascot-confetti { position: absolute; top: -6px; right: -6px; font-size: 22px; animation: mascotSway 0.8s ease-in-out infinite alternate; }
 .mascot-bubble::before { content: ''; position: absolute; left: -7px; top: 18px; border: 7px solid transparent; border-left: 0; border-right-color: var(--warm-border); }
 @keyframes mascotBounce { 0%, 100% { transform: translateY(0) scale(1, 1); } 45% { transform: translateY(-8px) scale(0.98, 1.03); } 60% { transform: translateY(0) scale(1.04, 0.96); } }
@@ -890,7 +900,9 @@ html[data-season] .main-content {
 /* Gentle on motion: no moving decorations or confetti for people who ask for less motion */
 @media (prefers-reduced-motion: reduce) {
   .season-particles, .tq-confetti { display: none; }
-  .season-strip span, .mascot-bounce, .mascot-sway, .mascot-droop, .mascot-party, .mascot-confetti { animation: none; }
+  .season-strip span, .mascot-bounce, .mascot-sway, .mascot-droop, .mascot-party, .mascot-confetti,
+  .mascot-hop, .mascot-spin, .mascot-sleep, .mascot-zzz, .mascot-fed { animation: none; }
+  .mascot-fed { display: none; }
 }
 
 /* Night theme: ensure inputs and selects are readable */

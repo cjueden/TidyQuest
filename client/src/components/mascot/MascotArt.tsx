@@ -1,8 +1,8 @@
 /* eslint-disable react-refresh/only-export-components -- art kit exports data tables next to components by design */
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 export type CreatureId = 'dog' | 'cat' | 'dragon' | 'robot' | 'fox' | 'bunny' | 'panda' | 'axolotl';
-export type MascotMood = 'happy' | 'fine' | 'messy' | 'sad';
+export type MascotMood = 'happy' | 'fine' | 'messy' | 'sad' | 'sleep';
 
 export const CREATURE_IDS: CreatureId[] = ['dog', 'cat', 'dragon', 'robot', 'fox', 'bunny', 'panda', 'axolotl'];
 
@@ -11,6 +11,8 @@ export interface Anchors {
   headTop: { x: number; y: number };
   headWidth: number;
   neck: { x: number; y: number };
+  /** point between the two eyes (glasses, masks) */
+  eyes: { x: number; y: number };
 }
 
 const INK = '#4A3728';
@@ -55,7 +57,7 @@ function Face({
     <line key={key} x1={x1} y1={y1} x2={x2} y2={y2} stroke={brow} strokeWidth={2} strokeLinecap="round" />
   );
   const showCheeks = mood !== 'sad';
-  const cheekOp = mood === 'fine' ? 0.45 : 0.6;
+  const cheekOp = mood === 'fine' ? 0.45 : mood === 'sleep' ? 0.75 : 0.6;
   return (
     <g>
       {showCheeks && (
@@ -88,6 +90,13 @@ function Face({
           {eyeAt(rx, 3.4, 'r')}
           <path d={`M${cx - 8} ${my + 1} q3 -4 5.3 0 t5.3 0 t5.3 0`} stroke={ink} strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
           <path d={`M${rx + 9} ${ey - 5} q4 5 0 8 q-4 -3 0 -8 Z`} fill="#8FD3FF" stroke="#5FA8D8" strokeWidth={1} strokeLinejoin="round" />
+        </>
+      )}
+      {mood === 'sleep' && (
+        <>
+          <path d={`M${lx - 5.5} ${ey - 1} Q${lx} ${ey + 4.5} ${lx + 5.5} ${ey - 1}`} stroke={brow} strokeWidth={2} fill="none" strokeLinecap="round" />
+          <path d={`M${rx - 5.5} ${ey - 1} Q${rx} ${ey + 4.5} ${rx + 5.5} ${ey - 1}`} stroke={brow} strokeWidth={2} fill="none" strokeLinecap="round" />
+          <path d={`M${cx - 5} ${my} Q${cx} ${my + 5} ${cx + 5} ${my}`} stroke={ink} strokeWidth={2} fill="none" strokeLinecap="round" />
         </>
       )}
       {mood === 'sad' && (
@@ -340,22 +349,38 @@ export const CREATURES: Record<
   CreatureId,
   { label: string; color: string; anchors: Anchors; Art: (p: { mood: MascotMood }) => JSX.Element }
 > = {
-  dog: { label: 'Dog', color: '#E0B07A', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 } }, Art: Dog },
-  cat: { label: 'Cat', color: '#FFC48C', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 } }, Art: Cat },
-  dragon: { label: 'Dragon', color: '#8ED9A6', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 } }, Art: Dragon },
-  robot: { label: 'Robot', color: '#BFD0EA', anchors: { headTop: { x: 60, y: 26 }, headWidth: 64, neck: { x: 60, y: 82 } }, Art: Robot },
-  fox: { label: 'Fox', color: '#F6A55C', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 } }, Art: Fox },
-  bunny: { label: 'Bunny', color: '#F7F1EC', anchors: { headTop: { x: 60, y: 30 }, headWidth: 60, neck: { x: 60, y: 88 } }, Art: Bunny },
-  panda: { label: 'Panda', color: '#FAFAFA', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 } }, Art: Panda },
-  axolotl: { label: 'Axolotl', color: '#FFB6C9', anchors: { headTop: { x: 60, y: 29 }, headWidth: 66, neck: { x: 60, y: 86 } }, Art: Axolotl },
+  dog: { label: 'Dog', color: '#E0B07A', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 }, eyes: { x: 60, y: 52 } }, Art: Dog },
+  cat: { label: 'Cat', color: '#FFC48C', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 }, eyes: { x: 60, y: 52 } }, Art: Cat },
+  dragon: { label: 'Dragon', color: '#8ED9A6', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 }, eyes: { x: 60, y: 51 } }, Art: Dragon },
+  robot: { label: 'Robot', color: '#BFD0EA', anchors: { headTop: { x: 60, y: 26 }, headWidth: 64, neck: { x: 60, y: 82 }, eyes: { x: 60, y: 51 } }, Art: Robot },
+  fox: { label: 'Fox', color: '#F6A55C', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 }, eyes: { x: 60, y: 51 } }, Art: Fox },
+  bunny: { label: 'Bunny', color: '#F7F1EC', anchors: { headTop: { x: 60, y: 30 }, headWidth: 60, neck: { x: 60, y: 88 }, eyes: { x: 60, y: 55 } }, Art: Bunny },
+  panda: { label: 'Panda', color: '#FAFAFA', anchors: { headTop: { x: 60, y: 25 }, headWidth: 62, neck: { x: 60, y: 85 }, eyes: { x: 60, y: 55 } }, Art: Panda },
+  axolotl: { label: 'Axolotl', color: '#FFB6C9', anchors: { headTop: { x: 60, y: 29 }, headWidth: 66, neck: { x: 60, y: 86 }, eyes: { x: 60, y: 55 } }, Art: Axolotl },
 };
 
 /* ---------- overlays (drawn in a local frame: head top at 0,0, head width 64) ---------- */
 
-export type OverlayId = 'hat' | 'crown' | 'partyHat' | 'witchHat' | 'pilgrimHat' | 'santaHat' | 'scarf' | 'messyHair';
+export type OverlayId =
+  | 'hat' | 'crown' | 'partyHat' | 'witchHat' | 'pilgrimHat' | 'santaHat' | 'scarf' | 'messyHair'
+  | AccessoryId;
 
-function Place({ a, at = 'head', children }: { a: Anchors; at?: 'head' | 'neck'; children: JSX.Element | JSX.Element[] }): JSX.Element {
-  const p = at === 'head' ? a.headTop : a.neck;
+export type AccessoryId =
+  | 'beanie' | 'bow' | 'flowerCrown' | 'wizardHat' | 'pirateHat' | 'cowboyHat' | 'headphones'
+  | 'sunglasses' | 'glasses' | 'heroMask'
+  | 'bowTie' | 'bandana' | 'necklace'
+  | 'cape' | 'wings' | 'balloon';
+
+/** Which slot each accessory occupies (back items are drawn BEFORE the creature) */
+export const ACCESSORY_SLOTS: Record<AccessoryId, 'head' | 'face' | 'neck' | 'back'> = {
+  beanie: 'head', bow: 'head', flowerCrown: 'head', wizardHat: 'head', pirateHat: 'head', cowboyHat: 'head', headphones: 'head',
+  sunglasses: 'face', glasses: 'face', heroMask: 'face',
+  bowTie: 'neck', bandana: 'neck', necklace: 'neck',
+  cape: 'back', wings: 'back', balloon: 'back',
+};
+
+function Place({ a, at = 'head', children }: { a: Anchors; at?: 'head' | 'neck' | 'eyes'; children: ReactNode }): JSX.Element {
+  const p = at === 'head' ? a.headTop : at === 'eyes' ? a.eyes : a.neck;
   return <g transform={`translate(${p.x} ${p.y}) scale(${a.headWidth / 64})`}>{children}</g>;
 }
 
@@ -452,6 +477,173 @@ export const OVERLAYS: Record<OverlayId, (p: { a: Anchors }) => JSX.Element> = {
         <circle cx={-21} cy={-8} r={3.2} />
         <circle cx={-31} cy={-8} r={2.4} />
       </g>
+    </Place>
+  ),
+  beanie: ({ a }) => (
+    <Place a={a}>
+      <path d="M-19 -6 C-19 -20 -9 -23 0 -23 C9 -23 19 -20 19 -6 Z" fill="#4DB6AC" {...HAT_THIN} />
+      <path d="M-10 -20 L-10 -8 M0 -22 L0 -8 M10 -20 L10 -8" stroke="#2F8F85" strokeWidth={1.3} strokeLinecap="round" />
+      <rect x={-22} y={-8} width={44} height={13} rx={6} fill="#F5C242" {...HAT_THIN} />
+      <path d="M-12 -7 L-12 4 M-4 -7 L-4 4 M4 -7 L4 4 M12 -7 L12 4" stroke="#C99A1C" strokeWidth={1.3} strokeLinecap="round" />
+      <circle cx={0} cy={-24} r={5} fill="#FF8FA3" {...HAT_THIN} />
+    </Place>
+  ),
+  bow: ({ a }) => (
+    <Place a={a}>
+      <g transform="translate(14 -1) rotate(-14)">
+        <path d="M0 0 C-4 -9 -15 -10 -15 -2 C-15 6 -4 6 0 0 Z" fill="#FF6F9C" {...HAT_THIN} />
+        <path d="M0 0 C4 -9 15 -10 15 -2 C15 6 4 6 0 0 Z" fill="#FF6F9C" {...HAT_THIN} />
+        <path d="M-10 -4 L-6 -3 M10 -4 L6 -3" stroke="#FFFFFF" strokeWidth={1.4} strokeLinecap="round" opacity={0.7} />
+        <circle cx={0} cy={0} r={3.4} fill="#FF9DBB" {...HAT_THIN} />
+      </g>
+    </Place>
+  ),
+  flowerCrown: ({ a }) => {
+    const fl: [number, number, string][] = [[-23, 8, '#FF8FB1'], [-12, 0, '#FFFFFF'], [0, -3, '#FFD54A'], [12, 0, '#FF8FB1'], [23, 8, '#FFFFFF']];
+    return (
+      <Place a={a}>
+        <path d="M-27 12 Q0 -12 27 12" fill="none" stroke={INK} strokeWidth={5} strokeLinecap="round" />
+        <path d="M-27 12 Q0 -12 27 12" fill="none" stroke="#6CC57F" strokeWidth={3} strokeLinecap="round" />
+        {fl.map(([x, y, c]) => (
+          <g key={x} transform={`translate(${x} ${y})`}>
+            {[0, 72, 144, 216, 288].map((d) => (
+              <circle key={d} cx={Math.cos((d * Math.PI) / 180) * 4} cy={Math.sin((d * Math.PI) / 180) * 4} r={3.1} fill={c} stroke={INK} strokeWidth={1.1} />
+            ))}
+            <circle cx={0} cy={0} r={2.4} fill={c === '#FFD54A' ? '#FF8FB1' : '#FFD54A'} />
+          </g>
+        ))}
+      </Place>
+    );
+  },
+  wizardHat: ({ a }) => (
+    <Place a={a}>
+      <ellipse cx={0} cy={3} rx={28} ry={5.5} fill="#3A4A9C" {...HAT_THIN} />
+      <path d="M-17 3 L-9 -20 Q-3 -33 13 -39 Q9 -32 10 -22 L17 3 Q0 8 -17 3 Z" fill="#4A5CC0" {...HAT_THIN} />
+      <path d="M-16 -4 L16 -4 L17 3 Q0 8 -17 3 Z" fill="#FFD54A" {...HAT_THIN} strokeWidth={1.4} />
+      <path d="M0 -21 l1.8 4 l4.2 0.4 l-3.2 2.8 l1 4.2 l-3.8 -2.2 l-3.8 2.2 l1 -4.2 l-3.2 -2.8 l4.2 -0.4 Z" fill="#FFD54A" stroke={INK} strokeWidth={1} strokeLinejoin="round" />
+      <circle cx={7} cy={-10} r={1.6} fill="#FFFFFF" />
+      <circle cx={-8} cy={-14} r={1.3} fill="#FFFFFF" />
+    </Place>
+  ),
+  pirateHat: ({ a }) => (
+    <Place a={a}>
+      <path d="M-30 2 Q-26 -14 -12 -20 Q0 -25 12 -20 Q26 -14 30 2 Q16 -4 0 -4 Q-16 -4 -30 2 Z" fill="#2D2A35" {...HAT_THIN} />
+      <path d="M-30 2 Q-18 10 0 10 Q18 10 30 2 Q16 -4 0 -4 Q-16 -4 -30 2 Z" fill="#3D3846" {...HAT_THIN} />
+      <circle cx={0} cy={-11} r={5} fill="#FFFFFF" {...HAT_THIN} strokeWidth={1.2} />
+      <circle cx={-1.9} cy={-11.5} r={1.1} fill={INK} />
+      <circle cx={1.9} cy={-11.5} r={1.1} fill={INK} />
+      <path d="M-8 -5 L8 -16 M8 -5 L-8 -16" stroke="#FFFFFF" strokeWidth={1.8} strokeLinecap="round" opacity={0.9} />
+      <path d="M-24 -4 Q-14 -12 -8 -14" stroke="#8B849A" strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.6} />
+    </Place>
+  ),
+  cowboyHat: ({ a }) => (
+    <Place a={a}>
+      <path d="M-33 -9 C-30 5 -12 7 0 7 C12 7 30 5 33 -9 C25 -3 14 -4 0 -4 C-14 -4 -25 -3 -33 -9 Z" fill="#C98F54" {...HAT_THIN} />
+      <path d="M-15 -1 L-14 -17 Q-10 -23 -3 -19 Q0 -18 3 -19 Q10 -23 14 -17 L15 -1 Q0 4 -15 -1 Z" fill="#D9A268" {...HAT_THIN} />
+      <path d="M-14.8 -6 L14.8 -6 L15 -1 Q0 4 -15 -1 Z" fill="#8B5A2B" {...HAT_THIN} strokeWidth={1.4} />
+      <rect x={-3.5} y={-6.5} width={7} height={6} rx={1.5} fill="#FFD54A" {...HAT_THIN} strokeWidth={1.2} />
+    </Place>
+  ),
+  headphones: ({ a }) => (
+    <Place a={a}>
+      <path d="M-30 18 C-30 -12 30 -12 30 18" fill="none" stroke={INK} strokeWidth={6.5} strokeLinecap="round" />
+      <path d="M-30 18 C-30 -12 30 -12 30 18" fill="none" stroke="#7A8CF0" strokeWidth={3.6} strokeLinecap="round" />
+      {([-1, 1] as const).map((s) => (
+        <g key={s}>
+          <rect x={s * 31 - 6.5} y={11} width={13} height={21} rx={6.5} fill="#FF7A8A" {...HAT_THIN} />
+          <rect x={s * 31 - 3} y={15} width={6} height={13} rx={3} fill="#FFB3BC" />
+        </g>
+      ))}
+    </Place>
+  ),
+  sunglasses: ({ a }) => (
+    <Place a={a} at="eyes">
+      <path d="M-7 -2 Q0 -6 7 -2" fill="none" stroke={INK} strokeWidth={2.2} strokeLinecap="round" />
+      <path d="M-26 -3 L-30 -2 M26 -3 L30 -2" stroke={INK} strokeWidth={2.2} strokeLinecap="round" />
+      {([-1, 1] as const).map((s) => (
+        <g key={s}>
+          <path d={`M${s * 6} -4 L${s * 25} -4 L${s * 25} 3 Q${s * 24} 11 ${s * 15} 11 Q${s * 7} 11 ${s * 6} 3 Z`} fill="#2A2A38" {...HAT_THIN} />
+          <path d={`M${s * 10} 0 L${s * 13} -1 M${s * 10} 4 L${s * 17} 2`} stroke="#FFFFFF" strokeWidth={1.6} strokeLinecap="round" opacity={0.55} />
+        </g>
+      ))}
+    </Place>
+  ),
+  glasses: ({ a }) => (
+    <Place a={a} at="eyes">
+      <path d="M-6 -1 Q0 -5 6 -1" fill="none" stroke={INK} strokeWidth={1.8} strokeLinecap="round" />
+      <path d="M-25 -2 L-30 -3 M25 -2 L30 -3" stroke={INK} strokeWidth={1.8} strokeLinecap="round" />
+      {([-1, 1] as const).map((s) => (
+        <g key={s}>
+          <circle cx={s * 15.5} cy={0} r={9.5} fill="#BFE9FF" fillOpacity={0.28} {...HAT_THIN} />
+          <path d={`M${s * 15.5 - 5.5} -4 Q${s * 15.5 - 3} -7 ${s * 15.5 + 1} -7`} fill="none" stroke="#FFFFFF" strokeWidth={1.6} strokeLinecap="round" opacity={0.8} />
+        </g>
+      ))}
+    </Place>
+  ),
+  heroMask: ({ a }) => (
+    <Place a={a} at="eyes">
+      <path
+        fillRule="evenodd"
+        d="M-28 -3 Q-28 -10 -20 -10 Q-10 -7 0 -8 Q10 -7 20 -10 Q28 -10 28 -3 Q28 8 18 10 Q10 10 6 3 Q0 1 -6 3 Q-10 10 -18 10 Q-28 8 -28 -3 Z M-21.5 0 a6 5 0 1 0 12 0 a6 5 0 1 0 -12 0 Z M9.5 0 a6 5 0 1 0 12 0 a6 5 0 1 0 -12 0 Z"
+        fill="#E5484D"
+        {...HAT_THIN}
+      />
+      <path d="M-22 -7 Q-14 -8 -8 -6 M22 -7 Q14 -8 8 -6" stroke="#FFFFFF" strokeWidth={1.4} strokeLinecap="round" fill="none" opacity={0.5} />
+    </Place>
+  ),
+  bowTie: ({ a }) => (
+    <Place a={a} at="neck">
+      <path d="M0 4 L-15 -4 Q-18 4 -15 12 Z" fill="#5B8DEF" {...HAT_THIN} />
+      <path d="M0 4 L15 -4 Q18 4 15 12 Z" fill="#5B8DEF" {...HAT_THIN} />
+      <circle cx={-10} cy={4} r={1.2} fill="#FFFFFF" />
+      <circle cx={10} cy={4} r={1.2} fill="#FFFFFF" />
+      <rect x={-3.5} y={-0.5} width={7} height={9} rx={3} fill="#3F6FD0" {...HAT_THIN} strokeWidth={1.4} />
+    </Place>
+  ),
+  bandana: ({ a }) => (
+    <Place a={a} at="neck">
+      <path d="M-26 -5 Q0 6 26 -5 L22 3 L3 24 Q0 27 -3 24 L-22 3 Z" fill="#F28C28" {...HAT_THIN} />
+      <path d="M-26 -5 Q0 6 26 -5 L22 3 Q0 13 -22 3 Z" fill="#E0701A" {...HAT_THIN} strokeWidth={1.4} />
+      <g fill="#FFF3D6">
+        <circle cx={-8} cy={11} r={1.7} />
+        <circle cx={6} cy={10} r={1.7} />
+        <circle cx={-1} cy={17} r={1.7} />
+        <circle cx={-14} cy={3} r={1.4} />
+        <circle cx={14} cy={3} r={1.4} />
+      </g>
+    </Place>
+  ),
+  necklace: ({ a }) => (
+    <Place a={a} at="neck">
+      <path d="M-21 -5 Q0 17 21 -5" fill="none" stroke={INK} strokeWidth={3.2} strokeLinecap="round" />
+      <path d="M-21 -5 Q0 17 21 -5" fill="none" stroke="#FFD54A" strokeWidth={1.6} strokeLinecap="round" />
+      <path d="M0 18 C-10 11 -7 3 0 8 C7 3 10 11 0 18 Z" fill="#FF5C7A" {...HAT_THIN} strokeWidth={1.5} />
+      <path d="M-4.5 9 Q-6 11 -4.5 13" stroke="#FFFFFF" strokeWidth={1.4} fill="none" strokeLinecap="round" opacity={0.8} />
+    </Place>
+  ),
+  cape: ({ a }) => (
+    <Place a={a} at="neck">
+      <path d="M-22 -10 Q-34 4 -46 25 Q-32 31 -16 26 Q0 32 16 26 Q32 31 46 25 Q34 4 22 -10 Z" fill="#D94A5C" {...HAT_THIN} />
+      <path d="M-30 26 Q-27 8 -20 -4 M30 26 Q27 8 20 -4" stroke="#A9303F" strokeWidth={1.6} strokeLinecap="round" fill="none" />
+    </Place>
+  ),
+  wings: ({ a }) => (
+    <Place a={a} at="neck">
+      {([-1, 1] as const).map((s) => (
+        <g key={s} transform={`scale(${s} 1)`}>
+          <ellipse cx={-34} cy={-12} rx={24} ry={11} transform="rotate(-52 -34 -12)" fill="#CFE6FF" {...HAT_THIN} />
+          <ellipse cx={-34} cy={9} rx={15} ry={8} transform="rotate(28 -34 9)" fill="#E3D6FF" {...HAT_THIN} />
+          <path d="M-34 -8 Q-42 -20 -46 -28" stroke="#B9D9F2" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+        </g>
+      ))}
+    </Place>
+  ),
+  balloon: ({ a }) => (
+    <Place a={a} at="neck">
+      <path d="M22 10 Q36 0 32 -14 Q28 -24 44 -31" fill="none" stroke="#9A8C84" strokeWidth={1.6} strokeLinecap="round" />
+      <path d="M44 -32 L40.5 -28 L47.5 -28 Z" fill="#E0394F" {...HAT_THIN} strokeWidth={1.3} />
+      <ellipse cx={44} cy={-45} rx={11} ry={13.5} fill="#FF5C7A" {...HAT_THIN} />
+      <ellipse cx={40} cy={-50} rx={2.6} ry={4.5} transform="rotate(20 40 -50)" fill="#FFFFFF" opacity={0.6} />
     </Place>
   ),
 };

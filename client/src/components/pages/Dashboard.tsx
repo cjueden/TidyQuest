@@ -18,7 +18,7 @@ import { PendingApprovals, type PendingItem } from '../shared/PendingApprovals';
 import { ProofModal, type Proof } from '../shared/ProofModal';
 import type { CheerSummary, CoinBoost, TeamUpInfo, TeamupItem } from '../../hooks/useApi';
 import { CheerBar } from '../shared/CheerBar';
-import { MascotCard, type MascotData } from '../mascot/MascotCard';
+import { MascotCard, type MascotData, type MascotSuggestion } from '../mascot/MascotCard';
 import { TeamUpButton, TeamUpDialog, TeamUpsCard } from '../shared/TeamUp';
 import { claimedLabel } from '../../utils/teamups';
 import { formatCoins } from '../../utils/format';
@@ -435,6 +435,22 @@ const Dashboard: React.FC<DashboardProps> = ({
   );
   const sortedRooms = [...rooms].sort((a, b) => a.health - b.health);
   const roomTypeById = new Map(rooms.map((r) => [r.id, r.roomType]));
+  // "What should I do?": chores the mascot can suggest, best first (only ones you can do right now)
+  const mascotIdeas: MascotSuggestion[] = [];
+  {
+    const seen = new Set<number>();
+    const add = (q: Quest | null | undefined, reason: MascotSuggestion['reason']) => {
+      if (!q || seen.has(q.id) || doneState(q).disabled) return;
+      seen.add(q.id);
+      mascotIdeas.push({ taskId: q.id, roomId: q.roomId, name: taskName(q.name, q.translationKey), roomName: roomDisplayName(q.roomName, roomTypeById.get(q.roomId) || ''), coins: gamificationEnabled ? taskCoins(q, coinsByEffort) : null, reason });
+    };
+    const due = readyToComplete ?? [];
+    if (mission && !mission.completedBy) add(mission.task as Quest | null, 'rescue');
+    for (const x of data.teamups ?? []) if (x.canJoin) add([...due, ...(onDemandQuests ?? [])].find((q) => q.id === x.taskId), 'teamup');
+    for (const q of due) if ((q.effectiveAssignedUserIds ?? []).includes(currentUser.id)) add(q, 'yours');
+    for (const q of due) if (q.roomId === data.mascot?.messiestRoom?.id) add(q, 'messiest');
+    for (const q of [...due].sort((a, b) => a.effort - b.effort)) add(q, 'quick');
+  }
   const totalTasks = rooms.reduce((s, r) => s + r.taskCount, 0);
   const totalCritical = rooms.reduce((s, r) => s + r.criticalCount, 0);
   const sortedFamily = [...family].sort((a, b) => b.points - a.points);
@@ -516,7 +532,10 @@ const Dashboard: React.FC<DashboardProps> = ({
         )}
 
         {/* The house mascot: mood, what it needs, and how close it is to growing */}
-        {data.mascot && isVisible('mascot') && <MascotCard m={data.mascot} costume={seasonCostume} language={language} />}
+        {data.mascot && isVisible('mascot') && (
+          <MascotCard m={data.mascot} costume={seasonCostume} language={language} suggestions={mascotIdeas} userId={currentUser.id}
+            isParent={currentUser.role === 'admin'} coins={currentUser.coins} onChanged={() => onRefresh?.()} />
+        )}
 
         {/* Team-ups you're on, and invites you can join */}
         {isVisible('teamups') && (
@@ -931,7 +950,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                       {roomDisplayName(c.roomName, c.roomType || '')} &middot; {c.displayName}
                     </div>
                     {c.approvalNote && <div style={{ fontSize: 11, color: 'var(--warm-text-secondary)', fontWeight: 600, overflowWrap: 'anywhere' }}>💬 “{c.approvalNote}”</div>}
-                    {c.cheers && <CheerBar completionId={c.completionId} cheers={c.cheers} canCheer={c.userId !== currentUser.id} language={language} />}
+                    {c.cheers && <CheerBar completionId={c.completionId} cheers={c.cheers} canCheer={c.userId !== currentUser.id} language={language} mascotName={data.mascot?.name} />}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)' }}>
                     {gamificationEnabled && <><CoinIcon /> +{c.coinsEarned}</>}

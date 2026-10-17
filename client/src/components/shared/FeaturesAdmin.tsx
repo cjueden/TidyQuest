@@ -7,7 +7,7 @@ import { SEASONS, setSeasonPreview, useSeasonPreview } from '../../utils/seasons
 import { CREATURE_IDS, CREATURES, type CreatureId } from '../mascot/MascotArt';
 import { MascotPicture } from '../mascot/MascotCard';
 
-const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'teamups', 'mascot', 'seasonal'];
+const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'teamups', 'mascot', 'mascotShop', 'seasonal'];
 const MULTIPLIERS = [1.5, 2, 3];
 
 /** Settings → Features: optional extras, on or off for the whole family (all on to start). */
@@ -16,7 +16,7 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
   const [flags, setFlags] = useState<FeatureFlags | null>(null);
   const [multiplier, setMultiplier] = useState(2);
   const [holidaysOff, setHolidaysOff] = useState<string[]>([]);
-  const [mascot, setMascot] = useState({ creature: 'dog', name: '' });
+  const [mascot, setMascot] = useState({ creature: 'dog', name: '', bedtimeFrom: '21:00', bedtimeTo: '07:00' });
   const [mascotName, setMascotName] = useState('');
   const [teamBonus, setTeamBonus] = useState(20);
   const previewing = useSeasonPreview();
@@ -72,6 +72,14 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
                     </button>
                   ))}
                 </div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)', flexWrap: 'wrap' }}>
+                  😴 {t('mascot.bedtime')}
+                  <input type="time" className="tq-input-compact" value={mascot.bedtimeFrom} aria-label={t('mascot.bedtimeFrom')}
+                    onChange={(e) => e.target.value && void save({ mascot: { bedtimeFrom: e.target.value } })} />
+                  –
+                  <input type="time" className="tq-input-compact" value={mascot.bedtimeTo} aria-label={t('mascot.bedtimeTo')}
+                    onChange={(e) => e.target.value && void save({ mascot: { bedtimeTo: e.target.value } })} />
+                </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
                   {t('mascot.name')}
                   <input className="tq-input-compact" value={mascotName} maxLength={20} onChange={(e) => setMascotName(e.target.value)}
