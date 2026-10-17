@@ -6,7 +6,7 @@ import { buyAccessory, takeOffAccessory } from '../utils/mascot';
 const router = Router();
 router.use(authMiddleware);
 
-const STATUS: Record<string, number> = { feature_off: 403, unknown_item: 400, not_found: 404, not_enough_coins: 400, not_yours: 403 };
+const STATUS: Record<string, number> = { feature_off: 403, unknown_item: 400, not_found: 404, not_enough_coins: 400, not_yours: 403, not_hatched: 400 };
 const send = (res: Response, r: { error: string } | object) => ('error' in r ? res.status(STATUS[(r as { error: string }).error] ?? 400).json(r) : res.json(r));
 
 router.post('/buy', (req: AuthRequest, res: Response) => send(res, buyAccessory(req.userId!, String(req.body?.itemId ?? ''))));

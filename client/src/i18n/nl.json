@@ -1499,7 +1499,9 @@
       "item_necklace": "Hartjesketting",
       "item_balloon": "Ballon",
       "item_cape": "Cape",
-      "item_wings": "Vleugels"
+      "item_wings": "Vleugels",
+      "shopAfterHatch": "🛍️ Mijn winkel gaat open als ik uitkom!",
+      "error_not_hatched": "De winkel gaat open als de mascotte uitkomt."
     },
     "teamups": {
       "title": "Samen doen",

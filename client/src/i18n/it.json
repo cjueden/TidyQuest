@@ -1499,7 +1499,9 @@
       "item_necklace": "Collana a cuore",
       "item_balloon": "Palloncino",
       "item_cape": "Mantello",
-      "item_wings": "Ali"
+      "item_wings": "Ali",
+      "shopAfterHatch": "🛍️ Il mio negozio apre quando mi schiudo!",
+      "error_not_hatched": "Il negozio apre quando la mascotte si schiude."
     },
     "teamups": {
       "title": "In squadra",

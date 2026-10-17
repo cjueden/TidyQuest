@@ -69,6 +69,12 @@ describe('House mascot', () => {
     db.prepare('UPDATE users SET coins = 6 WHERE id IN (?, ?)').run(cecil.user.id, cylis.user.id);
     const buy = (token: string, itemId: string) => agent.post('/api/mascot/buy').set(auth(token)).send({ itemId });
 
+    // Still an egg: the shop stays shut (no peeking at what it will hatch into)
+    expect((await buy(cecil.token, 'bow')).body.error).toBe('not_hatched');
+    const room = (await agent.post('/api/rooms').set(auth(admin.token)).send({ name: 'Kitchen', roomType: 'other' })).body.id;
+    const task = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name: 'Dishes', effort: 1, frequencyDays: 1 })).body.id;
+    db.prepare("INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status) VALUES (?, ?, ?, 600, 'approved')").run(task, admin.user.id, new Date(Date.now() - 86400000).toISOString());
+
     expect((await buy(cecil.token, 'crown')).body.error).toBe('unknown_item');
     const first = (await buy(cecil.token, 'wizardHat')).body;
     expect([first.coins, first.outfit.head.id, first.outfit.head.byName]).toEqual([1, 'wizardHat', 'Cecil']);

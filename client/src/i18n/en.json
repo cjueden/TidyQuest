@@ -1499,7 +1499,9 @@
       "item_necklace": "Heart necklace",
       "item_balloon": "Balloon",
       "item_cape": "Cape",
-      "item_wings": "Wings"
+      "item_wings": "Wings",
+      "shopAfterHatch": "🛍️ My shop opens when I hatch!",
+      "error_not_hatched": "The shop opens when the mascot hatches."
     },
     "teamups": {
       "title": "Team-ups",

@@ -53,6 +53,9 @@ export function saveMascot(input: { creature?: unknown; name?: unknown; bedtimeF
   return null;
 }
 
+/** Everyone's chore coins, all time: what the mascot grows with */
+export const familyCoinsTotal = () => (db.prepare("SELECT COALESCE(SUM(coinsEarned), 0) AS n FROM task_completions WHERE status = 'approved'").get() as { n: number }).n;
+
 export function moodFor(houseHealth: number): 'happy' | 'fine' | 'messy' | 'sad' {
   return houseHealth >= 80 ? 'happy' : houseHealth >= 50 ? 'fine' : houseHealth >= 25 ? 'messy' : 'sad';
 }
@@ -60,7 +63,7 @@ export function moodFor(houseHealth: number): 'happy' | 'fine' | 'messy' | 'sad'
 /** Everything Home needs to draw the mascot */
 export function mascotFor(opts: { houseHealth: number; rooms: Array<{ id: number; name: string; health: number }>; rescueDone: boolean; now?: Date }) {
   const now = opts.now ?? new Date();
-  const familyCoins = (db.prepare("SELECT COALESCE(SUM(coinsEarned), 0) AS n FROM task_completions WHERE status = 'approved'").get() as { n: number }).n;
+  const familyCoins = familyCoinsTotal();
   const idx = STAGES.reduce((i, s, n) => (familyCoins >= s.from ? n : i), 0);
   const mood = moodFor(opts.houseHealth);
   const messiest = [...opts.rooms].sort((a, b) => a.health - b.health)[0];
@@ -133,6 +136,8 @@ export function buyAccessory(userId: number, itemId: string): { error: string } 
   if (!isFeatureOn('mascot') || !isFeatureOn('mascotShop')) return { error: 'feature_off' };
   const item = SHOP.find((i) => i.id === itemId);
   if (!item) return { error: 'unknown_item' };
+  // Nothing to wear (or to peek at) until it hatches
+  if (familyCoinsTotal() < STAGES[1].from) return { error: 'not_hatched' };
   const me = db.prepare('SELECT coins, displayName FROM users WHERE id = ?').get(userId) as { coins: number; displayName: string } | undefined;
   if (!me) return { error: 'not_found' };
   if (me.coins < item.price) return { error: 'not_enough_coins' };

@@ -75,7 +75,8 @@ export function MascotPicture({ m, costume, size = 112, asleep = false, outfit =
   return (
     <svg viewBox="0 0 120 120" width={size} height={size} role="img" aria-hidden="true"
       style={{ overflow: 'visible', filter: m.stage === 'legendary' ? 'drop-shadow(0 0 8px #FBBF24AA)' : undefined }}>
-      {m.stage === 'egg' ? <Egg creature={m.creature} /> : (
+      {/* Every egg looks the same, so it doesn't give away what will hatch */}
+      {m.stage === 'egg' ? <Egg creature="dog" /> : (
         <g transform={`translate(60 112) scale(${s}) translate(-60 -112)`}>
           {grown >= 1 && !bare && <Bed />}
           {Back && <Back a={c.anchors} />}
@@ -184,7 +185,8 @@ export function MascotCard({ m, costume, language, suggestions = [], userId, isP
               💡 {t(suggestIdx == null ? 'mascot.whatToDo' : 'mascot.anotherIdea')}
             </button>
           )}
-          {m.shop && <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => setShopOpen(true)}>🛍️ {t('mascot.shop')}</button>}
+          {m.shop && m.stage !== 'egg' && <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => setShopOpen(true)}>🛍️ {t('mascot.shop')}</button>}
+          {m.shop && m.stage === 'egg' && <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)', alignSelf: 'center' }}>{t('mascot.shopAfterHatch')}</span>}
         </div>
         {idea && (
           <div style={{ display: 'grid', gap: 6, padding: '10px 12px', borderRadius: 14, border: '1.5px solid var(--warm-accent)', background: 'var(--warm-accent-light)' }}>
@@ -196,7 +198,7 @@ export function MascotCard({ m, costume, language, suggestions = [], userId, isP
           </div>
         )}
       </div>
-      {shopOpen && m.shop && (
+      {shopOpen && m.shop && m.stage !== 'egg' && (
         <MascotShop m={m} costume={costume} language={language} userId={userId} isParent={isParent} coins={coins}
           onClose={() => setShopOpen(false)} onChanged={() => onChanged?.()} />
       )}

@@ -1499,7 +1499,9 @@
       "item_necklace": "Collar de corazón",
       "item_balloon": "Globo",
       "item_cape": "Capa",
-      "item_wings": "Alas"
+      "item_wings": "Alas",
+      "shopAfterHatch": "🛍️ ¡Mi tienda abre cuando nazca!",
+      "error_not_hatched": "La tienda abre cuando nazca la mascota."
     },
     "teamups": {
       "title": "En equipo",

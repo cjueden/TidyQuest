@@ -1499,7 +1499,9 @@
       "item_necklace": "Herzkette",
       "item_balloon": "Luftballon",
       "item_cape": "Umhang",
-      "item_wings": "Flügel"
+      "item_wings": "Flügel",
+      "shopAfterHatch": "🛍️ Mein Laden öffnet, wenn ich schlüpfe!",
+      "error_not_hatched": "Der Laden öffnet, wenn das Maskottchen schlüpft."
     },
     "teamups": {
       "title": "Teamwork",
