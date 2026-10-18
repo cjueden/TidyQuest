@@ -447,6 +447,7 @@ function AppContent() {
               {dashboardData && (
                 <Dashboard
                   data={dashboardData}
+                  allRooms={rooms}
                   seasonCostume={season?.costume}
                   family={family}
                   users={familySettings}

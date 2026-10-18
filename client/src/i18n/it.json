@@ -393,7 +393,8 @@
       "sortPriceLow": "Prezzo: crescente",
       "sortPriceHigh": "Prezzo: decrescente",
       "sortName": "Nome A–Z",
-      "noMatches": "Nessuna ricompensa corrisponde."
+      "noMatches": "Nessuna ricompensa corrisponde.",
+      "sharedParentDecides": "Condiviso: decide un genitore"
     },
     "rewardsPreset": {
       "movie_night": {
@@ -618,7 +619,8 @@
       "showMore": "Mostra altri {n}",
       "showLess": "Mostra meno",
       "error": "Qualcosa è andato storto",
-      "close": "Chiudi"
+      "close": "Chiudi",
+      "actionFailed": "Non ha funzionato. Controlla la connessione e riprova."
     },
     "units": {
       "hours": "ore",
@@ -972,7 +974,13 @@
       "left": "Ancora {time}",
       "chores": "Faccende:",
       "findChore": "Aggiungi una faccenda…",
-      "andMore": "+{n} altre"
+      "andMore": "+{n} altre",
+      "seeChores": "Vedi faccende",
+      "readyNow": "Pronta ora",
+      "everythingCounts": "Ogni faccenda conta. Scegli una stanza:",
+      "theseCount": "Faccende che puoi fare: {n}",
+      "noneForYou": "Nessuna di queste faccende è per te.",
+      "roomCounts": "{ready} su {n} pronte ora"
     },
     "goals": {
       "repeatWeekly": "Ogni settimana",
@@ -1340,7 +1348,8 @@
       "overdueDays": "{n} giorni di ritardo",
       "overdueDay": "1 giorno di ritardo",
       "snooze": "Posticipa di 3 giorni",
-      "seeAllRequests": "Vedi tutto ({n})"
+      "seeAllRequests": "Vedi tutto ({n})",
+      "snoozed": "«{name}» rimandata di 3 giorni"
     },
     "rescue": {
       "title": "Missione di salvataggio",
@@ -1538,14 +1547,18 @@
       "team": "Squadra: {names}",
       "share": "{n} monete a testa",
       "helper": "aiutante",
-      "cancel": "Annulla",
+      "cancel": "Annulla la squadra",
       "leave": "Esci",
       "done": "Fatto insieme",
       "error_not_teamable": "Questa faccenda non si può fare in squadra.",
       "error_already_teamed": "Qualcuno ha già iniziato una squadra su questa faccenda oggi.",
       "error_invalid_partner": "Questa persona non può fare la faccenda.",
       "error_not_assigned": "Questa faccenda non è tua.",
-      "decline": "No, grazie"
+      "decline": "No, grazie",
+      "error_not_found": "Questa squadra non c'è più. Forse è stata annullata.",
+      "error_not_invited": "Questo invito era per qualcun altro.",
+      "error_declined": "Hai già detto no, grazie a questo.",
+      "error_team_full": "Questa squadra è già al completo."
     },
     "iconGroups": {
       "kitchen": "Cucina",

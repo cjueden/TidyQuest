@@ -393,7 +393,8 @@
       "sortPriceLow": "Precio: de menor a mayor",
       "sortPriceHigh": "Precio: de mayor a menor",
       "sortName": "Nombre A–Z",
-      "noMatches": "Ninguna recompensa coincide."
+      "noMatches": "Ninguna recompensa coincide.",
+      "sharedParentDecides": "Compartida: decide un padre o una madre"
     },
     "rewardsPreset": {
       "movie_night": {
@@ -618,7 +619,8 @@
       "showMore": "Mostrar {n} más",
       "showLess": "Mostrar menos",
       "error": "Algo salió mal",
-      "close": "Cerrar"
+      "close": "Cerrar",
+      "actionFailed": "No funcionó. Revisa tu conexión e inténtalo de nuevo."
     },
     "units": {
       "hours": "horas",
@@ -972,7 +974,13 @@
       "left": "Quedan {time}",
       "chores": "Tareas:",
       "findChore": "Añadir una tarea…",
-      "andMore": "+{n} más"
+      "andMore": "+{n} más",
+      "seeChores": "Ver tareas",
+      "readyNow": "Lista ahora",
+      "everythingCounts": "Todas las tareas cuentan. Elige una habitación:",
+      "theseCount": "Tareas que puedes hacer: {n}",
+      "noneForYou": "Ninguna de estas tareas es para ti.",
+      "roomCounts": "{ready} de {n} listas ahora"
     },
     "goals": {
       "repeatWeekly": "Cada semana",
@@ -1340,7 +1348,8 @@
       "overdueDays": "{n} días de retraso",
       "overdueDay": "1 día de retraso",
       "snooze": "Posponer 3 días",
-      "seeAllRequests": "Ver todo ({n})"
+      "seeAllRequests": "Ver todo ({n})",
+      "snoozed": "«{name}» pospuesta 3 días"
     },
     "rescue": {
       "title": "Misión de rescate",
@@ -1538,14 +1547,18 @@
       "team": "Equipo: {names}",
       "share": "{n} monedas cada uno",
       "helper": "ayudante",
-      "cancel": "Cancelar",
+      "cancel": "Cancelar el equipo",
       "leave": "Salir",
       "done": "Hecho en equipo",
       "error_not_teamable": "Esta tarea no se puede hacer en equipo.",
       "error_already_teamed": "Alguien ya empezó un equipo para esta tarea hoy.",
       "error_invalid_partner": "Esa persona no puede hacer esta tarea.",
       "error_not_assigned": "Esta tarea no es tuya.",
-      "decline": "No, gracias"
+      "decline": "No, gracias",
+      "error_not_found": "Ese equipo ya no existe. Quizá se canceló.",
+      "error_not_invited": "Esta invitación era para otra persona.",
+      "error_declined": "Ya dijiste no, gracias a esta.",
+      "error_team_full": "Ese equipo ya está completo."
     },
     "iconGroups": {
       "kitchen": "Cocina",

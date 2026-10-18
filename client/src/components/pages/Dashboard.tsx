@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import HealthBar from '../shared/HealthBar';
 import { LevelStrip } from '../shared/LevelStrip';
 import { TodoQuickAdd } from '../shared/TodoQuickAdd';
@@ -25,6 +25,9 @@ import { formatCoins } from '../../utils/format';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { api } from '../../hooks/useApi';
 import { TakeBackButton } from '../shared/TakeBackButton';
+import { UndoToast, type UndoState } from '../shared/UndoToast';
+import { BoostDetails } from '../shared/BoostDetails';
+import type { ListRoom } from './TaskList';
 
 /* ── Types ── */
 
@@ -191,6 +194,8 @@ interface DashboardProps {
   language?: string;
   onCompleteTask: (taskId: number, proof?: Proof) => void;
   onRefresh?: () => void;
+  /** Every room with its chores (the dashboard's own rooms are summaries), for a double coins event's chore list */
+  allRooms?: ListRoom[];
   onNavigateToRoom: (roomId: number) => void;
   /** Open a task in its room, scrolled to and highlighted */
   onOpenTask?: (roomId: number, taskId: number) => void;
@@ -213,6 +218,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   language,
   onCompleteTask,
   onRefresh,
+  allRooms = [],
   onNavigateToRoom,
   onOpenTask,
   coinsByEffort,
@@ -237,10 +243,14 @@ const Dashboard: React.FC<DashboardProps> = ({
   const boosts = gamificationEnabled ? (data.coinBoosts ?? []) : [];
   // Today's Rescue Mission pays extra too (the bigger multiplier wins, like on the server)
   const mission = gamificationEnabled ? data.rescueMission ?? null : null;
-  const missionBonus = (q: Quest) => (mission && mission.taskId === q.id && !mission.completedBy ? mission.multiplier : 1);
+  const missionBonus = (taskId: number) => (mission && mission.taskId === taskId && !mission.completedBy ? mission.multiplier : 1);
   // A boost counts for a chore when nothing was picked, or its room or the chore itself was (as on the server)
-  const covers = (b: CoinBoost, q: Quest) => (!b.roomIds && !b.taskIds) || !!b.roomIds?.includes(q.roomId) || !!b.taskIds?.includes(q.id);
-  const boostFor = (q: Quest) => boosts.reduce((m, b) => (covers(b, q) ? Math.max(m, b.multiplier) : m), missionBonus(q));
+  const covers = (b: CoinBoost, taskId: number, roomId: number) => (!b.roomIds && !b.taskIds) || !!b.roomIds?.includes(roomId) || !!b.taskIds?.includes(taskId);
+  const multiplierFor = (taskId: number, roomId: number) => boosts.reduce((m, b) => (covers(b, taskId, roomId) ? Math.max(m, b.multiplier) : m), missionBonus(taskId));
+  const boostFor = (q: Quest) => multiplierFor(q.id, q.roomId);
+  // The event whose chore list is open (tap the banner)
+  const [openBoostId, setOpenBoostId] = useState<number | null>(null);
+  const openBoost = boosts.find((b) => b.id === openBoostId) ?? null;
   // "Kitchen, Clean Shower & Tub, Rake +2 more"
   const boostTargets = (b: CoinBoost) => {
     const names = [...(b.roomIds ?? []).map((id) => rooms.find((r) => r.id === id)?.name ?? '').filter(Boolean), ...(b.taskNames ?? [])];
@@ -421,8 +431,12 @@ const Dashboard: React.FC<DashboardProps> = ({
     if (q.pinned) await api.unpinTask(q.id); else await api.pinTask(q.id);
     onRefresh?.();
   };
+  // 💤 hides the chore for you for 3 days; the toast lets you take it back
+  const [snoozeUndo, setSnoozeUndo] = useState<UndoState | null>(null);
+  const closeSnoozeUndo = useCallback(() => setSnoozeUndo(null), []);
   const snooze = async (q: Quest) => {
     await api.snoozeTask(q.id, 3);
+    setSnoozeUndo({ message: t('home.snoozed').replace('{name}', taskName(q.name, q.translationKey)), onUndo: () => api.unsnoozeTask(q.id) });
     onRefresh?.();
   };
   const toggleCard = (id: string) => setHiddenCards(prev => {
@@ -558,7 +572,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         {boosts.length > 0 && (
           <div className="tq-card tq-card-padded boost-banner" style={{ gridColumn: '1 / -1', background: 'linear-gradient(135deg, var(--warm-accent-light), var(--warm-card))', borderColor: 'var(--warm-accent)' }}>
             {boosts.map((b) => (
-              <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button key={b.id} type="button" className="boost-banner-row" onClick={() => setOpenBoostId(b.id)} aria-haspopup="dialog"
+                style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'Nunito', color: 'inherit' }}>
                 <span style={{ fontSize: 26, fontWeight: 900, color: 'var(--warm-accent)' }}>⚡ {b.multiplier}×</span>
                 <span style={{ flex: '1 1 180px', minWidth: 0 }}>
                   <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--warm-text)' }}>{b.title}</span>
@@ -567,7 +582,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                     {` · ${boostTargets(b)}`}
                   </span>
                 </span>
-              </div>
+                <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-accent)', whiteSpace: 'nowrap' }}>{t('boosts.seeChores')} ›</span>
+              </button>
             ))}
           </div>
         )}
@@ -1403,6 +1419,12 @@ const Dashboard: React.FC<DashboardProps> = ({
         onClose={() => setAdminModalQuest(null)}
       />
     )}
+    {openBoost && (
+      <BoostDetails boost={openBoost} rooms={allRooms} userId={currentUser.id} role={currentUser.role} coinsByEffort={coinsByEffort}
+        multiplierFor={multiplierFor} language={language} onClose={() => setOpenBoostId(null)}
+        onOpenTask={(roomId, taskId) => (onOpenTask ? onOpenTask(roomId, taskId) : onNavigateToRoom(roomId))} onOpenRoom={onNavigateToRoom} />
+    )}
+    <UndoToast undo={snoozeUndo} language={language} onClose={closeSnoozeUndo} onRestored={() => onRefresh?.()} />
   </>
   );
 };

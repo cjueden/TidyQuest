@@ -31,6 +31,8 @@ interface Redemption {
   costCoins: number;
   redeemedAt: string;
   status: string;
+  /** Paid for together (chip-in pot): only a parent can turn it down, so there's no Cancel */
+  isShared?: number | boolean;
 }
 
 interface PendingRequest {
@@ -102,6 +104,8 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
   const [pendingRewardId, setPendingRewardId] = useState<number | null>(null);
   const [spendFx, setSpendFx] = useState<{ amount: number; key: number } | null>(null);
   const [refundFx, setRefundFx] = useState<{ amount: number; key: number } | null>(null);
+  // The request whose Cancel just failed (e.g. a parent approved it meanwhile, or the phone is offline)
+  const [cancelFailed, setCancelFailed] = useState<number | null>(null);
   const previousStatuses = useRef<Record<number, string>>({});
   const [searchParams] = useSearchParams();
   // Search opens this page with ?q=<reward title> to show that reward
@@ -336,14 +340,17 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--warm-text)' }}>{rewardTitleByName(m.title)}</div>
                   <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700 }}>{new Date(m.redeemedAt).toLocaleString()}</div>
+                  {cancelFailed === m.id && <div role="alert" style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-danger)' }}>{t('common.actionFailed')}</div>}
                 </div>
                 <div className="rewards-my-row-meta" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>- {m.costCoins} <CoinIcon /></div>
                   <span style={{ ...statusStyle(m.status), fontSize: 10, fontWeight: 800, borderRadius: 999, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: 0.4 }}>
                     {statusLabel(m.status)}
                   </span>
-                  {m.status === 'requested' && (
-                    <button className="tq-btn tq-btn-secondary" onClick={() => onCancel(m.id)} style={{ padding: '4px 8px', fontSize: 10 }}>
+                  {m.status === 'requested' && m.isShared ? (
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('rewards.sharedParentDecides')}</span>
+                  ) : m.status === 'requested' && (
+                    <button className="tq-btn tq-btn-secondary" onClick={() => { setCancelFailed(null); onCancel(m.id).catch(() => setCancelFailed(m.id)); }} style={{ padding: '4px 8px', fontSize: 10 }}>
                       {t('rewards.cancelRequest')}
                     </button>
                   )}

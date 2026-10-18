@@ -207,6 +207,10 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const [undo, setUndo] = useState<UndoState | null>(null);
   const [showDuplicate, setShowDuplicate] = useState(false);
   const closeUndo = useCallback(() => setUndo(null), []);
+  // Delete, undo, pin, copy and move: a failure (such as a phone that's offline) shows a toast instead of nothing
+  const attempt = async (fn: () => Promise<void>) => {
+    try { await fn(); } catch { setUndo({ message: t('common.actionFailed') }); onRefresh?.(); }
+  };
 
   // Opened from search or the task list: bring that task into view and flash it once
   useEffect(() => {
@@ -415,28 +419,36 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     const task = room.tasks.find((x) => x.id === taskId);
     const name = task ? translateTask(task.name, task.translationKey) : '';
     if (!window.confirm(t('roomDetail.deleteTaskConfirmTrash').replace('{name}', name).replace('{n}', '30'))) return;
-    const { trashId } = await api.deleteTask(taskId);
-    setEditingTask(null);
-    onRefresh?.();
-    if (trashId) setUndo({ trashIds: [trashId], message: t('trash.deleted').replace('{name}', name) });
+    await attempt(async () => {
+      const { trashId } = await api.deleteTask(taskId);
+      setEditingTask(null);
+      onRefresh?.();
+      if (trashId) setUndo({ trashIds: [trashId], message: t('trash.deleted').replace('{name}', name) });
+    });
   };
 
   const togglePin = async (task: Task) => {
-    if (task.pinned) await api.unpinTask(task.id); else await api.pinTask(task.id);
-    onRefresh?.();
+    await attempt(async () => {
+      if (task.pinned) await api.unpinTask(task.id); else await api.pinTask(task.id);
+      onRefresh?.();
+    });
   };
 
   const handleDuplicateTask = async (taskId: number) => {
     setTaskMenuOpen(null);
-    await api.duplicateTask(taskId);
-    onRefresh?.();
+    await attempt(async () => {
+      await api.duplicateTask(taskId);
+      onRefresh?.();
+    });
   };
 
   const handleMoveTask = async (taskId: number, targetRoomId: number) => {
     setMoveMenuTaskId(null);
     setTaskMenuOpen(null);
-    await api.updateTask(taskId, { roomId: targetRoomId });
-    onRefresh?.();
+    await attempt(async () => {
+      await api.updateTask(taskId, { roomId: targetRoomId });
+      onRefresh?.();
+    });
   };
 
   const handleTaskMenuOpen = async (taskId: number) => {
@@ -957,8 +969,10 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                         const ask = t('roomDetail.undoDoneConfirm').replace('{task}', translateTask(task.name, task.translationKey))
                           .replace('{name}', by.displayName).replace('{coins}', String(by.coinsEarned ?? 0));
                         if (!window.confirm(ask)) return;
-                        await api.cancelCompletion(by.completionId);
-                        onRefresh?.();
+                        await attempt(async () => {
+                          await api.cancelCompletion(by.completionId);
+                          onRefresh?.();
+                        });
                       }}
                       title={t('roomDetail.undoDoneTitle')}
                       className="tq-btn-sm"

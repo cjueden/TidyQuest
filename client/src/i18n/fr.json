@@ -393,7 +393,8 @@
       "sortPriceLow": "Prix croissant",
       "sortPriceHigh": "Prix décroissant",
       "sortName": "Nom A–Z",
-      "noMatches": "Aucune récompense ne correspond."
+      "noMatches": "Aucune récompense ne correspond.",
+      "sharedParentDecides": "Partagée : un parent décide"
     },
     "rewardsPreset": {
       "movie_night": {
@@ -618,7 +619,8 @@
       "showMore": "Afficher {n} de plus",
       "showLess": "Afficher moins",
       "error": "Une erreur s'est produite",
-      "close": "Fermer"
+      "close": "Fermer",
+      "actionFailed": "Ça n'a pas marché. Vérifie ta connexion et réessaie."
     },
     "units": {
       "hours": "heures",
@@ -972,7 +974,13 @@
       "left": "Encore {time}",
       "chores": "Tâches :",
       "findChore": "Ajouter une tâche…",
-      "andMore": "+{n} de plus"
+      "andMore": "+{n} de plus",
+      "seeChores": "Voir les tâches",
+      "readyNow": "Prête maintenant",
+      "everythingCounts": "Toutes les tâches comptent. Choisis une pièce :",
+      "theseCount": "Tâches que tu peux faire : {n}",
+      "noneForYou": "Aucune de ces tâches n'est pour toi.",
+      "roomCounts": "{ready} sur {n} prêtes maintenant"
     },
     "goals": {
       "repeatWeekly": "Chaque semaine",
@@ -1340,7 +1348,8 @@
       "overdueDays": "{n} jours de retard",
       "overdueDay": "1 jour de retard",
       "snooze": "Reporter de 3 jours",
-      "seeAllRequests": "Tout voir ({n})"
+      "seeAllRequests": "Tout voir ({n})",
+      "snoozed": "« {name} » mis en pause pour 3 jours"
     },
     "rescue": {
       "title": "Mission sauvetage",
@@ -1538,14 +1547,18 @@
       "team": "Équipe : {names}",
       "share": "{n} pièces chacun",
       "helper": "assistant",
-      "cancel": "Annuler",
+      "cancel": "Annuler l'équipe",
       "leave": "Quitter",
       "done": "Fini ensemble",
       "error_not_teamable": "Cette tâche ne peut pas se faire en équipe.",
       "error_already_teamed": "Quelqu'un a déjà lancé une équipe sur cette tâche aujourd'hui.",
       "error_invalid_partner": "Cette personne ne peut pas faire cette tâche.",
       "error_not_assigned": "Cette tâche n'est pas pour toi.",
-      "decline": "Non merci"
+      "decline": "Non merci",
+      "error_not_found": "Cette équipe n'existe plus. Elle a peut-être été annulée.",
+      "error_not_invited": "Cette invitation était pour quelqu'un d'autre.",
+      "error_declined": "Tu as déjà dit non merci à celle-ci.",
+      "error_team_full": "Cette équipe est déjà complète."
     },
     "iconGroups": {
       "kitchen": "Cuisine",
