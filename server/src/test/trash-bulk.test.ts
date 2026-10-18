@@ -30,7 +30,12 @@ describe('Trash', () => {
     const balance = coins(kid.user.id);
 
     const del = await agent.delete(`/api/tasks/${task}`).set(auth(admin.token)).expect(200);
-    expect(db.prepare('SELECT 1 FROM tasks WHERE id = ?').get(task)).toBeUndefined();
+    // The row stays (hidden) so Activity keeps the completion under the chore's name
+    expect(db.prepare('SELECT deletedAt IS NOT NULL AS gone FROM tasks WHERE id = ?').get(task)).toEqual({ gone: 1 });
+    expect((await agent.get(`/api/rooms/${room}/tasks`).set(auth(admin.token))).body.map((t: any) => t.id)).not.toContain(task);
+    await agent.post(`/api/tasks/${task}/complete`).set(auth(kid.token)).expect(404);
+    const history = (await agent.get('/api/history').set(auth(admin.token))).body.history;
+    expect(history.find((h: any) => h.type === 'completion')).toMatchObject({ taskName: 'Dishes', roomName: 'Kitchen' });
     expect(coins(kid.user.id)).toBe(balance);
     const trash = (await agent.get('/api/trash').set(auth(admin.token))).body;
     expect(trash.items[0]).toMatchObject({ id: del.body.trashId, kind: 'task', title: 'Dishes', roomName: 'Kitchen', roomExists: true, historyCount: 1 });
@@ -57,6 +62,43 @@ describe('Trash', () => {
     expect([blocked.status, blocked.body.error, blocked.body.roomName]).toEqual([409, 'room_missing', 'Attic']);
     const ok = await agent.post(`/api/trash/${trashId}/restore`).set(auth(admin.token)).send({ roomId: other });
     expect(ok.body).toMatchObject({ kind: 'task', roomId: other });
+  });
+
+  it('deleting a room hides it and its chores but keeps their history', async () => {
+    const { admin, kid, mkRoom, mkTask } = await family();
+    const room = await mkRoom('Kitchen');
+    const task = await mkTask(room, { name: 'Wipe counters', assignedUserIds: [kid.user.id] });
+    await agent.post(`/api/tasks/${task}/complete`).set(auth(kid.token)).expect(200);
+    const balance = coins(kid.user.id);
+
+    await agent.delete(`/api/rooms/${room}`).set(auth(admin.token)).expect(200);
+    expect((await agent.get('/api/rooms').set(auth(admin.token))).body.map((r: any) => r.id)).not.toContain(room);
+    await agent.delete(`/api/rooms/${room}`).set(auth(admin.token)).expect(404);
+    await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name: 'x', effort: 1, frequencyDays: 1 }).expect(404);
+    await agent.post(`/api/tasks/${task}/complete`).set(auth(kid.token)).expect(404);
+    const history = (await agent.get('/api/history').set(auth(admin.token))).body.history;
+    expect(history.find((h: any) => h.type === 'completion')).toMatchObject({ taskName: 'Wipe counters', roomName: 'Kitchen' });
+    expect(coins(kid.user.id)).toBe(balance);
+  });
+
+  it('delete forever only takes it off the list; older trash entries still restore from their copy', async () => {
+    const { admin, kid, mkRoom, mkTask } = await family();
+    const room = await mkRoom('Hall');
+    const task = await mkTask(room, { name: 'Sweep', assignedUserIds: [kid.user.id] });
+    await agent.post(`/api/tasks/${task}/complete`).set(auth(kid.token)).expect(200);
+    const trashId = (await agent.delete(`/api/tasks/${task}`).set(auth(admin.token))).body.trashId;
+    await agent.delete(`/api/trash/${trashId}`).set(auth(admin.token)).expect(200);
+    expect(db.prepare('SELECT COUNT(*) AS n FROM task_completions WHERE taskId = ?').get(task)).toEqual({ n: 1 });
+
+    // An entry from before soft-delete: the row is gone and the snapshot has no soft flag
+    const old = await mkTask(room, { name: 'Dust' });
+    const oldTrash = (await agent.delete(`/api/tasks/${old}`).set(auth(admin.token))).body.trashId;
+    const snap = JSON.parse((db.prepare('SELECT snapshot FROM trash WHERE id = ?').get(oldTrash) as { snapshot: string }).snapshot);
+    delete snap.soft;
+    db.prepare('UPDATE trash SET snapshot = ? WHERE id = ?').run(JSON.stringify(snap), oldTrash);
+    db.prepare('DELETE FROM tasks WHERE id = ?').run(old);
+    const restored = (await agent.post(`/api/trash/${oldTrash}/restore`).set(auth(admin.token)).expect(200)).body;
+    expect(db.prepare('SELECT name, deletedAt FROM tasks WHERE id = ?').get(restored.id)).toEqual({ name: 'Dust', deletedAt: null });
   });
 
   it('keeps a reward with its rules and redemptions, and refunds an open shared pot', async () => {

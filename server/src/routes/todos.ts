@@ -14,7 +14,7 @@ router.use(authMiddleware);
 
 function todoRoomId(language: string): number {
   const saved = Number((db.prepare("SELECT value FROM app_settings WHERE key = 'todoRoomId'").get() as { value: string } | undefined)?.value);
-  if (saved && db.prepare('SELECT 1 FROM rooms WHERE id = ?').get(saved)) return saved;
+  if (saved && db.prepare('SELECT 1 FROM rooms WHERE id = ? AND deletedAt IS NULL').get(saved)) return saved;
   const id = Number(db.prepare("INSERT INTO rooms (name, roomType, color, accentColor) VALUES (?, 'other', '#E0F2FE', '#0284C7')")
     .run(tr(language, 'todos.roomName')).lastInsertRowid);
   db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('todoRoomId', ?)").run(String(id));

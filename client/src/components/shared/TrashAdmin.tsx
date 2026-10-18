@@ -37,7 +37,7 @@ export function TrashAdmin({ rooms, language, reloadKey, onRestored }: {
     }
   };
   const forget = async (item: TrashItem) => {
-    if (!window.confirm(t('trash.deleteForeverConfirm').replace('{name}', item.title))) return;
+    if (!window.confirm(t(item.kind === 'task' ? 'trash.removeTaskConfirm' : 'trash.deleteForeverConfirm').replace('{name}', item.title))) return;
     await api.deleteTrash(item.id);
     await load();
   };

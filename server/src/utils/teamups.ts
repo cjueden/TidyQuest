@@ -71,7 +71,7 @@ const nameOf = (userId: number) => (db.prepare('SELECT displayName FROM users WH
 
 /** Start a team-up on a chore: invite one person, or anyone who can do it. Returns an error code or the team-up. */
 export function startTeamup(taskId: number, userId: number, partnerId: number | null, now = new Date()): { error: string } | { teamup: Teamup } {
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND archivedAt IS NULL').get(taskId) as any;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND archivedAt IS NULL AND deletedAt IS NULL').get(taskId) as any;
   if (!task) return { error: 'not_found' };
   const team = teamableTask(task);
   if (!team.ok) return { error: 'not_teamable' };

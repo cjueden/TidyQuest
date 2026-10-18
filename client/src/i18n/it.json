@@ -466,9 +466,7 @@
       "actions": "Azioni",
       "assigned": "Assegnato",
       "coins": "Monete",
-      "reset": "Annulla completamento",
       "deleteTask": "Elimina attività",
-      "deleteTaskConfirm": "Eliminare questa attività? Questa azione è irreversibile.",
       "done": "Fatto",
       "assignToChildren": "Assegna al gruppo bambini",
       "seasonal": "Stagionale",
@@ -500,7 +498,12 @@
       "duplicateTask": "Duplica compito",
       "moveToRoom": "Sposta in stanza",
       "taskDuplicated": "Compito duplicato",
-      "taskMoved": "Compito spostato"
+      "taskMoved": "Compito spostato",
+      "deleteTaskConfirmTrash": "Eliminare «{name}»? Resta {n} giorni in Eliminati di recente.",
+      "undoDone": "Annulla",
+      "undoDoneTitle": "Annulla questo completamento (toglie le sue monete)",
+      "undoDoneConfirm": "Annullare «{task}» di {name}? Le {coins} monete vengono tolte.",
+      "moreOptions": "Altre opzioni"
     },
     "avatars": {
       "cat": "Gatto",
@@ -559,7 +562,6 @@
       "healthHealthy": "Buono",
       "healthNeedsAttention": "Serve attenzione",
       "healthCritical": "Critico",
-      "deleteRoomConfirm": "Eliminare \"{room}\" e tutte le sue attività? Questa azione è irreversibile.",
       "assignedTo": "Assegnato a {name}",
       "assignRoom": "Assegna stanza",
       "assignTask": "Assegna compito",
@@ -599,7 +601,10 @@
       "removeFromZone": "Rimuovi dalla zona",
       "deleteZone": "Elimina zona",
       "zoneDeleted": "Zona eliminata",
-      "zoneCreated": "Zona creata"
+      "zoneCreated": "Zona creata",
+      "deleteRoomConfirmEmpty": "Eliminare «{room}»? Non si può annullare.",
+      "deleteRoomConfirmOne": "Eliminare «{room}» e la sua attività? Non si può annullare. Le monete guadagnate e la cronologia restano.",
+      "deleteRoomConfirmMany": "Eliminare «{room}» e le sue {n} attività? Non si può annullare. Le monete guadagnate e la cronologia restano."
     },
     "common": {
       "save": "Salva",
@@ -1027,7 +1032,8 @@
       "restoreIntoRoom": "In {room}",
       "restore": "Ripristina",
       "deleteForever": "Elimina per sempre",
-      "deleteForeverConfirm": "Eliminare «{name}» per sempre? Non si può annullare."
+      "deleteForeverConfirm": "Eliminare «{name}» per sempre? Non si può annullare.",
+      "removeTaskConfirm": "Togliere «{name}» da questa lista per sempre? Non potrà più essere ripristinata, ma la sua cronologia resta."
     },
     "bulk": {
       "select": "Seleziona",
@@ -1333,7 +1339,8 @@
       "forgotTitle": "Forse hai dimenticato queste",
       "overdueDays": "{n} giorni di ritardo",
       "overdueDay": "1 giorno di ritardo",
-      "snooze": "Posticipa di 3 giorni"
+      "snooze": "Posticipa di 3 giorni",
+      "seeAllRequests": "Vedi tutto ({n})"
     },
     "rescue": {
       "title": "Missione di salvataggio",

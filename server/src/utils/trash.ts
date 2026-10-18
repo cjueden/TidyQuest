@@ -1,9 +1,10 @@
 import db from '../database';
 
 /**
- * Trash for deleted tasks and rewards. Deleting copies the row and everything hanging off it into a
- * JSON snapshot, so a restore brings back the same history. Coins are never touched: deleting doesn't
- * change anyone's balance, and restoring puts the completions back exactly as they were.
+ * Trash for deleted tasks and rewards. A deleted task keeps its row (deletedAt set), so its history
+ * stays in Activity, the Board and goals; the trash entry is what lets it be restored, and expiring it
+ * only takes it off the list. Rewards are copied with everything hanging off them into a JSON snapshot
+ * and then deleted. Coins are never touched: deleting doesn't change anyone's balance.
  */
 
 export const TRASH_DAYS = 30;
@@ -17,12 +18,13 @@ export function purgeOldTrash() {
   db.prepare(`DELETE FROM trash WHERE deletedAt < datetime('now', ?)`).run(`-${TRASH_DAYS} days`);
 }
 
-/** Copy a task (with its assignees and completion history) into the trash, then delete it. */
+/** Hide a task (keeping its row and history) and list it in the trash. Open team-ups on it are cancelled. */
 export function trashTask(taskId: number, deletedBy: number | undefined): number | null {
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId) as any;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND deletedAt IS NULL').get(taskId) as any;
   if (!task) return null;
   const room = db.prepare('SELECT name FROM rooms WHERE id = ?').get(task.roomId) as { name: string } | undefined;
   const snapshot = {
+    soft: true,
     task,
     assignees: db.prepare('SELECT * FROM task_assignees WHERE taskId = ?').all(taskId),
     completions: db.prepare('SELECT * FROM task_completions WHERE taskId = ?').all(taskId),
@@ -32,9 +34,19 @@ export function trashTask(taskId: number, deletedBy: number | undefined): number
     const id = Number(db.prepare(
       'INSERT INTO trash (kind, itemId, title, roomId, roomName, snapshot, deletedBy) VALUES (?, ?, ?, ?, ?, ?, ?)'
     ).run('task', taskId, task.name, task.roomId, room?.name ?? null, JSON.stringify(snapshot), deletedBy ?? null).lastInsertRowid);
-    db.prepare('DELETE FROM tasks WHERE id = ?').run(taskId);
+    softDeleteTasks('id = ?', taskId);
     return id;
   })();
+}
+
+/** Mark tasks deleted (keeping their rows and history) and cancel their open team-ups. */
+export function softDeleteTasks(where: string, ...params: unknown[]) {
+  const ids = (db.prepare(`SELECT id FROM tasks WHERE deletedAt IS NULL AND ${where}`).all(...params) as { id: number }[]).map((t) => t.id);
+  for (const id of ids) {
+    db.prepare("UPDATE tasks SET deletedAt = datetime('now') WHERE id = ?").run(id);
+    db.prepare("UPDATE teamups SET status = 'cancelled' WHERE taskId = ? AND status = 'open'").run(id);
+  }
+  return ids.length;
 }
 
 /**
@@ -104,17 +116,25 @@ export function restoreFromTrash(trashId: number, options: { roomId?: number } =
     let restored: { kind: TrashKind; id: number; roomId?: number };
     if (item.kind === 'task') {
       const roomId = options.roomId ?? snapshot.task.roomId;
-      if (!db.prepare('SELECT 1 FROM rooms WHERE id = ?').get(roomId)) {
+      if (!db.prepare('SELECT 1 FROM rooms WHERE id = ? AND deletedAt IS NULL').get(roomId)) {
         if (options.roomId != null) throw new TrashError(404, 'room_not_found', 'That room does not exist');
         throw new TrashError(409, 'room_missing', `The room "${item.roomName ?? '?'}" no longer exists. Choose another room to restore this task into.`, { roomName: item.roomName });
       }
-      const taskId = insertSnapshotRow('tasks', { ...snapshot.task, roomId });
-      for (const a of snapshot.assignees || []) {
-        if (userExists(a.userId)) insertSnapshotRow('task_assignees', { ...a, taskId });
-      }
-      // History comes back as it was; balances were never changed by deleting, so nothing is paid again
-      for (const c of snapshot.completions || []) {
-        if (userExists(c.userId)) insertSnapshotRow('task_completions', { ...c, taskId });
+      let taskId: number;
+      if (snapshot.soft && db.prepare('SELECT 1 FROM tasks WHERE id = ? AND deletedAt IS NOT NULL').get(item.itemId)) {
+        // Kept row (deleted since soft-delete): its assignees and history never left
+        db.prepare('UPDATE tasks SET deletedAt = NULL, roomId = ? WHERE id = ?').run(roomId, item.itemId);
+        taskId = item.itemId;
+      } else {
+        // Older trash entries deleted the row: rebuild it from the snapshot
+        taskId = insertSnapshotRow('tasks', { ...snapshot.task, roomId, deletedAt: null });
+        for (const a of snapshot.assignees || []) {
+          if (userExists(a.userId)) insertSnapshotRow('task_assignees', { ...a, taskId });
+        }
+        // History comes back as it was; balances were never changed by deleting, so nothing is paid again
+        for (const c of snapshot.completions || []) {
+          if (userExists(c.userId)) insertSnapshotRow('task_completions', { ...c, taskId });
+        }
       }
       restored = { kind: 'task', id: taskId, roomId };
     } else if (item.kind === 'reward') {

@@ -28,7 +28,7 @@ function behind(t: any, now: Date): number {
 
 /** Chores that could be today's mission, most forgotten first. */
 export function rescueCandidates(now: Date = new Date(), exclude: Set<number> = new Set()): Array<{ id: number; name: string; behind: number }> {
-  return (db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND onDemand = 0').all() as any[])
+  return (db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND onDemand = 0').all() as any[])
     .filter((t) => !exclude.has(t.id) && !isSeasonalNow(t, now))
     .map((t) => ({ id: t.id as number, name: t.name as string, behind: behind(t, now) }))
     .filter((c) => c.behind >= 1)

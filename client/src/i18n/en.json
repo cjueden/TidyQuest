@@ -466,9 +466,7 @@
       "actions": "Actions",
       "assigned": "Assigned",
       "coins": "Coins",
-      "reset": "Undo completion",
       "deleteTask": "Delete Task",
-      "deleteTaskConfirm": "Delete this task? This cannot be undone.",
       "done": "Done",
       "assignToChildren": "Assign to Children group",
       "seasonal": "Seasonal",
@@ -500,7 +498,12 @@
       "duplicateTask": "Duplicate task",
       "moveToRoom": "Move to room",
       "taskDuplicated": "Task duplicated",
-      "taskMoved": "Task moved"
+      "taskMoved": "Task moved",
+      "deleteTaskConfirmTrash": "Delete “{name}”? It goes to Recently deleted for {n} days.",
+      "undoDone": "Undo",
+      "undoDoneTitle": "Undo this completion (takes its coins back)",
+      "undoDoneConfirm": "Undo “{task}” for {name}? The {coins} coins come back off.",
+      "moreOptions": "More options"
     },
     "avatars": {
       "cat": "Cat",
@@ -559,7 +562,6 @@
       "healthHealthy": "Healthy",
       "healthNeedsAttention": "Needs attention",
       "healthCritical": "Critical",
-      "deleteRoomConfirm": "Delete \"{room}\" and all its tasks? This cannot be undone.",
       "assignedTo": "Assigned to {name}",
       "assignRoom": "Assign room",
       "assignTask": "Assign task",
@@ -599,7 +601,10 @@
       "removeFromZone": "Remove from zone",
       "deleteZone": "Delete zone",
       "zoneDeleted": "Zone deleted",
-      "zoneCreated": "Zone created"
+      "zoneCreated": "Zone created",
+      "deleteRoomConfirmEmpty": "Delete “{room}”? This can't be undone.",
+      "deleteRoomConfirmOne": "Delete “{room}” and its 1 chore? This can't be undone. Coins already earned and the history stay.",
+      "deleteRoomConfirmMany": "Delete “{room}” and its {n} chores? This can't be undone. Coins already earned and the history stay."
     },
     "common": {
       "save": "Save",
@@ -1027,7 +1032,8 @@
       "restoreIntoRoom": "Into {room}",
       "restore": "Restore",
       "deleteForever": "Delete forever",
-      "deleteForeverConfirm": "Delete “{name}” for good? This can't be undone."
+      "deleteForeverConfirm": "Delete “{name}” for good? This can't be undone.",
+      "removeTaskConfirm": "Take “{name}” off this list for good? It can't be restored after that, but its history stays."
     },
     "bulk": {
       "select": "Select",
@@ -1333,7 +1339,8 @@
       "forgotTitle": "Maybe you forgot about these",
       "overdueDays": "{n} days overdue",
       "overdueDay": "1 day overdue",
-      "snooze": "Snooze for 3 days"
+      "snooze": "Snooze for 3 days",
+      "seeAllRequests": "See all ({n})"
     },
     "rescue": {
       "title": "Rescue Mission",

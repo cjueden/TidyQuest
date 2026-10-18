@@ -466,9 +466,7 @@
       "actions": "Acciones",
       "assigned": "Asignado",
       "coins": "Monedas",
-      "reset": "Deshacer compleción",
       "deleteTask": "Eliminar tarea",
-      "deleteTaskConfirm": "¿Eliminar esta tarea? Esta acción no se puede deshacer.",
       "done": "Hecho",
       "assignToChildren": "Asignar al grupo de niños",
       "seasonal": "Estacional",
@@ -500,7 +498,12 @@
       "duplicateTask": "Duplicar tarea",
       "moveToRoom": "Mover a sala",
       "taskDuplicated": "Tarea duplicada",
-      "taskMoved": "Tarea movida"
+      "taskMoved": "Tarea movida",
+      "deleteTaskConfirmTrash": "¿Eliminar «{name}»? Se queda {n} días en Eliminados recientemente.",
+      "undoDone": "Deshacer",
+      "undoDoneTitle": "Deshacer esta tarea hecha (quita sus monedas)",
+      "undoDoneConfirm": "¿Deshacer «{task}» de {name}? Se le quitan las {coins} monedas.",
+      "moreOptions": "Más opciones"
     },
     "avatars": {
       "cat": "Gato",
@@ -559,7 +562,6 @@
       "healthHealthy": "Saludable",
       "healthNeedsAttention": "Necesita atención",
       "healthCritical": "Crítico",
-      "deleteRoomConfirm": "¿Eliminar \"{room}\" y todas sus tareas? Esta acción no se puede deshacer.",
       "assignedTo": "Asignado a {name}",
       "assignRoom": "Asignar habitación",
       "assignTask": "Asignar tarea",
@@ -599,7 +601,10 @@
       "removeFromZone": "Quitar de zona",
       "deleteZone": "Eliminar zona",
       "zoneDeleted": "Zona eliminada",
-      "zoneCreated": "Zona creada"
+      "zoneCreated": "Zona creada",
+      "deleteRoomConfirmEmpty": "¿Eliminar «{room}»? No se puede deshacer.",
+      "deleteRoomConfirmOne": "¿Eliminar «{room}» y su tarea? No se puede deshacer. Las monedas ganadas y el historial se quedan.",
+      "deleteRoomConfirmMany": "¿Eliminar «{room}» y sus {n} tareas? No se puede deshacer. Las monedas ganadas y el historial se quedan."
     },
     "common": {
       "save": "Guardar",
@@ -1027,7 +1032,8 @@
       "restoreIntoRoom": "En {room}",
       "restore": "Restaurar",
       "deleteForever": "Eliminar para siempre",
-      "deleteForeverConfirm": "¿Eliminar «{name}» para siempre? No se puede deshacer."
+      "deleteForeverConfirm": "¿Eliminar «{name}» para siempre? No se puede deshacer.",
+      "removeTaskConfirm": "¿Quitar «{name}» de esta lista para siempre? Ya no se podrá restaurar, pero su historial se queda."
     },
     "bulk": {
       "select": "Seleccionar",
@@ -1333,7 +1339,8 @@
       "forgotTitle": "Quizá olvidaste estas",
       "overdueDays": "{n} días de retraso",
       "overdueDay": "1 día de retraso",
-      "snooze": "Posponer 3 días"
+      "snooze": "Posponer 3 días",
+      "seeAllRequests": "Ver todo ({n})"
     },
     "rescue": {
       "title": "Misión de rescate",

@@ -10,7 +10,7 @@ router.use(authMiddleware);
 router.get('/', (_req: AuthRequest, res: Response) => {
   const zones = db.prepare('SELECT * FROM zones ORDER BY sortOrder, id').all() as any[];
   const roomCounts = db.prepare(
-    'SELECT zoneId, COUNT(*) as count FROM rooms WHERE zoneId IS NOT NULL GROUP BY zoneId'
+    'SELECT zoneId, COUNT(*) as count FROM rooms WHERE zoneId IS NOT NULL AND deletedAt IS NULL GROUP BY zoneId'
   ).all() as any[];
   const countMap = new Map(roomCounts.map((r: any) => [r.zoneId, r.count]));
   res.json(zones.map(z => ({ ...z, roomCount: countMap.get(z.id) || 0 })));

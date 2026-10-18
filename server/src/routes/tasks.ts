@@ -43,7 +43,7 @@ router.use(authMiddleware);
 
 function hadDueTaskOnDate(dateIsoDay: string): boolean {
   const endOfDay = new Date(`${dateIsoDay}T23:59:59.999Z`).getTime();
-  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks WHERE archivedAt IS NULL AND oneTime = 0').all() as Array<{
+  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND oneTime = 0').all() as Array<{
     id: number; frequencyDays: number; isSeasonal: number; lastCompletedAt: string | null;
     seasonStartMonth: number | null; seasonEndMonth: number | null; scheduleWeekdays: number | null;
   }>;
@@ -263,8 +263,8 @@ router.get('/tasks/icon-suggestion', (req: AuthRequest, res: Response) => {
 
 router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   const vacation = getGlobalVacation();
-  const room = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(req.params.roomId) as any;
-  const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL').all(req.params.roomId) as any[];
+  const room = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ? AND deletedAt IS NULL').get(req.params.roomId) as any;
+  const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL AND deletedAt IS NULL').all(req.params.roomId) as any[];
   const myPins = new Set(pinnedTaskIds(req.userId!));
   const now = new Date().toISOString();
 
@@ -354,7 +354,7 @@ export function createTask(roomId: number | string, body: any): TaskWriteResult 
   const { name, notes, frequencyDays, effort, isSeasonal, health, iconKey, assignedToChildren, assignedUserIds, assignmentMode, assignedUserPercentages, onDemand, showInDashboard, customCoins, allowEarlyCompletion } = body;
   if (!name) return { status: 400, body: { error: 'name is required' } };
 
-  const room = db.prepare('SELECT id FROM rooms WHERE id = ?').get(roomId);
+  const room = db.prepare('SELECT id FROM rooms WHERE id = ? AND deletedAt IS NULL').get(roomId);
   if (!room) return { status: 404, body: { error: 'Room not found' } };
   const schedule = readScheduleInput(body);
   if ('error' in schedule) return { status: 400, body: { error: schedule.error } };
@@ -416,7 +416,7 @@ export function createTask(roomId: number | string, body: any): TaskWriteResult 
   }
 
   // If the room has a room-level assignedUserId, auto-assign this new task to that user
-  const roomData = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ?').get(roomId) as { assignedUserId: number | null } | undefined;
+  const roomData = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ? AND deletedAt IS NULL').get(roomId) as { assignedUserId: number | null } | undefined;
   if (roomData?.assignedUserId) {
     db.prepare('INSERT OR IGNORE INTO task_assignees (taskId, userId, coinPercentage) VALUES (?, ?, 0)')
       .run(newTaskId, roomData.assignedUserId);
@@ -438,7 +438,7 @@ router.post('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
 /** Update a task (PUT /tasks/:id; also used by the bulk edit and the CSV import). Only given fields change. */
 export function updateTask(id: number | string, body: any): TaskWriteResult {
   const { name, notes, frequencyDays, effort, isSeasonal, health, iconKey, assignedToChildren, assignedUserIds, assignmentMode, assignedUserPercentages, onDemand, showInDashboard, roomId, customCoins, allowEarlyCompletion } = body;
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as any;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND deletedAt IS NULL').get(id) as any;
   if (!task) return { status: 404, body: { error: 'Task not found' } };
   const schedule = readScheduleInput(body);
   if ('error' in schedule) return { status: 400, body: { error: schedule.error } };
@@ -480,7 +480,7 @@ export function updateTask(id: number | string, body: any): TaskWriteResult {
   if (onDemand !== undefined) { setClauses.push('onDemand = ?'); params.push(onDemand ? 1 : 0); }
   if (showInDashboard !== undefined) { setClauses.push('showInDashboard = ?'); params.push(showInDashboard ? 1 : 0); }
   if (roomId !== undefined) {
-    const targetRoom = db.prepare('SELECT id FROM rooms WHERE id = ?').get(roomId);
+    const targetRoom = db.prepare('SELECT id FROM rooms WHERE id = ? AND deletedAt IS NULL').get(roomId);
     if (!targetRoom) return { status: 404, body: { error: 'Target room not found' } };
     setClauses.push('roomId = ?'); params.push(Number(roomId));
   }
@@ -530,7 +530,7 @@ export function updateTask(id: number | string, body: any): TaskWriteResult {
     }
   }
 
-  const updated = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as any;
+  const updated = db.prepare('SELECT * FROM tasks WHERE id = ? AND deletedAt IS NULL').get(id) as any;
   return { status: 200, body: { ...updated, assignedToChildren: !!updated.assignedToChildren } };
 }
 
@@ -549,7 +549,7 @@ router.delete('/tasks/:id', (req: AuthRequest, res: Response) => {
     return res.status(403).json({ error: 'Admin only' });
   }
 
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND deletedAt IS NULL').get(req.params.id);
   if (!task) return res.status(404).json({ error: 'Task not found' });
 
   const trashId = trashTask(Number(req.params.id), req.userId);
@@ -580,7 +580,7 @@ router.post('/tasks/batch', (req: AuthRequest, res: Response) => {
   if (changes.customCoins != null && changes.customCoins !== '' && !(Number(changes.customCoins) >= 1)) {
     return res.status(400).json({ error: 'customCoins must be at least 1 (or null for the effort default)' });
   }
-  const missing = ids.filter((id) => !db.prepare('SELECT 1 FROM tasks WHERE id = ?').get(id));
+  const missing = ids.filter((id) => !db.prepare('SELECT 1 FROM tasks WHERE id = ? AND deletedAt IS NULL').get(id));
   if (missing.length > 0) return res.status(404).json({ error: 'Task not found', ids: missing });
 
   try {
@@ -619,7 +619,7 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
            r.name as roomName
     FROM tasks t
     JOIN rooms r ON t.roomId = r.id
-    WHERE t.isSeasonal = 0 AND t.onDemand = 0 AND t.archivedAt IS NULL
+    WHERE t.isSeasonal = 0 AND t.onDemand = 0 AND t.archivedAt IS NULL AND t.deletedAt IS NULL
   `).all() as any[];
 
   const allUsers = db.prepare('SELECT id, displayName, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users').all() as any[];
@@ -672,7 +672,7 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
 router.post('/tasks/:id/duplicate', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
 
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as any;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND deletedAt IS NULL').get(req.params.id) as any;
   if (!task) return res.status(404).json({ error: 'Task not found' });
 
   const result = db.prepare(
@@ -714,7 +714,7 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
     return res.status(403).json({ error: 'Admin only' });
   }
 
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as any;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND deletedAt IS NULL').get(req.params.id) as any;
   if (!task) return res.status(404).json({ error: 'Task not found' });
 
   const now = new Date().toISOString();
@@ -763,7 +763,7 @@ function advanceRotation(task: any, completedByUserId: number) {
 
 // Complete task
 router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id) as any;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND deletedAt IS NULL').get(req.params.id) as any;
   if (!task) return res.status(404).json({ error: 'Task not found' });
   // A one-time chore is done once: archived after that, and only one completion can wait for approval
   if (task.archivedAt) return res.status(409).json({ error: 'already_done' });
@@ -1036,7 +1036,7 @@ router.post('/completions/:completionId/photo', proofUpload.single('photo'), (re
 
 // Home "Your usual": pin a task for yourself (or unpin it)
 router.post('/tasks/:id/pin', (req: AuthRequest, res: Response) => {
-  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ?').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
+  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ? AND deletedAt IS NULL').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
   db.prepare('INSERT OR IGNORE INTO task_pins (userId, taskId) VALUES (?, ?)').run(req.userId, req.params.id);
   res.json({ pinned: true });
 });
@@ -1047,7 +1047,7 @@ router.delete('/tasks/:id/pin', (req: AuthRequest, res: Response) => {
 
 // Home "Maybe you forgot": hide a chore from that list for a few days (for yourself)
 router.post('/tasks/:id/snooze', (req: AuthRequest, res: Response) => {
-  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ?').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
+  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ? AND deletedAt IS NULL').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
   const days = Math.min(30, Math.max(1, Math.round(Number(req.body?.days) || 3)));
   const until = new Date(Date.now() + days * 86400000).toISOString();
   db.prepare('INSERT OR REPLACE INTO task_snoozes (userId, taskId, until) VALUES (?, ?, ?)').run(req.userId, req.params.id, until);

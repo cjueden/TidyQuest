@@ -223,8 +223,9 @@ export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCre
     setTaskConfigs(prev => prev.filter((_, i) => i !== idx));
   };
 
-  const handleDeleteRoom = async (roomId: number, roomName: string) => {
-    const shouldDelete = window.confirm(t('rooms.deleteRoomConfirm').replace('{room}', roomName));
+  const handleDeleteRoom = async (roomId: number, roomName: string, choreCount: number) => {
+    const key = choreCount === 0 ? 'rooms.deleteRoomConfirmEmpty' : choreCount === 1 ? 'rooms.deleteRoomConfirmOne' : 'rooms.deleteRoomConfirmMany';
+    const shouldDelete = window.confirm(t(key).replace('{room}', roomName).replace('{n}', String(choreCount)));
     if (!shouldDelete) return;
     await onDeleteRoom(roomId);
   };
@@ -435,7 +436,7 @@ export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCre
                             <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.5"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                           </button>
                         )}
-                        <button className="tq-btn" onClick={(e) => { e.stopPropagation(); handleDeleteRoom(room.id, room.name); }} aria-label={`${t('common.delete')} ${roomDisplayName(room.name, room.roomType)}`} title={`${t('common.delete')} ${roomDisplayName(room.name, room.roomType)}`} style={{ width: 26, height: 26, borderRadius: 9, border: '1.5px solid var(--warm-danger-border)', backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                        <button className="tq-btn" onClick={(e) => { e.stopPropagation(); handleDeleteRoom(room.id, roomDisplayName(room.name, room.roomType), room.tasks.length); }} aria-label={`${t('common.delete')} ${roomDisplayName(room.name, room.roomType)}`} title={`${t('common.delete')} ${roomDisplayName(room.name, room.roomType)}`} style={{ width: 26, height: 26, borderRadius: 9, border: '1.5px solid var(--warm-danger-border)', backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
                           <TrashIcon />
                         </button>
                       </div>

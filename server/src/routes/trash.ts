@@ -13,7 +13,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   purgeOldTrash();
   const rows = db.prepare(
     `SELECT t.id, t.kind, t.itemId, t.title, t.roomId, t.roomName, t.snapshot, t.deletedAt, u.displayName AS deletedByName,
-            (SELECT 1 FROM rooms r WHERE r.id = t.roomId) AS roomExists
+            (SELECT 1 FROM rooms r WHERE r.id = t.roomId AND r.deletedAt IS NULL) AS roomExists
      FROM trash t LEFT JOIN users u ON u.id = t.deletedBy
      ORDER BY t.deletedAt DESC, t.id DESC`
   ).all() as any[];

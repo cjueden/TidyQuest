@@ -466,9 +466,7 @@
       "actions": "Aktionen",
       "assigned": "Zugewiesen",
       "coins": "Münzen",
-      "reset": "Abschluss rückgängig",
       "deleteTask": "Aufgabe löschen",
-      "deleteTaskConfirm": "Diese Aufgabe löschen? Dies kann nicht rückgängig gemacht werden.",
       "done": "Erledigt",
       "assignToChildren": "Der Kindergruppe zuweisen",
       "seasonal": "Saisonal",
@@ -500,7 +498,12 @@
       "duplicateTask": "Aufgabe duplizieren",
       "moveToRoom": "In Raum verschieben",
       "taskDuplicated": "Aufgabe dupliziert",
-      "taskMoved": "Aufgabe verschoben"
+      "taskMoved": "Aufgabe verschoben",
+      "deleteTaskConfirmTrash": "„{name}“ löschen? Sie bleibt {n} Tage unter Zuletzt gelöscht.",
+      "undoDone": "Rückgängig",
+      "undoDoneTitle": "Diese Erledigung rückgängig machen (Münzen werden abgezogen)",
+      "undoDoneConfirm": "„{task}“ für {name} rückgängig machen? Die {coins} Münzen werden wieder abgezogen.",
+      "moreOptions": "Weitere Optionen"
     },
     "avatars": {
       "cat": "Katze",
@@ -559,7 +562,6 @@
       "healthHealthy": "Gut",
       "healthNeedsAttention": "Aufmerksamkeit nötig",
       "healthCritical": "Kritisch",
-      "deleteRoomConfirm": "\"{room}\" und alle Aufgaben löschen? Dies kann nicht rückgängig gemacht werden.",
       "assignedTo": "Zugewiesen an {name}",
       "assignRoom": "Raum zuweisen",
       "assignTask": "Aufgabe zuweisen",
@@ -599,7 +601,10 @@
       "removeFromZone": "Aus Zone entfernen",
       "deleteZone": "Zone löschen",
       "zoneDeleted": "Zone gelöscht",
-      "zoneCreated": "Zone erstellt"
+      "zoneCreated": "Zone erstellt",
+      "deleteRoomConfirmEmpty": "„{room}“ löschen? Das kann nicht rückgängig gemacht werden.",
+      "deleteRoomConfirmOne": "„{room}“ und seine 1 Aufgabe löschen? Das kann nicht rückgängig gemacht werden. Verdiente Münzen und der Verlauf bleiben.",
+      "deleteRoomConfirmMany": "„{room}“ und seine {n} Aufgaben löschen? Das kann nicht rückgängig gemacht werden. Verdiente Münzen und der Verlauf bleiben."
     },
     "common": {
       "save": "Speichern",
@@ -1027,7 +1032,8 @@
       "restoreIntoRoom": "In {room}",
       "restore": "Wiederherstellen",
       "deleteForever": "Endgültig löschen",
-      "deleteForeverConfirm": "„{name}“ endgültig löschen? Das kann nicht rückgängig gemacht werden."
+      "deleteForeverConfirm": "„{name}“ endgültig löschen? Das kann nicht rückgängig gemacht werden.",
+      "removeTaskConfirm": "„{name}“ endgültig von dieser Liste nehmen? Danach kann sie nicht mehr wiederhergestellt werden, aber ihr Verlauf bleibt."
     },
     "bulk": {
       "select": "Auswählen",
@@ -1333,7 +1339,8 @@
       "forgotTitle": "Vielleicht vergessen",
       "overdueDays": "{n} Tage überfällig",
       "overdueDay": "1 Tag überfällig",
-      "snooze": "3 Tage ausblenden"
+      "snooze": "3 Tage ausblenden",
+      "seeAllRequests": "Alle ansehen ({n})"
     },
     "rescue": {
       "title": "Rettungsmission",

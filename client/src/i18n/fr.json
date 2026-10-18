@@ -466,9 +466,7 @@
       "actions": "Actions",
       "assigned": "Assigné",
       "coins": "Pièces",
-      "reset": "Annuler la complétion",
       "deleteTask": "Supprimer la tâche",
-      "deleteTaskConfirm": "Supprimer cette tâche ? Cette action est définitive.",
       "done": "Fait",
       "assignToChildren": "Attribuer au groupe enfants",
       "seasonal": "Saisonnier",
@@ -500,7 +498,12 @@
       "duplicateTask": "Dupliquer la tâche",
       "moveToRoom": "Déplacer vers une pièce",
       "taskDuplicated": "Tâche dupliquée",
-      "taskMoved": "Tâche déplacée"
+      "taskMoved": "Tâche déplacée",
+      "deleteTaskConfirmTrash": "Supprimer « {name} » ? Elle reste {n} jours dans Supprimés récemment.",
+      "undoDone": "Annuler",
+      "undoDoneTitle": "Annuler cette réalisation (retire ses pièces)",
+      "undoDoneConfirm": "Annuler « {task} » pour {name} ? Les {coins} pièces seront retirées.",
+      "moreOptions": "Plus d'options"
     },
     "avatars": {
       "cat": "Chat",
@@ -559,7 +562,6 @@
       "healthHealthy": "En bonne santé",
       "healthNeedsAttention": "À surveiller",
       "healthCritical": "Critique",
-      "deleteRoomConfirm": "Supprimer \"{room}\" et toutes ses tâches ? Cette action est définitive.",
       "assignedTo": "Attribuée à {name}",
       "assignRoom": "Attribuer la pièce",
       "assignTask": "Attribuer la tâche",
@@ -599,7 +601,10 @@
       "removeFromZone": "Retirer de la zone",
       "deleteZone": "Supprimer la zone",
       "zoneDeleted": "Zone supprimée",
-      "zoneCreated": "Zone créée"
+      "zoneCreated": "Zone créée",
+      "deleteRoomConfirmEmpty": "Supprimer « {room} » ? C'est définitif.",
+      "deleteRoomConfirmOne": "Supprimer « {room} » et sa tâche ? C'est définitif. Les pièces déjà gagnées et l'historique restent.",
+      "deleteRoomConfirmMany": "Supprimer « {room} » et ses {n} tâches ? C'est définitif. Les pièces déjà gagnées et l'historique restent."
     },
     "common": {
       "save": "Enregistrer",
@@ -1027,7 +1032,8 @@
       "restoreIntoRoom": "Dans {room}",
       "restore": "Restaurer",
       "deleteForever": "Supprimer définitivement",
-      "deleteForeverConfirm": "Supprimer « {name} » définitivement ? C'est irréversible."
+      "deleteForeverConfirm": "Supprimer « {name} » définitivement ? C'est irréversible.",
+      "removeTaskConfirm": "Retirer « {name} » de cette liste pour de bon ? Elle ne pourra plus être restaurée, mais son historique reste."
     },
     "bulk": {
       "select": "Sélectionner",
@@ -1333,7 +1339,8 @@
       "forgotTitle": "Tu as peut-être oublié ceux-ci",
       "overdueDays": "{n} jours de retard",
       "overdueDay": "1 jour de retard",
-      "snooze": "Reporter de 3 jours"
+      "snooze": "Reporter de 3 jours",
+      "seeAllRequests": "Tout voir ({n})"
     },
     "rescue": {
       "title": "Mission sauvetage",

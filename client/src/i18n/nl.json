@@ -466,9 +466,7 @@
       "actions": "Acties",
       "assigned": "Toegewezen aan",
       "coins": "Munten",
-      "reset": "Klusje herstellen",
       "deleteTask": "Klusje verwijderen",
-      "deleteTaskConfirm": "Wil je dit klusje wissen? Dit kan niet meer ongedaan gemaakt worden.",
       "done": "Klaar!",
       "assignToChildren": "Toewijzen aan Kinderen-groep",
       "seasonal": "Seizoensgebonden",
@@ -500,7 +498,12 @@
       "duplicateTask": "Klusje kopiëren",
       "moveToRoom": "Verplaatsen naar kamer",
       "taskDuplicated": "Klusje gekopieerd",
-      "taskMoved": "Klusje verplaatst"
+      "taskMoved": "Klusje verplaatst",
+      "deleteTaskConfirmTrash": "“{name}” verwijderen? Hij blijft {n} dagen in Onlangs verwijderd.",
+      "undoDone": "Ongedaan",
+      "undoDoneTitle": "Deze voltooiing ongedaan maken (haalt de munten terug)",
+      "undoDoneConfirm": "“{task}” van {name} ongedaan maken? De {coins} munten gaan er weer af.",
+      "moreOptions": "Meer opties"
     },
     "avatars": {
       "cat": "Kat",
@@ -559,7 +562,6 @@
       "healthHealthy": "Schoon",
       "healthNeedsAttention": "Kan schoner",
       "healthCritical": "Heel stoffig!",
-      "deleteRoomConfirm": "Weet je zeker dat je \"{room}\" en alle bijbehorende klusjes wilt wissen? Dit kan niet ongedaan gemaakt worden.",
       "assignedTo": "Toegewezen aan {name}",
       "assignRoom": "Kamer toewijzen",
       "assignTask": "Klusje toewijzen",
@@ -599,7 +601,10 @@
       "removeFromZone": "Uit zone halen",
       "deleteZone": "Zone wissen",
       "zoneDeleted": "Zone gewist",
-      "zoneCreated": "Zone gemaakt"
+      "zoneCreated": "Zone gemaakt",
+      "deleteRoomConfirmEmpty": "“{room}” verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      "deleteRoomConfirmOne": "“{room}” en zijn 1 taak verwijderen? Dit kan niet ongedaan worden gemaakt. Verdiende munten en de geschiedenis blijven.",
+      "deleteRoomConfirmMany": "“{room}” en zijn {n} taken verwijderen? Dit kan niet ongedaan worden gemaakt. Verdiende munten en de geschiedenis blijven."
     },
     "common": {
       "save": "Opslaan",
@@ -1027,7 +1032,8 @@
       "restoreIntoRoom": "In {room}",
       "restore": "Terugzetten",
       "deleteForever": "Definitief verwijderen",
-      "deleteForeverConfirm": "‘{name}’ definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
+      "deleteForeverConfirm": "‘{name}’ definitief verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      "removeTaskConfirm": "“{name}” voorgoed van deze lijst halen? Daarna kan hij niet meer worden hersteld, maar zijn geschiedenis blijft."
     },
     "bulk": {
       "select": "Selecteren",
@@ -1333,7 +1339,8 @@
       "forgotTitle": "Misschien vergeten",
       "overdueDays": "{n} dagen te laat",
       "overdueDay": "1 dag te laat",
-      "snooze": "3 dagen uitstellen"
+      "snooze": "3 dagen uitstellen",
+      "seeAllRequests": "Alles bekijken ({n})"
     },
     "rescue": {
       "title": "Reddingsmissie",
