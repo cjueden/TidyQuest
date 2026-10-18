@@ -1608,6 +1608,27 @@
       "coinsGoals": "Monedas y metas",
       "gameExtras": "Extras del juego",
       "rewards": "Recompensas"
+    },
+    "timer": {
+      "setting": "Temporizador",
+      "minutes": "minutos",
+      "off": "No",
+      "min": "min",
+      "filter": "Con temporizador",
+      "settingDesc": "Una cuenta atrás que se inicia desde la tarea. Los niños pueden pulsar Hecho cuando termina.",
+      "startTitle": "Iniciar el temporizador de {n} minutos",
+      "open": "Abrir el temporizador",
+      "pause": "Pausa",
+      "resume": "Seguir",
+      "stop": "Parar",
+      "hide": "Ocultar",
+      "paused": "En pausa",
+      "timesUp": "¡Se acabó el tiempo! ¿Hecho?",
+      "needMore": "Necesito más tiempo",
+      "stopConfirm": "¿Parar el temporizador?",
+      "replaceConfirm": "¿Parar el temporizador de «{name}» e iniciar este?",
+      "keepsGoing": "Sigue contando si cambias de página.",
+      "mayDim": "La pantalla puede apagarse; el temporizador sigue contando."
     }
   }
 }

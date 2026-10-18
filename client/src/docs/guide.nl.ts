@@ -124,6 +124,14 @@ export const GUIDE_NL: GuideSection[] = [
       ] },
       { h: 'Icoon' },
       { p: 'Tik op de iconknop om de kiezer te openen. Die toont een live voorbeeld van het klusje, stelt een icoon voor op basis van de naam van het klusje en heeft een zoekfunctie en alle iconen gegroepeerd per gebied. Een nieuw klusje dat op ✨ blijft staan krijgt automatisch het voorgestelde icoon.' },
+      { h: 'Timer' },
+      { ul: [
+        'Timer (minuten) in de klusjes-editor geeft een klusje een aftelklok, bijvoorbeeld 10 minuten om een kamer op te ruimen. Laat het leeg voor geen timer. De naam van het klusje maakt niet uit.',
+        'Het klusje toont dan ▶ 10 min naast Klaar!. Tik erop voor een grote aftelklok met Pauze en +5 min. Tik op ⌄ om hem te verbergen: een kleine timerbalk blijft bovenaan elke pagina, en de timer loopt door na herladen.',
+        'Bij nul klinkt een belletje en trilt de telefoon, en dan vraagt hij ‘De tijd is om! Klaar?’. Klaar! rondt het klusje af zoals altijd (met Oudercontrole wacht het nog op een ouder). ‘Meer tijd nodig’ geeft er 5 minuten bij.',
+        'Kinderen starten eerst de timer: bij een klusje met timer komt hun Klaar!-knop terug als de tijd om is. Ouders en leden kunnen altijd op Klaar! tikken.',
+        'De pagina Klusjes toont alle klusjes met een timer: kies ‘⏱️ Met timer’ in het filter.',
+      ] },
       { h: 'Een klusje afronden' },
       { ul: [
         'Tik op Klaar! op Home, in de kamer of op de pagina Klusjes. Met de 📎-knop voeg je een notitie of foto toe als bewijs.',
@@ -278,6 +286,10 @@ export const GUIDE_NL: GuideSection[] = [
         { q: 'De knop Klaar! is grijs', a: [
           'Het label zegt waarom: "Niet toegewezen" (klusje van iemand anders), "Wacht op goedkeuring" (een ouder heeft je vorige nog niet goedgekeurd), "Gedaan door …" (iemand heeft het vandaag al gedaan), "Vandaag gedaan / Deze week gedaan" (de herhaallimiet van een klusje voor op elk moment) of "🤝 namen" (een team heeft het vandaag opgeëist).',
           'Als Klaar! een melding "nog niet aan de beurt" geeft: het klusje is nog niet weer aan de beurt. Een ouder kan "Vroegtijdig afronden toestaan" aanzetten voor dagelijkse routines.',
+        ] },
+        { q: 'Bij het klusje van een kind staat ▶ in plaats van Klaar!', a: [
+          'Het heeft een timer (Timer in de klusjes-editor). Het kind tikt op ▶, en Klaar! komt terug als de tijd om is. Een ouder kan voor het kind op Klaar! tikken, of de timer in de klusjes-editor leegmaken.',
+          'Het scherm kan uitgaan terwijl de timer loopt (via een gewoon http-adres laten telefoons apps het niet aan houden). De timer telt door en toont ‘De tijd is om! Klaar?’ als je weer kijkt.',
         ] },
         { q: 'Ik tikte op Klaar! maar kreeg geen munten', a: [
           'Met Oudercontrole aan wacht het klusje van een kind op een ouder. Het staat als wachtend in Activiteit en op Home van de ouder onder "Wacht op goedkeuring".',

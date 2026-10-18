@@ -148,6 +148,14 @@ export const GUIDE_EN: GuideSection[] = [
       ] },
       { h: 'Icon' },
       { p: 'Tap the icon button to open the picker. It shows a live preview of the chore, suggests an icon from the chore’s name, and has a search and every icon grouped by area. A new chore left on the ✨ gets the suggested icon automatically.' },
+      { h: 'Timer' },
+      { ul: [
+        'Timer (minutes) in the chore editor gives a chore a countdown, for example 10 minutes to tidy a room. Leave it empty for no timer. The chore’s name doesn’t matter.',
+        'The chore then shows ▶ 10 min next to Done. Tap it for a big countdown with Pause and +5 min. Tap ⌄ to hide it: a small timer bar stays at the top of every page, and the timer keeps going after a reload.',
+        'At zero it chimes and vibrates, then asks “Time’s up! Done?”. Done finishes the chore as usual (with Strict Mode it still waits for a parent). “Need more time” adds 5 minutes.',
+        'Kids start the timer first: on a timer chore, their Done button comes back when the time is up. Parents and members can tap Done any time.',
+        'The Tasks page lists every chore with a timer: pick “⏱️ Has a timer” in its filter.',
+      ] },
       { h: 'Finishing a chore' },
       { ul: [
         'Tap Done on Home, in the room, or on the Tasks page. The 📎 button adds a note or photo as proof.',
@@ -302,6 +310,10 @@ export const GUIDE_EN: GuideSection[] = [
         { q: 'The Done button is grey', a: [
           'Its label says why: "Not assigned" (someone else’s chore), "Waiting for approval" (a parent hasn’t approved your last one yet), "Done by …" (someone already did it today), "Done today / this week" (an anytime chore’s repeat limit), or "🤝 names" (a team has claimed it today).',
           'If Done gives a "not yet due" message: the chore isn’t due again yet. A parent can turn on "Allow early completion" for daily routines.',
+        ] },
+        { q: 'A kid’s chore shows ▶ instead of Done', a: [
+          'It has a timer (Timer in the chore editor). The kid taps ▶, and Done comes back when the time is up. A parent can tap Done for them, or empty the timer in the chore editor.',
+          'The screen may turn off while the timer runs (over a plain http address, phones don’t let apps keep it on). The timer keeps counting and shows “Time’s up! Done?” when you look again.',
         ] },
         { q: 'I tapped Done but got no coins', a: [
           'With Strict Mode on, a kid’s chore waits for a parent. It shows as waiting in Activity and on the parent’s Home under "Waiting for approval".',

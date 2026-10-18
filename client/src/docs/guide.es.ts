@@ -124,6 +124,14 @@ export const GUIDE_ES: GuideSection[] = [
       ] },
       { h: 'Icono' },
       { p: 'Pulsa el botón del icono para abrir el selector. Muestra una vista previa en vivo de la tarea, sugiere un icono a partir del nombre de la tarea y tiene un buscador y todos los iconos agrupados por zona. Una tarea nueva que se queda en el ✨ recibe el icono sugerido automáticamente.' },
+      { h: 'Temporizador' },
+      { ul: [
+        'Temporizador (minutos), en el editor de la tarea, le da una cuenta atrás a una tarea, por ejemplo 10 minutos para ordenar una habitación. Déjalo vacío para no tener temporizador. El nombre de la tarea no importa.',
+        'La tarea muestra entonces ▶ 10 min junto a Hecho. Púlsalo para ver una cuenta atrás grande con Pausa y +5 min. Pulsa ⌄ para ocultarla: una pequeña barra queda arriba en cada página, y el temporizador sigue después de recargar.',
+        'Al llegar a cero suena y vibra, y luego pregunta «¡Se acabó el tiempo! ¿Hecho?». Hecho termina la tarea como siempre (con el Modo estricto sigue esperando a un padre). «Necesito más tiempo» añade 5 minutos.',
+        'Los niños inician primero el temporizador: en una tarea con temporizador, su botón Hecho vuelve cuando se acaba el tiempo. Los padres y los miembros pueden pulsar Hecho cuando quieran.',
+        'La página Tareas muestra todas las tareas con temporizador: elige «⏱️ Con temporizador» en su filtro.',
+      ] },
       { h: 'Terminar una tarea' },
       { ul: [
         'Pulsa Hecho en Inicio, en la habitación o en la página Tareas. El botón 📎 añade una nota o una foto como prueba.',
@@ -278,6 +286,10 @@ export const GUIDE_ES: GuideSection[] = [
         { q: 'El botón Hecho está gris', a: [
           'Su etiqueta dice por qué: "No asignada" (la tarea de otra persona), "Esperando aprobación" (un padre o una madre aún no ha aprobado tu última), "Hecho por …" (alguien ya la hizo hoy), "Hecho hoy / esta semana" (el límite de repeticiones de una tarea a demanda) o "🤝 nombres" (un equipo la ha reclamado hoy).',
           'Si Hecho da un mensaje de "todavía no toca": la tarea aún no toca de nuevo. Un padre o una madre puede activar "Completar antes" para rutinas diarias.',
+        ] },
+        { q: 'La tarea de un niño muestra ▶ en vez de Hecho', a: [
+          'Tiene un temporizador (Temporizador en el editor de la tarea). El niño pulsa ▶, y Hecho vuelve cuando se acaba el tiempo. Un padre puede pulsar Hecho por él, o vaciar el temporizador en el editor de la tarea.',
+          'La pantalla puede apagarse mientras corre el temporizador (con una dirección http simple, los móviles no dejan que las apps la mantengan encendida). El temporizador sigue contando y muestra «¡Se acabó el tiempo! ¿Hecho?» cuando vuelves a mirar.',
         ] },
         { q: 'Pulsé Hecho pero no recibí monedas', a: [
           'Con el Modo estricto activado, la tarea de un niño espera a un padre o una madre. Aparece como en espera en Actividad y en el Inicio del padre o la madre, en "Esperando aprobación".',

@@ -1608,6 +1608,27 @@
       "coinsGoals": "Münzen & Ziele",
       "gameExtras": "Spiel-Extras",
       "rewards": "Belohnungen"
+    },
+    "timer": {
+      "setting": "Timer",
+      "minutes": "Minuten",
+      "off": "Aus",
+      "min": "Min.",
+      "filter": "Mit Timer",
+      "settingDesc": "Ein Countdown, der bei der Aufgabe gestartet wird. Kinder können Erledigt tippen, sobald er abgelaufen ist.",
+      "startTitle": "{n}-Minuten-Timer starten",
+      "open": "Timer öffnen",
+      "pause": "Pause",
+      "resume": "Weiter",
+      "stop": "Stopp",
+      "hide": "Ausblenden",
+      "paused": "Pausiert",
+      "timesUp": "Zeit um! Fertig?",
+      "needMore": "Brauche mehr Zeit",
+      "stopConfirm": "Timer stoppen?",
+      "replaceConfirm": "Den Timer für „{name}“ stoppen und diesen starten?",
+      "keepsGoing": "Er läuft weiter, wenn du die Seite wechselst.",
+      "mayDim": "Der Bildschirm kann ausgehen; der Timer zählt trotzdem weiter."
     }
   }
 }

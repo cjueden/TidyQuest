@@ -124,6 +124,14 @@ export const GUIDE_IT: GuideSection[] = [
       ] },
       { h: 'Icona' },
       { p: 'Tocca il pulsante dell’icona per aprire il selettore. Mostra un’anteprima dal vivo della faccenda, suggerisce un’icona dal nome della faccenda e ha una ricerca e tutte le icone raggruppate per area. Una nuova faccenda lasciata su ✨ riceve automaticamente l’icona suggerita.' },
+      { h: 'Timer' },
+      { ul: [
+        'Timer (minuti), nell’editor della faccenda, dà un conto alla rovescia a una faccenda, per esempio 10 minuti per riordinare una stanza. Lascialo vuoto per nessun timer. Il nome della faccenda non conta.',
+        'La faccenda mostra allora ▶ 10 min accanto a Fatto. Toccalo per un grande conto alla rovescia con Pausa e +5 min. Tocca ⌄ per nasconderlo: una piccola barra resta in cima a ogni pagina, e il timer continua anche dopo aver ricaricato.',
+        'A zero suona e vibra, poi chiede «Tempo scaduto! Fatto?». Fatto completa la faccenda come al solito (con la Modalità rigorosa aspetta comunque un genitore). «Mi serve più tempo» aggiunge 5 minuti.',
+        'I bambini avviano prima il timer: su una faccenda con timer, il loro pulsante Fatto torna quando il tempo è scaduto. Genitori e membri possono toccare Fatto in qualsiasi momento.',
+        'La pagina Compiti elenca tutte le faccende con timer: scegli «⏱️ Con timer» nel suo filtro.',
+      ] },
       { h: 'Finire una faccenda' },
       { ul: [
         'Tocca Fatto nella Home, nella stanza o nella pagina Compiti. Il pulsante 📎 aggiunge una nota o una foto come prova.',
@@ -278,6 +286,10 @@ export const GUIDE_IT: GuideSection[] = [
         { q: 'Il pulsante Fatto è grigio', a: [
           'La sua etichetta dice perché: "Non assegnata" (la faccenda è di qualcun altro), "In attesa di approvazione" (un genitore non ha ancora approvato la tua ultima), "Fatto da …" (qualcuno l’ha già fatta oggi), "Fatto oggi / questa settimana" (il limite di ripetizioni di una faccenda libera) o "🤝 nomi" (una squadra l’ha presa oggi).',
           'Se Fatto dà un messaggio "non ancora in scadenza": la faccenda non scade ancora. Un genitore può attivare "Completamento anticipato" per le routine quotidiane.',
+        ] },
+        { q: 'La faccenda di un bambino mostra ▶ invece di Fatto', a: [
+          'Ha un timer (Timer nell’editor della faccenda). Il bambino tocca ▶, e Fatto torna quando il tempo è scaduto. Un genitore può toccare Fatto per lui, oppure svuotare il timer nell’editor della faccenda.',
+          'Lo schermo può spegnersi mentre il timer corre (con un indirizzo http semplice, i telefoni non lasciano che le app lo tengano acceso). Il timer continua a contare e mostra «Tempo scaduto! Fatto?» quando guardi di nuovo.',
         ] },
         { q: 'Ho toccato Fatto ma non ho ricevuto monete', a: [
           'Con la Modalità rigorosa attiva, la faccenda di un bambino aspetta un genitore. Risulta in attesa in Attività e nella Home del genitore sotto "In attesa di approvazione".',

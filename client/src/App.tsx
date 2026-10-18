@@ -5,6 +5,7 @@ import { api } from './hooks/useApi';
 import { Sidebar } from './components/layout/Sidebar';
 import { PageHeader } from './components/layout/PageHeader';
 import { ConfettiEffect } from './components/shared/ConfettiEffect';
+import { ChoreTimerBar, ChoreTimerProvider } from './components/shared/ChoreTimer';
 import { SearchOverlay } from './components/shared/SearchOverlay';
 import { SearchContext } from './components/shared/searchContext';
 import type { Proof } from './components/shared/ProofModal';
@@ -359,6 +360,7 @@ function AppContent() {
   return (
     <SearchContext.Provider value={openSearch}>
     <CosmeticsContext.Provider value={dashboardData?.cosmetics ?? NO_COSMETICS}>
+    <ChoreTimerProvider key={user.id} userId={user.id} role={user.role} language={user.language} onComplete={(id) => handleCompleteTask(id)}>
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--warm-bg)' }}>
       <ConfettiEffect show={confetti} season={season} celebration={dashboardData?.cosmetics?.[user.id]?.celebration} />
       {season && <SeasonParticles season={season} />}
@@ -439,6 +441,7 @@ function AppContent() {
       />
 
       <main style={{ marginLeft: sidebarCollapsed ? 60 : 240, flex: 1, padding: '28px 36px', maxWidth: 1320, backgroundColor: 'var(--warm-bg)', transition: 'margin-left 0.3s ease' }} className={`main-content${user.kidMode ? ' kid-mode' : ''}`}>
+        <ChoreTimerBar language={user.language} />
         {season && <SeasonStrip season={season} previewing={!!seasonPreview} language={user.language} />}
         <Routes>
           <Route path="/" element={
@@ -678,6 +681,7 @@ function AppContent() {
         </Routes>
       </main>
     </div>
+    </ChoreTimerProvider>
     </CosmeticsContext.Provider>
     </SearchContext.Provider>
   );

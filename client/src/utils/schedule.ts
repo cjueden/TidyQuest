@@ -19,6 +19,8 @@ export interface ScheduleValue {
   /** A reminder at this time ('HH:MM', '' = none) on the due day, or the day before */
   reminderTime: string;
   reminderDayBefore: boolean;
+  /** Not scheduling, but saved with it: the chore's countdown timer in minutes ('' = none) */
+  timerMinutes: string;
 }
 
 export interface ScheduledTaskFields {
@@ -30,9 +32,10 @@ export interface ScheduledTaskFields {
   reminderDayBefore?: number | boolean | null;
   oneTime?: number | boolean | null;
   doBy?: string | null;
+  timerMinutes?: number | null;
 }
 
-export const EMPTY_SCHEDULE: ScheduleValue = { mode: 'interval', doBy: '', weekdays: 0, seasonOn: false, seasonStart: 4, seasonEnd: 10, rotationPeriod: 'completion', reminderTime: '', reminderDayBefore: false };
+export const EMPTY_SCHEDULE: ScheduleValue = { mode: 'interval', doBy: '', weekdays: 0, seasonOn: false, seasonStart: 4, seasonEnd: 10, rotationPeriod: 'completion', reminderTime: '', reminderDayBefore: false, timerMinutes: '' };
 
 export function scheduleFromTask(task: ScheduledTaskFields): ScheduleValue {
   const weekdays = Number(task.scheduleWeekdays) || 0;
@@ -47,6 +50,7 @@ export function scheduleFromTask(task: ScheduledTaskFields): ScheduleValue {
     rotationPeriod: task.rotationPeriod === 'week' ? 'week' : 'completion',
     reminderTime: task.reminderTime ?? '',
     reminderDayBefore: !!task.reminderDayBefore,
+    timerMinutes: task.timerMinutes ? String(task.timerMinutes) : '',
   };
 }
 
@@ -61,6 +65,7 @@ export function schedulePayload(v: ScheduleValue, opts: { onDemand: boolean; rot
     rotationPeriod: opts.rotating ? v.rotationPeriod : 'completion',
     reminderTime: !opts.onDemand && v.reminderTime ? v.reminderTime : null,
     reminderDayBefore: v.reminderDayBefore,
+    timerMinutes: Number(v.timerMinutes) > 0 ? Math.round(Number(v.timerMinutes)) : null,
   };
 }
 

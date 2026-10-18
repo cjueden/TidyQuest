@@ -1608,6 +1608,27 @@
       "coinsGoals": "Coins & goals",
       "gameExtras": "Game extras",
       "rewards": "Rewards"
+    },
+    "timer": {
+      "setting": "Timer",
+      "minutes": "minutes",
+      "off": "Off",
+      "min": "min",
+      "filter": "Has a timer",
+      "settingDesc": "A countdown started from the chore. Kids can tap Done once it ends.",
+      "startTitle": "Start the {n}-minute timer",
+      "open": "Open the timer",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Stop",
+      "hide": "Hide",
+      "paused": "Paused",
+      "timesUp": "Time's up! Done?",
+      "needMore": "Need more time",
+      "stopConfirm": "Stop the timer?",
+      "replaceConfirm": "Stop the timer for “{name}” and start this one?",
+      "keepsGoing": "It keeps running if you go to another page.",
+      "mayDim": "Your screen may turn off; the timer keeps counting."
     }
   }
 }

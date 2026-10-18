@@ -24,6 +24,7 @@ export interface ListTask {
   nextDueAt?: string | null;
   outOfSeason?: boolean;
   oneTime?: number | boolean;
+  timerMinutes?: number | null;
   assignedToChildren?: boolean;
   effectiveAssignedUserIds?: number[];
 }
@@ -63,7 +64,7 @@ interface TaskListProps {
   onOpenTask: (roomId: number, taskId: number) => void;
 }
 
-type Status = '' | 'due' | 'upcoming' | 'ondemand' | 'onetime';
+type Status = '' | 'due' | 'upcoming' | 'ondemand' | 'onetime' | 'timer';
 type Sort = 'due' | 'name' | 'room' | 'coins';
 
 const isFor = isTaskForUser;
@@ -125,6 +126,7 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
       if (status === 'upcoming' && (task.onDemand || task.isSeasonal || isTaskDue(task))) return false;
       if (status === 'ondemand' && !task.onDemand) return false;
       if (status === 'onetime' && !task.oneTime) return false;
+      if (status === 'timer' && !task.timerMinutes) return false;
       return matchesQuery(q, [name, task.notes, roomName]);
     });
 
@@ -191,6 +193,7 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
             <option value="upcoming">{t('taskList.upcoming')}</option>
             <option value="ondemand">{t('roomDetail.onDemand')}</option>
             <option value="onetime">{t('taskList.oneTime')}</option>
+            <option value="timer">⏱️ {t('timer.filter')}</option>
           </select>
           <select className="tq-input-compact" style={selectStyle} value={sort} onChange={(e) => setParam('sort', e.target.value === 'due' ? '' : e.target.value)}>
             <option value="due">{t('taskList.sortDue')}</option>
@@ -258,7 +261,7 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
               </span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--warm-text)' }}>{name}</span>
-                <span style={{ display: 'block', fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{roomName} · {who}</span>
+                <span style={{ display: 'block', fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{roomName} · {who}{task.timerMinutes ? ` · ⏱️ ${task.timerMinutes} ${t('timer.min')}` : ''}</span>
                 {task.notes && (
                   <span style={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 600, overflowWrap: 'anywhere' }}>{task.notes}</span>
                 )}

@@ -4,6 +4,7 @@ import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { parseCsv, toCsv, type CsvRecord } from '../utils/csv';
 import { createTask, updateTask } from './tasks';
+import { MAX_TIMER_MINUTES } from '../utils/schedule';
 
 /**
  * Tasks and rewards as spreadsheets (Settings → Data). Export writes every task / reward; import
@@ -13,7 +14,7 @@ import { createTask, updateTask } from './tasks';
 const router = Router();
 router.use(authMiddleware);
 
-export const TASK_COLUMNS = ['room', 'task', 'notes', 'every_days', 'effort', 'coins', 'on_demand', 'show_on_home', 'early', 'assignees', 'icon'];
+export const TASK_COLUMNS = ['room', 'task', 'notes', 'every_days', 'effort', 'coins', 'on_demand', 'show_on_home', 'early', 'assignees', 'icon', 'timer_minutes'];
 export const REWARD_COLUMNS = ['title', 'description', 'cost', 'active', 'category'];
 const MAX_ROWS = 5000;
 
@@ -24,6 +25,7 @@ const ALIASES: Record<string, string> = {
   custom_coins: 'coins', anytime: 'on_demand', ondemand: 'on_demand',
   home: 'show_on_home', show_in_dashboard: 'show_on_home', allow_early: 'early', early_completion: 'early',
   assignee: 'assignees', owner: 'assignees', owners: 'assignees', who: 'assignees', icon_key: 'icon',
+  timer: 'timer_minutes', timer_min: 'timer_minutes', minutes: 'timer_minutes',
   reward: 'title', price: 'cost', coins_cost: 'cost', is_active: 'active',
 };
 
@@ -94,6 +96,7 @@ router.get('/tasks', (req: AuthRequest, res: Response) => {
   const rows = rooms.flatMap((room) => tasks.filter((t) => t.roomId === room.id).map((t) => [
     room.name, t.name, t.notes ?? '', t.frequencyDays, t.effort, t.customCoins ?? '',
     yesNo(t.onDemand), yesNo(t.showInDashboard), yesNo(t.allowEarlyCompletion), (assignees.get(t.id) || []).join('+'), t.iconKey ?? '',
+    t.timerMinutes ?? '',
   ]));
   csvFile(res, 'tidyquest-tasks.csv', toCsv(TASK_COLUMNS, rows));
 });
@@ -172,6 +175,12 @@ function planTaskImport(csv: unknown) {
         v.assignedUserIds = ids;
       }
       if (has('icon') && cell(r, 'icon').trim() !== '') v.iconKey = cell(r, 'icon').trim().slice(0, 60);
+      if (has('timer_minutes')) {
+        const raw = cell(r, 'timer_minutes').trim();
+        const n = raw === '' ? 0 : Number(raw);
+        if (!Number.isInteger(n) || n < 0 || n > MAX_TIMER_MINUTES) fail('bad_timer', `Timer must be 0 to ${MAX_TIMER_MINUTES} minutes, or empty for none (got "${raw}")`, 'timer_minutes', raw);
+        v.timerMinutes = n > 0 ? n : null;
+      }
 
       const roomMatches = rooms.filter((rm) => norm(rm.name) === norm(roomName));
       if (roomMatches.length > 1) fail('ambiguous', `${roomMatches.length} rooms are called "${roomName}"; rename one first`, 'room', roomName);
@@ -211,6 +220,7 @@ function planTaskImport(csv: unknown) {
         }
       }
       if (v.iconKey !== undefined && v.iconKey !== (t.iconKey ?? '')) { body.iconKey = v.iconKey; change('icon', t.iconKey, v.iconKey); }
+      if (v.timerMinutes !== undefined && v.timerMinutes !== (t.timerMinutes ?? null)) { body.timerMinutes = v.timerMinutes; change('timer_minutes', t.timerMinutes, v.timerMinutes); }
       result.action = result.changes.length > 0 ? 'update' : 'unchanged';
       if (result.changes.length > 0) ops.push({ line: r.line, kind: 'update', taskId: t.id, body });
     } catch (e) {

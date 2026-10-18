@@ -244,6 +244,8 @@ const NEW_COLUMNS: string[] = [
   // name in Activity, the Board, goals and badges. Lists filter deletedAt IS NULL next to archivedAt.
   `ALTER TABLE tasks ADD COLUMN deletedAt TEXT`,
   `ALTER TABLE rooms ADD COLUMN deletedAt TEXT`,
+  // A countdown timer for the chore, in minutes (NULL = none). Set in the chore editor, never read from the name.
+  `ALTER TABLE tasks ADD COLUMN timerMinutes INTEGER`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

@@ -124,6 +124,14 @@ export const GUIDE_DE: GuideSection[] = [
       ] },
       { h: 'Symbol' },
       { p: 'Tippe auf den Symbol-Knopf, um die Auswahl zu öffnen. Sie zeigt eine Live-Vorschau der Aufgabe, schlägt anhand des Aufgabennamens ein Symbol vor und hat eine Suche sowie alle Symbole nach Bereich gruppiert. Eine neue Aufgabe, die auf ✨ bleibt, bekommt automatisch das vorgeschlagene Symbol.' },
+      { h: 'Timer' },
+      { ul: [
+        'Timer (Minuten) im Aufgaben-Editor gibt einer Aufgabe einen Countdown, zum Beispiel 10 Minuten zum Aufräumen eines Raums. Leer lassen für keinen Timer. Der Name der Aufgabe spielt keine Rolle.',
+        'Die Aufgabe zeigt dann ▶ 10 Min. neben Erledigt. Tippe darauf für einen großen Countdown mit Pause und +5 Min. Tippe auf ⌄, um ihn auszublenden: Eine kleine Timer-Leiste bleibt oben auf jeder Seite, und der Timer läuft auch nach dem Neuladen weiter.',
+        'Bei null klingelt und vibriert er und fragt dann „Zeit um! Fertig?“. Erledigt schließt die Aufgabe wie gewohnt ab (im Strengen Modus wartet sie trotzdem auf ein Elternteil). „Brauche mehr Zeit“ gibt 5 Minuten dazu.',
+        'Kinder starten zuerst den Timer: Bei einer Timer-Aufgabe kommt ihr Erledigt-Knopf zurück, wenn die Zeit um ist. Eltern und Mitglieder können jederzeit auf Erledigt tippen.',
+        'Die Seite Aufgaben zeigt alle Aufgaben mit Timer: Wähle „⏱️ Mit Timer“ im Filter.',
+      ] },
       { h: 'Eine Aufgabe abschließen' },
       { ul: [
         'Tippe auf Erledigt auf der Startseite, im Raum oder auf der Seite Aufgaben. Mit dem 📎-Knopf fügst du eine Notiz oder ein Foto als Beweis hinzu.',
@@ -278,6 +286,10 @@ export const GUIDE_DE: GuideSection[] = [
         { q: 'Der Erledigt-Knopf ist grau', a: [
           'Seine Beschriftung sagt, warum: „Nicht zugewiesen“ (die Aufgabe eines anderen), „Wartet auf Freigabe“ (ein Elternteil hat deine letzte noch nicht freigegeben), „Erledigt von …“ (jemand hat sie heute schon gemacht), „Heute erledigt / Diese Woche erledigt“ (das Limit einer jederzeit machbaren Aufgabe) oder „🤝 Namen“ (ein Team hat sie heute übernommen).',
           'Wenn Erledigt die Meldung „noch nicht fällig“ zeigt: Die Aufgabe ist noch nicht wieder fällig. Ein Elternteil kann „Frühe Erledigung“ für tägliche Routinen einschalten.',
+        ] },
+        { q: 'Bei der Aufgabe eines Kindes steht ▶ statt Erledigt', a: [
+          'Sie hat einen Timer (Timer im Aufgaben-Editor). Das Kind tippt auf ▶, und Erledigt kommt zurück, wenn die Zeit um ist. Ein Elternteil kann für das Kind auf Erledigt tippen oder den Timer im Aufgaben-Editor leeren.',
+          'Der Bildschirm kann während des Timers ausgehen (über eine einfache http-Adresse lassen Handys Apps ihn nicht anlassen). Der Timer zählt weiter und zeigt „Zeit um! Fertig?“, wenn du wieder hinschaust.',
         ] },
         { q: 'Ich habe auf Erledigt getippt, aber keine Münzen bekommen', a: [
           'Bei eingeschaltetem Strengen Modus wartet die Aufgabe eines Kindes auf ein Elternteil. Sie wird unter Aktivität und auf der Startseite des Elternteils unter „Wartet auf Freigabe“ als wartend angezeigt.',

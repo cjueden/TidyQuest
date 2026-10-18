@@ -1608,6 +1608,27 @@
       "coinsGoals": "Pièces et objectifs",
       "gameExtras": "Extras du jeu",
       "rewards": "Récompenses"
+    },
+    "timer": {
+      "setting": "Minuteur",
+      "minutes": "minutes",
+      "off": "Non",
+      "min": "min",
+      "filter": "Avec minuteur",
+      "settingDesc": "Un compte à rebours lancé depuis la tâche. Les enfants peuvent appuyer sur Fait quand il se termine.",
+      "startTitle": "Lancer le minuteur de {n} minutes",
+      "open": "Ouvrir le minuteur",
+      "pause": "Pause",
+      "resume": "Reprendre",
+      "stop": "Arrêter",
+      "hide": "Masquer",
+      "paused": "En pause",
+      "timesUp": "C'est l'heure ! Fini ?",
+      "needMore": "Encore un peu",
+      "stopConfirm": "Arrêter le minuteur ?",
+      "replaceConfirm": "Arrêter le minuteur de « {name} » et lancer celui-ci ?",
+      "keepsGoing": "Il continue si vous changez de page.",
+      "mayDim": "L'écran peut s'éteindre ; le minuteur continue de compter."
     }
   }
 }

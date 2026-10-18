@@ -124,6 +124,14 @@ export const GUIDE_FR: GuideSection[] = [
       ] },
       { h: 'Icône' },
       { p: 'Appuie sur le bouton d’icône pour ouvrir le sélecteur. Il montre un aperçu en direct de la tâche, propose une icône d’après le nom de la tâche, et offre une recherche et toutes les icônes classées par domaine. Une nouvelle tâche laissée sur ✨ reçoit automatiquement l’icône suggérée.' },
+      { h: 'Minuteur' },
+      { ul: [
+        'Minuteur (minutes), dans l’éditeur de tâche, donne un compte à rebours à une tâche, par exemple 10 minutes pour ranger une pièce. Laissez vide pour aucun minuteur. Le nom de la tâche ne compte pas.',
+        'La tâche affiche alors ▶ 10 min à côté de Fait. Appuyez dessus pour un grand compte à rebours avec Pause et +5 min. Appuyez sur ⌄ pour le masquer : une petite barre reste en haut de chaque page, et le minuteur continue après un rechargement.',
+        'À zéro, il sonne et vibre, puis demande « C’est l’heure ! Fini ? ». Fait termine la tâche comme d’habitude (en Mode strict, elle attend toujours un parent). « Encore un peu » ajoute 5 minutes.',
+        'Les enfants lancent d’abord le minuteur : sur une tâche avec minuteur, leur bouton Fait revient quand le temps est écoulé. Les parents et les membres peuvent appuyer sur Fait à tout moment.',
+        'La page Tâches liste toutes les tâches avec minuteur : choisissez « ⏱️ Avec minuteur » dans son filtre.',
+      ] },
       { h: 'Terminer une tâche' },
       { ul: [
         'Appuie sur Fait sur Accueil, dans la pièce, ou sur la page Tâches. Le bouton 📎 ajoute une note ou une photo comme preuve.',
@@ -278,6 +286,10 @@ export const GUIDE_FR: GuideSection[] = [
         { q: 'Le bouton Fait est grisé', a: [
           'Son libellé dit pourquoi : « Non attribuée » (la tâche de quelqu’un d’autre), « En attente de validation » (un parent n’a pas encore validé ta dernière), « Fait par … » (quelqu’un l’a déjà faite aujourd’hui), « Fait aujourd’hui / Fait cette semaine » (la limite de répétition d’une tâche à tout moment), ou « 🤝 noms » (une équipe l’a prise aujourd’hui).',
           'Si Fait affiche un message « pas encore due » : la tâche n’est pas encore à refaire. Un parent peut activer « Complétion anticipée » pour les routines quotidiennes.',
+        ] },
+        { q: 'La tâche d’un enfant affiche ▶ au lieu de Fait', a: [
+          'Elle a un minuteur (Minuteur dans l’éditeur de tâche). L’enfant appuie sur ▶, et Fait revient quand le temps est écoulé. Un parent peut appuyer sur Fait pour lui, ou vider le minuteur dans l’éditeur de tâche.',
+          'L’écran peut s’éteindre pendant le minuteur (avec une adresse http simple, les téléphones ne laissent pas les applis le garder allumé). Le minuteur continue de compter et affiche « C’est l’heure ! Fini ? » quand vous revenez.',
         ] },
         { q: 'J’ai appuyé sur Fait mais je n’ai pas reçu de pièces', a: [
           'Avec le Mode strict, la tâche d’un enfant attend un parent. Elle apparaît en attente dans Activité et sur l’Accueil du parent sous « En attente de validation ».',

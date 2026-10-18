@@ -27,6 +27,8 @@ import { api } from '../../hooks/useApi';
 import { TakeBackButton } from '../shared/TakeBackButton';
 import { UndoToast, type UndoState } from '../shared/UndoToast';
 import { BoostDetails } from '../shared/BoostDetails';
+import { TimerStartButton } from '../shared/ChoreTimer';
+import { useChoreTimer } from '../../hooks/useChoreTimer';
 import type { ListRoom } from './TaskList';
 
 /* ── Types ── */
@@ -43,6 +45,8 @@ interface Room {
 }
 
 interface Quest {
+  /** Countdown timer in minutes (NEW-1), null = none */
+  timerMinutes?: number | null;
   id: number;
   name: string;
   translationKey?: string;
@@ -342,12 +346,18 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
     return { disabled: false, label: t('roomDetail.done') };
   };
+  const timer = useChoreTimer();
   const finish = (q: Quest) => {
     const isAdminOrMember = currentUser.role === 'admin' || currentUser.role === 'member';
     const hasAssignees = (q.effectiveAssignedUserIds && q.effectiveAssignedUserIds.length > 0) || q.assignedToChildren;
     if (isAdminOrMember && hasAssignees) setAdminModalQuest(q);
     else onCompleteTask(q.id);
   };
+  // Timer chores (NEW-1): ▶ Start next to Done; kids start it first, and Done comes when it ends
+  const timerWaits = (q: Quest, enabled: boolean) => enabled && !!timer?.mustWait(q);
+  const timerButton = (q: Quest, enabled: boolean) => (enabled
+    ? <TimerStartButton task={{ ...q, name: taskName(q.name, q.translationKey) }} language={language} primary={timerWaits(q, true)} />
+    : null);
   /** One chore row: icon, name, room, a line of extra info, coins, and its Done button */
   const questRow = (q: Quest, opts: { key: string; info?: React.ReactNode; actions?: React.ReactNode; highlight?: boolean }) => {
     const state = doneState(q);
@@ -370,11 +380,12 @@ const Dashboard: React.FC<DashboardProps> = ({
           {opts.actions}
           <TeamUpButton info={q.teamUp} onClick={() => setTeamPick(q)} language={language} />
           <TakeBackButton completionId={q.myPendingId} onDone={() => onRefresh?.()} language={language} />
-          {proofButton(q, !state.disabled)}
-          <button onClick={(e) => { e.stopPropagation(); if (!state.disabled) finish(q); }} disabled={state.disabled} className={state.disabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
+          {proofButton(q, !state.disabled && !timerWaits(q, true))}
+          {timerButton(q, !state.disabled)}
+          {!timerWaits(q, !state.disabled) && <button onClick={(e) => { e.stopPropagation(); if (!state.disabled) finish(q); }} disabled={state.disabled} className={state.disabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
             style={{ padding: '8px 14px', fontSize: 12, ...(state.disabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)' } : {}) }}>
             {state.disabled ? state.label : <><CheckIcon /> {state.label}</>}
-          </button>
+          </button>}
         </span>
       </div>
     );
@@ -813,11 +824,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
                   <TeamUpButton info={q.teamUp} onClick={() => setTeamPick(q)} language={language} />
                   <TakeBackButton completionId={q.myPendingId} onDone={() => onRefresh?.()} language={language} />
-                  {proofButton(q, !btnDisabled)}
-                  <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={btnDisabled} className={btnDisabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
+                  {proofButton(q, !btnDisabled && !timerWaits(q, true))}
+                  {timerButton(q, !btnDisabled)}
+                  {!timerWaits(q, !btnDisabled) && <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={btnDisabled} className={btnDisabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
                     style={{ padding: '8px 14px', fontSize: 12, ...(btnDisabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
                     {btnDisabled ? btnLabel : <><CheckIcon /> {btnLabel}</>}
-                  </button>
+                  </button>}
                   </span>
                 </div>
               );
@@ -874,11 +886,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                       <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
                       <TeamUpButton info={q.teamUp} onClick={() => setTeamPick(q)} language={language} />
                       <TakeBackButton completionId={q.myPendingId} onDone={() => onRefresh?.()} language={language} />
-                      {proofButton(q, !blocked)}
-                      <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={blocked} className={blocked ? 'tq-btn' : 'tq-btn tq-btn-primary'}
+                      {proofButton(q, !blocked && !timerWaits(q, true))}
+                      {timerButton(q, !blocked)}
+                      {!timerWaits(q, !blocked) && <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={blocked} className={blocked ? 'tq-btn' : 'tq-btn tq-btn-primary'}
                         style={{ padding: '8px 14px', fontSize: 12, ...(blocked ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
                         {claimed ? claimed : notMine ? t('app.notAssigned') : usedUp ? t(q.repeatPeriod === 'day' ? 'repeat.doneToday' : 'repeat.doneThisWeek') : <><CheckIcon /> {t('roomDetail.done')}</>}
-                      </button>
+                      </button>}
                       </span>
                     </div>
                   );

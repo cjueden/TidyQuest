@@ -1608,6 +1608,27 @@
       "coinsGoals": "Munten & doelen",
       "gameExtras": "Spelextra's",
       "rewards": "Beloningen"
+    },
+    "timer": {
+      "setting": "Timer",
+      "minutes": "minuten",
+      "off": "Uit",
+      "min": "min",
+      "filter": "Met timer",
+      "settingDesc": "Een aftelklok die je bij de taak start. Kinderen kunnen op Klaar tikken als hij afloopt.",
+      "startTitle": "Timer van {n} minuten starten",
+      "open": "Timer openen",
+      "pause": "Pauze",
+      "resume": "Verder",
+      "stop": "Stop",
+      "hide": "Verbergen",
+      "paused": "Gepauzeerd",
+      "timesUp": "De tijd is om! Klaar?",
+      "needMore": "Meer tijd nodig",
+      "stopConfirm": "Timer stoppen?",
+      "replaceConfirm": "De timer voor ‘{name}’ stoppen en deze starten?",
+      "keepsGoing": "Hij loopt door als je naar een andere pagina gaat.",
+      "mayDim": "Je scherm kan uitgaan; de timer telt gewoon door."
     }
   }
 }
