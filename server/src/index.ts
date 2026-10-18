@@ -28,9 +28,12 @@ import mascotRoutes from './routes/mascot';
 import boostsRoutes from './routes/boosts';
 import csvRoutes from './routes/csv';
 import trashRoutes from './routes/trash';
+import { proxyHint, trustProxySetting } from './utils/proxy';
 
 export function createApp() {
   const app = express();
+  app.set('trust proxy', trustProxySetting());
+  app.use(proxyHint);
 
   // CORS: allow only in dev or via explicit env var (in production, frontend is served from same origin)
   const corsOrigin = process.env.CORS_ORIGIN || (process.env.NODE_ENV !== 'production' ? true : false);

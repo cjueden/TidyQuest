@@ -9,6 +9,7 @@ process.env.VITEST = 'true';
 import { setDatabase } from '../database';
 import { applyForkSchema } from '../forkSchema';
 import { createApp } from '../index';
+import { resetLoginLimits } from '../routes/auth';
 
 export function createTestApp() {
   // Fresh in-memory DB for each test suite
@@ -27,8 +28,9 @@ export function createTestApp() {
 
   const app = createApp();
   const agent = supertest(app);
+  resetLoginLimits();
 
-  return { agent, db };
+  return { agent, db, app };
 }
 
 function runSchema(db: InstanceType<typeof Database>) {
@@ -254,10 +256,9 @@ export async function createUser(
 
   const user = res.body;
 
-  // Login to get token (each test user gets its own address, so a long test file stays under the login rate limit)
+  // Login to get token
   const loginRes = await agent
     .post('/api/auth/login')
-    .set('X-Forwarded-For', `test-${opts.username}`)
     .send({ username: opts.username, password: opts.password });
 
   return { user: loginRes.body.user, token: loginRes.body.token };
@@ -270,7 +271,6 @@ export async function loginAs(
 ) {
   const res = await agent
     .post('/api/auth/login')
-    .set('X-Forwarded-For', `test-${username}`)
     .send({ username, password });
   return res.body.token as string;
 }

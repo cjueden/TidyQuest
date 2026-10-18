@@ -356,7 +356,7 @@ const GUIDE_EN: GuideSection[] = [
           'Use Vacation Mode (whole house, Settings → General) or vacation per member (Family Members) before leaving; it protects streaks and freezes chore health.',
         ] },
         { q: 'Someone can’t log in', a: [
-          'After 20 tries in 15 minutes from one device, logins are blocked for a while; wait and try again.',
+          'Too many wrong passwords block logins for up to 15 minutes: 10 for one account, or 20 from one device. Wait and try again; a correct password clears the account’s count.',
           'A parent can set a new password in Settings → Family Members.',
           'After importing a backup, everyone except the parent who imported it needs a new password.',
         ] },
