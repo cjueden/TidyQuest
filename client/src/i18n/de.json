@@ -1659,6 +1659,17 @@
       "stepsLabel": "Schritte",
       "stepsPlaceholder": "Ein Schritt pro Zeile",
       "stepsDesc": "Einer pro Zeile, bis zu 12. Erscheinen als Häkchen in Eins nach dem anderen."
+    },
+    "layout": {
+      "hint": "Ziehe ≡, um die Reihenfolge zu ändern, oder nutze ▲▼. 👁️ blendet eine Karte ein oder aus. Gilt für dich auf jedem Gerät.",
+      "drag": "Ziehen zum Verschieben",
+      "up": "Nach oben",
+      "down": "Nach unten",
+      "hide": "Ausblenden",
+      "show": "Einblenden",
+      "reset": "Auf Standard zurücksetzen",
+      "done": "Fertig",
+      "saveFailed": "Die Anordnung konnte nicht gespeichert werden. Prüfe die Verbindung und versuche es noch einmal."
     }
   }
 }

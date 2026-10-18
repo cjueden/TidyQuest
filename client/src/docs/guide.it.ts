@@ -156,6 +156,13 @@ export const GUIDE_IT: GuideSection[] = [
         'Obiettivi: distintivi, il tuo livello e cosa viene dopo. Ricompense: il catalogo e le tue richieste.',
         'Cerca: il pulsante 🔍, oppure premi / o Ctrl+K sulla tastiera.',
       ] },
+      { h: 'Organizza la tua Home' },
+      { ul: [
+        'Personalizza (in alto e in fondo alla Home) elenca le tue schede in ordine. Trascina una scheda dal suo ≡ per spostarla, oppure usa ▲▼; 👁️ la mostra o la nasconde. Ripristina l’ordine predefinito rimette tutto com’era.',
+        'La tua disposizione è salvata per te: è la stessa su ogni telefono e computer dove accedi, e un’altra persona sullo stesso dispositivo ha la sua.',
+        'In Modalità bambino, anche i bambini ordinano e nascondono le loro schede (quelle che la Modalità bambino mostra).',
+        'Una scheda aggiunta in una versione successiva compare al suo solito posto.',
+      ] },
       { h: 'Una cosa alla volta' },
       { ul: [
         'Le faccende di oggi una alla volta, in grande: l’icona, il nome, le monete e i passaggi come caselle, con Fatto, Salta per ora, e ▶ quando la faccenda ha un timer.',
@@ -305,6 +312,10 @@ export const GUIDE_IT: GuideSection[] = [
           'Hai toccato Fatto per sbaglio? Finché aspetta, ↩ Annulla (accanto al pulsante) la annulla; in una squadra viene ritirata per tutta la squadra.',
           'Se Gamification è disattivata (Impostazioni → Generale), non ci sono monete per niente.',
           'Se un genitore l’ha rifiutata, la faccenda è di nuovo aperta; nelle squadre torna alla squadra.',
+        ] },
+        { q: 'Manca una scheda nella Home', a: [
+          'Forse è nascosta: apri Personalizza (il pulsante in fondo alla Home) e tocca il suo 🚫 per mostrarla di nuovo, oppure usa Ripristina l’ordine predefinito.',
+          'Alcune schede compaiono solo quando contengono qualcosa (I tuoi soliti, Forse hai dimenticato queste, Programmate, Completate oggi, In attesa di approvazione), e alcune sono solo per i genitori.',
         ] },
         { q: 'Una cosa alla volta non c’è, o manca una faccenda', a: [
           'Per genitori e membri è disattivata a meno che non sia scelta in Impostazioni → Membri della famiglia. I bambini ce l’hanno (un pulsante nella Home) a meno che un genitore non l’abbia disattivata lì. Può anche essere nascosta in Home → Personalizza, o disattivata in Impostazioni → Funzioni.',

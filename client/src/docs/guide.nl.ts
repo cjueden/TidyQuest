@@ -156,6 +156,13 @@ export const GUIDE_NL: GuideSection[] = [
         'Medailles: badges, je level en wat er nog komt. Beloningen: de winkel en je aanvragen.',
         'Zoeken: de 🔍-knop, of druk op / of Ctrl+K op een toetsenbord.',
       ] },
+      { h: 'Je Home indelen' },
+      { ul: [
+        'Aanpassen (boven- en onderaan Home) toont je kaarten op volgorde. Sleep een kaart aan zijn ≡ om hem te verplaatsen, of gebruik ▲▼; 👁️ toont of verbergt hem. Standaardvolgorde terugzetten zet alles terug.',
+        'Je indeling wordt voor jou bewaard: hij is hetzelfde op elke telefoon en computer waar je inlogt, en iemand anders op hetzelfde apparaat heeft een eigen indeling.',
+        'In Kindermodus delen kinderen hun kaarten ook zelf in en verbergen ze ze (de kaarten die Kindermodus toont).',
+        'Een kaart uit een nieuwere versie verschijnt op zijn gewone plek.',
+      ] },
       { h: 'Eén ding tegelijk' },
       { ul: [
         'De klusjes van vandaag één voor één, groot: het icoon, de naam, de munten en de stappen als vinkjes, met Klaar!, Nu even overslaan, en ▶ als het klusje een timer heeft.',
@@ -305,6 +312,10 @@ export const GUIDE_NL: GuideSection[] = [
           'Per ongeluk op Klaar! getikt? Zolang het wacht maakt ↩ Terugnemen (naast de knop) het ongedaan; bij Samen doen wordt het voor het hele team teruggenomen.',
           'Als Spelmodus (Gamification) uit staat (Instellingen → Algemeen), zijn er helemaal geen munten.',
           'Als een ouder het heeft afgewezen, staat het klusje weer open; bij Samen doen gaat het terug naar het team.',
+        ] },
+        { q: 'Er ontbreekt een kaart op Home', a: [
+          'Hij is misschien verborgen: open Aanpassen (de knop onderaan Home) en tik op zijn 🚫 om hem weer te tonen, of gebruik Standaardvolgorde terugzetten.',
+          'Sommige kaarten verschijnen alleen als er iets in staat (Je vaste klusjes, Misschien vergeten, Ingepland, Vandaag gedaan, Wacht op goedkeuring), en sommige zijn alleen voor ouders.',
         ] },
         { q: 'Eén ding tegelijk ontbreekt, of een klusje staat er niet in', a: [
           'Voor ouders en leden staat het uit, tenzij het is ingesteld bij Instellingen → Gezinsleden. Kinderen hebben het (een knop op Home), tenzij een ouder het daar uitzette. Het kan ook verborgen zijn via Home → Aanpassen, of uitgezet bij Instellingen → Functies.',

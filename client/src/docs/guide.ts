@@ -180,6 +180,13 @@ export const GUIDE_EN: GuideSection[] = [
         'Achievements: badges, your level and what’s next. Rewards: the catalog and your requests.',
         'Search: the 🔍 button, or press / or Ctrl+K on a keyboard.',
       ] },
+      { h: 'Arrange your Home' },
+      { ul: [
+        'Customise (at the top and the bottom of Home) lists your cards in order. Drag a card by its ≡ to move it, or use ▲▼; 👁️ shows or hides it. Reset to default puts everything back.',
+        'Your layout is saved for you: it’s the same on every phone and computer you sign in on, and someone else on the same device has their own.',
+        'In Kid mode, kids arrange and hide their own cards too (the ones Kid mode shows).',
+        'A card added in a later version appears in its usual place.',
+      ] },
       { h: 'One thing at a time' },
       { ul: [
         'Today’s chores one at a time, big: the icon, name, coins and the steps as tick boxes, with Done, Skip for now, and ▶ when the chore has a timer.',
@@ -329,6 +336,10 @@ export const GUIDE_EN: GuideSection[] = [
           'Tapped Done by mistake? While it waits, ↩ Take back (next to the button) undoes it; on a team-up it’s taken back for the whole team.',
           'If Gamification is off (Settings → General), there are no coins at all.',
           'If a parent turned it down, the chore is open again; under team-ups it goes back to the team.',
+        ] },
+        { q: 'A card is missing from Home', a: [
+          'It may be hidden: open Customise (the button at the bottom of Home) and tap its 🚫 to show it again, or use Reset to default.',
+          'Some cards only show when they have something in them (Your usual, Maybe you forgot, Scheduled, Completed today, Waiting for approval), and some are for parents only.',
         ] },
         { q: 'One thing at a time is missing, or a chore isn’t in it', a: [
           'For parents and members it’s off unless it’s set in Settings → Family Members. Kids get it (a button on Home) unless a parent turned it off there. It can also be hidden in Home → Customise, or switched off in Settings → Features.',

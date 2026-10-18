@@ -250,6 +250,8 @@ const NEW_COLUMNS: string[] = [
   // tick boxes, and each person's Focus view ('off' | 'button' | 'home'; NULL = a button for kids)
   `ALTER TABLE tasks ADD COLUMN steps TEXT`,
   `ALTER TABLE users ADD COLUMN focusMode TEXT`,
+  // Each person's Home: card order and hidden cards (JSON {order, hidden}; NULL = the default), utils/homeLayout.ts
+  `ALTER TABLE users ADD COLUMN homeLayout TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

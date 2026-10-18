@@ -1659,6 +1659,17 @@
       "stepsLabel": "Passaggi",
       "stepsPlaceholder": "Un passaggio per riga",
       "stepsDesc": "Uno per riga, fino a 12. Appaiono come caselle in Una cosa alla volta."
+    },
+    "layout": {
+      "hint": "Trascina ≡ per cambiare l'ordine, oppure usa ▲▼. 👁️ mostra o nasconde una scheda. Salvato per te su ogni dispositivo.",
+      "drag": "Trascina per spostare",
+      "up": "Sposta su",
+      "down": "Sposta giù",
+      "hide": "Nascondi",
+      "show": "Mostra",
+      "reset": "Ripristina l'ordine predefinito",
+      "done": "Fatto",
+      "saveFailed": "Impossibile salvare la disposizione. Controlla la connessione e riprova."
     }
   }
 }

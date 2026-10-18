@@ -156,6 +156,13 @@ export const GUIDE_FR: GuideSection[] = [
         'Succès : les badges, ton niveau et la suite. Récompenses : le catalogue et tes demandes.',
         'Recherche : le bouton 🔍, ou appuie sur / ou Ctrl+K au clavier.',
       ] },
+      { h: 'Organiser votre accueil' },
+      { ul: [
+        'Personnaliser (en haut et en bas de l’accueil) liste vos cartes dans l’ordre. Faites glisser une carte par son ≡ pour la déplacer, ou utilisez ▲▼ ; 👁️ l’affiche ou la masque. Revenir à l’ordre par défaut remet tout comme avant.',
+        'Votre disposition est enregistrée pour vous : elle est la même sur chaque téléphone et ordinateur où vous vous connectez, et une autre personne sur le même appareil a la sienne.',
+        'En Mode enfant, les enfants organisent et masquent aussi leurs cartes (celles que le Mode enfant affiche).',
+        'Une carte ajoutée dans une version plus récente apparaît à sa place habituelle.',
+      ] },
       { h: 'Une chose à la fois' },
       { ul: [
         'Les tâches du jour une à la fois, en grand : l’icône, le nom, les pièces et les étapes en cases à cocher, avec Fait, Passer pour l’instant, et ▶ quand la tâche a un minuteur.',
@@ -305,6 +312,10 @@ export const GUIDE_FR: GuideSection[] = [
           'Appuyé sur Fait par erreur ? Pendant l’attente, ↩ Annuler (à côté du bouton) l’annule ; pour une tâche en équipe, elle est annulée pour toute l’équipe.',
           'Si la Gamification est désactivée (Paramètres → Général), il n’y a aucune pièce.',
           'Si un parent l’a refusée, la tâche est de nouveau ouverte ; pour une tâche en équipe, elle retourne à l’équipe.',
+        ] },
+        { q: 'Une carte a disparu de l’accueil', a: [
+          'Elle est peut-être masquée : ouvrez Personnaliser (le bouton en bas de l’accueil) et appuyez sur son 🚫 pour l’afficher à nouveau, ou utilisez Revenir à l’ordre par défaut.',
+          'Certaines cartes n’apparaissent que quand elles ont du contenu (Tes habitudes, Tu as peut-être oublié ceux-ci, Planifiées, Complétées aujourd’hui, En attente de validation), et certaines sont réservées aux parents.',
         ] },
         { q: 'Une chose à la fois n’apparaît pas, ou une tâche n’y est pas', a: [
           'Pour les parents et les membres, elle est désactivée sauf si elle est réglée dans Paramètres → Membres de la famille. Les enfants l’ont (un bouton sur l’accueil) sauf si un parent l’a désactivée. Elle peut aussi être masquée dans Accueil → Personnaliser, ou désactivée dans Paramètres → Fonctionnalités.',

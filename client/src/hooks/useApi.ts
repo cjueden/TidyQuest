@@ -392,7 +392,7 @@ export const api = {
     apiFetch<any>('/users', { method: 'POST', body: JSON.stringify(data) }),
   updateSettings: (userId: number, data: { language?: string; isVacationMode?: boolean }) =>
     apiFetch<any>(`/users/${userId}/settings`, { method: 'PUT', body: JSON.stringify(data) }),
-  updateProfile: (userId: number, data: { displayName?: string; avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null; theme?: string | null; holidayColors?: boolean }) =>
+  updateProfile: (userId: number, data: { displayName?: string; avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null; theme?: string | null; holidayColors?: boolean; homeLayout?: { order: string[]; hidden: string[] } | null }) =>
     apiFetch<any>(`/users/${userId}/profile`, { method: 'PUT', body: JSON.stringify(data) }),
   updatePassword: (userId: number, data: { currentPassword?: string; newPassword: string }) =>
     apiFetch<{ success: boolean }>(`/users/${userId}/password`, { method: 'PUT', body: JSON.stringify(data) }),

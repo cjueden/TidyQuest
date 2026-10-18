@@ -1659,6 +1659,17 @@
       "stepsLabel": "Étapes",
       "stepsPlaceholder": "Une étape par ligne",
       "stepsDesc": "Une par ligne, 12 au maximum. Affichées en cases à cocher dans Une chose à la fois."
+    },
+    "layout": {
+      "hint": "Faites glisser ≡ pour changer l'ordre, ou utilisez ▲▼. 👁️ affiche ou masque une carte. Enregistré pour vous sur chaque appareil.",
+      "drag": "Glisser pour déplacer",
+      "up": "Monter",
+      "down": "Descendre",
+      "hide": "Masquer",
+      "show": "Afficher",
+      "reset": "Revenir à l'ordre par défaut",
+      "done": "Terminé",
+      "saveFailed": "Impossible d'enregistrer la disposition. Vérifiez la connexion et réessayez."
     }
   }
 }

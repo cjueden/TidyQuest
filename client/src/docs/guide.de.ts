@@ -156,6 +156,13 @@ export const GUIDE_DE: GuideSection[] = [
         'Erfolge: Abzeichen, dein Level und was als Nächstes kommt. Belohnungen: der Katalog und deine Anfragen.',
         'Suche: der 🔍-Knopf, oder drücke / oder Strg+K auf einer Tastatur.',
       ] },
+      { h: 'Deine Startseite anordnen' },
+      { ul: [
+        'Anpassen (oben und unten auf der Startseite) zeigt deine Karten der Reihe nach. Ziehe eine Karte an ihrem ≡, um sie zu verschieben, oder nutze ▲▼; 👁️ blendet sie ein oder aus. Auf Standard zurücksetzen stellt alles wieder her.',
+        'Deine Anordnung wird für dich gespeichert: Sie ist auf jedem Handy und Computer gleich, auf dem du dich anmeldest, und jemand anderes auf demselben Gerät hat seine eigene.',
+        'Im Kindermodus ordnen und verstecken Kinder ihre Karten auch selbst (die, die der Kindermodus zeigt).',
+        'Eine Karte aus einer neueren Version erscheint an ihrem gewohnten Platz.',
+      ] },
       { h: 'Eins nach dem anderen' },
       { ul: [
         'Die Aufgaben von heute eine nach der anderen, groß: Symbol, Name, Münzen und die Schritte als Häkchen, mit Erledigt, Später, und ▶, wenn die Aufgabe einen Timer hat.',
@@ -305,6 +312,10 @@ export const GUIDE_DE: GuideSection[] = [
           'Aus Versehen auf Erledigt getippt? Solange sie wartet, macht ↩ Zurücknehmen (neben dem Knopf) es rückgängig; bei einem Teamwork wird es für das ganze Team zurückgenommen.',
           'Wenn Gamification aus ist (Einstellungen → Allgemein), gibt es überhaupt keine Münzen.',
           'Wenn ein Elternteil es abgelehnt hat, ist die Aufgabe wieder offen; bei Teamwork geht sie zurück an das Team.',
+        ] },
+        { q: 'Eine Karte fehlt auf der Startseite', a: [
+          'Sie ist vielleicht ausgeblendet: Öffne Anpassen (der Knopf unten auf der Startseite) und tippe auf ihr 🚫, um sie wieder zu zeigen, oder nutze Auf Standard zurücksetzen.',
+          'Manche Karten erscheinen nur, wenn etwas darin steht (Deine Klassiker, Vielleicht vergessen, Geplant, Heute erledigt, Wartet auf Freigabe), und manche sind nur für Eltern.',
         ] },
         { q: 'Eins nach dem anderen fehlt, oder eine Aufgabe ist nicht dabei', a: [
           'Für Eltern und Mitglieder ist es aus, außer es ist unter Einstellungen → Familienmitglieder eingestellt. Kinder haben es (ein Knopf auf der Startseite), außer ein Elternteil hat es dort ausgeschaltet. Es kann auch unter Startseite → Anpassen ausgeblendet oder unter Einstellungen → Funktionen ausgeschaltet sein.',

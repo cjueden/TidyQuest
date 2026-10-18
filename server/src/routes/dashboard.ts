@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import { focusLine, focusModeFor, OPEN_PER_DAY } from '../utils/focus';
+import { parseHomeLayout } from '../utils/homeLayout';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { calendarDaysUntil, hasWeekdaySchedule, isSeasonalNow, nextDueAt, oneTimeDeadline, scheduleFields, taskHealth } from '../utils/schedule';
@@ -23,7 +24,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   // Refresh the cached goal first so it rolls over to the current week (and completes) on its own
   const myPrimaryGoal = syncPrimaryGoal(req.userId!);
   const user = db.prepare(
-    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, language, taskView, kidMode, focusMode FROM users WHERE id = ?'
+    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, language, taskView, kidMode, focusMode, homeLayout FROM users WHERE id = ?'
   ).get(req.userId) as any;
   const vacation = getGlobalVacation();
 
@@ -358,7 +359,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     strictMode: isStrictModeEnabled(),
     // Double coins events running now (Home shows a banner and the boosted amounts)
     coinBoosts: getActiveBoosts().map((b) => ({ id: b.id, title: b.title, multiplier: b.multiplier, startAt: b.startAt, endAt: b.endAt, roomIds: b.roomIds, taskIds: b.taskIds, taskNames: boostTaskNames(b) })),
-    currentUser: user,
+    currentUser: { ...user, homeLayout: parseHomeLayout(user.homeLayout) },
     recentActivity,
     badges,
     // The viewer's level and the closest badge still to earn ("Next up")

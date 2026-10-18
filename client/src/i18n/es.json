@@ -1659,6 +1659,17 @@
       "stepsLabel": "Pasos",
       "stepsPlaceholder": "Un paso por línea",
       "stepsDesc": "Uno por línea, hasta 12. Se muestran como casillas en Una cosa cada vez."
+    },
+    "layout": {
+      "hint": "Arrastra ≡ para cambiar el orden, o usa ▲▼. 👁️ muestra u oculta una tarjeta. Se guarda para ti en todos tus dispositivos.",
+      "drag": "Arrastrar para mover",
+      "up": "Subir",
+      "down": "Bajar",
+      "hide": "Ocultar",
+      "show": "Mostrar",
+      "reset": "Volver al orden por defecto",
+      "done": "Listo",
+      "saveFailed": "No se pudo guardar la disposición. Revisa la conexión e inténtalo de nuevo."
     }
   }
 }

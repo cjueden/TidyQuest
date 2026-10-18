@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import { FOCUS_MODES } from '../utils/focus';
+import { readHomeLayout } from '../utils/homeLayout';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -20,7 +21,7 @@ router.use(authMiddleware);
 // The 8 free themes, then the ones unlocked by levels (utils/unlocks.ts)
 export const THEMES = ['orange', 'blue', 'rose', 'mint', 'grape', 'sunny', 'night', 'ocean', ...UNLOCKABLE_THEMES];
 
-const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme, holidayColors, focusMode';
+const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme, holidayColors, focusMode, homeLayout';
 
 function normalizeNotificationTime(value: string | undefined): string | null {
   if (value === undefined) return null;
@@ -147,7 +148,7 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
     return res.status(403).json({ error: 'Cannot modify another user' });
   }
 
-  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday, theme, holidayColors } = req.body;
+  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday, theme, holidayColors, homeLayout } = req.body;
 
   const updates: string[] = [];
   const values: any[] = [];
@@ -165,6 +166,12 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
   }
   // Holiday colors over the theme during seasonal styling (on by default)
   if (holidayColors !== undefined) { updates.push('holidayColors = ?'); values.push(holidayColors ? 1 : 0); }
+  // Home: card order and hidden cards (null = back to the default)
+  if (homeLayout !== undefined) {
+    const layout = readHomeLayout(homeLayout);
+    if ('error' in layout) return res.status(400).json({ error: layout.error });
+    updates.push('homeLayout = ?'); values.push(layout.value);
+  }
   // Birthday as 'MM-DD' (empty clears it)
   if (birthday !== undefined) {
     const b = typeof birthday === 'string' ? birthday.trim() : '';

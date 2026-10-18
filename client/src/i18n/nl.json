@@ -1659,6 +1659,17 @@
       "stepsLabel": "Stappen",
       "stepsPlaceholder": "Eén stap per regel",
       "stepsDesc": "Eén per regel, tot 12. Verschijnen als vinkjes in Eén ding tegelijk."
+    },
+    "layout": {
+      "hint": "Sleep ≡ om de volgorde te wijzigen, of gebruik ▲▼. 👁️ toont of verbergt een kaart. Bewaard voor jou op elk apparaat.",
+      "drag": "Slepen om te verplaatsen",
+      "up": "Omhoog",
+      "down": "Omlaag",
+      "hide": "Verbergen",
+      "show": "Tonen",
+      "reset": "Standaardvolgorde terugzetten",
+      "done": "Klaar",
+      "saveFailed": "Je indeling kon niet worden opgeslagen. Controleer de verbinding en probeer het opnieuw."
     }
   }
 }

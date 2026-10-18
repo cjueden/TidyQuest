@@ -156,6 +156,13 @@ export const GUIDE_ES: GuideSection[] = [
         'Logros: insignias, tu nivel y lo que viene después. Recompensas: el catálogo y tus solicitudes.',
         'Buscar: el botón 🔍, o pulsa / o Ctrl+K en un teclado.',
       ] },
+      { h: 'Organiza tu inicio' },
+      { ul: [
+        'Personalizar (arriba y abajo del inicio) muestra tus tarjetas en orden. Arrastra una tarjeta por su ≡ para moverla, o usa ▲▼; 👁️ la muestra u oculta. Volver al orden por defecto lo deja todo como estaba.',
+        'Tu disposición se guarda para ti: es la misma en cada móvil y ordenador donde inicias sesión, y otra persona en el mismo dispositivo tiene la suya.',
+        'En Modo niño, los niños también ordenan y ocultan sus tarjetas (las que muestra el Modo niño).',
+        'Una tarjeta añadida en una versión posterior aparece en su sitio de siempre.',
+      ] },
       { h: 'Una cosa cada vez' },
       { ul: [
         'Las tareas de hoy una a una, en grande: el icono, el nombre, las monedas y los pasos como casillas, con Hecho, Saltar por ahora, y ▶ cuando la tarea tiene temporizador.',
@@ -305,6 +312,10 @@ export const GUIDE_ES: GuideSection[] = [
           '¿Pulsaste Hecho por error? Mientras espera, ↩ Deshacer (junto al botón) lo anula; en una tarea En equipo se deshace para todo el equipo.',
           'Si la Gamificación está desactivada (Ajustes → General), no hay monedas en absoluto.',
           'Si un padre o una madre la rechazó, la tarea vuelve a estar abierta; en En equipo vuelve al equipo.',
+        ] },
+        { q: 'Falta una tarjeta en el inicio', a: [
+          'Puede estar oculta: abre Personalizar (el botón al final del inicio) y pulsa su 🚫 para mostrarla otra vez, o usa Volver al orden por defecto.',
+          'Algunas tarjetas solo aparecen cuando tienen algo (Lo de siempre, Quizá olvidaste estas, Programadas, Completadas hoy, Esperando aprobación), y algunas son solo para padres.',
         ] },
         { q: 'No aparece Una cosa cada vez, o falta una tarea', a: [
           'Para padres y miembros está desactivada salvo que se elija en Ajustes → Miembros de la familia. Los niños la tienen (un botón en el inicio) salvo que un padre la desactive ahí. También puede estar oculta en Inicio → Personalizar, o desactivada en Ajustes → Funciones.',

@@ -1659,6 +1659,17 @@
       "stepsLabel": "Steps",
       "stepsPlaceholder": "One step per line",
       "stepsDesc": "One per line, up to 12. Shown as tick boxes in One thing at a time."
+    },
+    "layout": {
+      "hint": "Drag ≡ to change the order, or use ▲▼. 👁️ shows or hides a card. Saved for you on every device.",
+      "drag": "Drag to move",
+      "up": "Move up",
+      "down": "Move down",
+      "hide": "Hide",
+      "show": "Show",
+      "reset": "Reset to default",
+      "done": "Done",
+      "saveFailed": "Couldn't save your layout. Check the connection and try again."
     }
   }
 }
