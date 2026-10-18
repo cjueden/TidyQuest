@@ -32,7 +32,7 @@ interface TaskRow { id: number; name: string; roomId: number; onDemand: number; 
   scheduleWeekdays: number | null; seasonStartMonth: number | null; seasonEndMonth: number | null; assignmentMode: string | null;
   rotationPeriod: string | null; rotationCurrentUserId: number | null; reminderTime: string | null; reminderDayBefore: number }
 
-const scheduledTasks = (now: Date) => (db.prepare('SELECT * FROM tasks WHERE onDemand = 0 AND archivedAt IS NULL').all() as TaskRow[]).filter((t) => !isSeasonalNow(t, now));
+const scheduledTasks = (now: Date) => (db.prepare('SELECT * FROM tasks WHERE onDemand = 0 AND archivedAt IS NULL AND deletedAt IS NULL').all() as TaskRow[]).filter((t) => !isSeasonalNow(t, now));
 /** Not done and due by the end of `by` */
 const dueBy = (t: TaskRow, by: Date, now: Date) => (nextDueAt(t, now)?.getTime() ?? now.getTime()) <= by.getTime();
 

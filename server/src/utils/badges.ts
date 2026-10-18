@@ -66,7 +66,7 @@ export function readCustomBadgeInput(body: any): { error: string } | { values: O
   const taskIds = parseIds(body?.taskIds) ?? [];
   if ((metric === 'task_count' || metric === 'task_weeks') && taskIds.length === 0) return { error: 'tasks_required' };
   const roomId = body?.roomId != null && body.roomId !== '' ? Number(body.roomId) : null;
-  if (metric === 'room_count' && !(roomId && db.prepare('SELECT 1 FROM rooms WHERE id = ?').get(roomId))) return { error: 'room_required' };
+  if (metric === 'room_count' && !(roomId && db.prepare('SELECT 1 FROM rooms WHERE id = ? AND deletedAt IS NULL').get(roomId))) return { error: 'room_required' };
   const threshold = Math.round(Number(body?.threshold));
   if (!(threshold >= 1 && threshold <= 100000)) return { error: 'invalid_threshold' };
   const bonusCoins = Math.round(Number(body?.bonusCoins ?? 0));

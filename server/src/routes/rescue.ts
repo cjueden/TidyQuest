@@ -23,7 +23,7 @@ router.put('/', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
   if (rescuedAlready()) return res.status(409).json({ error: 'already_rescued' });
   const taskId = Number(req.body?.taskId);
-  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ? AND archivedAt IS NULL AND onDemand = 0').get(taskId)) return res.status(400).json({ error: 'invalid_task' });
+  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ? AND archivedAt IS NULL AND deletedAt IS NULL AND onDemand = 0').get(taskId)) return res.status(400).json({ error: 'invalid_task' });
   res.json(chooseRescue(taskId));
 });
 

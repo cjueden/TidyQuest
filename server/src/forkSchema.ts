@@ -240,6 +240,10 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE users ADD COLUMN title TEXT`,
   // A completion done as a team (each member gets one, all with the same teamupId)
   `ALTER TABLE task_completions ADD COLUMN teamupId INTEGER`,
+  // Deleting a chore or room hides it (deletedAt set) but keeps the row, so its completions keep their
+  // name in Activity, the Board, goals and badges. Lists filter deletedAt IS NULL next to archivedAt.
+  `ALTER TABLE tasks ADD COLUMN deletedAt TEXT`,
+  `ALTER TABLE rooms ADD COLUMN deletedAt TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

@@ -56,7 +56,7 @@ export function hiddenRoomIdsFor(userId: number | undefined): Set<number> {
   if (!userId || !isHidePrivateRoomsEnabled()) return new Set();
   const viewer = db.prepare('SELECT role FROM users WHERE id = ?').get(userId) as { role?: string } | undefined;
   if (viewer?.role !== 'child') return new Set();
-  const rows = db.prepare('SELECT id FROM rooms WHERE assignedUserId IS NOT NULL AND assignedUserId != ?').all(userId) as { id: number }[];
+  const rows = db.prepare('SELECT id FROM rooms WHERE deletedAt IS NULL AND assignedUserId IS NOT NULL AND assignedUserId != ?').all(userId) as { id: number }[];
   return new Set(rows.map((r) => r.id));
 }
 

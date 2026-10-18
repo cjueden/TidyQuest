@@ -6,6 +6,7 @@ import { isSeasonalNow, scheduleFields, taskHealth } from '../utils/schedule';
 import { suggestTaskIcon } from '../utils/taskIcons';
 import { ensureAdmin, getGlobalVacation, getUserVacation, hiddenRoomIdsFor, resolveVacation } from '../utils/adminHelpers';
 import { repeatCountsFor } from '../utils/repeatLimits';
+import { softDeleteTasks } from '../utils/trash';
 
 const router = Router();
 
@@ -131,11 +132,11 @@ router.use(authMiddleware);
 router.get('/', (req: AuthRequest, res: Response) => {
   // Kids don't see other people's private rooms (when the setting is on)
   const hiddenRooms = hiddenRoomIdsFor(req.userId);
-  const rooms = (db.prepare('SELECT * FROM rooms ORDER BY sortOrder, id').all() as any[]).filter((r) => !hiddenRooms.has(r.id));
+  const rooms = (db.prepare('SELECT * FROM rooms WHERE deletedAt IS NULL ORDER BY sortOrder, id').all() as any[]).filter((r) => !hiddenRooms.has(r.id));
   const vacation = getGlobalVacation();
 
   // Fetch all tasks in one query, then group by roomId (done one-time chores are archived, not listed)
-  const allTasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL').all() as any[];
+  const allTasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL').all() as any[];
   const tasksByRoom = new Map<number, any[]>();
   for (const t of allTasks) {
     if (!tasksByRoom.has(t.roomId)) tasksByRoom.set(t.roomId, []);
@@ -149,13 +150,13 @@ router.get('/', (req: AuthRequest, res: Response) => {
   // Batch-fetch today's completions for Done button display
   const nowIso = new Date().toISOString();
   const todayCompletions = db.prepare(
-    `SELECT tc.id as completionId, tc.taskId, tc.userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
+    `SELECT tc.id as completionId, tc.taskId, tc.userId, tc.coinsEarned, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
      FROM task_completions tc
      JOIN users u ON tc.userId = u.id
      WHERE tc.status = 'approved' AND date(tc.completedAt, 'localtime') = date(?, 'localtime')`
   ).all(nowIso) as any[];
   const completedTodayByTask = new Map(todayCompletions.map((c: any) => [c.taskId, {
-    completionId: c.completionId, userId: c.userId, displayName: c.displayName, avatarColor: c.avatarColor,
+    completionId: c.completionId, userId: c.userId, coinsEarned: c.coinsEarned, displayName: c.displayName, avatarColor: c.avatarColor,
     avatarType: c.avatarType, avatarPreset: c.avatarPreset, avatarPhotoUrl: c.avatarPhotoUrl,
   }]));
 
@@ -321,7 +322,7 @@ router.put('/:id', (req: AuthRequest, res: Response) => {
   }
 
   const { name, roomType, color, accentColor, sortOrder } = req.body;
-  const room = db.prepare('SELECT * FROM rooms WHERE id = ?').get(req.params.id) as any;
+  const room = db.prepare('SELECT * FROM rooms WHERE id = ? AND deletedAt IS NULL').get(req.params.id) as any;
   if (!room) return res.status(404).json({ error: 'Room not found' });
 
   // Build SQL dynamically to handle assignedUserId/zoneId: null (explicit unset) vs undefined (not provided)
@@ -404,16 +405,20 @@ router.put('/:id', (req: AuthRequest, res: Response) => {
   res.json({ ...updated, assignedUser });
 });
 
-// Delete room (cascades to tasks)
+// Delete room: the room and its chores are hidden, not erased, so their history and coins stay in Activity,
+// the Board and goals. It isn't in the trash (its chores already there can be restored into another room).
 router.delete('/:id', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
 
-  const room = db.prepare('SELECT * FROM rooms WHERE id = ?').get(req.params.id);
+  const room = db.prepare('SELECT * FROM rooms WHERE id = ? AND deletedAt IS NULL').get(req.params.id);
   if (!room) return res.status(404).json({ error: 'Room not found' });
 
-  db.prepare('DELETE FROM rooms WHERE id = ?').run(req.params.id);
+  db.transaction(() => {
+    softDeleteTasks('roomId = ?', req.params.id);
+    db.prepare("UPDATE rooms SET deletedAt = datetime('now') WHERE id = ?").run(req.params.id);
+  })();
   res.json({ success: true });
 });
 
@@ -421,7 +426,7 @@ router.delete('/:id', (req: AuthRequest, res: Response) => {
 // for the other. When a new owner is given and the room has one, the old owner's assignments go to them.
 router.post('/:id/duplicate', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
-  const room = db.prepare('SELECT * FROM rooms WHERE id = ?').get(req.params.id) as any;
+  const room = db.prepare('SELECT * FROM rooms WHERE id = ? AND deletedAt IS NULL').get(req.params.id) as any;
   if (!room) return res.status(404).json({ error: 'Room not found' });
   const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
   if (!name) return res.status(400).json({ error: 'name is required' });
@@ -439,7 +444,7 @@ router.post('/:id/duplicate', (req: AuthRequest, res: Response) => {
     const id = Number(db.prepare(
       'INSERT INTO rooms (name, roomType, color, accentColor, photoUrl, sortOrder, assignedUserId, zoneId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     ).run(name, room.roomType, room.color, room.accentColor, room.photoUrl ?? null, room.sortOrder, ownerUserId, room.zoneId ?? null).lastInsertRowid);
-    const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL ORDER BY id').all(room.id) as any[];
+    const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL AND deletedAt IS NULL ORDER BY id').all(room.id) as any[];
     // Every setting column is copied (so newer ones like schedules and repeat limits come along);
     // history and whose turn it is start fresh
     const fresh = ['id', 'roomId', 'lastCompletedAt', 'createdAt', 'rotationCurrentUserId'];

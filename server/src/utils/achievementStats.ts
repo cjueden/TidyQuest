@@ -25,7 +25,7 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
 
   // Rooms with health >= 70 ("clean") right now
   const tasksByRoom = new Map<number, any[]>();
-  for (const t of db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND oneTime = 0').all() as any[]) {
+  for (const t of db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND oneTime = 0').all() as any[]) {
     if (!tasksByRoom.has(t.roomId)) tasksByRoom.set(t.roomId, []);
     tasksByRoom.get(t.roomId)!.push(t);
   }
@@ -103,7 +103,7 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
 
   // Secret ones: every scheduled chore of a room (3 or more) done in one day, chores before 8 am,
   // and a chore on your birthday
-  const roomSizes = new Map((db.prepare('SELECT roomId, COUNT(*) AS n FROM tasks WHERE onDemand = 0 AND oneTime = 0 AND archivedAt IS NULL GROUP BY roomId').all() as Array<{ roomId: number; n: number }>).map((r) => [r.roomId, r.n]));
+  const roomSizes = new Map((db.prepare('SELECT roomId, COUNT(*) AS n FROM tasks WHERE onDemand = 0 AND oneTime = 0 AND archivedAt IS NULL AND deletedAt IS NULL GROUP BY roomId').all() as Array<{ roomId: number; n: number }>).map((r) => [r.roomId, r.n]));
   const roomSweeps = (db.prepare(
     `SELECT t.roomId, COUNT(DISTINCT c.taskId) AS n FROM task_completions c JOIN tasks t ON t.id = c.taskId
      WHERE c.userId = ? AND c.status = 'approved' AND t.onDemand = 0 GROUP BY date(c.completedAt, 'localtime'), t.roomId`
