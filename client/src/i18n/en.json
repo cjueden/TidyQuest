@@ -1247,7 +1247,8 @@
       "cheer": "{emoji} {name} cheered your “{task}”",
       "teamupInvite": "🤝 {name} wants help with “{task}”",
       "teamupAnyone": "🤝 {name} is looking for a teammate for “{task}”",
-      "teamupJoined": "🤝 {name} joined you for “{task}”"
+      "teamupJoined": "🤝 {name} joined you for “{task}”",
+      "teamupDeclined": "🤝 {name} can't do “{task}” with you this time. You can ask someone else."
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",
@@ -1526,7 +1527,8 @@
       "error_not_teamable": "This chore can't be done as a team.",
       "error_already_teamed": "Someone already started a team-up on this chore today.",
       "error_invalid_partner": "They can't do this chore.",
-      "error_not_assigned": "This chore isn't yours to team up on."
+      "error_not_assigned": "This chore isn't yours to team up on.",
+      "decline": "No thanks"
     },
     "iconGroups": {
       "kitchen": "Kitchen",

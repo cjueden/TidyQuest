@@ -170,6 +170,14 @@ const NEW_TABLES: string[] = [
     joinedAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     UNIQUE (teamupId, userId)
   )`,
+  // Someone said no to an "anyone" team-up invite: it no longer shows for them (utils/teamups.ts)
+  `CREATE TABLE IF NOT EXISTS teamup_declines (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    teamupId INTEGER NOT NULL REFERENCES teamups(id) ON DELETE CASCADE,
+    userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    UNIQUE (teamupId, userId)
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
@@ -247,6 +255,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'cheers', table: 'cheers' },
   { key: 'teamups', table: 'teamups' },
   { key: 'teamupMembers', table: 'teamup_members' },
+  { key: 'teamupDeclines', table: 'teamup_declines' },
   { key: 'mascotPurchases', table: 'mascot_purchases' },
 ];
 

@@ -1,13 +1,18 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createTestApp, createAdmin, createUser } from './setup';
+import { setNotifyTransport, type Delivery } from '../utils/notify';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 
 let agent: supertest.Agent;
 let db: InstanceType<typeof Database>;
+let sent: Delivery[];
 beforeEach(() => {
   ({ agent, db } = createTestApp());
+  sent = [];
+  setNotifyTransport(async (d) => { sent.push(d); return { ok: true }; });
 });
+afterEach(() => setNotifyTransport());
 const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
 const HOUR = 3600000;
 const at = (ms: number) => new Date(Date.now() + ms).toISOString();
@@ -110,5 +115,31 @@ describe('Team-ups: doing a chore together', () => {
     }
     const badge = ((await agent.get('/api/achievements').set(auth(cylis.token))).body.me.achievements as any[]).find((a) => a.id === 'teamwork_5');
     expect(badge.unlocked).toBe(true);
+  });
+
+  it('lets someone say no thanks: a personal invite ends and the starter hears; an "anyone" invite just goes away for them', async () => {
+    const { cecil, cylis, wyatt, chore } = await family();
+    for (const [k, v] of [['notificationsEnabled', '1'], ['ntfyEnabled', '1'], ['ntfyTopic', 'family']]) db.prepare('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)').run(k, v);
+    db.prepare("UPDATE users SET ntfyTopic = 'cecil-phone' WHERE id = ?").run(cecil.user.id);
+    const tub = await chore('Clean Shower & Tub', 12);
+    const personal = (await agent.post('/api/teamups').set(auth(cecil.token)).send({ taskId: tub, partnerId: cylis.user.id })).body.teamup;
+    expect((await agent.post(`/api/teamups/${personal.id}/decline`).set(auth(wyatt.token))).body.error).toBe('not_invited');
+    expect((await agent.post(`/api/teamups/${personal.id}/decline`).set(auth(cecil.token))).status).toBe(404);
+    await agent.post(`/api/teamups/${personal.id}/decline`).set(auth(cylis.token)).expect(200);
+    expect((db.prepare('SELECT status FROM teamups WHERE id = ?').get(personal.id) as any).status).toBe('cancelled');
+    await new Promise((r) => setTimeout(r, 20));
+    expect(sent.filter((d) => d.target === 'cecil-phone').map((d) => d.message)).toEqual(['🤝 Cylis can\'t do “Clean Shower & Tub” with you this time. You can ask someone else.']);
+    expect((await agent.get('/api/dashboard').set(auth(cecil.token))).body.teamups).toEqual([]);
+
+    // The chore is free again: Cecil asks anyone; Cylis says no, Wyatt still sees it and joins
+    const open = (await agent.post('/api/teamups').set(auth(cecil.token)).send({ taskId: tub })).body.teamup;
+    await agent.post(`/api/teamups/${open.id}/decline`).set(auth(cylis.token)).expect(200);
+    await agent.post(`/api/teamups/${open.id}/decline`).set(auth(cylis.token)).expect(200);
+    expect((db.prepare('SELECT status FROM teamups WHERE id = ?').get(open.id) as any).status).toBe('open');
+    expect((await agent.get('/api/dashboard').set(auth(cylis.token))).body.teamups).toEqual([]);
+    expect((await agent.post(`/api/teamups/${open.id}/join`).set(auth(cylis.token))).body.error).toBe('declined');
+    expect((await agent.get('/api/dashboard').set(auth(wyatt.token))).body.teamups).toMatchObject([{ id: open.id, canJoin: true }]);
+    await agent.post(`/api/teamups/${open.id}/join`).set(auth(wyatt.token)).expect(200);
+    expect((await agent.post(`/api/teamups/${open.id}/decline`).set(auth(wyatt.token))).status).toBe(404);
   });
 });

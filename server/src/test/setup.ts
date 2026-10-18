@@ -254,9 +254,10 @@ export async function createUser(
 
   const user = res.body;
 
-  // Login to get token
+  // Login to get token (each test user gets its own address, so a long test file stays under the login rate limit)
   const loginRes = await agent
     .post('/api/auth/login')
+    .set('X-Forwarded-For', `test-${opts.username}`)
     .send({ username: opts.username, password: opts.password });
 
   return { user: loginRes.body.user, token: loginRes.body.token };
@@ -269,6 +270,7 @@ export async function loginAs(
 ) {
   const res = await agent
     .post('/api/auth/login')
+    .set('X-Forwarded-For', `test-${username}`)
     .send({ username, password });
   return res.body.token as string;
 }

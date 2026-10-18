@@ -208,7 +208,7 @@ const GUIDE_EN: GuideSection[] = [
         'To-dos: one-time chores and the To-do card.',
         'Board awards and trophy shelf. Levels and Next badge.',
         'Cheers: 👏 🎉 💪 ⭐ on anyone else’s finished chore (Home’s "Completed today" and Activity). The same emoji again takes it back. The person gets a private notification.',
-        'Team-ups: 🤝 on a chore worth 6 or more coins invites one person or anyone. Once someone joins, the chore is the team’s for the day. Either one taps Done; coins split evenly plus a team bonus (10, 20 or 30%). A parent with a kid is a helper and the kid keeps all the coins. Never on someone’s own room, one-person or rotating chores.',
+        'Team-ups: 🤝 on a chore worth 6 or more coins invites one person or anyone. Once someone joins, the chore is the team’s for the day. Either one taps Done; coins split evenly plus a team bonus (10, 20 or 30%). A parent with a kid is a helper and the kid keeps all the coins. Never on someone’s own room, one-person or rotating chores. Not up for it? "No thanks" turns an invite down: an invite just for you ends and the person who asked hears about it, so they can ask someone else; an invite for anyone just disappears for you.',
         'House mascot: one of 8 creatures, picked and named here. It grows with the family coins earned while it’s the active mascot (hatches at 500, then 2,000, 5,000 and 10,000), its mood follows house health, and it reacts to birthdays, the family goal and the Rescue Mission.',
         'Swapping mascots: picking a creature you haven’t had starts it as a new egg. Each creature keeps its own growth, name and outfit, so switching back brings it back exactly as it was. The tummy and bedtime are shared.',
         'Playing with the mascot: tap it for a reaction. Its 🍪 tummy fills 5% with every chore (a team-up counts once) and empties over 2 days; when it’s low it just says it’s hungry. "What should I do?" suggests a chore you can do right now. It adds a 🐾 cheer to every finished chore. It sleeps during the family bedtime (set under the mascot in Features, 9 pm to 7 am by default).',
@@ -323,6 +323,11 @@ const GUIDE_EN: GuideSection[] = [
           'Team-ups need a chore worth 6 or more coins that isn’t in someone’s own room, isn’t assigned to just one person, and isn’t rotating.',
           'Only one team-up per chore per day; check the Team-ups card on Home.',
           'Settings → Features → Team-ups must be on.',
+        ] },
+        { q: 'A team-up invite disappeared', a: [
+          'Invites end at midnight, and when someone does the chore another way.',
+          'If you tapped "No thanks" on an invite for anyone, it’s hidden for you for the rest of the day.',
+          'If the person you invited said no thanks, the invite ended and you can ask someone else.',
         ] },
         { q: 'A theme, frame or celebration is locked', a: [
           'It unlocks at a level (🔒 shows which). Levels come from lifetime coins and never go down.',

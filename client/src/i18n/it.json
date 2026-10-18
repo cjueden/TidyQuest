@@ -1247,7 +1247,8 @@
       "cheer": "{emoji} {name} ha fatto il tifo per «{task}»",
       "teamupInvite": "🤝 {name} vuole aiuto con «{task}»",
       "teamupAnyone": "🤝 {name} cerca un compagno per «{task}»",
-      "teamupJoined": "🤝 {name} si è unito a te per «{task}»"
+      "teamupJoined": "🤝 {name} si è unito a te per «{task}»",
+      "teamupDeclined": "🤝 {name} questa volta non può fare «{task}» con te. Puoi chiedere a qualcun altro."
     },
     "notifyAdmin": {
       "peopleTitle": "Chi riceve cosa",
@@ -1526,7 +1527,8 @@
       "error_not_teamable": "Questa faccenda non si può fare in squadra.",
       "error_already_teamed": "Qualcuno ha già iniziato una squadra su questa faccenda oggi.",
       "error_invalid_partner": "Questa persona non può fare la faccenda.",
-      "error_not_assigned": "Questa faccenda non è tua."
+      "error_not_assigned": "Questa faccenda non è tua.",
+      "decline": "No, grazie"
     },
     "iconGroups": {
       "kitchen": "Cucina",
