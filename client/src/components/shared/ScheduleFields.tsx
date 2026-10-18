@@ -124,3 +124,41 @@ export function ReminderPicker({ value, onChange, t }: {
     </div>
   );
 }
+
+/** "⏱️ Timer [10] min": a countdown kids start from the chore (empty = no timer). */
+export function TimerPicker({ value, onChange, t }: {
+  value: ScheduleValue;
+  onChange: (v: ScheduleValue) => void;
+  t: (key: string) => string;
+}) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }} title={t('timer.settingDesc')}>
+      <label style={labelStyle} htmlFor="tq-timer-minutes">⏱️ {t('timer.setting')}</label>
+      <input id="tq-timer-minutes" type="number" inputMode="numeric" min={1} max={240} step={1} className="tq-input-compact"
+        style={{ width: 72 }} value={value.timerMinutes} placeholder={t('timer.off')}
+        onChange={(e) => onChange({ ...value, timerMinutes: e.target.value.replace(/[^0-9]/g, '').slice(0, 3) })} />
+      <span style={labelStyle}>{t('timer.minutes')}</span>
+      {value.timerMinutes && (
+        <button type="button" className="tq-btn tq-btn-sm" aria-label={t('timer.off')} onClick={() => onChange({ ...value, timerMinutes: '' })}>×</button>
+      )}
+    </div>
+  );
+}
+
+/** The chore's steps, one per line: tick boxes in One thing at a time. */
+export function StepsField({ value, onChange, t }: {
+  value: ScheduleValue;
+  onChange: (v: ScheduleValue) => void;
+  t: (key: string) => string;
+}) {
+  const count = value.steps.split('\n').filter((s) => s.trim()).length;
+  return (
+    <div style={{ display: 'grid', gap: 4 }}>
+      <label style={labelStyle} htmlFor="tq-chore-steps">☑️ {t('focus.stepsLabel')}</label>
+      <textarea id="tq-chore-steps" className="tq-input-compact" rows={Math.min(6, Math.max(2, count + 1))} value={value.steps}
+        placeholder={t('focus.stepsPlaceholder')} maxLength={12 * 121}
+        onChange={(e) => onChange({ ...value, steps: e.target.value })} style={{ resize: 'vertical', fontFamily: 'inherit' }} />
+      <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-muted)' }}>{t('focus.stepsDesc')}</span>
+    </div>
+  );
+}

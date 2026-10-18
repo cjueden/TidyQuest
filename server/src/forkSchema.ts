@@ -244,6 +244,14 @@ const NEW_COLUMNS: string[] = [
   // name in Activity, the Board, goals and badges. Lists filter deletedAt IS NULL next to archivedAt.
   `ALTER TABLE tasks ADD COLUMN deletedAt TEXT`,
   `ALTER TABLE rooms ADD COLUMN deletedAt TEXT`,
+  // A countdown timer for the chore, in minutes (NULL = none). Set in the chore editor, never read from the name.
+  `ALTER TABLE tasks ADD COLUMN timerMinutes INTEGER`,
+  // One thing at a time (utils/focus.ts): a chore's steps (JSON array of strings, NULL = none), shown as
+  // tick boxes, and each person's Focus view ('off' | 'button' | 'home'; NULL = a button for kids)
+  `ALTER TABLE tasks ADD COLUMN steps TEXT`,
+  `ALTER TABLE users ADD COLUMN focusMode TEXT`,
+  // Each person's Home: card order and hidden cards (JSON {order, hidden}; NULL = the default), utils/homeLayout.ts
+  `ALTER TABLE users ADD COLUMN homeLayout TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

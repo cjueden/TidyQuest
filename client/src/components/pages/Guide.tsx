@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, use, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
 import { guideFor, type GuideBlock, type GuideSection } from '../../docs/guide';
@@ -55,10 +55,16 @@ function Block({ b, query }: { b: GuideBlock; query: string }) {
 
 /** The guide (Settings → Guide & help): setup, how it all connects, and troubleshooting. */
 export function Guide({ language }: { language?: string }) {
+  // English shows straight away; another language loads its guide the first time
+  return <Suspense fallback={null}><GuideBody language={language} /></Suspense>;
+}
+
+function GuideBody({ language }: { language?: string }) {
   const { t } = useTranslation(language);
   const navigate = useNavigate();
   const location = useLocation();
-  const sections = guideFor(language);
+  const guide = guideFor(language);
+  const sections = Array.isArray(guide) ? guide : use(guide);
   const [query, setQuery] = useState('');
   // Sections start closed; a link like /guide#troubleshooting opens that one
   const [open, setOpen] = useState<Set<string>>(() => new Set(location.hash ? [location.hash.slice(1)] : []));
@@ -70,13 +76,27 @@ export function Guide({ language }: { language?: string }) {
     window.history.replaceState(null, '', `#${id}`);
     window.setTimeout(() => document.getElementById(`guide-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
+  // Arriving with a hash (Settings → Troubleshooting): go to that section once it has opened. Things that
+  // load late above it (the season strip) push it down, so follow it for a moment unless the reader moves first.
+  useEffect(() => {
+    const id = location.hash.slice(1);
+    if (!id) return;
+    const go = () => document.getElementById(`guide-${id}`)?.scrollIntoView({ block: 'start' });
+    const timer = window.setTimeout(go, 50);
+    const follow = new ResizeObserver(go);
+    follow.observe(document.body);
+    const moves = ['wheel', 'touchstart', 'pointerdown', 'keydown'];
+    const stop = () => { follow.disconnect(); moves.forEach((m) => window.removeEventListener(m, stop)); };
+    moves.forEach((m) => window.addEventListener(m, stop, { passive: true }));
+    const settle = window.setTimeout(stop, 1500);
+    return () => { window.clearTimeout(timer); window.clearTimeout(settle); stop(); };
+  }, [location.hash]);
 
   return (
     <div className="page-enter tq-page-narrow" style={{ display: 'grid', gap: 14 }}>
       <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" style={{ justifySelf: 'start' }} onClick={() => navigate('/settings')}>← {t('nav.settings')}</button>
       <div className="tq-card tq-card-padded" style={{ display: 'grid', gap: 10 }}>
         <p style={text}>{t('guide.intro')}</p>
-        {language && language !== 'en' && <p style={{ ...text, fontSize: 12, color: 'var(--warm-text-light)' }}>🌐 {t('guide.englishOnly')}</p>}
         <input className="tq-input" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('guide.search')} aria-label={t('guide.search')} />
         {!q && (
           <nav aria-label={t('guide.contents')} style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>

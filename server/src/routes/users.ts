@@ -1,4 +1,6 @@
 import { Router, Response } from 'express';
+import { FOCUS_MODES } from '../utils/focus';
+import { readHomeLayout } from '../utils/homeLayout';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -19,7 +21,7 @@ router.use(authMiddleware);
 // The 8 free themes, then the ones unlocked by levels (utils/unlocks.ts)
 export const THEMES = ['orange', 'blue', 'rose', 'mint', 'grape', 'sunny', 'night', 'ocean', ...UNLOCKABLE_THEMES];
 
-const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme, holidayColors';
+const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme, holidayColors, focusMode, homeLayout';
 
 function normalizeNotificationTime(value: string | undefined): string | null {
   if (value === undefined) return null;
@@ -146,7 +148,7 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
     return res.status(403).json({ error: 'Cannot modify another user' });
   }
 
-  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday, theme, holidayColors } = req.body;
+  const { displayName, avatarType, avatarColor, avatarPreset, language, birthday, theme, holidayColors, homeLayout } = req.body;
 
   const updates: string[] = [];
   const values: any[] = [];
@@ -164,6 +166,12 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
   }
   // Holiday colors over the theme during seasonal styling (on by default)
   if (holidayColors !== undefined) { updates.push('holidayColors = ?'); values.push(holidayColors ? 1 : 0); }
+  // Home: card order and hidden cards (null = back to the default)
+  if (homeLayout !== undefined) {
+    const layout = readHomeLayout(homeLayout);
+    if ('error' in layout) return res.status(400).json({ error: layout.error });
+    updates.push('homeLayout = ?'); values.push(layout.value);
+  }
   // Birthday as 'MM-DD' (empty clears it)
   if (birthday !== undefined) {
     const b = typeof birthday === 'string' ? birthday.trim() : '';
@@ -353,7 +361,11 @@ router.put('/:id/view', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
   const targetId = parseInt(req.params.id as string);
   if (!db.prepare('SELECT id FROM users WHERE id = ?').get(targetId)) return res.status(404).json({ error: 'User not found' });
-  const { taskView, kidMode } = req.body as { taskView?: string; kidMode?: boolean };
+  const { taskView, kidMode, focusMode } = req.body as { taskView?: string; kidMode?: boolean; focusMode?: string | null };
+  // One thing at a time: 'off' | 'button' | 'home', or null for the default (a button for kids)
+  if (focusMode !== undefined && focusMode !== null && !(FOCUS_MODES as readonly string[]).includes(focusMode)) {
+    return res.status(400).json({ error: 'focusMode must be off, button or home' });
+  }
   if (taskView !== undefined) {
     if (!['all', 'mine', 'mineOnly'].includes(taskView)) return res.status(400).json({ error: 'taskView must be all, mine or mineOnly' });
     db.prepare('UPDATE users SET taskView = ? WHERE id = ?').run(taskView, targetId);
@@ -361,6 +373,7 @@ router.put('/:id/view', (req: AuthRequest, res: Response) => {
   if (kidMode !== undefined) {
     db.prepare('UPDATE users SET kidMode = ? WHERE id = ?').run(kidMode ? 1 : 0, targetId);
   }
+  if (focusMode !== undefined) db.prepare('UPDATE users SET focusMode = ? WHERE id = ?').run(focusMode, targetId);
   res.json(db.prepare(`SELECT ${USER_SELECT} FROM users WHERE id = ?`).get(targetId));
 });
 

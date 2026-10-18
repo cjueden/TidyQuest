@@ -9,7 +9,9 @@ import { IconPicker } from '../shared/IconPicker';
 import { CheckIcon, BackIcon, PlusIcon, CoinIcon } from '../icons/UIIcons';
 import { getRoomHealth } from '../../utils/health';
 import { formatNextDue, isTaskForUser, taskNextDue } from '../../utils/tasks';
-import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker } from '../shared/ScheduleFields';
+import { TimerStartButton } from '../shared/ChoreTimer';
+import { useChoreTimer } from '../../hooks/useChoreTimer';
+import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker, StepsField, TimerPicker } from '../shared/ScheduleFields';
 import { EMPTY_SCHEDULE, schedulePayload, scheduleFromTask, seasonLabel, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
 import { api } from '../../hooks/useApi';
 import { TakeBackButton } from '../shared/TakeBackButton';
@@ -173,6 +175,7 @@ function EffortPicker({ effort, onChange }: { effort: number; onChange: (e: numb
 export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onOpenRoom, allowOneTime = true, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
+  const timer = useChoreTimer();
   const [editingTask, setEditingTask] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ name: '', originalName: '', notes: '', freqValue: 7, freqUnit: 'days', effort: 1, health: 100, healthChanged: false, iconKey: 'sparkle', onDemand: false, showInDashboard: false, assignmentType: 'none' as 'none' | 'users', assignmentUserIds: [] as number[], assignmentMode: 'first' as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages: {} as Record<number, number>, customCoins: '' as string | number, allowEarlyCompletion: false, repeatLimit: '', repeatPeriod: 'week' as 'day' | 'week' });
   const [taskMenuOpen, setTaskMenuOpen] = useState<number | null>(null);
@@ -620,6 +623,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                         onChange={(v, u) => setEditForm(f => ({ ...f, freqValue: v, freqUnit: u }))} />} />}
                     {!editForm.onDemand && editSchedule.mode !== 'once' && <SeasonPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language} />}
                     {!editForm.onDemand && <ReminderPicker value={editSchedule} onChange={setEditSchedule} t={t} />}
+                    <TimerPicker value={editSchedule} onChange={setEditSchedule} t={t} />
+                    <StepsField value={editSchedule} onChange={setEditSchedule} t={t} />
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>
                       <EffortPicker effort={editForm.effort} onChange={(e) => setEditForm(f => ({ ...f, effort: e }))} />
@@ -986,14 +991,17 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   <div className="room-task-done" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   {(() => {
                     const btn = getDoneButtonState(task);
+                    // Kids start the timer first; Done comes when it ends (NEW-1)
+                    const waitForTimer = !!timer?.mustWait(task);
                     return (
                       <>
                       <TeamUpButton info={task.teamUp} onClick={() => setTeamPick(task)} language={language} />
                       <TakeBackButton completionId={task.myPendingId} onDone={() => onRefresh?.()} language={language} />
-                      {canAddProof && !btn.disabled && (
+                      {canAddProof && !btn.disabled && !waitForTimer && (
                         <button onClick={() => setProofTask(task)} className="tq-btn tq-btn-secondary tq-btn-sm" title={t('proof.addProof')} aria-label={t('proof.addProof')}>📎</button>
                       )}
-                      <button
+                      {!btn.disabled && <TimerStartButton task={{ ...task, name: translateTask(task.name, task.translationKey) }} language={language} primary={waitForTimer} />}
+                      {!(waitForTimer && !btn.disabled) && <button
                         onClick={() => !btn.disabled && handleComplete(task)}
                         disabled={btn.disabled}
                         className={btn.disabled ? 'tq-btn tq-btn-sm' : 'tq-btn tq-btn-primary tq-btn-sm'}
@@ -1007,7 +1015,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                         }}
                       >
                         {btn.disabled ? btn.label : <><CheckIcon /> {btn.label}</>}
-                      </button>
+                      </button>}
                       </>
                     );
                   })()}
@@ -1072,6 +1080,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     onChange={(v, u) => { setNewFreqValue(v); setNewFreqUnit(u); }} />} />}
                 {!newTaskOnDemand && newSchedule.mode !== 'once' && <SeasonPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language} />}
                 {!newTaskOnDemand && <ReminderPicker value={newSchedule} onChange={setNewSchedule} t={t} />}
+                <TimerPicker value={newSchedule} onChange={setNewSchedule} t={t} />
+                <StepsField value={newSchedule} onChange={setNewSchedule} t={t} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>
                   <EffortPicker effort={newTaskEffort} onChange={setNewTaskEffort} />

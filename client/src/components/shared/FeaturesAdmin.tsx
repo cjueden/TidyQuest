@@ -7,7 +7,7 @@ import { SEASONS, setSeasonPreview, useSeasonPreview } from '../../utils/seasons
 import { CREATURE_IDS, CREATURES, type CreatureId } from '../mascot/MascotArt';
 import { MascotPicture } from '../mascot/MascotCard';
 
-const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'teamups', 'mascot', 'mascotShop', 'seasonal'];
+const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'teamups', 'mascot', 'mascotShop', 'focus', 'seasonal'];
 const MULTIPLIERS = [1.5, 2, 3];
 
 /** Settings → Features: optional extras, on or off for the whole family (all on to start). */

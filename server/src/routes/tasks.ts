@@ -691,7 +691,7 @@ router.post('/tasks/:id/duplicate', (req: AuthRequest, res: Response) => {
     seasonStartMonth: task.seasonStartMonth, seasonEndMonth: task.seasonEndMonth,
     scheduleWeekdays: task.scheduleWeekdays, rotationPeriod: task.rotationPeriod,
     reminderTime: task.reminderTime, reminderDayBefore: task.reminderDayBefore,
-    oneTime: task.oneTime, doBy: task.doBy,
+    oneTime: task.oneTime, doBy: task.doBy, timerMinutes: task.timerMinutes, steps: task.steps,
   });
 
   const assignees = db.prepare('SELECT userId, coinPercentage FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number; coinPercentage: number }[];

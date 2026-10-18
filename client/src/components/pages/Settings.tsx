@@ -22,7 +22,7 @@ import { BellIcon, DownloadIcon, UploadIcon, LockIcon, CoinIcon } from '../icons
 import { AVATAR_PRESETS } from '../icons/AvatarPresets';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { User } from '../../hooks/useAuth';
-import { api, type RewardRules } from '../../hooks/useApi';
+import { api, type FocusModeSetting, type RewardRules } from '../../hooks/useApi';
 import { CosmeticsContext } from '../../utils/unlocks';
 import { useNavigate } from 'react-router-dom';
 import { localeFor } from '../../utils/locale';
@@ -50,6 +50,7 @@ interface FamilyUser {
   isParticipant?: number;
   taskView?: 'all' | 'mine' | 'mineOnly';
   kidMode?: number | boolean;
+  focusMode?: FocusModeSetting;
 }
 
 interface VacationConfig {
@@ -166,7 +167,7 @@ export function Settings({
   const [coinAdjustMsg, setCoinAdjustMsg] = useState<Record<number, string>>({});
   const [memberVacation, setMemberVacation] = useState<Record<number, boolean>>({});
   const [memberParticipant, setMemberParticipant] = useState<Record<number, boolean>>({});
-  const [memberView, setMemberView] = useState<Record<number, { taskView: 'all' | 'mine' | 'mineOnly'; kidMode: boolean }>>({});
+  const [memberView, setMemberView] = useState<Record<number, { taskView: 'all' | 'mine' | 'mineOnly'; kidMode: boolean; focusMode: FocusModeSetting }>>({});
   const [hidePrivateRooms, setHidePrivateRooms] = useState(true);
   const [vacationEnabled, setVacationEnabled] = useState(!!vacationConfig?.vacationMode);
   const [vacationEndDate, setVacationEndDate] = useState(vacationConfig?.vacationEndDate ?? null);
@@ -1325,8 +1326,8 @@ export function Settings({
                 </div>
               )}
               {isAdmin && u.id !== user.id && (() => {
-                const view = memberView[u.id] ?? { taskView: u.taskView ?? 'all', kidMode: !!u.kidMode };
-                const saveView = async (next: { taskView: 'all' | 'mine' | 'mineOnly'; kidMode: boolean }) => {
+                const view = memberView[u.id] ?? { taskView: u.taskView ?? 'all', kidMode: !!u.kidMode, focusMode: u.focusMode ?? null };
+                const saveView = async (next: { taskView: 'all' | 'mine' | 'mineOnly'; kidMode: boolean; focusMode: FocusModeSetting }) => {
                   setMemberView((prev) => ({ ...prev, [u.id]: next }));
                   await api.updateUserView(u.id, next).catch(() => setMemberView((prev) => ({ ...prev, [u.id]: view })));
                 };
@@ -1350,6 +1351,20 @@ export function Settings({
                         <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 500, marginTop: 2 }}>{t('settings.kidModeDesc')}</div>
                       </div>
                       <Toggle checked={view.kidMode} onChange={(val) => saveView({ ...view, kidMode: val })} />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 1 160px' }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text)' }}>🎯 {t('focus.title')}</div>
+                        <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 500, marginTop: 2 }}>{t('focus.settingDesc')}</div>
+                      </div>
+                      <select className="tq-input" value={view.focusMode ?? ''} style={{ width: 'auto', cursor: 'pointer', fontSize: 12 }}
+                        aria-label={t('focus.title')}
+                        onChange={(e) => saveView({ ...view, focusMode: (e.target.value || null) as FocusModeSetting })}>
+                        <option value="">{u.role === 'child' ? t('focus.defaultButton') : t('focus.defaultOff')}</option>
+                        <option value="off">{t('focus.modeOff')}</option>
+                        <option value="button">{t('focus.modeButton')}</option>
+                        <option value="home">{t('focus.modeHome')}</option>
+                      </select>
                     </div>
                   </div>
                 );

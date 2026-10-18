@@ -1451,6 +1451,28 @@ html[data-theme='lava'] option {
   background-color: var(--warm-accent-light);
 }
 
+/* The running chore timer, pinned to the top of every page (ChoreTimer.tsx) */
+.chore-timer-bar {
+  position: sticky;
+  top: 8px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 2px solid var(--warm-accent);
+  background-color: var(--warm-accent-light);
+  color: var(--warm-accent);
+  font-family: Nunito, sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+}
+
 /* Task edit pop-up: a bottom sheet on phones */
 @media (max-width: 768px) {
   .task-edit-overlay {
@@ -1486,3 +1508,27 @@ html[data-theme='lava'] option {
   }
 }
 
+
+/* One thing at a time (Focus.tsx): big buttons that share a row */
+.focus-big-btn {
+  flex: 1 1 140px;
+  padding: 16px 20px !important;
+  font-size: 18px !important;
+  border-radius: 16px !important;
+}
+.focus-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.focus-card {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  cursor: pointer;
+  font-family: Nunito, sans-serif;
+  border: 2px solid var(--warm-accent) !important;
+  background: var(--warm-accent-light) !important;
+  box-sizing: border-box;
+}

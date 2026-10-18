@@ -103,6 +103,9 @@ export interface TaskBatchChanges {
 }
 
 /** Optional extras (Settings → Features) */
+/** One thing at a time per person: null = the default (a button for kids, off for others) */
+export type FocusModeSetting = 'off' | 'button' | 'home' | null;
+
 export interface FeatureFlags {
   rescue: boolean;
   usual: boolean;
@@ -116,6 +119,7 @@ export interface FeatureFlags {
   mascot: boolean;
   teamups: boolean;
   mascotShop: boolean;
+  focus: boolean;
 }
 
 /** Team-ups on a chore in a list: can you start one, and has a team claimed it today? */
@@ -388,7 +392,7 @@ export const api = {
     apiFetch<any>('/users', { method: 'POST', body: JSON.stringify(data) }),
   updateSettings: (userId: number, data: { language?: string; isVacationMode?: boolean }) =>
     apiFetch<any>(`/users/${userId}/settings`, { method: 'PUT', body: JSON.stringify(data) }),
-  updateProfile: (userId: number, data: { displayName?: string; avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null; theme?: string | null; holidayColors?: boolean }) =>
+  updateProfile: (userId: number, data: { displayName?: string; avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null; theme?: string | null; holidayColors?: boolean; homeLayout?: { order: string[]; hidden: string[] } | null }) =>
     apiFetch<any>(`/users/${userId}/profile`, { method: 'PUT', body: JSON.stringify(data) }),
   updatePassword: (userId: number, data: { currentPassword?: string; newPassword: string }) =>
     apiFetch<{ success: boolean }>(`/users/${userId}/password`, { method: 'PUT', body: JSON.stringify(data) }),
@@ -582,7 +586,7 @@ export const api = {
   updateUserParticipant: (userId: number, isParticipant: boolean) =>
     apiFetch<any>(`/users/${userId}/participant`, { method: 'PUT', body: JSON.stringify({ isParticipant }) }),
 
-  updateUserView: (userId: number, data: { taskView?: 'all' | 'mine' | 'mineOnly'; kidMode?: boolean }) =>
+  updateUserView: (userId: number, data: { taskView?: 'all' | 'mine' | 'mineOnly'; kidMode?: boolean; focusMode?: FocusModeSetting }) =>
     apiFetch<{ id: number; taskView: 'all' | 'mine' | 'mineOnly'; kidMode: number }>(`/users/${userId}/view`, { method: 'PUT', body: JSON.stringify(data) }),
   getKidsConfig: () => apiFetch<{ hidePrivateRooms: boolean }>('/users/kids-config'),
   updateKidsConfig: (data: { hidePrivateRooms: boolean }) =>

@@ -18,6 +18,8 @@ export interface User {
   /** Set by a parent: 'all' | 'mine' (starts on Mine) | 'mineOnly' (locked) */
   taskView?: 'all' | 'mine' | 'mineOnly';
   kidMode?: number | boolean;
+  /** Home's card order and hidden cards (ENH-6); null = the default */
+  homeLayout?: { order: string[]; hidden: string[] } | null;
   /** Their color theme (follows them to every device); null = the device's */
   theme?: string | null;
   /** 0 = keep their own theme's colors during holidays */

@@ -41,7 +41,7 @@ describe('Tasks CSV', () => {
     const exported = await agent.get('/api/csv/tasks').set(auth(admin.token)).expect(200);
     expect(exported.headers['content-type']).toContain('text/csv');
     const lines = parseCsv(exported.text).map((r) => r.cells);
-    expect(lines[0]).toEqual(['room', 'task', 'notes', 'every_days', 'effort', 'coins', 'on_demand', 'show_on_home', 'early', 'assignees', 'icon']);
+    expect(lines[0]).toEqual(['room', 'task', 'notes', 'every_days', 'effort', 'coins', 'on_demand', 'show_on_home', 'early', 'assignees', 'icon', 'timer_minutes', 'steps']);
     expect(lines[1].slice(0, 6)).toEqual(['Kitchen', 'Dishes', 'Hot water, please', '7', '1', '5']);
     expect(lines[1][9]).toBe('cecil');
 

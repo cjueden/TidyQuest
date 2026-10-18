@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import { parseHomeLayout } from '../utils/homeLayout';
 import bcrypt from 'bcryptjs';
 import db from '../database';
 import { AuthRequest, authMiddleware, generateToken } from '../middleware/auth';
@@ -145,7 +146,7 @@ router.post('/login', (req: AuthRequest, res: Response) => {
 
 router.get('/me', authMiddleware, (req: AuthRequest, res: Response) => {
   const user = db.prepare(
-    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, isVacationMode, language, createdAt, taskView, kidMode, birthday, theme, holidayColors FROM users WHERE id = ?'
+    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, isVacationMode, language, createdAt, taskView, kidMode, birthday, theme, holidayColors, focusMode, homeLayout FROM users WHERE id = ?'
   ).get(req.userId) as any;
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
@@ -154,6 +155,7 @@ router.get('/me', authMiddleware, (req: AuthRequest, res: Response) => {
     "SELECT COALESCE(SUM(coinsEarned), 0) as points FROM task_completions WHERE userId = ? AND status = 'approved'"
   ).get(req.userId) as any;
   user.points = pointsRow?.points ?? 0;
+  user.homeLayout = parseHomeLayout(user.homeLayout);
   res.json(user);
 });
 

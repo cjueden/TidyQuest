@@ -1,4 +1,5 @@
 import db from '../database';
+import { readSteps } from './focus';
 import { calculateHealth } from './health';
 
 /**
@@ -195,7 +196,11 @@ export function scheduleFields(task: ScheduledTask & Parameters<typeof rotationT
   };
 }
 
-type ScheduleColumn = 'seasonStartMonth' | 'seasonEndMonth' | 'scheduleWeekdays' | 'rotationPeriod' | 'reminderTime' | 'reminderDayBefore' | 'oneTime' | 'doBy';
+type ScheduleColumn = 'seasonStartMonth' | 'seasonEndMonth' | 'scheduleWeekdays' | 'rotationPeriod' | 'reminderTime' | 'reminderDayBefore' | 'oneTime' | 'doBy'
+  | 'timerMinutes' | 'steps';
+
+/** Longest countdown a chore can have, in minutes */
+export const MAX_TIMER_MINUTES = 240;
 export type ScheduleInput = { error: string } | { values: Partial<Record<ScheduleColumn, number | string | null>> };
 
 const blank = (v: unknown) => v === undefined || v === null || v === '';
@@ -237,6 +242,18 @@ export function readScheduleInput(body: any): ScheduleInput {
     const v = blank(body.doBy) ? null : String(body.doBy).trim();
     if (v !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(v) || Number.isNaN(new Date(`${v}T12:00:00`).getTime()))) return { error: 'invalid_do_by' };
     values.doBy = v;
+  }
+  // Not scheduling, but saved the same way: the chore's countdown timer (empty or 0 = none)
+  if (body && 'timerMinutes' in body) {
+    const n = blank(body.timerMinutes) ? 0 : Number(body.timerMinutes);
+    if (!Number.isInteger(n) || n < 0 || n > MAX_TIMER_MINUTES) return { error: 'invalid_timer' };
+    values.timerMinutes = n > 0 ? n : null;
+  }
+  // The chore's steps (one thing at a time): an array or one per line
+  if (body && 'steps' in body) {
+    const steps = readSteps(body.steps);
+    if ('error' in steps) return steps;
+    values.steps = steps.value;
   }
   if (body && 'rotationPeriod' in body) {
     const p = blank(body.rotationPeriod) ? 'completion' : body.rotationPeriod;

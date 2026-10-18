@@ -1,6 +1,7 @@
 /**
- * The in-app guide (Settings → Guide & help → /guide). English for now; another language can add its own
- * GUIDE_<lang> array with the same section ids and be returned by guideFor().
+ * The in-app guide (Settings → Guide & help → /guide). English is here; each other language is a GUIDE_<LANG>
+ * array in guide.<lang>.ts with the same sections and blocks. A guide change goes into all six
+ * (check them with devtools/guide_check.mjs).
  */
 export type GuideBlock =
   | { p: string }
@@ -24,7 +25,7 @@ export interface GuideSection {
   blocks: GuideBlock[];
 }
 
-const GUIDE_EN: GuideSection[] = [
+export const GUIDE_EN: GuideSection[] = [
   {
     id: 'start',
     icon: '🚀',
@@ -147,6 +148,16 @@ const GUIDE_EN: GuideSection[] = [
       ] },
       { h: 'Icon' },
       { p: 'Tap the icon button to open the picker. It shows a live preview of the chore, suggests an icon from the chore’s name, and has a search and every icon grouped by area. A new chore left on the ✨ gets the suggested icon automatically.' },
+      { h: 'Timer' },
+      { ul: [
+        'Timer (minutes) in the chore editor gives a chore a countdown, for example 10 minutes to tidy a room. Leave it empty for no timer. The chore’s name doesn’t matter.',
+        'The chore then shows ▶ 10 min next to Done. Tap it for a big countdown with Pause and +5 min. Tap ⌄ to hide it: a small timer bar stays at the top of every page, and the timer keeps going after a reload.',
+        'At zero it chimes and vibrates, then asks “Time’s up! Done?”. Done finishes the chore as usual (with Strict Mode it still waits for a parent). “Need more time” adds 5 minutes.',
+        'Kids start the timer first: on a timer chore, their Done button comes back when the time is up. Parents and members can tap Done any time.',
+        'The Tasks page lists every chore with a timer: pick “⏱️ Has a timer” in its filter.',
+      ] },
+      { h: 'Steps' },
+      { p: 'Steps (one per line) list what a chore involves, like “Feet on the floor”, “Lights on”, “Put on the clothes”. They show as tick boxes in One thing at a time. The ticks are only a help: Done still finishes the chore.' },
       { h: 'Finishing a chore' },
       { ul: [
         'Tap Done on Home, in the room, or on the Tasks page. The 📎 button adds a note or photo as proof.',
@@ -168,6 +179,20 @@ const GUIDE_EN: GuideSection[] = [
         'Board: rankings by coins, goal % or most improved, awards like Early Bird and room champions, the trophy shelf and the family goal.',
         'Achievements: badges, your level and what’s next. Rewards: the catalog and your requests.',
         'Search: the 🔍 button, or press / or Ctrl+K on a keyboard.',
+      ] },
+      { h: 'Arrange your Home' },
+      { ul: [
+        'Customise (at the top and the bottom of Home) lists your cards in order. Drag a card by its ≡ to move it, or use ▲▼; 👁️ shows or hides it. Reset to default puts everything back.',
+        'Your layout is saved for you: it’s the same on every phone and computer you sign in on, and someone else on the same device has their own.',
+        'In Kid mode, kids arrange and hide their own cards too (the ones Kid mode shows).',
+        'A card added in a later version appears in its usual place.',
+      ] },
+      { h: 'One thing at a time' },
+      { ul: [
+        'Today’s chores one at a time, big: the icon, name, coins and the steps as tick boxes, with Done, Skip for now, and ▶ when the chore has a timer.',
+        'The order: your own chores due today, then the Rescue Mission, then up to 3 open chores (anyone’s) that are due. Skip for now moves a chore to the back of today’s line.',
+        'Dots show how far you are (“3 of 7 today”), and an empty line gets a celebration.',
+        'Parents choose per person in Settings → Family Members → One thing at a time: Off, Button on Home, or It is their Home (then “Show all of Home” opens the usual Home). Kids get the button unless a parent changes it. Settings → Features switches it off for everyone.',
       ] },
     ],
   },
@@ -302,11 +327,23 @@ const GUIDE_EN: GuideSection[] = [
           'Its label says why: "Not assigned" (someone else’s chore), "Waiting for approval" (a parent hasn’t approved your last one yet), "Done by …" (someone already did it today), "Done today / this week" (an anytime chore’s repeat limit), or "🤝 names" (a team has claimed it today).',
           'If Done gives a "not yet due" message: the chore isn’t due again yet. A parent can turn on "Allow early completion" for daily routines.',
         ] },
+        { q: 'A kid’s chore shows ▶ instead of Done', a: [
+          'It has a timer (Timer in the chore editor). The kid taps ▶, and Done comes back when the time is up. A parent can tap Done for them, or empty the timer in the chore editor.',
+          'The screen may turn off while the timer runs (over a plain http address, phones don’t let apps keep it on). The timer keeps counting and shows “Time’s up! Done?” when you look again.',
+        ] },
         { q: 'I tapped Done but got no coins', a: [
           'With Strict Mode on, a kid’s chore waits for a parent. It shows as waiting in Activity and on the parent’s Home under "Waiting for approval".',
           'Tapped Done by mistake? While it waits, ↩ Take back (next to the button) undoes it; on a team-up it’s taken back for the whole team.',
           'If Gamification is off (Settings → General), there are no coins at all.',
           'If a parent turned it down, the chore is open again; under team-ups it goes back to the team.',
+        ] },
+        { q: 'A card is missing from Home', a: [
+          'It may be hidden: open Customise (the button at the bottom of Home) and tap its 🚫 to show it again, or use Reset to default.',
+          'Some cards only show when they have something in them (Your usual, Maybe you forgot, Scheduled, Completed today, Waiting for approval), and some are for parents only.',
+        ] },
+        { q: 'One thing at a time is missing, or a chore isn’t in it', a: [
+          'For parents and members it’s off unless it’s set in Settings → Family Members. Kids get it (a button on Home) unless a parent turned it off there. It can also be hidden in Home → Customise, or switched off in Settings → Features.',
+          'It lists chores you can do now: your own that are due today, the Rescue Mission and up to 3 open ones. Anytime chores and chores that aren’t due yet are on Home and the Tasks page.',
         ] },
         { q: 'A chore isn’t showing on Home', a: [
           'Today’s Quests lists chores that are due, most-overdue first (up to 10). Others are in their room and on the Tasks page.',
@@ -395,9 +432,19 @@ const GUIDE_EN: GuideSection[] = [
   },
 ];
 
-/** Translated guides go here by language code; the rest get English */
-const GUIDES: Record<string, GuideSection[]> = { en: GUIDE_EN };
+/** The other languages, each loaded the first time the guide opens in it */
+const TRANSLATIONS: Record<string, () => Promise<GuideSection[]>> = {
+  fr: () => import('./guide.fr').then((m) => m.GUIDE_FR),
+  de: () => import('./guide.de').then((m) => m.GUIDE_DE),
+  es: () => import('./guide.es').then((m) => m.GUIDE_ES),
+  it: () => import('./guide.it').then((m) => m.GUIDE_IT),
+  nl: () => import('./guide.nl').then((m) => m.GUIDE_NL),
+};
+const loading: Record<string, Promise<GuideSection[]>> = {};
 
-export function guideFor(language?: string): GuideSection[] {
-  return GUIDES[language ?? 'en'] ?? GUIDE_EN;
+/** The guide in this language: English straight away, or a promise of the translation (English if it can't load) */
+export function guideFor(language?: string): GuideSection[] | Promise<GuideSection[]> {
+  const load = language ? TRANSLATIONS[language] : undefined;
+  if (!language || !load) return GUIDE_EN;
+  return (loading[language] ??= load().catch(() => GUIDE_EN));
 }
