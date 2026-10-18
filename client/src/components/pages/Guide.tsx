@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
 import { guideFor, type GuideBlock, type GuideSection } from '../../docs/guide';
@@ -70,6 +70,13 @@ export function Guide({ language }: { language?: string }) {
     window.history.replaceState(null, '', `#${id}`);
     window.setTimeout(() => document.getElementById(`guide-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
+  // Arriving with a hash (Settings → Troubleshooting): go to that section once it has opened
+  useEffect(() => {
+    const id = location.hash.slice(1);
+    if (!id) return;
+    const timer = window.setTimeout(() => document.getElementById(`guide-${id}`)?.scrollIntoView({ block: 'start' }), 50);
+    return () => window.clearTimeout(timer);
+  }, [location.hash]);
 
   return (
     <div className="page-enter tq-page-narrow" style={{ display: 'grid', gap: 14 }}>

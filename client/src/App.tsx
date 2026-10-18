@@ -171,9 +171,10 @@ function AppContent() {
   }, [user, location.pathname, loadDashboard, refreshRooms]);
 
   // Each page opens at the top. A room opened for one task (?task=) scrolls to that task
-  // itself; parent effects run after child effects, so skip it here or it would undo that.
+  // itself, and a link with a #section (the guide) scrolls to that section; parent effects run
+  // after child effects, so skip both here or it would undo that.
   useEffect(() => {
-    if (new URLSearchParams(location.search).has('task')) return;
+    if (new URLSearchParams(location.search).has('task') || location.hash) return;
     window.scrollTo(0, 0);
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
