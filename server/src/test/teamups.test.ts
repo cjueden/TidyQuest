@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createTestApp, createAdmin, createUser } from './setup';
 import { setNotifyTransport, type Delivery } from '../utils/notify';
+import { closeOldTeamups } from '../utils/teamups';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 
@@ -132,6 +133,17 @@ describe('Team-ups: doing a chore together', () => {
     expect(earnedBy(tub)).toEqual([]);
     expect((db.prepare('SELECT status FROM teamups WHERE id = ?').get(team.id) as any).status).toBe('open');
     expect((await agent.get('/api/completions/pending').set(auth(admin.token))).body.pending).toEqual([]);
+  });
+
+  it('closes team-ups left open from an earlier day', async () => {
+    const { cecil, chore } = await family();
+    const tub = await chore('Clean Shower & Tub', 12);
+    const team = (await agent.post('/api/teamups').set(auth(cecil.token)).send({ taskId: tub })).body.teamup;
+    const status = () => (db.prepare('SELECT status FROM teamups WHERE id = ?').get(team.id) as { status: string }).status;
+    expect(closeOldTeamups()).toBe(0);
+    expect(status()).toBe('open');
+    expect(closeOldTeamups(new Date(Date.now() + 24 * HOUR))).toBe(1);
+    expect(status()).toBe('cancelled');
   });
 
   it('ends the invite when the chore gets done another way, and counts toward the Teamwork badge', async () => {

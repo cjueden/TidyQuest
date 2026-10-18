@@ -29,6 +29,7 @@ import boostsRoutes from './routes/boosts';
 import csvRoutes from './routes/csv';
 import trashRoutes from './routes/trash';
 import { proxyHint, trustProxySetting } from './utils/proxy';
+import { closeOldTeamups } from './utils/teamups';
 
 export function createApp() {
   const app = express();
@@ -112,10 +113,12 @@ if (require.main === module || !process.env.VITEST) {
     void sendDueTaskNotificationsIfNeeded();
     void sendCoinBoostNotificationsIfNeeded();
     void runScheduledNotifications();
+    closeOldTeamups();
     setInterval(() => {
       void sendDueTaskNotificationsIfNeeded();
       void sendCoinBoostNotificationsIfNeeded();
       void runScheduledNotifications();
+      closeOldTeamups();
     }, 30000);
   });
 }
