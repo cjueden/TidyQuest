@@ -95,7 +95,7 @@ const GUIDE_EN: GuideSection[] = [
         'Kid mode: bigger buttons, fewer cards, coins and goal up front.',
         'Theme and holiday colors follow the person to every device (they can change them in Profile).',
         'Vacation per member: protects their streak and freezes their chores’ health while away.',
-        'Adjust coins: add or take away coins with a reason; it shows in their coin history and Activity.',
+        'Adjust coins (Manage member): add or take away coins with a reason; it shows in their coin history and Activity. Works for parents too, including yourself.',
         'Password: a parent can set a new one if someone forgets theirs.',
       ] },
       { tip: 'Turn on "Hide other people’s private rooms from kids" in Settings → General if kids shouldn’t see, say, a parent’s own room.' },
