@@ -459,6 +459,7 @@ function AppContent() {
                   onOpenTask={(roomId, taskId) => navigate(`/rooms/${roomId}?task=${taskId}`)}
                   coinsByEffort={coinsByEffort}
                   onNavigateToActivity={() => navigate('/activity')}
+                  onNavigateToRewards={() => navigate('/rewards')}
                   onRewardRequestAction={async (id, status) => {
                     await api.updateRedemptionStatus(id, status);
                     await Promise.all([loadDashboard(), loadRewards()]);

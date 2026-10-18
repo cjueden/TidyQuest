@@ -61,6 +61,7 @@ type SortKey = 'name' | 'health' | 'effort' | 'frequency' | 'coins' | 'assigned'
 interface CompletedTodayBy {
   completionId: number;
   userId: number;
+  coinsEarned?: number;
   displayName: string;
   avatarColor: string;
   avatarType?: string;
@@ -411,12 +412,13 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   }
 
   const deleteTask = async (taskId: number) => {
-    if (!window.confirm(t('roomDetail.deleteTaskConfirm'))) return;
     const task = room.tasks.find((x) => x.id === taskId);
+    const name = task ? translateTask(task.name, task.translationKey) : '';
+    if (!window.confirm(t('roomDetail.deleteTaskConfirmTrash').replace('{name}', name).replace('{n}', '30'))) return;
     const { trashId } = await api.deleteTask(taskId);
     setEditingTask(null);
     onRefresh?.();
-    if (trashId) setUndo({ trashIds: [trashId], message: t('trash.deleted').replace('{name}', task ? translateTask(task.name, task.translationKey) : '') });
+    if (trashId) setUndo({ trashIds: [trashId], message: t('trash.deleted').replace('{name}', name) });
   };
 
   const togglePin = async (task: Task) => {
@@ -888,7 +890,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       : <span style={{ color: 'var(--warm-text-light)', opacity: 0.5 }}>—</span>
                   }
                 </div>
-                <div className="room-task-actions" style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', position: 'relative' }}>
+                <div className="room-task-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 12px', justifyContent: 'flex-end', alignItems: 'center', position: 'relative' }}>
+                  <div className="room-task-tools" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   <button onClick={() => togglePin(task)} className="tq-btn-sm" aria-pressed={!!task.pinned}
                     title={task.pinned ? t('home.unpin') : t('home.pin')} aria-label={task.pinned ? t('home.unpin') : t('home.pin')}
                     style={{ background: 'none', border: '1.5px solid var(--warm-border)', borderRadius: 10, cursor: 'pointer', fontSize: 14, color: task.pinned ? 'var(--warm-accent)' : 'var(--warm-text-light)' }}>
@@ -903,20 +906,16 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                           fontWeight: 700, color: 'var(--warm-text-muted)',
                           cursor: 'pointer', fontFamily: 'Nunito',
                         }}>{t('common.edit')}</button>
-                      <button onClick={() => deleteTask(task.id)}
-                        className="tq-btn-sm"
-                        style={{
-                          background: 'none', border: '1.5px solid var(--warm-danger-border)', borderRadius: 10,
-                          fontWeight: 700, color: 'var(--warm-danger)',
-                          cursor: 'pointer', fontFamily: 'Nunito',
-                        }}>&times;</button>
-                      <div style={{ position: 'relative' }}>
+                      <div className="room-task-more" style={{ position: 'relative' }}>
                         <button
                           onClick={(e) => { e.stopPropagation(); if (taskMenuOpen === task.id) { setTaskMenuOpen(null); setMoveMenuTaskId(null); } else { handleTaskMenuOpen(task.id); setMoveMenuTaskId(null); } }}
-                          className="tq-btn-sm"
-                          style={{ background: 'none', border: '1.5px solid var(--warm-border)', borderRadius: 10, fontWeight: 700, color: 'var(--warm-text-muted)', cursor: 'pointer', fontFamily: 'Nunito', padding: '2px 7px', fontSize: 16 }}
-                          title="More options"
-                        >⋮</button>
+                          className="tq-btn-sm room-task-more-btn"
+                          style={{ background: 'none', border: '1.5px solid var(--warm-border)', borderRadius: 10, color: 'var(--warm-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          title={t('roomDetail.moreOptions')} aria-label={t('roomDetail.moreOptions')}
+                          aria-haspopup="menu" aria-expanded={taskMenuOpen === task.id}
+                        >
+                          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><circle cx="4" cy="10" r="2" /><circle cx="10" cy="10" r="2" /><circle cx="16" cy="10" r="2" /></svg>
+                        </button>
                         {taskMenuOpen === task.id && (
                           <div
                             style={{ position: 'absolute', right: 0, top: '100%', zIndex: 100, background: 'var(--warm-card)', border: '1.5px solid var(--warm-border)', borderRadius: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.14)', minWidth: 180, overflow: 'hidden' }}
@@ -954,17 +953,23 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   {isAdmin && task.completedTodayBy?.completionId && (
                     <button
                       onClick={async () => {
-                        await api.cancelCompletion(task.completedTodayBy!.completionId);
+                        const by = task.completedTodayBy!;
+                        const ask = t('roomDetail.undoDoneConfirm').replace('{task}', translateTask(task.name, task.translationKey))
+                          .replace('{name}', by.displayName).replace('{coins}', String(by.coinsEarned ?? 0));
+                        if (!window.confirm(ask)) return;
+                        await api.cancelCompletion(by.completionId);
                         onRefresh?.();
                       }}
-                      title={t('roomDetail.reset')}
+                      title={t('roomDetail.undoDoneTitle')}
                       className="tq-btn-sm"
                       style={{
                         background: 'none', border: '1.5px solid var(--warm-border)', borderRadius: 10,
-                        cursor: 'pointer', fontFamily: 'Nunito',
+                        fontWeight: 700, color: 'var(--warm-text-muted)', cursor: 'pointer', fontFamily: 'Nunito', whiteSpace: 'nowrap',
                       }}
-                    >🔄</button>
+                    >↩️ {t('roomDetail.undoDone')}</button>
                   )}
+                  </div>
+                  <div className="room-task-done" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   {(() => {
                     const btn = getDoneButtonState(task);
                     return (
@@ -992,6 +997,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       </>
                     );
                   })()}
+                  </div>
                 </div>
               </div>
 

@@ -151,7 +151,7 @@ const GUIDE_EN: GuideSection[] = [
       { ul: [
         'Tap Done on Home, in the room, or on the Tasks page. The 📎 button adds a note or photo as proof.',
         'Parents and members can mark a chore done for someone else ("who did it?").',
-        'A mistake can be undone from Activity (parents) or the chore’s "Done by" line. A team-up is undone for the whole team, and everyone’s coins for it are taken back. A kid can take back their own Done while it waits for approval.',
+        'A mistake can be undone from Activity (parents), or with ↩️ Undo next to the chore’s "Done by" in its room (parents; it asks first, because the coins come back off). A team-up is undone for the whole team, and everyone’s coins for it are taken back. A kid can take back their own Done while it waits for approval.',
       ] },
     ],
   },
@@ -257,7 +257,9 @@ const GUIDE_EN: GuideSection[] = [
         'Settings → Data & Privacy → Export: a full JSON backup. Keep one before big changes.',
         'Import restores a backup and REPLACES everything. Everyone except the parent doing the import gets a new random password, so set new passwords in Family Members afterwards.',
         'Settings → Spreadsheets: download chores or rewards, edit them in any spreadsheet app, and load them back. You see a preview first and nothing is deleted.',
-        'Settings → Recently deleted: deleted chores and rewards stay for a while, with their history, and can be restored.',
+        'To delete a chore, open it with Edit; Delete task is at the bottom of the form. It goes to Settings → Recently deleted for 30 days and can be restored from there. Rewards work the same way.',
+        'Deleting never takes coins away or erases what was done: past completions keep showing in Activity, the Board and goals under the chore’s name, even after it leaves Recently deleted.',
+        'Deleting a room (Rooms → 🗑) deletes its chores too, and the room can’t be brought back. Their history and coins stay.',
       ] },
     ],
   },
@@ -364,8 +366,8 @@ const GUIDE_EN: GuideSection[] = [
           'After importing a backup, everyone except the parent who imported it needs a new password.',
         ] },
         { q: 'I deleted something by mistake', a: [
-          'Settings → Recently deleted can bring chores and rewards back, with their history.',
-          'A chore marked done by mistake can be undone from Activity (parents).',
+          'Settings → Recently deleted can bring chores and rewards back for 30 days, with their history. A chore whose room was deleted asks which room to go into.',
+          'A chore marked done by mistake can be undone from Activity, or with ↩️ Undo in its room (parents).',
         ] },
         { q: 'Is the app up to date?', a: [
           'Settings → General shows the version. See "Installing and updating" to update or roll back.',

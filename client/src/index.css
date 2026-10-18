@@ -1180,14 +1180,28 @@ html[data-theme='lava'] option {
     min-width: 0 !important;
   }
 
+  /* Small tools on the left, Done on its own side with room between them */
   .room-task-actions {
-    justify-content: stretch !important;
+    justify-content: space-between !important;
     flex-wrap: wrap;
+    gap: 8px 16px !important;
   }
 
-  .room-task-actions > button,
-  .room-task-actions .tq-btn {
-    flex: 1 1 120px;
+  .room-task-tools > button,
+  .room-task-more-btn,
+  .room-task-done > button,
+  .room-task-done .tq-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .room-task-done {
+    flex: 1 1 160px;
+    justify-content: flex-end;
+  }
+
+  .room-task-done > button:last-child {
+    flex: 1 1 auto;
   }
 
   .task-add-form {

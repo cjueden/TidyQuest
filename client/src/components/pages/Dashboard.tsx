@@ -196,6 +196,7 @@ interface DashboardProps {
   onOpenTask?: (roomId: number, taskId: number) => void;
   coinsByEffort?: Record<number, number>;
   onNavigateToActivity: () => void;
+  onNavigateToRewards?: () => void;
   onRewardRequestAction: (id: number, status: 'approved' | 'rejected') => void | Promise<void>;
   gamificationEnabled?: boolean;
   leaderboardPeriod?: 'week' | 'month' | 'quarter' | 'year';
@@ -216,6 +217,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   onOpenTask,
   coinsByEffort,
   onNavigateToActivity,
+  onNavigateToRewards,
   onRewardRequestAction,
   gamificationEnabled = true,
   leaderboardPeriod = 'week',
@@ -1222,6 +1224,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                 </div>
               ))}
             </div>
+            {pendingRewardRequests.length > 6 && onNavigateToRewards && (
+              <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" onClick={onNavigateToRewards} style={{ marginTop: 8, width: '100%' }}>
+                {t('home.seeAllRequests').replace('{n}', String(pendingRewardRequests.length))}
+              </button>
+            )}
           </div>
         )}
 
