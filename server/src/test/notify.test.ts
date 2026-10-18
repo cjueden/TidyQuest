@@ -164,3 +164,30 @@ describe('Notification settings API', () => {
     expect(log[0]).toMatchObject({ displayName: 'Kid', channel: 'ntfy', kind: 'test', ok: 1 });
   });
 });
+
+describe('Rejecting with a reason', () => {
+  it("tells the kid why, in one line; the reason is optional and can't be an essay", async () => {
+    const { admin, kid, room } = await family();
+    channel('kid-topic', kid.user.id);
+    await agent.put('/api/users/strict-mode-config').set(auth(admin.token)).send({ strictMode: true }).expect(200);
+    const task = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name: 'Sweep', effort: 1, onDemand: true })).body.id as number;
+    const tap = async () => {
+      await agent.post(`/api/tasks/${task}/complete`).set(auth(kid.token)).expect(200);
+      return (await agent.get('/api/completions/pending').set(auth(admin.token))).body.pending.at(-1).id as number;
+    };
+    const toKid = () => sent.filter((d) => d.target === 'kid-topic').map((d) => d.message);
+
+    let id = await tap();
+    await agent.delete(`/api/completions/${id}/reject`).set(auth(admin.token)).send({ reason: 'x'.repeat(201) }).expect(400);
+    await agent.delete(`/api/completions/${id}/reject`).set(auth(admin.token)).send({ reason: '  Still   leaves\nby the door ' }).expect(200);
+    expect(toKid().at(-1)).toBe('↩️ “Sweep” wasn\'t approved this time. Admin says: Still leaves by the door');
+
+    id = await tap();
+    await agent.post('/api/completions/reject-batch').set(auth(admin.token)).send({ ids: [id], reason: 'Corners too' }).expect(200);
+    expect(toKid().at(-1)).toMatch(/Admin says: Corners too$/);
+
+    id = await tap();
+    await agent.delete(`/api/completions/${id}/reject`).set(auth(admin.token)).expect(200);
+    expect(toKid().at(-1)).toMatch(/Ask Admin what's missing\.$/);
+  });
+});

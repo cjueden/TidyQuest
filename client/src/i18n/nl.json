@@ -899,7 +899,12 @@
       "approveSelected": "{n} goedkeuren",
       "rejectSelected": "{n} afwijzen",
       "approveAll": "Alles goedkeuren ({n})",
-      "proofPhoto": "Bewijsfoto"
+      "proofPhoto": "Bewijsfoto",
+      "rejectedOne": "Afgewezen: {what}",
+      "rejectedMany": "{n} klusjes afgewezen",
+      "addReason": "Reden toevoegen",
+      "reasonPlaceholder": "Wat ontbreekt er? (optioneel)",
+      "sendReason": "Versturen"
     },
     "proof": {
       "addProof": "Notitie of foto toevoegen",
@@ -1252,7 +1257,8 @@
       "teamupInvite": "🤝 {name} wil hulp bij “{task}”",
       "teamupAnyone": "🤝 {name} zoekt een teamgenoot voor “{task}”",
       "teamupJoined": "🤝 {name} doet mee met “{task}”",
-      "teamupDeclined": "🤝 {name} kan deze keer niet mee met “{task}”. Je kunt iemand anders vragen."
+      "teamupDeclined": "🤝 {name} kan deze keer niet mee met “{task}”. Je kunt iemand anders vragen.",
+      "choreRejectedReason": "↩️ “{task}” is deze keer niet goedgekeurd. {parent} zegt: {reason}"
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",

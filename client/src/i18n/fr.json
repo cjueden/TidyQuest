@@ -899,7 +899,12 @@
       "approveSelected": "Valider {n}",
       "rejectSelected": "Refuser {n}",
       "approveAll": "Tout valider ({n})",
-      "proofPhoto": "Photo de preuve"
+      "proofPhoto": "Photo de preuve",
+      "rejectedOne": "Refusé : {what}",
+      "rejectedMany": "{n} tâches refusées",
+      "addReason": "Ajouter une raison",
+      "reasonPlaceholder": "Qu'est-ce qui manque ? (facultatif)",
+      "sendReason": "Envoyer"
     },
     "proof": {
       "addProof": "Ajouter une note ou une photo",
@@ -1252,7 +1257,8 @@
       "teamupInvite": "🤝 {name} a besoin d'aide pour « {task} »",
       "teamupAnyone": "🤝 {name} cherche un coéquipier pour « {task} »",
       "teamupJoined": "🤝 {name} te rejoint pour « {task} »",
-      "teamupDeclined": "🤝 {name} ne peut pas faire « {task} » avec toi cette fois. Tu peux demander à quelqu'un d'autre."
+      "teamupDeclined": "🤝 {name} ne peut pas faire « {task} » avec toi cette fois. Tu peux demander à quelqu'un d'autre.",
+      "choreRejectedReason": "↩️ « {task} » n'a pas été validé cette fois. {parent} dit : {reason}"
     },
     "notifyAdmin": {
       "peopleTitle": "Qui reçoit quoi",

@@ -899,7 +899,12 @@
       "approveSelected": "Approve {n}",
       "rejectSelected": "Reject {n}",
       "approveAll": "Approve all ({n})",
-      "proofPhoto": "Proof photo"
+      "proofPhoto": "Proof photo",
+      "rejectedOne": "Rejected: {what}",
+      "rejectedMany": "Rejected {n} chores",
+      "addReason": "Add a reason",
+      "reasonPlaceholder": "What's missing? (optional)",
+      "sendReason": "Send"
     },
     "proof": {
       "addProof": "Add a note or photo",
@@ -1252,7 +1257,8 @@
       "teamupInvite": "🤝 {name} wants help with “{task}”",
       "teamupAnyone": "🤝 {name} is looking for a teammate for “{task}”",
       "teamupJoined": "🤝 {name} joined you for “{task}”",
-      "teamupDeclined": "🤝 {name} can't do “{task}” with you this time. You can ask someone else."
+      "teamupDeclined": "🤝 {name} can't do “{task}” with you this time. You can ask someone else.",
+      "choreRejectedReason": "↩️ “{task}” wasn't approved this time. {parent} says: {reason}"
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",

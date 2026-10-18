@@ -899,7 +899,12 @@
       "approveSelected": "{n} freigeben",
       "rejectSelected": "{n} ablehnen",
       "approveAll": "Alle freigeben ({n})",
-      "proofPhoto": "Beweisfoto"
+      "proofPhoto": "Beweisfoto",
+      "rejectedOne": "Abgelehnt: {what}",
+      "rejectedMany": "{n} Aufgaben abgelehnt",
+      "addReason": "Grund angeben",
+      "reasonPlaceholder": "Was fehlt noch? (optional)",
+      "sendReason": "Senden"
     },
     "proof": {
       "addProof": "Notiz oder Foto hinzufügen",
@@ -1252,7 +1257,8 @@
       "teamupInvite": "🤝 {name} braucht Hilfe bei „{task}“",
       "teamupAnyone": "🤝 {name} sucht einen Teampartner für „{task}“",
       "teamupJoined": "🤝 {name} macht bei „{task}“ mit",
-      "teamupDeclined": "🤝 {name} kann diesmal nicht bei „{task}“ mitmachen. Du kannst jemand anderen fragen."
+      "teamupDeclined": "🤝 {name} kann diesmal nicht bei „{task}“ mitmachen. Du kannst jemand anderen fragen.",
+      "choreRejectedReason": "↩️ „{task}“ wurde diesmal nicht bestätigt. {parent} sagt: {reason}"
     },
     "notifyAdmin": {
       "peopleTitle": "Wer bekommt was",

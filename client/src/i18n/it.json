@@ -899,7 +899,12 @@
       "approveSelected": "Approva {n}",
       "rejectSelected": "Rifiuta {n}",
       "approveAll": "Approva tutto ({n})",
-      "proofPhoto": "Foto di prova"
+      "proofPhoto": "Foto di prova",
+      "rejectedOne": "Rifiutato: {what}",
+      "rejectedMany": "{n} faccende rifiutate",
+      "addReason": "Aggiungi un motivo",
+      "reasonPlaceholder": "Cosa manca? (facoltativo)",
+      "sendReason": "Invia"
     },
     "proof": {
       "addProof": "Aggiungi una nota o una foto",
@@ -1252,7 +1257,8 @@
       "teamupInvite": "🤝 {name} vuole aiuto con «{task}»",
       "teamupAnyone": "🤝 {name} cerca un compagno per «{task}»",
       "teamupJoined": "🤝 {name} si è unito a te per «{task}»",
-      "teamupDeclined": "🤝 {name} questa volta non può fare «{task}» con te. Puoi chiedere a qualcun altro."
+      "teamupDeclined": "🤝 {name} questa volta non può fare «{task}» con te. Puoi chiedere a qualcun altro.",
+      "choreRejectedReason": "↩️ «{task}» non è stato approvato questa volta. {parent} dice: {reason}"
     },
     "notifyAdmin": {
       "peopleTitle": "Chi riceve cosa",

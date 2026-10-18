@@ -193,6 +193,7 @@ const GUIDE_EN: GuideSection[] = [
       { ul: [
         'Adjust coins (Family Members) adds or takes away coins with a reason.',
         'When approving a chore, ⭐💬 adds a note and an "above and beyond" bonus (+1, +2 or +5).',
+        'Rejecting a chore shows "Rejected · Undo" for 5 seconds before it goes through. 💬 Add a reason pauses that and sends the kid one line on what’s missing (with their outcome notification).',
         'Double coins events (Settings → Double coins events): a multiplier for a time window, for everything, chosen rooms, or chosen chores.',
       ] },
     ],
