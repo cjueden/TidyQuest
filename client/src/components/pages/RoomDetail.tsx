@@ -11,8 +11,8 @@ import { getRoomHealth } from '../../utils/health';
 import { formatNextDue, isTaskForUser, taskNextDue } from '../../utils/tasks';
 import { TimerStartButton } from '../shared/ChoreTimer';
 import { useChoreTimer } from '../../hooks/useChoreTimer';
-import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker, StepsField, TimerPicker } from '../shared/ScheduleFields';
-import { EMPTY_SCHEDULE, schedulePayload, scheduleFromTask, seasonLabel, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
+import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker, StartsOnPicker, StepsField, TimerPicker } from '../shared/ScheduleFields';
+import { EMPTY_SCHEDULE, monthlyLabel, schedulePayload, scheduleFromTask, seasonLabel, startsLater, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
 import { api } from '../../hooks/useApi';
 import { TakeBackButton } from '../shared/TakeBackButton';
 import { localeFor } from '../../utils/locale';
@@ -621,6 +621,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       interval={<FrequencyPicker value={editForm.freqValue} unit={editForm.freqUnit}
                         t={t}
                         onChange={(v, u) => setEditForm(f => ({ ...f, freqValue: v, freqUnit: u }))} />} />}
+                    {!editForm.onDemand && editSchedule.mode !== 'once' && <StartsOnPicker value={editSchedule} onChange={setEditSchedule} t={t} />}
                     {!editForm.onDemand && editSchedule.mode !== 'once' && <SeasonPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language} />}
                     {!editForm.onDemand && <ReminderPicker value={editSchedule} onChange={setEditSchedule} t={t} />}
                     <TimerPicker value={editSchedule} onChange={setEditSchedule} t={t} />
@@ -649,7 +650,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     />
                     <span style={{ fontSize: 11, color: 'var(--warm-text-light)' }}>{t('roomDetail.customCoinsDesc')}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {!editForm.onDemand && startsLater(editSchedule) ? <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-muted)' }}>{t('schedule.firstDueOnStart')}</div> : <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', minWidth: 58 }}>{t('rooms.health')}</label>
                     <div style={{ width: 220 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -670,7 +671,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                         <span>{t('rooms.dirty')}</span><span>{t('rooms.clean')}</span>
                       </div>
                     </div>
-                  </div>
+                  </div>}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', minWidth: 58 }}>{t('roomDetail.icon')}</label>
                     <IconPicker value={editForm.iconKey} onChange={(k) => setEditForm((f) => ({ ...f, iconKey: k }))} language={language}
@@ -848,7 +849,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       </div>
                     )}
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
-                      {timeAgo(task.lastCompletedAt)}{task.outOfSeason && task.seasonStartMonth && task.seasonEndMonth ? ` · ${t('schedule.offSeason')} (${seasonLabel(task.seasonStartMonth, task.seasonEndMonth, language)})` : task.isSeasonal ? ` · ${t('roomDetail.seasonal')}` : ''}{task.onDemand ? ` · ${t('roomDetail.onDemand')}` : ''}{task.onDemand && task.repeatLimit ? ` · ${task.myRepeatCount ?? 0}/${task.repeatLimit} ${t(task.repeatPeriod === 'day' ? 'repeat.today' : 'repeat.thisWeek')}` : ''}
+                      {timeAgo(task.lastCompletedAt)}{startsLater(task) ? ` · 📅 ${t('schedule.startsLabel').replace('{date}', new Date(`${task.startsOn}T12:00:00`).toLocaleDateString(localeFor(language), { weekday: 'short', month: 'short', day: 'numeric' }))}` : ''}{task.outOfSeason && task.seasonStartMonth && task.seasonEndMonth ? ` · ${t('schedule.offSeason')} (${seasonLabel(task.seasonStartMonth, task.seasonEndMonth, language)})` : task.isSeasonal ? ` · ${t('roomDetail.seasonal')}` : ''}{task.onDemand ? ` · ${t('roomDetail.onDemand')}` : ''}{task.onDemand && task.repeatLimit ? ` · ${task.myRepeatCount ?? 0}/${task.repeatLimit} ${t(task.repeatPeriod === 'day' ? 'repeat.today' : 'repeat.thisWeek')}` : ''}
                     </div>
                   </div>
                 </div>
@@ -858,6 +859,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     ? <span style={{ color: 'var(--warm-accent)', fontWeight: 700 }}>{t('roomDetail.onDemand')}</span>
                     : task.oneTime
                       ? <span style={{ color: 'var(--warm-accent)', fontWeight: 700 }}>{t('schedule.once')}</span>
+                    : monthlyLabel(task, t, language)
+                      ? <>{monthlyLabel(task, t, language)}</>
                     : task.scheduleWeekdays
                       ? <>{weekdaysLabel(task.scheduleWeekdays, language)}</>
                       : <>{t('roomDetail.every')} {formatFreq(task.frequencyDays, t)}</>
@@ -1078,6 +1081,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   interval={<FrequencyPicker value={newFreqValue} unit={newFreqUnit}
                     t={t}
                     onChange={(v, u) => { setNewFreqValue(v); setNewFreqUnit(u); }} />} />}
+                {!newTaskOnDemand && newSchedule.mode !== 'once' && <StartsOnPicker value={newSchedule} onChange={setNewSchedule} t={t} />}
                 {!newTaskOnDemand && newSchedule.mode !== 'once' && <SeasonPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language} />}
                 {!newTaskOnDemand && <ReminderPicker value={newSchedule} onChange={setNewSchedule} t={t} />}
                 <TimerPicker value={newSchedule} onChange={setNewSchedule} t={t} />
@@ -1087,7 +1091,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   <EffortPicker effort={newTaskEffort} onChange={setNewTaskEffort} />
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {!newTaskOnDemand && startsLater(newSchedule) ? <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-muted)' }}>{t('schedule.firstDueOnStart')}</div> : <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', minWidth: 58 }}>{t('rooms.health')}</label>
                 <div style={{ width: 220 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1108,7 +1112,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     <span>{t('rooms.dirty')}</span><span>{t('rooms.clean')}</span>
                   </div>
                 </div>
-              </div>
+              </div>}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-light)', minWidth: 58 }}>{t('roomDetail.icon')}</label>
                 <IconPicker value={newTaskIconKey} onChange={setNewTaskIconKey} language={language}

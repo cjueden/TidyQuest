@@ -42,7 +42,7 @@ export function formatNextDue(lastCompletedAt: string | null, frequencyDays: num
   const diffDays = Math.round((dueStart.getTime() - todayStart.getTime()) / (24 * 60 * 60 * 1000));
   if (diffDays <= 1) return { text: t('roomDetail.tomorrow'), color: 'var(--health-yellow)' };
   const locale = localeFor(language);
-  const text = nextDue.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+  const text = nextDue.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' });
   return { text, color: diffDays <= 7 ? 'var(--health-yellow)' : 'var(--health-green)' };
 }
 

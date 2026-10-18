@@ -1,5 +1,5 @@
 import db from '../database';
-import { isSeasonalNow, nextDueAt } from './schedule';
+import { isSeasonalNow, nextDueAt, type ScheduledTask } from './schedule';
 
 interface TelegramSettings {
   enabled: boolean;
@@ -88,8 +88,8 @@ function toLocalIsoDay(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function getDueIsoDay(task: { lastCompletedAt: string | null; frequencyDays: number; scheduleWeekdays?: number | null }, now: Date): string {
-  // Rolling interval or set weekdays (utils/schedule.ts); never done = due now
+function getDueIsoDay(task: ScheduledTask, now: Date): string {
+  // Rolling interval, set weekdays or monthly, and the start date (utils/schedule.ts); never done = due now
   return toLocalIsoDay(nextDueAt(task, now) ?? now);
 }
 

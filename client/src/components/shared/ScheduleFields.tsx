@@ -31,6 +31,7 @@ export function DueOnPicker({ value, onChange, interval, t, language, allowOnce 
         }}>
         <option value="interval">{t('roomDetail.every')}</option>
         <option value="weekdays">{t('schedule.onDays')}</option>
+        <option value="monthly">{t('schedule.monthly')}</option>
         {(allowOnce || value.mode === 'once') && <option value="once">{t('schedule.once')}</option>}
       </select>
       {value.mode === 'once' ? (
@@ -38,7 +39,9 @@ export function DueOnPicker({ value, onChange, interval, t, language, allowOnce 
           {t('schedule.doBy')}
           <input type="date" className="tq-input-compact" value={value.doBy} onChange={(e) => onChange({ ...value, doBy: e.target.value })} />
         </label>
-      ) : value.mode === 'interval' ? interval : (
+      ) : value.mode === 'interval' ? interval : value.mode === 'monthly' ? (
+        <MonthlyPicker value={value} onChange={onChange} t={t} language={language} />
+      ) : (
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {WEEK_ORDER.map((d) => (
             <button type="button" key={d} style={chip(!!(value.weekdays & (1 << d)))} onClick={() => toggle(d)} aria-pressed={!!(value.weekdays & (1 << d))}>
@@ -46,6 +49,59 @@ export function DueOnPicker({ value, onChange, interval, t, language, allowOnce 
             </button>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+/** "[On day] [15]" or "[First] [Sat]": which day of the month a monthly chore is due. */
+function MonthlyPicker({ value, onChange, t, language }: {
+  value: ScheduleValue;
+  onChange: (v: ScheduleValue) => void;
+  t: (key: string) => string;
+  language?: string;
+}) {
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+      <select className="tq-input-compact" value={value.monthWeek} aria-label={t('schedule.monthWhich')}
+        onChange={(e) => onChange({ ...value, monthWeek: Number(e.target.value) })}>
+        <option value={0}>{t('schedule.onDay')}</option>
+        {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{t(`schedule.nth${n}`)}</option>)}
+        <option value={-1}>{t('schedule.nthLast')}</option>
+      </select>
+      {value.monthWeek === 0 ? (
+        <select className="tq-input-compact" value={value.monthDay} aria-label={t('schedule.onDay')}
+          onChange={(e) => onChange({ ...value, monthDay: Number(e.target.value) })}>
+          {days.map((d) => <option key={d} value={d}>{d === 31 ? t('schedule.lastDay') : d}</option>)}
+        </select>
+      ) : (
+        <select className="tq-input-compact" value={value.monthWeekday} aria-label={t('schedule.monthWhich')}
+          onChange={(e) => onChange({ ...value, monthWeekday: Number(e.target.value) })}>
+          {WEEK_ORDER.map((d) => <option key={d} value={d}>{weekdayName(d, language)}</option>)}
+        </select>
+      )}
+      {value.monthWeek === 0 && value.monthDay >= 29 && value.monthDay < 31 && (
+        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-muted)' }}>{t('schedule.shortMonths')}</span>
+      )}
+    </div>
+  );
+}
+
+/** "📅 Starts on [date]": nothing is due before it, and it's first due on it. */
+export function StartsOnPicker({ value, onChange, t }: {
+  value: ScheduleValue;
+  onChange: (v: ScheduleValue) => void;
+  t: (key: string) => string;
+}) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }} title={t('schedule.startsOnDesc')}>
+      <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: 6 }}>
+        📅 {t('schedule.startsOn')}
+        <input type="date" className="tq-input-compact" value={value.startsOn} onChange={(e) => onChange({ ...value, startsOn: e.target.value })} />
+      </label>
+      {value.startsOn && (
+        <button type="button" className="tq-btn tq-btn-sm" aria-label={t('schedule.startsOn')} onClick={() => onChange({ ...value, startsOn: '' })}>×</button>
       )}
     </div>
   );

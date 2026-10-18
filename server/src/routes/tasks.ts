@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import multer from 'multer';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
-import { calculateHealth, getCoinsForEffort } from '../utils/health';
+import { getCoinsForEffort } from '../utils/health';
 import { suggestTaskIcon } from '../utils/taskIcons';
 import { notifyAchievementUnlocksForUser, checkAndRecordNewAchievements } from '../utils/achievementNotifications';
 import { badgeInfo } from '../utils/achievementStats';
@@ -14,7 +14,7 @@ import { claimRescue, releaseRescue, setRescueCompletion, todaysMission } from '
 import { notifyChoreApproved, notifyChoreRejected, notifyChoreWaiting } from '../utils/notifyMessages';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
-import { hasWeekdaySchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth } from '../utils/schedule';
+import { hasFixedSchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth, type ScheduledTask } from '../utils/schedule';
 import { isNotificationTypeEnabled, sendNotification } from '../utils/notifications';
 import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatLimits';
 import { boostMultiplierFor } from '../utils/boosts';
@@ -43,26 +43,14 @@ router.use(authMiddleware);
 
 function hadDueTaskOnDate(dateIsoDay: string): boolean {
   const endOfDay = new Date(`${dateIsoDay}T23:59:59.999Z`).getTime();
-  const tasks = db.prepare('SELECT id, frequencyDays, isSeasonal, lastCompletedAt, seasonStartMonth, seasonEndMonth, scheduleWeekdays FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND oneTime = 0').all() as Array<{
-    id: number; frequencyDays: number; isSeasonal: number; lastCompletedAt: string | null;
-    seasonStartMonth: number | null; seasonEndMonth: number | null; scheduleWeekdays: number | null;
+  const tasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND oneTime = 0').all() as Array<ScheduledTask & {
+    id: number; isSeasonal: number;
   }>;
 
   for (const t of tasks) {
     if (isSeasonalNow(t, new Date(`${dateIsoDay}T12:00:00`))) continue;
-    const safeFreq = Math.max(1 / 24, Number(t.frequencyDays) || 7);
-    let dueTs: number;
-    if (hasWeekdaySchedule(t)) {
-      dueTs = nextDueAt(t)!.getTime();
-    } else if (!t.lastCompletedAt) {
-      dueTs = 0;
-    } else {
-      dueTs = new Date(t.lastCompletedAt).getTime() + safeFreq * 86400000;
-    }
-    if (dueTs <= endOfDay) {
-      const health = hasWeekdaySchedule(t) ? taskHealth(t) : calculateHealth(t.lastCompletedAt, safeFreq, false, null);
-      if (health < 100) return true;
-    }
+    const dueTs = nextDueAt(t)?.getTime() ?? 0;
+    if (dueTs <= endOfDay && taskHealth(t) < 100) return true;
   }
   return false;
 }
@@ -615,7 +603,8 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
 
   const tasks = db.prepare(`
     SELECT t.id, t.name, t.roomId, t.effort, t.frequencyDays, t.lastCompletedAt, t.isSeasonal, t.onDemand,
-           t.seasonStartMonth, t.seasonEndMonth, t.scheduleWeekdays,
+           t.seasonStartMonth, t.seasonEndMonth, t.scheduleWeekdays, t.scheduleMonthDay, t.scheduleMonthWeek,
+           t.scheduleMonthWeekday, t.startsOn, t.createdAt,
            r.name as roomName
     FROM tasks t
     JOIN rooms r ON t.roomId = r.id
@@ -644,11 +633,8 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
         : globalVac;
       const health = taskHealth(t, taskVac);
       if (health > 0) return null;
-      const daysOverdue = hasWeekdaySchedule(t)
-        ? Math.max(0, (Date.now() - nextDueAt(t)!.getTime()) / 86400000)
-        : t.lastCompletedAt
-          ? Math.max(0, (Date.now() - new Date(t.lastCompletedAt).getTime()) / 86400000 - t.frequencyDays)
-          : 999;
+      const due = nextDueAt(t);
+      const daysOverdue = due ? Math.max(0, (Date.now() - due.getTime()) / 86400000) : 999;
       return {
         id: t.id,
         name: t.name,
@@ -690,6 +676,8 @@ router.post('/tasks/:id/duplicate', (req: AuthRequest, res: Response) => {
   saveScheduleInput(newTaskId, {
     seasonStartMonth: task.seasonStartMonth, seasonEndMonth: task.seasonEndMonth,
     scheduleWeekdays: task.scheduleWeekdays, rotationPeriod: task.rotationPeriod,
+    scheduleMonthDay: task.scheduleMonthDay, scheduleMonthWeek: task.scheduleMonthWeek,
+    scheduleMonthWeekday: task.scheduleMonthWeekday, startsOn: task.startsOn,
     reminderTime: task.reminderTime, reminderDayBefore: task.reminderDayBefore,
     oneTime: task.oneTime, doBy: task.doBy, timerMinutes: task.timerMinutes, steps: task.steps,
   });
@@ -734,7 +722,7 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
   ).run(task.id, now);
 
   const effectiveFrequency = Math.max(1 / 24, Number(task.frequencyDays) || 7);
-  const dirtyAt = hasWeekdaySchedule(task)
+  const dirtyAt = hasFixedSchedule(task)
     ? lastCompletedAtForHealth(task, 0)
     : new Date(Date.now() - effectiveFrequency * 86400000).toISOString();
   db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(dirtyAt, task.id);

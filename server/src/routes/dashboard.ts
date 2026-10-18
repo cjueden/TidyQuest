@@ -3,7 +3,7 @@ import { focusLine, focusModeFor, OPEN_PER_DAY } from '../utils/focus';
 import { parseHomeLayout } from '../utils/homeLayout';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
-import { calendarDaysUntil, hasWeekdaySchedule, isSeasonalNow, nextDueAt, oneTimeDeadline, scheduleFields, taskHealth } from '../utils/schedule';
+import { calendarDaysUntil, beforeStart, hasFixedSchedule, isSeasonalNow, nextDueAt, oneTimeDeadline, scheduleFields, taskHealth } from '../utils/schedule';
 import { getGlobalVacation, getUserVacation, hiddenRoomIdsFor, isStrictModeEnabled, resolveVacation } from '../utils/adminHelpers';
 import { syncPrimaryGoal } from '../utils/goals';
 import { repeatCountsFor } from '../utils/repeatLimits';
@@ -95,7 +95,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
       const health = taskHealth(t, taskVac);
       const dueDateTs = nextDueAt(t)?.getTime() ?? nowTs;
       const dueInDays = t.onDemand ? 0
-        : hasWeekdaySchedule(t) ? calendarDaysUntil(new Date(dueDateTs))
+        : hasFixedSchedule(t) || beforeStart(t) ? calendarDaysUntil(new Date(dueDateTs))
         : Math.max(0, Math.floor((dueDateTs - nowTs) / 86400000));
       const taskWithHealth = {
         ...t,

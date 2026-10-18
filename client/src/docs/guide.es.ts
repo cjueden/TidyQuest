@@ -103,6 +103,8 @@ export const GUIDE_ES: GuideSection[] = [
       { ul: [
         'Cada N días: toca de nuevo N días después de la última vez. Su salud baja durante esos días.',
         'Días de la semana fijos: toca en los días elegidos de la semana.',
+        'Cada mes: toca un día del mes (el 29, 30 y 31 caen en el último día de los meses más cortos, y «Último día» es siempre el último) o el primer, segundo, tercer, cuarto o último día de la semana elegido, como el primer sábado. No se desplaza cuando se hace tarde.',
+        'Empieza el (📅): para cualquier tarea que se repite. Nada vence antes de ese día, y vence por primera vez ese día (con días de la semana fijos o Cada mes: el primer día programado desde esa fecha). Hasta entonces cuenta como limpia, y la habitación muestra «Empieza el …». Una vez hecha ese día o después, la fecha ya no importa.',
         'Solo en temporada: solo toca entre dos meses (fuera de ellos no cuenta para la salud de la casa).',
         'A demanda (cuando sea): sin calendario; se puede hacer en cualquier momento. Activa "Mostrar en el panel" para verla en Inicio y pon un límite de repeticiones (por día o semana) si se pudiera abusar de ella.',
         'Una vez (pendiente): se hace una vez y desaparece de las listas (queda en Actividad). Fecha opcional "Hacer antes del". Añade una rápido con "+ Pendiente" en Inicio.',
@@ -325,6 +327,7 @@ export const GUIDE_ES: GuideSection[] = [
           'Misiones de hoy muestra las tareas que tocan, las más atrasadas primero (hasta 10). Las demás están en su habitación y en la página Tareas.',
           'Las tareas a demanda necesitan "Mostrar en el panel" activado.',
           'Fuera de temporada (Solo en temporada) o con días de la semana fijos: hoy no toca.',
+          'Tiene una fecha de inicio (📅 Empieza el) que aún no ha llegado: su habitación muestra «Empieza el …».',
           'Tu Vista de tareas puede estar en "Mías" (el interruptor de arriba), o un padre o una madre la puso en "Solo las suyas".',
           'Las tareas únicas están en la tarjeta de Pendientes y desaparecen al hacerlas.',
           'Puede que la hayas pospuesto (💤 en Quizá olvidaste estas): vuelve después de 3 días, o pulsa Deshacer en el mensaje de "Pospuesta" enseguida.',
