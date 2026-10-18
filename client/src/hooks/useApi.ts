@@ -486,6 +486,8 @@ export const api = {
     apiFetch<{ rewards: any[]; redemptions: any[]; rotatingPerWeek?: number; rotatingThisWeek?: number[] }>('/rewards/admin'),
   updateRedemptionStatus: (id: number, status: 'requested' | 'approved' | 'rejected') =>
     apiFetch<any>(`/rewards/redemptions/${id}`, { method: 'PUT', body: JSON.stringify({ status }) }),
+  refundRedemption: (id: number) =>
+    apiFetch<{ id: number; status: string }>(`/rewards/redemptions/${id}/refund`, { method: 'POST' }),
   cancelRedemption: (id: number) =>
     apiFetch<{ redemption: any; coins: number }>(`/rewards/redemptions/${id}/cancel`, { method: 'POST' }),
   createReward: (data: { title: string; description?: string; costCoins: number }) =>

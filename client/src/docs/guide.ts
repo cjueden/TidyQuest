@@ -180,6 +180,7 @@ const GUIDE_EN: GuideSection[] = [
       { h: 'Rewards' },
       { ul: [
         'Each reward has a price. Kids request it; a parent approves or turns it down.',
+        'Approved one by mistake? Reward requests (under the catalog) has Refund next to each approved reward: the coins go back (a shared pot to everyone who chipped in) and it shows as rejected.',
         'Rules per reward: a limit (per day, week, month or ever; per person or for everyone), a date window, Rotating (only a few show each week), who can see it, a different price per person, and a category.',
         'Shared saving: anyone can chip coins into a pot; when it’s full it goes to a parent. The chip-in box starts at 0, and each chip-in shows in Activity.',
       ] },

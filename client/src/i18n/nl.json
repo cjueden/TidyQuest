@@ -290,7 +290,9 @@
       "themeGalaxy": "Melkweg",
       "themeLava": "Lava",
       "showAllRewards": "Alle {n} beloningen tonen",
-      "showFewerRewards": "Minder tonen"
+      "showFewerRewards": "Minder tonen",
+      "refundReward": "Terugbetalen",
+      "refundRewardConfirm": "\"{reward}\" terugbetalen? De {coins} munten gaan terug naar wie betaalde, en het verzoek staat als afgewezen."
     },
     "nav": {
       "home": "Home",

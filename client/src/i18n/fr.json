@@ -290,7 +290,9 @@
       "themeGalaxy": "Galaxie",
       "themeLava": "Lave",
       "showAllRewards": "Voir les {n} récompenses",
-      "showFewerRewards": "Voir moins"
+      "showFewerRewards": "Voir moins",
+      "refundReward": "Rembourser",
+      "refundRewardConfirm": "Rembourser « {reward} » ? Les {coins} pièces reviennent à qui a payé, et la demande apparaît comme refusée."
     },
     "nav": {
       "home": "Accueil",

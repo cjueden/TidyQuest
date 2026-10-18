@@ -283,6 +283,18 @@ export function Settings({
     setMemberGoals(next);
   };
 
+  // Undo an approval made by mistake (the coins go back, the request shows as rejected)
+  const refundRedemption = async (rr: { id: number; title: string; costCoins: number }) => {
+    if (!confirm(t('settings.refundRewardConfirm').replace('{reward}', rewardTitle(rr)).replace('{coins}', String(rr.costCoins)))) return;
+    try {
+      const updated = await api.refundRedemption(rr.id);
+      setRewardRequests((prev) => prev.map((x) => (x.id === rr.id ? { ...x, status: updated.status } : x)));
+      onDataChanged?.(); // coin totals
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Error');
+    }
+  };
+
   const loadRewardsAdmin = async () => {
     if (!isAdmin) return;
     const data = await api.getRewardsAdmin();
@@ -1193,7 +1205,19 @@ export function Settings({
                   <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)' }}>{rr.displayName}</div>
                   <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{rewardTitle(rr)}</div>
                   <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--warm-accent)', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}><CoinIcon /> {rr.costCoins}</div>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: rr.status === 'approved' ? '#15803D' : rr.status === 'rejected' ? '#B91C1C' : rr.status === 'cancelled' ? '#374151' : 'var(--warm-text-light)' }}>{rewardStatusLabel(rr.status)}</div>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: rr.status === 'approved' ? '#15803D' : rr.status === 'rejected' ? '#B91C1C' : rr.status === 'cancelled' ? '#374151' : 'var(--warm-text-light)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+                    {rewardStatusLabel(rr.status)}
+                    {rr.status === 'approved' && (
+                      <button
+                        type="button"
+                        className="tq-btn tq-btn-secondary"
+                        style={{ padding: '3px 8px', fontSize: 10 }}
+                        onClick={() => void refundRedemption(rr)}
+                      >
+                        {t('settings.refundReward')}
+                      </button>
+                    )}
+                  </div>
                   <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700 }}>{formatDate(rr.redeemedAt)}</div>
                 </div>
               ))}

@@ -229,3 +229,50 @@ describe('Scheduled and rotating rewards', () => {
     expect(weeks.size).toBeGreaterThan(1);
   });
 });
+
+describe('Deciding and refunding requests', () => {
+  const decide = (token: string, id: number, status: string) => agent.put(`/api/rewards/redemptions/${id}`).set(auth(token)).send({ status });
+  const refund = (token: string, id: number) => agent.post(`/api/rewards/redemptions/${id}/refund`).set(auth(token));
+
+  it("won't change a decision once it's made, so a refunded reward can't be approved for free", async () => {
+    const { dad, cecil } = family();
+    const slushie = await reward(dad.token, 'Slushie Run', 35);
+    const a = (await redeem(cecil.token, slushie)).body.redemption.id;
+    expect((await decide(dad.token, a, 'rejected')).status).toBe(200);
+    expect(coins(cecil.id)).toBe(2000);
+    expect((await decide(dad.token, a, 'approved')).status).toBe(400);
+    expect(coins(cecil.id)).toBe(2000);
+
+    const b = (await redeem(cecil.token, slushie)).body.redemption.id;
+    expect((await decide(dad.token, b, 'approved')).status).toBe(200);
+    expect((await decide(dad.token, b, 'rejected')).status).toBe(400);
+    expect((await decide(dad.token, b, 'requested')).status).toBe(400);
+    expect(coins(cecil.id)).toBe(1965);
+  });
+
+  it('lets a parent refund an approved reward, once', async () => {
+    const { dad, wyatt, cecil } = family();
+    const slushie = await reward(dad.token, 'Slushie Run', 35);
+    const id = (await redeem(cecil.token, slushie)).body.redemption.id;
+    expect((await refund(dad.token, id)).status).toBe(400); // still waiting: use Reject
+    await decide(dad.token, id, 'approved');
+    expect((await refund(wyatt.token, id)).status).toBe(403);
+    const res = await refund(dad.token, id);
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ id, status: 'rejected', displayName: 'Cecil', title: 'Slushie Run' });
+    expect(coins(cecil.id)).toBe(2000);
+    expect((await refund(dad.token, id)).status).toBe(400);
+    expect(coins(cecil.id)).toBe(2000);
+  });
+
+  it('refunds a shared pot to everyone who chipped in', async () => {
+    const { dad, cecil, cylis } = family();
+    const pizza = await reward(dad.token, 'Pizza Night', 100, { isShared: true });
+    await agent.post(`/api/rewards/${pizza}/contribute`).set(auth(cecil.token)).send({ amount: 60 }).expect(200);
+    const full = await agent.post(`/api/rewards/${pizza}/contribute`).set(auth(cylis.token)).send({ amount: 40 }).expect(200);
+    await decide(dad.token, full.body.redemption.id, 'approved');
+    expect([coins(cecil.id), coins(cylis.id)]).toEqual([1940, 1960]);
+    expect((await refund(dad.token, full.body.redemption.id)).status).toBe(200);
+    expect([coins(cecil.id), coins(cylis.id)]).toEqual([2000, 2000]);
+  });
+});

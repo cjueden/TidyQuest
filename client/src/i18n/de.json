@@ -290,7 +290,9 @@
       "themeGalaxy": "Galaxie",
       "themeLava": "Lava",
       "showAllRewards": "Alle {n} Belohnungen zeigen",
-      "showFewerRewards": "Weniger zeigen"
+      "showFewerRewards": "Weniger zeigen",
+      "refundReward": "Erstatten",
+      "refundRewardConfirm": "„{reward}“ erstatten? Die {coins} Münzen gehen an alle zurück, die bezahlt haben, und die Anfrage gilt als abgelehnt."
     },
     "nav": {
       "home": "Startseite",

@@ -290,7 +290,9 @@
       "themeGalaxy": "Galaxy",
       "themeLava": "Lava",
       "showAllRewards": "Show all {n} rewards",
-      "showFewerRewards": "Show fewer"
+      "showFewerRewards": "Show fewer",
+      "refundReward": "Refund",
+      "refundRewardConfirm": "Refund \"{reward}\"? The {coins} coins go back to whoever paid, and it shows as rejected."
     },
     "nav": {
       "home": "Home",
