@@ -204,4 +204,35 @@ describe('Strict mode', () => {
 
     expect(res.status).toBe(403);
   });
+
+  it('lets the kid take back a Done that waits for approval, but not someone else\'s or an approved one', async () => {
+    const { agent } = createTestApp();
+    const { token: adminToken } = await createAdmin(agent);
+    const helpers = setupAll(agent, adminToken);
+    await helpers.enableStrict();
+    const { token: childToken } = await createUser(agent, adminToken, { username: 'child1', displayName: 'Child', password: 'pass123' });
+    const { token: otherToken } = await createUser(agent, adminToken, { username: 'child2', displayName: 'Other', password: 'pass123' });
+    const { taskId } = await helpers.createRoomAndTask();
+    const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
+    const myQuest = async () => {
+      const rooms = (await agent.get('/api/rooms').set(auth(childToken))).body as any[];
+      return rooms.flatMap((r) => r.tasks).find((q: any) => q.id === taskId);
+    };
+
+    await agent.post(`/api/tasks/${taskId}/complete`).set(auth(childToken)).expect(200);
+    const quest = await myQuest();
+    expect(quest.myPendingCount).toBe(1);
+    expect(typeof quest.myPendingId).toBe('number');
+    await agent.delete(`/api/completions/${quest.myPendingId}`).set(auth(otherToken)).expect(403);
+    const res = await agent.delete(`/api/completions/${quest.myPendingId}`).set(auth(childToken)).expect(200);
+    expect(res.body.coinsDeducted).toBe(0);
+    expect((await myQuest()).myPendingCount).toBe(0);
+    expect((await agent.get('/api/completions/pending').set(auth(adminToken))).body.pending).toEqual([]);
+
+    // Once a parent approves it, only a parent can undo it
+    await agent.post(`/api/tasks/${taskId}/complete`).set(auth(childToken)).expect(200);
+    const id = (await myQuest()).myPendingId;
+    await agent.post(`/api/completions/${id}/approve`).set(auth(adminToken)).expect(200);
+    await agent.delete(`/api/completions/${id}`).set(auth(childToken)).expect(409);
+  });
 });

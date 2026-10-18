@@ -328,7 +328,9 @@
       "tasksSubtitle": "Todas las tareas de todas las habitaciones",
       "waitingForApproval": "Esperando aprobación",
       "waitingCount": "{n} esperando aprobación",
-      "alreadyDone": "¡Eso ya está hecho!"
+      "alreadyDone": "¡Eso ya está hecho!",
+      "takeBack": "Deshacer",
+      "takeBackHint": "¿Pulsaste Hecho por error? Deshazlo antes de que decida un padre."
     },
     "admin": {
       "whoDidThisTask": "¿Quién completó esta tarea?",

@@ -1048,35 +1048,47 @@ router.delete('/tasks/:id/snooze', (req: AuthRequest, res: Response) => {
 });
 
 // Cancel (undo) a task completion — admin only
+// Undo a completion. A parent can undo any; the person who tapped Done can take it back while it
+// still waits for approval. A team's completions are undone together and the team-up reopens.
 router.delete('/completions/:completionId', (req: AuthRequest, res: Response) => {
-  if (!ensureAdmin(req.userId)) {
-    return res.status(403).json({ error: 'Admin only' });
-  }
-
   const completion = db.prepare(
-    'SELECT id, taskId, userId, coinsEarned, status FROM task_completions WHERE id = ?'
-  ).get(req.params.completionId) as any;
+    'SELECT id, taskId, userId, coinsEarned, status, teamupId FROM task_completions WHERE id = ?'
+  ).get(req.params.completionId) as { id: number; taskId: number; userId: number; coinsEarned: number; status: string; teamupId: number | null } | undefined;
   if (!completion) return res.status(404).json({ error: 'Completion not found' });
 
-  if (completion.status === 'approved') {
-    db.prepare('UPDATE users SET coins = MAX(0, coins - ?) WHERE id = ?')
-      .run(completion.coinsEarned, completion.userId);
+  const rows = completion.teamupId
+    ? db.prepare('SELECT id, userId, coinsEarned, status FROM task_completions WHERE teamupId = ?').all(completion.teamupId) as Array<{ id: number; userId: number; coinsEarned: number; status: string }>
+    : [completion];
+  if (!ensureAdmin(req.userId)) {
+    const mine = rows.some((r) => r.userId === req.userId);
+    if (!mine) return res.status(403).json({ error: 'Admin only' });
+    if (completion.status !== 'pending') return res.status(409).json({ error: 'completion_not_pending' });
   }
 
-  // Delete the completion record (an undone Rescue Mission is open again)
-  db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
-  releaseRescue(completion.id);
+  let coinsDeducted = 0;
+  db.transaction(() => {
+    for (const row of rows) {
+      if (row.status === 'approved') {
+        db.prepare('UPDATE users SET coins = MAX(0, coins - ?) WHERE id = ?').run(row.coinsEarned, row.userId);
+        coinsDeducted += row.coinsEarned;
+      }
+      // Delete the completion record (an undone Rescue Mission is open again)
+      db.prepare('DELETE FROM task_completions WHERE id = ?').run(row.id);
+      releaseRescue(row.id);
+    }
+    if (completion.teamupId) db.prepare("UPDATE teamups SET status = 'open' WHERE id = ?").run(completion.teamupId);
 
-  // Update task.lastCompletedAt to the previous completion's completedAt (or NULL if none)
-  const prev = db.prepare(
-    "SELECT completedAt FROM task_completions WHERE taskId = ? AND status = 'approved' ORDER BY completedAt DESC LIMIT 1"
-  ).get(completion.taskId) as any;
-  db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?')
-    .run(prev?.completedAt || null, completion.taskId);
-  // Undoing a one-time chore's completion brings it back
-  if (!prev) db.prepare('UPDATE tasks SET archivedAt = NULL WHERE id = ? AND oneTime = 1').run(completion.taskId);
+    // Update task.lastCompletedAt to the previous completion's completedAt (or NULL if none)
+    const prev = db.prepare(
+      "SELECT completedAt FROM task_completions WHERE taskId = ? AND status = 'approved' ORDER BY completedAt DESC LIMIT 1"
+    ).get(completion.taskId) as { completedAt: string } | undefined;
+    db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?')
+      .run(prev?.completedAt || null, completion.taskId);
+    // Undoing a one-time chore's completion brings it back
+    if (!prev) db.prepare('UPDATE tasks SET archivedAt = NULL WHERE id = ? AND oneTime = 1').run(completion.taskId);
+  })();
 
-  res.json({ success: true, coinsDeducted: completion.coinsEarned });
+  res.json({ success: true, coinsDeducted });
 });
 
 export default router;

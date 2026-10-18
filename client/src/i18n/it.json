@@ -328,7 +328,9 @@
       "tasksSubtitle": "Tutti i compiti di tutte le stanze",
       "waitingForApproval": "In attesa di approvazione",
       "waitingCount": "{n} in attesa di approvazione",
-      "alreadyDone": "È già fatto!"
+      "alreadyDone": "È già fatto!",
+      "takeBack": "Annulla",
+      "takeBackHint": "Hai toccato Fatto per sbaglio? Annullalo prima che decida un genitore."
     },
     "admin": {
       "whoDidThisTask": "Chi ha completato questo compito?",

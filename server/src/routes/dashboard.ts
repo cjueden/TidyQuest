@@ -60,8 +60,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
 
   // The viewer's own completions still waiting for a parent, per task (Strict Mode)
   const myPendingByTask = new Map(
-    (db.prepare("SELECT taskId, COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'pending' GROUP BY taskId")
-      .all(req.userId) as { taskId: number; n: number }[]).map((r) => [r.taskId, r.n])
+    (db.prepare("SELECT taskId, COUNT(*) AS n, MAX(id) AS lastId FROM task_completions WHERE userId = ? AND status = 'pending' GROUP BY taskId")
+      .all(req.userId) as { taskId: number; n: number; lastId: number }[]).map((r) => [r.taskId, r])
   );
   // Anytime quests with a repeat limit: how many times the viewer did each this day/week
   const myRepeatCounts = repeatCountsFor(req.userId, dbTasks);
@@ -109,7 +109,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
         })),
         assignmentMode: t.assignmentMode || 'first',
         effectiveAssignedUserIds: effectiveIds,
-        myPendingCount: myPendingByTask.get(t.id) || 0,
+        myPendingCount: myPendingByTask.get(t.id)?.n || 0,
+        // The latest one, so its owner can take it back (FIX-3)
+        myPendingId: myPendingByTask.get(t.id)?.lastId ?? null,
         myRepeatCount: myRepeatCounts.get(t.id) || 0,
         sharedCompletions: sharedCompletionsByTask.get(t.id) || [],
         completedTodayBy: completedTodayByTask.get(t.id) || null,

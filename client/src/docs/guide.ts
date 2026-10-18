@@ -151,7 +151,7 @@ const GUIDE_EN: GuideSection[] = [
       { ul: [
         'Tap Done on Home, in the room, or on the Tasks page. The 📎 button adds a note or photo as proof.',
         'Parents and members can mark a chore done for someone else ("who did it?").',
-        'A mistake can be undone from Activity (parents) or the chore’s "Done by" line.',
+        'A mistake can be undone from Activity (parents) or the chore’s "Done by" line. A team-up is undone for the whole team, and everyone’s coins for it are taken back. A kid can take back their own Done while it waits for approval.',
       ] },
     ],
   },
@@ -287,6 +287,7 @@ const GUIDE_EN: GuideSection[] = [
         ] },
         { q: 'I tapped Done but got no coins', a: [
           'With Strict Mode on, a kid’s chore waits for a parent. It shows as waiting in Activity and on the parent’s Home under "Waiting for approval".',
+          'Tapped Done by mistake? While it waits, ↩ Take back (next to the button) undoes it; on a team-up it’s taken back for the whole team.',
           'If Gamification is off (Settings → General), there are no coins at all.',
           'If a parent turned it down, the chore is open again; under team-ups it goes back to the team.',
         ] },

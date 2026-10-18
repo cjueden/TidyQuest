@@ -328,7 +328,9 @@
       "tasksSubtitle": "Alle Aufgaben aus allen Räumen",
       "waitingForApproval": "Wartet auf Freigabe",
       "waitingCount": "{n} warten auf Freigabe",
-      "alreadyDone": "Das ist schon erledigt!"
+      "alreadyDone": "Das ist schon erledigt!",
+      "takeBack": "Zurücknehmen",
+      "takeBackHint": "Aus Versehen auf Erledigt getippt? Nimm es zurück, bevor ein Elternteil entscheidet."
     },
     "admin": {
       "whoDidThisTask": "Wer hat diese Aufgabe erledigt?",

@@ -328,7 +328,9 @@
       "tasksSubtitle": "Toutes les tâches de toutes les pièces",
       "waitingForApproval": "En attente de validation",
       "waitingCount": "{n} en attente de validation",
-      "alreadyDone": "C'est déjà fait !"
+      "alreadyDone": "C'est déjà fait !",
+      "takeBack": "Annuler",
+      "takeBackHint": "Appuyé sur Fait par erreur ? Annule-le avant qu'un parent décide."
     },
     "admin": {
       "whoDidThisTask": "Qui a fait cette tâche ?",

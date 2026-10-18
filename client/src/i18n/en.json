@@ -328,7 +328,9 @@
       "tasksSubtitle": "Every task in every room",
       "waitingForApproval": "Waiting for approval",
       "waitingCount": "{n} waiting for approval",
-      "alreadyDone": "That's already done!"
+      "alreadyDone": "That's already done!",
+      "takeBack": "Take back",
+      "takeBackHint": "Tapped Done by mistake? Take it back before a parent decides."
     },
     "admin": {
       "whoDidThisTask": "Who completed this task?",

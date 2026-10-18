@@ -328,7 +328,9 @@
       "tasksSubtitle": "Alle klusjes uit alle kamers",
       "waitingForApproval": "Wacht op goedkeuring",
       "waitingCount": "{n} wachten op goedkeuring",
-      "alreadyDone": "Dat is al gedaan!"
+      "alreadyDone": "Dat is al gedaan!",
+      "takeBack": "Terugnemen",
+      "takeBackHint": "Per ongeluk op Klaar getikt? Neem het terug voordat een ouder beslist."
     },
     "admin": {
       "whoDidThisTask": "Wie heeft dit klusje gedaan?",
