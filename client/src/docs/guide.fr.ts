@@ -103,6 +103,8 @@ export const GUIDE_FR: GuideSection[] = [
       { ul: [
         'Tous les N jours : à refaire N jours après la dernière fois. Sa santé baisse pendant ces jours.',
         'Jours de la semaine : à faire certains jours de la semaine à la place.',
+        'Chaque mois : à faire un jour du mois (les 29, 30 et 31 tombent sur le dernier jour des mois plus courts, et « Dernier jour » est toujours le dernier) ou le premier, deuxième, troisième, quatrième ou dernier jour de semaine donné, comme le premier samedi. Elle ne se décale pas quand elle est faite en retard.',
+        'Commence le (📅) : pour toute tâche qui se répète. Rien n’est à faire avant ce jour, et la première échéance est ce jour-là (avec des jours de la semaine ou Chaque mois : le premier jour prévu à partir de cette date). D’ici là elle compte comme propre, et la pièce affiche « Commence le … ». Une fois faite ce jour-là ou après, la date ne compte plus.',
         'Seulement en saison : à faire seulement entre deux mois (en dehors, elle ne compte pas dans la santé de la maison).',
         'À la demande (à tout moment) : pas de calendrier ; elle peut être faite quand on veut. Active « Afficher dans le tableau de bord » pour la lister sur Accueil, et fixe une limite de répétition (par jour ou par semaine) si on pourrait en abuser.',
         'Une seule fois (à faire) : faite une fois, puis elle disparaît des listes (elle reste dans Activité). « À faire avant » est une date facultative. Ajoute-en une vite avec « + À faire » sur Accueil.',
@@ -325,6 +327,7 @@ export const GUIDE_FR: GuideSection[] = [
           'Quêtes du jour liste les tâches à faire, les plus en retard d’abord (jusqu’à 10). Les autres sont dans leur pièce et sur la page Tâches.',
           'Les tâches à tout moment demandent que « Afficher dans le tableau de bord » soit activé.',
           'Hors saison (Seulement en saison) ou jours de la semaine fixés : elle n’est pas à faire aujourd’hui.',
+          'Elle a une date de début (📅 Commence le) qui n’est pas encore arrivée : sa pièce affiche « Commence le … ».',
           'Ton Affichage des tâches est peut-être sur « Les miennes » (l’interrupteur en haut), ou un parent l’a mis sur « Seulement les siennes ».',
           'Les tâches uniques sont dans la carte À faire, et disparaissent une fois faites.',
           'Tu l’as peut-être mise en pause (💤 dans Tu as peut-être oublié ceux-ci) : elle revient après 3 jours, ou appuie tout de suite sur Annuler dans le message « mis en pause ».',

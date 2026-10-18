@@ -252,6 +252,13 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE users ADD COLUMN focusMode TEXT`,
   // Each person's Home: card order and hidden cards (JSON {order, hidden}; NULL = the default), utils/homeLayout.ts
   `ALTER TABLE users ADD COLUMN homeLayout TEXT`,
+  // Monthly chores (utils/schedule.ts): a day of the month (1–31; 29–31 fall on the last day of shorter
+  // months), or the nth weekday (week 1–4 or -1 = last, weekday like Date.getDay())
+  `ALTER TABLE tasks ADD COLUMN scheduleMonthDay INTEGER`,
+  `ALTER TABLE tasks ADD COLUMN scheduleMonthWeek INTEGER`,
+  `ALTER TABLE tasks ADD COLUMN scheduleMonthWeekday INTEGER`,
+  // A repeating chore's start date ('YYYY-MM-DD', local): nothing is due before it, and it's first due on it
+  `ALTER TABLE tasks ADD COLUMN startsOn TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

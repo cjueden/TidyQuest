@@ -103,6 +103,8 @@ export const GUIDE_DE: GuideSection[] = [
       { ul: [
         'Alle N Tage: wieder fällig N Tage nach dem letzten Mal. Ihre Gesundheit sinkt über diese Tage.',
         'Bestimmte Wochentage: stattdessen an den gewählten Wochentagen fällig.',
+        'Monatlich: an einem Tag des Monats fällig (der 29., 30. und 31. fallen in kürzeren Monaten auf den letzten Tag, und „Letzter Tag“ ist immer der letzte) oder am ersten, zweiten, dritten, vierten oder letzten Wochentag, z. B. am ersten Samstag. Sie verschiebt sich nicht, wenn sie zu spät erledigt wird.',
+        'Beginnt am (📅): für jede wiederkehrende Aufgabe. Vor diesem Tag ist nichts fällig, und zum ersten Mal fällig ist sie an diesem Tag (mit bestimmten Wochentagen oder Monatlich: am ersten geplanten Tag ab diesem Datum). Bis dahin zählt sie als sauber, und der Raum zeigt „Beginnt am …“. Sobald sie an oder nach diesem Tag erledigt wurde, spielt das Datum keine Rolle mehr.',
         'Nur in der Saison: nur zwischen zwei Monaten fällig (außerhalb zählt sie nicht zur Hausgesundheit).',
         'Auf Abruf (jederzeit): kein Zeitplan; sie kann jederzeit gemacht werden. Schalte „Im Dashboard anzeigen“ ein, um sie auf der Startseite aufzulisten, und lege ein Limit fest (pro Tag oder Woche), falls man sie ausnutzen könnte.',
         'Einmalig (To-do): einmal erledigt, dann verschwindet sie aus den Listen (sie bleibt unter Aktivität). Optional mit Datum bei „Erledigen bis“. Mit „+ To-do“ auf der Startseite legst du schnell eine an.',
@@ -325,6 +327,7 @@ export const GUIDE_DE: GuideSection[] = [
           'Heutige Aufgaben listet fällige Aufgaben auf, die am längsten überfälligen zuerst (bis zu 10). Die anderen sind in ihrem Raum und auf der Seite Aufgaben.',
           'Jederzeit machbare Aufgaben brauchen eingeschaltetes „Im Dashboard anzeigen“.',
           'Außerhalb der Saison (Nur in der Saison) oder bei bestimmten Wochentagen: Sie ist heute nicht fällig.',
+          'Sie hat ein Startdatum (📅 Beginnt am), das noch nicht erreicht ist: Ihr Raum zeigt „Beginnt am …“.',
           'Deine Aufgabenansicht steht vielleicht auf „Meine“ (der Schalter oben), oder ein Elternteil hat sie auf „Nur eigene“ gestellt.',
           'Einmalige Aufgaben sind in der To-do-Karte und verschwinden, sobald sie erledigt sind.',
           'Du hast sie vielleicht pausiert (💤 in Vielleicht vergessen): Sie kommt nach 3 Tagen zurück, oder tippe sofort auf Rückgängig in der Meldung „Pausiert“.',

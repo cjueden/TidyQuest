@@ -103,6 +103,8 @@ export const GUIDE_NL: GuideSection[] = [
       { ul: [
         'Om de N dagen: weer aan de beurt N dagen nadat het voor het laatst is gedaan. De gezondheid daalt in die dagen.',
         'Vaste weekdagen: in plaats daarvan aan de beurt op gekozen dagen van de week.',
+        'Maandelijks: aan de beurt op een dag van de maand (de 29e, 30e en 31e vallen in kortere maanden op de laatste dag, en „Laatste dag” is altijd de laatste) of op de eerste, tweede, derde, vierde of laatste gekozen weekdag, zoals de eerste zaterdag. Het schuift niet op als het te laat gedaan wordt.',
+        'Begint op (📅): voor elke taak die terugkomt. Vóór die dag is niets aan de beurt, en de eerste keer is op die dag (met vaste weekdagen of Maandelijks: de eerste geplande dag vanaf die datum). Tot dan telt het als schoon, en de kamer toont „Begint op …”. Zodra het op of na die dag gedaan is, doet de datum er niet meer toe.',
         'Alleen in het seizoen: alleen aan de beurt tussen twee maanden (daarbuiten telt het niet mee voor de huisgezondheid).',
         'Wanneer nodig (op elk moment): geen schema; het kan altijd gedaan worden. Zet "Op het startscherm tonen" aan om het op Home te tonen en stel een herhaallimiet in (per dag of week) als het te vaak voor munten gedaan zou kunnen worden.',
         'Eenmalig (to-do): één keer doen, daarna verdwijnt het uit de lijsten (het blijft in Activiteit staan). Optionele datum "Doen voor". Voeg er snel een toe met "+ To-do" op Home.',
@@ -325,6 +327,7 @@ export const GUIDE_NL: GuideSection[] = [
           'Je Missies voor Vandaag toont klusjes die aan de beurt zijn, de meest achterstallige eerst (maximaal 10). De rest staat in de kamer en op de pagina Klusjes.',
           'Klusjes voor op elk moment moeten "Op het startscherm tonen" aan hebben.',
           'Buiten het seizoen (Alleen in het seizoen) of vaste weekdagen: het is vandaag niet aan de beurt.',
+          'Het heeft een startdatum (📅 Begint op) die nog niet bereikt is: de kamer toont „Begint op …”.',
           'Je Klusjesweergave staat misschien op "Mijn klusjes" (de schakelaar bovenaan), of een ouder heeft hem op "Alleen eigen" gezet.',
           'Eenmalige klusjes staan in de To-do-kaart en zijn weg zodra ze gedaan zijn.',
           'Misschien heb je het uitgesteld (💤 bij Misschien vergeten): het komt na 3 dagen terug, of tik meteen op Ongedaan maken in de melding "Uitgesteld".',

@@ -12,6 +12,12 @@ import { calculateHealth } from './health';
  *   due when the first scheduled day after the day it was last done starts (never done: the first
  *   scheduled day from today on). Health runs from 100 at the last completion down to 0 at that
  *   moment, so "health 0" still means "due" everywhere.
+ * - Monthly (scheduleMonthDay 1–31, or scheduleMonthWeek 1–4 / -1 = last + scheduleMonthWeekday):
+ *   the same as set weekdays, with one scheduled day a month. Days 29–31 fall on the last day of
+ *   shorter months. Set weekdays and monthly are "fixed" schedules; the rest is a rolling interval.
+ * - Starts on (startsOn, any repeating chore): until it's done on or after that day, nothing is due
+ *   before it (health 100), and it's first due on it (fixed schedules: the first scheduled day from
+ *   it). Before it was set, a new chore's first due day came only from the health slider.
  * - Season (seasonStartMonth..seasonEndMonth, 1–12, may wrap over the new year, e.g. 11..2):
  *   outside it the task behaves exactly like isSeasonal (no due lists, no house health).
  * - Weekly rotation (rotationPeriod 'week'): whose turn is the assignees ordered by userId at
@@ -35,6 +41,11 @@ export interface ScheduledTask {
   /** One-time chore's "do by" date, 'YYYY-MM-DD' (local) */
   doBy?: string | null;
   createdAt?: string | null;
+  scheduleMonthDay?: number | null;
+  scheduleMonthWeek?: number | null;
+  scheduleMonthWeekday?: number | null;
+  /** Repeating chore's start date, 'YYYY-MM-DD' (local) */
+  startsOn?: string | null;
 }
 
 interface Vacation { isVacation: boolean; startDate: string | null }
@@ -46,6 +57,49 @@ export function weekdayMask(task: { scheduleWeekdays?: number | null }): number 
 
 export function hasWeekdaySchedule(task: { scheduleWeekdays?: number | null }): boolean {
   return weekdayMask(task) > 0;
+}
+
+type MonthlyRule = { day: number } | { week: number; weekday: number };
+type FixedRule = { mask: number } | MonthlyRule;
+type MonthlyFields = Pick<ScheduledTask, 'scheduleMonthDay' | 'scheduleMonthWeek' | 'scheduleMonthWeekday'>;
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** A monthly chore's rule: a day of the month, or the nth (-1 = last) weekday. */
+export function monthlyRule(task: MonthlyFields): MonthlyRule | null {
+  const day = Number(task.scheduleMonthDay);
+  if (task.scheduleMonthDay != null && Number.isInteger(day) && day >= 1 && day <= 31) return { day };
+  const week = Number(task.scheduleMonthWeek);
+  const weekday = Number(task.scheduleMonthWeekday);
+  if (task.scheduleMonthWeekday == null || ![1, 2, 3, 4, -1].includes(week) || !(Number.isInteger(weekday) && weekday >= 0 && weekday <= 6)) return null;
+  return { week, weekday };
+}
+
+/** Monthly rule first (the editor never sends both), then set weekdays. */
+function fixedRule(task: ScheduledTask): FixedRule | null {
+  const mask = weekdayMask(task);
+  return monthlyRule(task) ?? (mask ? { mask } : null);
+}
+
+/** Due on calendar days (set weekdays or monthly) instead of a rolling interval. */
+export function hasFixedSchedule(task: ScheduledTask): boolean {
+  return fixedRule(task) !== null;
+}
+
+/** Midnight (local) of a repeating chore's start date, or null. */
+function startDay(task: ScheduledTask): Date | null {
+  return !task.oneTime && task.startsOn && ISO_DAY.test(task.startsOn) ? new Date(`${task.startsOn}T00:00:00`) : null;
+}
+
+/** Hasn't been done on or after its start date (or never done). */
+function notDoneSinceStart(task: ScheduledTask): boolean {
+  const start = startDay(task);
+  return !task.lastCompletedAt || (start !== null && new Date(task.lastCompletedAt).getTime() < start.getTime());
+}
+
+/** Before its start date: nothing is due yet. */
+export function beforeStart(task: ScheduledTask, now: Date = new Date()): boolean {
+  const start = startDay(task);
+  return start !== null && now.getTime() < start.getTime();
 }
 
 /** Inside its season (or no season set). */
@@ -67,22 +121,47 @@ function localDay(d: Date, days = 0): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days);
 }
 
+/** The monthly rule's day in a month (month may be out of 0–11; the Date constructor rolls it over). */
+function monthlyDayIn(rule: MonthlyRule, year: number, month: number): Date {
+  const first = new Date(year, month, 1);
+  const y = first.getFullYear();
+  const m = first.getMonth();
+  const daysIn = new Date(y, m + 1, 0).getDate();
+  if ('day' in rule) return new Date(y, m, Math.min(rule.day, daysIn));
+  if (rule.week > 0) return new Date(y, m, 1 + ((rule.weekday - first.getDay() + 7) % 7) + (rule.week - 1) * 7);
+  return new Date(y, m, daysIn - ((new Date(y, m, daysIn).getDay() - rule.weekday + 7) % 7));
+}
+
 /** First scheduled day on or after (inclusive) / strictly after `from`'s day. */
-function nextScheduledDay(mask: number, from: Date, inclusive: boolean): Date {
-  for (let i = inclusive ? 0 : 1; i <= 7; i++) {
-    const day = localDay(from, i);
-    if (mask & (1 << day.getDay())) return day;
+function nextScheduledDay(rule: FixedRule, from: Date, inclusive: boolean): Date {
+  const first = localDay(from, inclusive ? 0 : 1);
+  if ('mask' in rule) {
+    for (let i = 0; i < 7; i++) {
+      const day = localDay(first, i);
+      if (rule.mask & (1 << day.getDay())) return day;
+    }
+    return localDay(first, 7); // unreachable with a non-empty mask
   }
-  return localDay(from, 7); // unreachable with a non-empty mask
+  for (let i = 0; ; i++) {
+    const day = monthlyDayIn(rule, first.getFullYear(), first.getMonth() + i);
+    if (day.getTime() >= first.getTime()) return day;
+  }
 }
 
 /** Last scheduled day strictly before `before`'s day. */
-function previousScheduledDay(mask: number, before: Date): Date {
-  for (let i = 1; i <= 7; i++) {
-    const day = localDay(before, -i);
-    if (mask & (1 << day.getDay())) return day;
+function previousScheduledDay(rule: FixedRule, before: Date): Date {
+  if ('mask' in rule) {
+    for (let i = 1; i <= 7; i++) {
+      const day = localDay(before, -i);
+      if (rule.mask & (1 << day.getDay())) return day;
+    }
+    return localDay(before, -7);
   }
-  return localDay(before, -7);
+  const limit = localDay(before);
+  for (let i = 0; ; i++) {
+    const day = monthlyDayIn(rule, limit.getFullYear(), limit.getMonth() - i);
+    if (day.getTime() < limit.getTime()) return day;
+  }
 }
 
 /** SQLite datetime('now') ("2026-10-16 07:12:00", UTC) or an ISO string, as a Date */
@@ -98,7 +177,7 @@ export function oneTimeDeadline(task: ScheduledTask, now: Date = new Date()): Da
   return new Date(added.getTime() + 7 * DAY_MS);
 }
 
-/** Counts toward room and house health (not out of season, not a one-time chore). */
+/** Counts toward room and house health (not out of season, not a one-time chore). Before its start date a chore counts as clean. */
 export function countsForHealth(task: ScheduledTask, now: Date = new Date()): boolean {
   return !task.oneTime && !isSeasonalNow(task, now);
 }
@@ -109,12 +188,15 @@ export function nextDueAt(task: ScheduledTask, now: Date = new Date()): Date | n
     if (task.doBy && /^\d{4}-\d{2}-\d{2}$/.test(task.doBy)) return new Date(`${task.doBy}T00:00:00`);
     return task.createdAt ? parseStored(task.createdAt) : null;
   }
-  const mask = weekdayMask(task);
-  if (mask) {
-    return task.lastCompletedAt
-      ? nextScheduledDay(mask, new Date(task.lastCompletedAt), false)
-      : nextScheduledDay(mask, now, true);
+  const rule = fixedRule(task);
+  const start = startDay(task);
+  const fresh = notDoneSinceStart(task);
+  if (rule) {
+    return !fresh
+      ? nextScheduledDay(rule, new Date(task.lastCompletedAt!), false)
+      : nextScheduledDay(rule, start ?? now, true);
   }
+  if (start && fresh) return start;
   if (!task.lastCompletedAt) return null;
   const safeFreq = Math.max(1 / 24, Number(task.frequencyDays) || 7);
   return new Date(new Date(task.lastCompletedAt).getTime() + safeFreq * DAY_MS);
@@ -123,28 +205,35 @@ export function nextDueAt(task: ScheduledTask, now: Date = new Date()): Date | n
 /** Health 0–100 for either kind of schedule (frozen at the vacation start, like calculateHealth). */
 export function taskHealth(task: ScheduledTask, vacation: Vacation = NO_VACATION, now: Date = new Date()): number {
   if (task.oneTime) return now.getTime() > oneTimeDeadline(task, now).getTime() ? 0 : 100;
-  const mask = weekdayMask(task);
-  if (!mask) return calculateHealth(task.lastCompletedAt, task.frequencyDays, vacation.isVacation, vacation.startDate);
   const at = vacation.isVacation && vacation.startDate ? new Date(vacation.startDate) : now;
+  if (beforeStart(task, at)) return 100;
+  const rule = fixedRule(task);
+  const fresh = notDoneSinceStart(task);
+  if (!rule) {
+    // Not done since its start date (which has come): due since then
+    if (startDay(task) && fresh) return 0;
+    return calculateHealth(task.lastCompletedAt, task.frequencyDays, vacation.isVacation, vacation.startDate);
+  }
   const due = nextDueAt(task, at)!.getTime();
   if (at.getTime() >= due) return 0;
-  // Never done: count down from the scheduled day before, as if it had been done then
-  const start = task.lastCompletedAt
-    ? new Date(task.lastCompletedAt).getTime()
-    : previousScheduledDay(mask, new Date(due)).getTime();
-  const span = Math.max(1, due - start);
+  // Not done (since its start date): count down from the scheduled day before (or the start date),
+  // as if it had been done then
+  const from = !fresh
+    ? new Date(task.lastCompletedAt!).getTime()
+    : Math.max(previousScheduledDay(rule, new Date(due)).getTime(), startDay(task)?.getTime() ?? -Infinity);
+  const span = Math.max(1, due - from);
   return Math.max(0, Math.min(100, Math.round(((due - at.getTime()) / span) * 100)));
 }
 
 /**
- * A lastCompletedAt that gives a weekday-scheduled task the wanted health now (the health slider
+ * A lastCompletedAt that gives a task on a fixed schedule the wanted health now (the health slider
  * and "reset to dirty"). Health only goes down as lastCompletedAt moves back, so a binary search
- * over the last 8 days finds it; 8 days back always has a scheduled day since, i.e. health 0.
+ * over the last 8 days (monthly: 70) finds it; that far back always has a scheduled day since, i.e. health 0.
  */
 export function lastCompletedAtForHealth(task: ScheduledTask, targetHealth: number, now: Date = new Date()): string {
   const target = Math.max(0, Math.min(100, Math.round(Number(targetHealth))));
   if (target >= 100) return now.toISOString();
-  let lo = now.getTime() - 8 * DAY_MS; // health 0
+  let lo = now.getTime() - (monthlyRule(task) ? 70 : 8) * DAY_MS; // health 0
   let hi = now.getTime(); // health 100
   if (target <= 0) return new Date(lo).toISOString();
   const healthIf = (ts: number) => taskHealth({ ...task, lastCompletedAt: new Date(ts).toISOString() }, NO_VACATION, now);
@@ -197,7 +286,7 @@ export function scheduleFields(task: ScheduledTask & Parameters<typeof rotationT
 }
 
 type ScheduleColumn = 'seasonStartMonth' | 'seasonEndMonth' | 'scheduleWeekdays' | 'rotationPeriod' | 'reminderTime' | 'reminderDayBefore' | 'oneTime' | 'doBy'
-  | 'timerMinutes' | 'steps';
+  | 'scheduleMonthDay' | 'scheduleMonthWeek' | 'scheduleMonthWeekday' | 'startsOn' | 'timerMinutes' | 'steps';
 
 /** Longest countdown a chore can have, in minutes */
 export const MAX_TIMER_MINUTES = 240;
@@ -243,6 +332,27 @@ export function readScheduleInput(body: any): ScheduleInput {
     if (v !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(v) || Number.isNaN(new Date(`${v}T12:00:00`).getTime()))) return { error: 'invalid_do_by' };
     values.doBy = v;
   }
+  // Monthly: a day of the month (1–31), or the nth weekday (week 1–4 or -1 = last, weekday 0–6). Sent
+  // together; blank values clear it.
+  if (body && ('scheduleMonthDay' in body || 'scheduleMonthWeek' in body || 'scheduleMonthWeekday' in body)) {
+    const num = (v: unknown) => (blank(v) || Number(v) === 0 ? null : Number(v));
+    const day = num(body.scheduleMonthDay);
+    const week = num(body.scheduleMonthWeek);
+    const weekday = blank(body.scheduleMonthWeekday) ? null : Number(body.scheduleMonthWeekday);
+    if (day !== null && (!Number.isInteger(day) || day < 1 || day > 31)) return { error: 'invalid_month_day' };
+    if (week !== null && ![1, 2, 3, 4, -1].includes(week)) return { error: 'invalid_month_day' };
+    if (weekday !== null && !(Number.isInteger(weekday) && weekday >= 0 && weekday <= 6)) return { error: 'invalid_month_day' };
+    if ((week === null) !== (weekday === null) || (day !== null && week !== null)) return { error: 'invalid_month_day' };
+    values.scheduleMonthDay = day;
+    values.scheduleMonthWeek = week;
+    values.scheduleMonthWeekday = weekday;
+  }
+  // A repeating chore's start date ('YYYY-MM-DD', empty = none)
+  if (body && 'startsOn' in body) {
+    const v = blank(body.startsOn) ? null : String(body.startsOn).trim();
+    if (v !== null && (!ISO_DAY.test(v) || Number.isNaN(new Date(`${v}T12:00:00`).getTime()))) return { error: 'invalid_starts_on' };
+    values.startsOn = v;
+  }
   // Not scheduling, but saved the same way: the chore's countdown timer (empty or 0 = none)
   if (body && 'timerMinutes' in body) {
     const n = blank(body.timerMinutes) ? 0 : Number(body.timerMinutes);
@@ -264,7 +374,7 @@ export function readScheduleInput(body: any): ScheduleInput {
 }
 
 /**
- * Store validated schedule fields. When a health was given and the task is on set weekdays, also
+ * Store validated schedule fields. When a health was given and the task is on a fixed schedule, also
  * re-derive lastCompletedAt from it (the generic code assumed a rolling interval).
  */
 export function saveScheduleInput(taskId: number, values: Partial<Record<ScheduleColumn, number | string | null>>, health?: unknown) {
@@ -274,7 +384,7 @@ export function saveScheduleInput(taskId: number, values: Partial<Record<Schedul
   }
   if (health !== undefined && health !== null && health !== '') {
     const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId) as any;
-    if (task && hasWeekdaySchedule(task)) {
+    if (task && hasFixedSchedule(task)) {
       db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(lastCompletedAtForHealth(task, Number(health)), taskId);
     }
   }

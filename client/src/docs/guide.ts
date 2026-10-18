@@ -127,6 +127,8 @@ export const GUIDE_EN: GuideSection[] = [
       { ul: [
         'Every N days: due again N days after it was last done. Its health falls over those days.',
         'Set weekdays: due on chosen days of the week instead.',
+        'Monthly: due on a day of the month (29–31 fall on the last day of shorter months, and "Last day" is always the last) or on the first, second, third, fourth or last weekday, like the first Saturday. It doesn’t drift when it’s done late.',
+        'Starts on (📅): for any repeating chore. Nothing is due before that day, and it’s first due on it (with set weekdays or Monthly: on the first scheduled day from it). Until then it counts as clean, and the room shows “Starts …”. Once it’s been done on or after that day, the date no longer matters.',
         'Only in season: only due between two months (outside them it doesn’t count toward house health).',
         'On demand (anytime): no schedule; it can be done whenever. Turn on "Show in Dashboard" to list it on Home, and set a repeat limit (per day or week) if it could be farmed.',
         'One-time (to-do): done once, then it’s gone from the lists (it stays in Activity). Optional "Do by" date. Quick-add one with "+ To-do" on Home.',
@@ -349,6 +351,7 @@ export const GUIDE_EN: GuideSection[] = [
           'Today’s Quests lists chores that are due, most-overdue first (up to 10). Others are in their room and on the Tasks page.',
           'Anytime chores need "Show in Dashboard" turned on.',
           'Out of season (Only in season) or set weekdays: it isn’t due today.',
+          'It has a start date (📅 Starts on) that hasn’t come yet: it shows “Starts …” in its room.',
           'Your Task view may be on "Mine" (the switch at the top), or a parent set it to "Only theirs".',
           'One-time chores are in the To-do card, and are gone once done.',
           'You may have snoozed it (💤 in Maybe you forgot): it comes back after 3 days, or tap Undo on the "Snoozed" message right away.',

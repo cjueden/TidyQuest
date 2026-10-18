@@ -1,5 +1,5 @@
 import db from '../database';
-import { hasWeekdaySchedule, weekdayMask } from './schedule';
+import { hasWeekdaySchedule, monthlyRule, nextDueAt, weekdayMask, type ScheduledTask } from './schedule';
 
 /**
  * Two Home sections built from the dashboard's task list:
@@ -11,13 +11,13 @@ import { hasWeekdaySchedule, weekdayMask } from './schedule';
 const DAY_MS = 86400000;
 const parseStored = (v: string) => new Date(v.includes('T') ? v : `${v.replace(' ', 'T')}Z`);
 
-interface HomeTask {
-  id: number; onDemand?: number | boolean; oneTime?: number | boolean; isSeasonal?: boolean; frequencyDays: number;
-  lastCompletedAt: string | null; createdAt?: string | null; dueDate: string; scheduleWeekdays?: number | null;
+interface HomeTask extends Omit<ScheduledTask, 'isSeasonal'> {
+  id: number; onDemand?: number | boolean; isSeasonal?: boolean; dueDate: string;
 }
 
-/** A chore's own interval in days (set weekdays: the average gap between them), at least a day. */
-export function intervalDays(t: { frequencyDays: number; scheduleWeekdays?: number | null }): number {
+/** A chore's own interval in days (set weekdays: the average gap between them; monthly: 30), at least a day. */
+export function intervalDays(t: ScheduledTask): number {
+  if (monthlyRule(t)) return 30;
   if (hasWeekdaySchedule(t)) {
     let mask = weekdayMask(t); let n = 0;
     while (mask) { n += mask & 1; mask >>= 1; }
@@ -28,7 +28,7 @@ export function intervalDays(t: { frequencyDays: number; scheduleWeekdays?: numb
 
 /** How long a chore has been overdue, in days (never done: since it was added). */
 export function overdueDays(t: HomeTask, now: Date = new Date()): number {
-  const due = !t.lastCompletedAt && !hasWeekdaySchedule(t) && t.createdAt ? parseStored(t.createdAt) : new Date(t.dueDate);
+  const due = !nextDueAt(t, now) && t.createdAt ? parseStored(t.createdAt) : new Date(t.dueDate);
   return Math.max(0, (now.getTime() - due.getTime()) / DAY_MS);
 }
 

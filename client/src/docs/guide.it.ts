@@ -103,6 +103,8 @@ export const GUIDE_IT: GuideSection[] = [
       { ul: [
         'Ogni N giorni: scade di nuovo N giorni dopo l’ultima volta. La sua salute cala in quei giorni.',
         'Giorni della settimana fissi: scade invece nei giorni scelti.',
+        'Ogni mese: scade in un giorno del mese (il 29, 30 e 31 cadono sull’ultimo giorno dei mesi più corti, e «Ultimo giorno» è sempre l’ultimo) oppure il primo, secondo, terzo, quarto o ultimo giorno della settimana scelto, come il primo sabato. Non slitta quando viene fatta in ritardo.',
+        'Inizia il (📅): per qualsiasi faccenda che si ripete. Niente scade prima di quel giorno, e la prima scadenza è quel giorno (con giorni fissi o Ogni mese: il primo giorno previsto da quella data). Fino ad allora conta come pulita, e la stanza mostra «Inizia il …». Una volta fatta quel giorno o dopo, la data non conta più.',
         'Solo in stagione: scade solo tra due mesi (fuori da quel periodo non conta per la salute della casa).',
         'Su richiesta (quando si vuole): nessuna pianificazione; si può fare in qualsiasi momento. Attiva "Mostra nella dashboard" per elencarla nella Home e imposta un limite di ripetizioni (al giorno o alla settimana) se qualcuno potrebbe approfittarne.',
         'Una volta (da fare): si fa una volta sola, poi sparisce dalle liste (resta in Attività). "Da fare entro" è una data facoltativa. Aggiungine una al volo con "+ Da fare" nella Home.',
@@ -325,6 +327,7 @@ export const GUIDE_IT: GuideSection[] = [
           'Missioni di oggi elenca le faccende in scadenza, prima le più in ritardo (fino a 10). Le altre sono nella loro stanza e nella pagina Compiti.',
           'Le faccende libere hanno bisogno di "Mostra nella dashboard" attivo.',
           'Fuori stagione (Solo in stagione) o con giorni della settimana fissi: oggi non scade.',
+          'Ha una data di inizio (📅 Inizia il) non ancora arrivata: la sua stanza mostra «Inizia il …».',
           'La tua Vista compiti potrebbe essere su "I miei" (l’interruttore in alto), oppure un genitore l’ha impostata su "Solo i suoi".',
           'Le faccende una tantum sono nella scheda Da fare e spariscono una volta fatte.',
           'Potresti averla rimandata (💤 in Forse hai dimenticato queste): torna dopo 3 giorni, oppure tocca Annulla subito sul messaggio di rinvio.',
