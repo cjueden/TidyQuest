@@ -1,6 +1,7 @@
 /**
- * The in-app guide (Settings → Guide & help → /guide). English for now; another language can add its own
- * GUIDE_<lang> array with the same section ids and be returned by guideFor().
+ * The in-app guide (Settings → Guide & help → /guide). English is here; each other language is a GUIDE_<LANG>
+ * array in guide.<lang>.ts with the same sections and blocks. A guide change goes into all six
+ * (check them with devtools/guide_check.mjs).
  */
 export type GuideBlock =
   | { p: string }
@@ -24,7 +25,7 @@ export interface GuideSection {
   blocks: GuideBlock[];
 }
 
-const GUIDE_EN: GuideSection[] = [
+export const GUIDE_EN: GuideSection[] = [
   {
     id: 'start',
     icon: '🚀',
@@ -395,9 +396,19 @@ const GUIDE_EN: GuideSection[] = [
   },
 ];
 
-/** Translated guides go here by language code; the rest get English */
-const GUIDES: Record<string, GuideSection[]> = { en: GUIDE_EN };
+/** The other languages, each loaded the first time the guide opens in it */
+const TRANSLATIONS: Record<string, () => Promise<GuideSection[]>> = {
+  fr: () => import('./guide.fr').then((m) => m.GUIDE_FR),
+  de: () => import('./guide.de').then((m) => m.GUIDE_DE),
+  es: () => import('./guide.es').then((m) => m.GUIDE_ES),
+  it: () => import('./guide.it').then((m) => m.GUIDE_IT),
+  nl: () => import('./guide.nl').then((m) => m.GUIDE_NL),
+};
+const loading: Record<string, Promise<GuideSection[]>> = {};
 
-export function guideFor(language?: string): GuideSection[] {
-  return GUIDES[language ?? 'en'] ?? GUIDE_EN;
+/** The guide in this language: English straight away, or a promise of the translation (English if it can't load) */
+export function guideFor(language?: string): GuideSection[] | Promise<GuideSection[]> {
+  const load = language ? TRANSLATIONS[language] : undefined;
+  if (!language || !load) return GUIDE_EN;
+  return (loading[language] ??= load().catch(() => GUIDE_EN));
 }

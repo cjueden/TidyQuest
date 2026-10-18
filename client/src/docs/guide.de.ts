@@ -1,0 +1,373 @@
+/** The in-app guide in German. Same sections, icons and blocks as GUIDE_EN in guide.ts; only the text is translated. */
+import type { GuideSection } from './guide';
+
+export const GUIDE_DE: GuideSection[] = [
+  {
+    id: 'start',
+    icon: '🚀',
+    title: 'Erste Schritte',
+    parents: true,
+    blocks: [
+      { p: 'TidyQuest macht aus Hausarbeit ein Spiel: Aufgaben bringen Münzen, Münzen kaufen Belohnungen, und Level, Abzeichen und ein Familien-Maskottchen halten alle bei der Stange. So richtest du es am besten ein.' },
+      { ol: [
+        'Installiere es (siehe „Installieren und aktualisieren“), öffne es im Browser und registriere dich. Die erste Person, die sich registriert, wird Elternteil (Admin).',
+        'Füge alle unter Einstellungen → Familienmitglieder hinzu: ein Name, ein Login und eine Rolle (siehe „Personen und Rollen“). Stelle dort auch für jedes Kind die Aufgabenansicht und den Kindermodus ein.',
+        'Lege auf der Seite Räume deine Räume an. Ein Raumtyp bringt vorgeschlagene Aufgaben mit, die du abwählen kannst. Weise einen Raum einer Person zu („Zugewiesen an“), dann gehört er ihr, zum Beispiel ein Schlafzimmer.',
+        'Füge in jedem Raum Aufgaben hinzu oder passe sie an: wie oft, Aufwand oder Münzen, wer sie machen darf und ein Symbol (siehe „Aufgaben“).',
+        'Lege die Münzwerte unter Einstellungen → Münzen pro Aufwand fest und baue dann den Belohnungskatalog mit Preisen auf, die Kinder erreichen können (siehe „Münzen, Belohnungen und Ziele“).',
+        'Gib jedem Kind ein Wochenziel unter Einstellungen → Ziele pro Mitglied, mit einem Bonus fürs Erreichen. Im selben Bereich steht das Familien-Teamziel, das auf dem Board angezeigt wird.',
+        'Schalte den Strengen Modus unter Einstellungen → Allgemein ein, wenn ein Elternteil die Aufgaben der Kinder freigeben soll, bevor die Münzen zählen.',
+        'Richte Benachrichtigungen ein (siehe „Benachrichtigungen“): einen Familienkanal und, wenn du magst, danach das Handy jeder Person.',
+        'Schau dir Einstellungen → Funktionen an und schalte Extras aus, die du nicht möchtest (Rettungsmission, Maskottchen, Teamwork, Feiertage …).',
+        'Lade unter Einstellungen → Daten & Datenschutz ein Backup herunter, sobald alles eingerichtet ist, und danach ab und zu wieder.',
+      ] },
+      { tip: 'Fang klein an: ein paar Aufgaben pro Kind und ein paar günstige Belohnungen, die sie schon in der ersten Woche verdienen können. Mehr kannst du jederzeit hinzufügen.' },
+    ],
+  },
+  {
+    id: 'connections',
+    icon: '🔗',
+    title: 'Wie alles zusammenhängt',
+    blocks: [
+      { p: 'Fast alles beginnt damit, dass eine Aufgabe erledigt wird. Das ist die Kette, vom Tippen auf Erledigt bis zu den Belohnungen am Ende.' },
+      { flow: [
+        { title: '1. Eine Aufgabe wird fällig', text: 'Jede Aufgabe hat einen Zeitplan (alle N Tage, bestimmte Wochentage oder jederzeit). Ihre Gesundheit sinkt über ihr Intervall von 100 % auf 0 %; die Hausgesundheit auf der Startseite ist der nach Aufwand gewichtete Durchschnitt aller Aufgaben.' },
+        { title: '2. Jemand tippt auf Erledigt', text: 'Allein oder als Teamwork. Bei eingeschaltetem Strengen Modus wartet die Aufgabe eines Kindes auf die Freigabe durch ein Elternteil; bis dahin passiert nichts von dem, was unten steht (nur die Münzen sind schon ausgerechnet).' },
+        { title: '3. Die Münzen werden ausgerechnet', text: 'Eigene Coins, falls die Aufgabe welche hat, sonst Münzen pro Aufwand. Dann gilt der größte Multiplikator: eine Doppelte-Münzen-Aktion oder die Rettungsmission von heute (sie werden nicht addiert). Beim Teamwork werden die Münzen plus ein Teambonus aufgeteilt; jeder Anteil bekommt den Multiplikator.' },
+        { title: '4. Die Münzen gehen an die Arbeit', text: 'Sie erhöhen das Guthaben der Person (zum Ausgeben für Belohnungen), ihre Münzen insgesamt (Level und Freischaltungen), ihr Wochenziel (Bonus beim Erreichen), das Board (Ränge, Auszeichnungen, das Familienziel) und die Gesamtsumme der Familie (das Maskottchen wächst).' },
+        { title: '5. Alles andere wird aktualisiert', text: 'Die Gesundheit der Aufgabe springt zurück auf 100 %, Serien laufen weiter, Abzeichen werden geprüft (und zahlen vielleicht Bonusmünzen aus), die Aufgabe erscheint unter Aktivität und „Heute erledigt“, und andere können sie anfeuern.' },
+        { title: '6. Ausgeben', text: 'Ein Kind fragt eine Belohnung an und ein Elternteil gibt sie frei; der Preis wird vom Guthaben abgezogen. Gemeinsame Belohnungen füllen einen Topf, in den mehrere Personen einzahlen; ist er voll, gibt ein Elternteil ihn frei, und bei einer Ablehnung bekommen alle ihre Münzen zurück.' },
+      ] },
+      { h: 'Zwei Arten von Münzen' },
+      { ul: [
+        'Guthaben: was du jetzt ausgeben kannst. Es sinkt, wenn du eine Belohnung kaufst oder in einen Topf einzahlst.',
+        'Verdiente Münzen insgesamt: Aufgaben plus Münzen, die ein Elternteil gibt. Sie sinken nie und bestimmen dein Level.',
+      ] },
+      { h: 'Was von selbst passiert' },
+      { ul: [
+        'Jeden Morgen: Die Rettungsmission von heute wird ausgewählt (die am häufigsten vergessene Aufgabe zahlt extra), und Kinder können eine Zusammenfassung der „Aufgaben von heute“ bekommen. Eltern bekommen sonntags einen Rückblick.',
+        'Tagsüber: Erinnerungen für Aufgaben mit fester Uhrzeit, dann noch einmal 2 Stunden später, dann ein Hinweis an ein Elternteil.',
+        'Abends: Hinweise darauf, was noch offen ist, auf eine Serie, die gleich reißt, oder ein Ziel, das nah ist.',
+        'Montag: Eine neue Woche beginnt (Wochen laufen von Montag bis Sonntag), und Wochenziele, die sich wiederholen, richten sich neu ein. Der Bonus eines Ziels wird in dem Moment ausgezahlt, in dem es erreicht ist.',
+        'Mitternacht: Teamwork-Einladungen enden, und „Heute erledigt“ beginnt von vorn.',
+      ] },
+    ],
+  },
+  {
+    id: 'people',
+    icon: '👨‍👩‍👧‍👦',
+    title: 'Personen und Rollen',
+    parents: true,
+    blocks: [
+      { where: 'Einstellungen → Familienmitglieder' },
+      { ul: [
+        'Elternteil (Admin): kann alles ändern, gibt im Strengen Modus Aufgaben und Belohnungen frei und zählt beim Teamwork mit einem Kind als „Helfer“.',
+        'Mitglied: ein älteres Kind oder ein anderer Erwachsener. Braucht keine Freigabe und kann Aufgaben für andere als erledigt markieren.',
+        'Kind: verdient Münzen; im Strengen Modus warten seine Aufgaben auf ein Elternteil.',
+      ] },
+      { h: 'Einstellungen pro Person' },
+      { ul: [
+        'Nimmt an Aufgaben teil: aus bei einem Elternteil, das nur verwaltet; es verdient dann keine Münzen und erscheint nicht auf dem Board.',
+        'Aufgabenansicht: Alle (die Person wählt selbst), Startet bei Meine oder Nur eigene (gesperrt).',
+        'Kindermodus: größere Knöpfe, weniger Karten, Münzen und Ziel ganz vorn.',
+        'Design und Feiertagsfarben folgen der Person auf jedes Gerät (sie kann sie im Profil ändern).',
+        'Urlaub pro Mitglied: schützt die Serie und friert die Gesundheit der Aufgaben ein, solange die Person weg ist.',
+        'Münzen anpassen (Mitglied verwalten): Münzen mit einem Grund hinzufügen oder abziehen. Die Zahl ist eine Änderung, kein neues Guthaben: 10 fügt 10 hinzu, -10 zieht 10 ab. Funktioniert auch bei Eltern, dich selbst eingeschlossen. Details unter „Münzen, Belohnungen und Ziele“ → Münzen anpassen.',
+        'Passwort: Ein Elternteil kann ein neues festlegen, wenn jemand seins vergisst.',
+      ] },
+      { tip: 'Schalte „Private Räume anderer vor Kindern verbergen“ unter Einstellungen → Allgemein ein, wenn Kinder zum Beispiel das eigene Zimmer eines Elternteils nicht sehen sollen.' },
+    ],
+  },
+  {
+    id: 'rooms',
+    icon: '🏠',
+    title: 'Räume und Zonen',
+    parents: true,
+    blocks: [
+      { p: 'Räume enthalten Aufgaben. Ein Raum, der einer Person zugewiesen ist, gehört ihr: Nur sie (und Eltern/Mitglieder) kann seine Aufgaben machen, und er nimmt nie an Teamwork teil.' },
+      { ul: [
+        'Lege einen Raum auf der Seite Räume an; ein Raumtyp bringt vorgeschlagene Aufgaben mit, aus denen du wählen kannst.',
+        'Zonen gruppieren Räume auf der Seite Räume (zum Beispiel „Obergeschoss“ oder „Eltern-Quests“).',
+        'Die Gesundheit eines Raums ist der Durchschnitt seiner Aufgaben; der schlechteste Raum ist der, bei dem das Maskottchen um Hilfe bittet.',
+      ] },
+    ],
+  },
+  {
+    id: 'chores',
+    icon: '🧽',
+    title: 'Aufgaben',
+    parents: true,
+    blocks: [
+      { where: 'Räume → ein Raum → Aufgabe hinzufügen, oder das ✏️ an einer Aufgabe' },
+      { h: 'Zeitplan' },
+      { ul: [
+        'Alle N Tage: wieder fällig N Tage nach dem letzten Mal. Ihre Gesundheit sinkt über diese Tage.',
+        'Bestimmte Wochentage: stattdessen an den gewählten Wochentagen fällig.',
+        'Nur in der Saison: nur zwischen zwei Monaten fällig (außerhalb zählt sie nicht zur Hausgesundheit).',
+        'Auf Abruf (jederzeit): kein Zeitplan; sie kann jederzeit gemacht werden. Schalte „Im Dashboard anzeigen“ ein, um sie auf der Startseite aufzulisten, und lege ein Limit fest (pro Tag oder Woche), falls man sie ausnutzen könnte.',
+        'Einmalig (To-do): einmal erledigt, dann verschwindet sie aus den Listen (sie bleibt unter Aktivität). Optional mit Datum bei „Erledigen bis“. Mit „+ To-do“ auf der Startseite legst du schnell eine an.',
+        'Frühe Erledigung: erlaubt, eine Aufgabe an jedem neuen Kalendertag erneut zu machen, auch bevor sie fällig ist (praktisch für tägliche Routinen).',
+        'Erinnern um: eine Erinnerung zu einer festen Uhrzeit am Tag selbst (oder am Abend davor).',
+      ] },
+      { h: 'Münzen' },
+      { ul: [
+        'Der Aufwand (1–5) bestimmt die Münzen aus Einstellungen → Münzen pro Aufwand. Eigene Coins ersetzen das für eine einzelne Aufgabe.',
+        'Die Rettungsmission und Doppelte-Münzen-Aktionen vervielfachen sie am jeweiligen Tag.',
+      ] },
+      { h: 'Wer sie machen darf' },
+      { ul: [
+        'Niemand zugewiesen: alle. Wer sie zuerst erledigt, bekommt die Münzen („wer zuerst kommt, mahlt zuerst“).',
+        'Einigen Personen zugewiesen: nur diese können sie machen.',
+        'Geteilt: Jede zugewiesene Person macht ihren Teil und bekommt einen gleich großen Anteil.',
+        'Benutzerdefiniert: Jede zugewiesene Person bekommt einen festen Prozentsatz.',
+        'Rotation: abwechselnd, nach jeder Erledigung oder pro Kalenderwoche.',
+      ] },
+      { h: 'Symbol' },
+      { p: 'Tippe auf den Symbol-Knopf, um die Auswahl zu öffnen. Sie zeigt eine Live-Vorschau der Aufgabe, schlägt anhand des Aufgabennamens ein Symbol vor und hat eine Suche sowie alle Symbole nach Bereich gruppiert. Eine neue Aufgabe, die auf ✨ bleibt, bekommt automatisch das vorgeschlagene Symbol.' },
+      { h: 'Eine Aufgabe abschließen' },
+      { ul: [
+        'Tippe auf Erledigt auf der Startseite, im Raum oder auf der Seite Aufgaben. Mit dem 📎-Knopf fügst du eine Notiz oder ein Foto als Beweis hinzu.',
+        'Eltern und Mitglieder können eine Aufgabe für jemand anderen als erledigt markieren („Wer hat es gemacht?“).',
+        'Ein Fehler lässt sich unter Aktivität rückgängig machen (Eltern) oder mit ↩️ Rückgängig neben „Erledigt von“ der Aufgabe in ihrem Raum (Eltern; es fragt vorher nach, weil die Münzen wieder abgezogen werden). Ein Teamwork wird für das ganze Team rückgängig gemacht, und die Münzen aller dafür werden zurückgenommen. Ein Kind kann sein eigenes Erledigt zurücknehmen, solange es auf Freigabe wartet.',
+      ] },
+    ],
+  },
+  {
+    id: 'home',
+    icon: '🏡',
+    title: 'Startseite und die anderen Seiten',
+    blocks: [
+      { ul: [
+        'Startseite: der Feiertagsgruß, dein Level, das Maskottchen, Teamwork, Rettungsmission, Deine Klassiker, Vielleicht vergessen, Heutige Aufgaben, To-do, Heute erledigt und mehr. Mit „Anpassen“ wählst du, welche Karten du siehst.',
+        'Räume: jeder Raum mit seinen Aufgaben. Aufgaben: alle Aufgaben in einer durchsuchbaren Liste.',
+        'Kalender: was wann fällig ist und was erledigt wurde.',
+        'Aktivität: alles, was passiert ist (Aufgaben, Münzänderungen, Einzahlungen), mit Filtern und Anfeuern.',
+        'Board: Ranglisten nach Münzen, Ziel-% oder größter Verbesserung, Auszeichnungen wie Frühaufsteher und Raumchampions, das Trophäenregal und das Familienziel.',
+        'Erfolge: Abzeichen, dein Level und was als Nächstes kommt. Belohnungen: der Katalog und deine Anfragen.',
+        'Suche: der 🔍-Knopf, oder drücke / oder Strg+K auf einer Tastatur.',
+      ] },
+    ],
+  },
+  {
+    id: 'rewards',
+    icon: '🎁',
+    title: 'Münzen, Belohnungen und Ziele',
+    blocks: [
+      { where: 'Einstellungen → Belohnungskatalog, Ziele pro Mitglied, Münzen pro Aufwand' },
+      { h: 'Belohnungen' },
+      { ul: [
+        'Jede Belohnung hat einen Preis. Kinder fragen sie an; ein Elternteil gibt sie frei oder lehnt sie ab.',
+        'Aus Versehen freigegeben? Unter Belohnungsanfragen (unter dem Katalog) steht neben jeder freigegebenen Belohnung Erstatten: Die Münzen gehen zurück (bei einem gemeinsamen Topf an alle, die eingezahlt haben), und sie wird als abgelehnt angezeigt.',
+        'Regeln pro Belohnung: ein Limit (pro Tag, Woche, Monat oder insgesamt; pro Person oder für alle), ein Zeitfenster, Wechselnd (nur einige erscheinen pro Woche), wer sie sieht, ein anderer Preis pro Person und eine Kategorie.',
+        'Gemeinsam sparen: Jeder kann Münzen in einen Topf beisteuern; ist er voll, geht er an ein Elternteil. Das Feld zum Beisteuern beginnt bei 0, und jede Einzahlung erscheint unter Aktivität. Ein voller Topf lässt sich unter „Meine Anfragen“ nicht absagen („Gemeinsam: ein Elternteil entscheidet“): Ein Elternteil lehnt ihn ab, und alle bekommen ihre Münzen zurück.',
+      ] },
+      { h: 'Ziele' },
+      { ul: [
+        'Wochenziel pro Person: ein Münzziel mit einem optionalen Bonus beim Erreichen (wird automatisch ausgezahlt). „Wöchentlich“ richtet das Ziel der nächsten Woche von selbst ein.',
+        'Familien-Teamziel (unter Ziele pro Mitglied): ein wöchentliches Münzziel für alle zusammen, mit einem Preis, auf dem Board angezeigt. Setze es auf 0, um es auszuschalten.',
+      ] },
+      { h: 'Münzen anpassen' },
+      { p: 'Einstellungen → Familienmitglieder → Mitglied verwalten, neben dem Guthaben. Das Feld nimmt auf, wie viele Münzen hinzukommen oder abgezogen werden, nicht das neue Guthaben.' },
+      { ol: [
+        'Gib die Änderung in das Feld ein: eine einfache Zahl fügt Münzen hinzu (15 gibt 15), ein Minuszeichen zieht sie ab (-15 entfernt 15).',
+        'Gib auf Wunsch einen Grund an (bis zu 200 Zeichen). Die Person sieht ihn in ihrem Münzverlauf und unter Aktivität sowie in der Benachrichtigung, falls ihre eingeschaltet sind.',
+        'Tippe auf Anpassen. „+15 ✓“ oder „-15 ✓“ bestätigt es, und das Guthaben wird aktualisiert.',
+      ] },
+      { ul: [
+        'Um ein genaues Guthaben einzustellen, gib die Differenz ein: Guthaben 71 und es soll 59 sein → gib -12 ein. Guthaben 40 und es soll 50 sein → gib 10 ein.',
+        'Ein Guthaben kann nicht unter 0 fallen. Wird mehr abgezogen, als die Person hat, stoppt es bei 0, und es wird nur festgehalten, was wirklich abgezogen wurde.',
+        'Hinzugefügte Münzen zählen wie Münzen aus Aufgaben zu den Münzen insgesamt (Level und Freischaltungen). Abgezogene Münzen senken nur das Guthaben; ein Level geht nie verloren.',
+        'Anpassungen zählen nicht fürs Wochenziel oder das Board, die nur Aufgaben zählen.',
+      ] },
+      { tip: 'Aus Versehen 12 statt -12 eingegeben? Passe noch einmal mit -24 an, dann landest du da, wo du hinwolltest.' },
+      { h: 'Münzen von einem Elternteil' },
+      { ul: [
+        'Münzen anpassen (siehe oben) gibt oder nimmt Münzen von Hand, mit einem Grund.',
+        'Beim Freigeben einer Aufgabe fügt ⭐💬 eine Notiz und einen Bonus für „mehr als erwartet“ hinzu (+1, +2 oder +5).',
+        'Beim Ablehnen einer Aufgabe steht 5 Sekunden lang „Abgelehnt · Rückgängig“, bevor es durchgeht. 💬 Grund angeben hält das an und schickt dem Kind eine Zeile dazu, was fehlt (mit seiner Benachrichtigung über das Ergebnis).',
+        'Doppelte-Münzen-Aktionen (Einstellungen → Doppelte-Münzen-Aktionen): ein Multiplikator für ein Zeitfenster, für alles, ausgewählte Räume oder ausgewählte Aufgaben. Tippe auf der Startseite auf die Aktion, um alle Aufgaben zu sehen, die sie umfasst und die du machen kannst, mit ihren Münzen und ob sie jetzt bereit sind; tippe auf eine, um sie zu öffnen.',
+      ] },
+    ],
+  },
+  {
+    id: 'extras',
+    icon: '✨',
+    title: 'Spiel-Extras',
+    blocks: [
+      { where: 'Einstellungen → Funktionen (jede kann für die Familie ausgeschaltet werden)' },
+      { ul: [
+        'Rettungsmission: Jeden Tag zahlt die am häufigsten vergessene Aufgabe extra (standardmäßig 2×) an die Person, die sie zuerst macht.',
+        'Deine Klassiker / Vielleicht vergessen: Die Startseite zeigt die Aufgaben, die du am häufigsten machst (und die, die du anheftest), und Aufgaben, die um ein ganzes Intervall überfällig sind. 💤 blendet eine Aufgabe 3 Tage lang aus „Vielleicht vergessen“ aus, nur für dich; „Pausiert · Rückgängig“ holt sie sofort zurück.',
+        'To-dos: einmalige Aufgaben und die To-do-Karte.',
+        'Auszeichnungen und Trophäenregal auf dem Board. Level und Nächstes Abzeichen.',
+        'Anfeuern: 👏 🎉 💪 ⭐ bei der erledigten Aufgabe einer anderen Person (auf der Startseite unter „Heute erledigt“ und unter Aktivität). Dasselbe Emoji noch einmal nimmt es zurück. Die Person bekommt eine private Benachrichtigung.',
+        'Teamwork: 🤝 bei einer Aufgabe, die 6 oder mehr Münzen wert ist, lädt eine Person oder jeden ein. Sobald jemand mitmacht, gehört die Aufgabe für den Tag dem Team. Eine der beiden Personen tippt auf Erledigt; die Münzen werden gleichmäßig plus ein Teambonus (10, 20 oder 30 %) aufgeteilt. Ein Elternteil mit einem Kind ist Helfer, und das Kind behält alle Münzen. Nie bei dem eigenen Raum einer Person, bei Aufgaben für eine Person oder bei Aufgaben mit Rotation. Keine Lust? „Nein danke“ lehnt eine Einladung ab: Eine Einladung nur für dich endet, und die Person, die gefragt hat, erfährt davon und kann jemand anderen fragen; eine Einladung für alle verschwindet nur für dich. Wer es gestartet hat, kann „Teamwork absagen“ (es endet für alle); alle anderen können Aussteigen.',
+        'Haus-Maskottchen: eines von 8 Wesen, hier ausgewählt und benannt. Es wächst mit den verdienten Familienmünzen, solange es das aktive Maskottchen ist (schlüpft bei 500, dann bei 2.000, 5.000 und 10.000), seine Stimmung folgt der Hausgesundheit, und es reagiert auf Geburtstage, das Familienziel und die Rettungsmission.',
+        'Maskottchen wechseln: Wählst du ein Wesen, das du noch nicht hattest, beginnt es als neues Ei. Jedes Wesen behält sein eigenes Wachstum, seinen Namen und sein Outfit, sodass ein Zurückwechseln es genau so zurückbringt, wie es war. Bauch und Schlafenszeit sind gemeinsam.',
+        'Mit dem Maskottchen spielen: Tippe darauf für eine Reaktion. Sein 🍪-Bauch füllt sich mit jeder Aufgabe um 5 % (ein Teamwork zählt einmal) und leert sich über 2 Tage; ist er niedrig, sagt es einfach, dass es Hunger hat. „Was soll ich tun?“ schlägt eine Aufgabe vor, die du jetzt gleich machen kannst. Es fügt jeder erledigten Aufgabe ein 🐾-Anfeuern hinzu. Es schläft während der Schlafenszeit der Familie (unter dem Maskottchen in Funktionen einstellbar, standardmäßig 21 bis 7 Uhr).',
+        'Maskottchen-Laden (eigener Schalter): Jeder kann ihm ein Accessoire für 1 bis 5 Münzen kaufen. Es gibt ein gemeinsames Outfit und keinen Schrank: Ein neues Teil wird sofort für alle angezogen und ersetzt, was an dieser Stelle war (Kopf, Gesicht, Hals oder Rücken). Wer ein Teil gekauft hat, oder ein Elternteil, kann es kostenlos ausziehen. Käufe erscheinen unter Aktivität. Der Laden öffnet, sobald das Maskottchen geschlüpft ist. Schaltest du den Laden aus, sind er und das Outfit verborgen.',
+        'Festtags-Look: Halloween im Oktober, Thanksgiving im November, Weihnachten im Dezember: Farben, Dekoration, ein Countdown und ein Kostüm für das Maskottchen. Jeder Feiertag hat einen eigenen Schalter und einen Vorschau-Knopf.',
+      ] },
+      { h: 'Level und Freischaltungen' },
+      { p: 'Level entstehen aus den Münzen insgesamt (Level 2 bei 50, 5 bei 500, 10 bei 2.250). Jedes Level schaltet etwas frei; wähle sie unter Profil → Freigeschaltet.' },
+      { ul: [
+        'Rahmen: Bronze (2), Silber (6), Gold (9), Regenbogen (10). Kronen- und Diamant-Abzeichen schalten eigene Rahmen frei.',
+        'Feiern: fallende Münzen (3), Feuerwerk (8). Themes: Wald (4), Galaxie (7), Lava (10). Die ersten 8 Themes sind kostenlos.',
+        'Titel (5): der Titel deines Levels oder jedes Abzeichen, das du verdient hast, angezeigt auf der Startseite, dem Board, in der Seitenleiste und unter Aktivität.',
+      ] },
+      { h: 'Abzeichen' },
+      { p: 'Eingebaute Abzeichen werden von selbst freigeschaltet. Eltern können unter Einstellungen → Abzeichen eigene erstellen (zum Beispiel „Hausaufgaben 4 Wochen in Folge“), mit optionalen Bonusmünzen, und für jedes eingebaute Abzeichen Münzen festlegen.' },
+    ],
+  },
+  {
+    id: 'notifications',
+    icon: '🔔',
+    title: 'Benachrichtigungen',
+    parents: true,
+    blocks: [
+      { where: 'Einstellungen → Allgemein → Benachrichtigungen, dann Wer bekommt was, Zeiten & Ruhezeiten und Benachrichtigungsprotokoll' },
+      { ol: [
+        'Schalte Benachrichtigungen ein und wähle, welche Arten die Familie bekommt.',
+        'Richte einen Familienkanal ein: ntfy (eine Server-URL und ein Topic, das alle in der ntfy-App abonnieren), Telegram (ein Bot-Token und eine Chat-ID) oder einen Home-Assistant-Notify-Dienst. Nutze den Test-Knopf.',
+        'Gib bei „Wer bekommt was“ auf Wunsch jeder Person einen eigenen Kanal: ihr eigenes ntfy-Topic, ihren Telegram-Chat oder ihr Home-Assistant-Handy. Dann bekommt sie Nachrichten in ihrer eigenen Sprache und kann Arten im Profil ausschalten.',
+        'Lege Ruhezeiten fest (Nachrichten warten und gehen raus, wenn sie enden) und ob Nachrichten an Kinder werktags während der Schulzeit warten.',
+      ] },
+      { ul: [
+        'Private Arten (freigegeben/abgelehnt, Zusammenfassungen, Hinweise, Anfeuern) gehen nur an den eigenen Kanal einer Person, nie an den Familienkanal.',
+        'Das Benachrichtigungsprotokoll zeigt, was gesendet, eingereiht oder fehlgeschlagen ist, und warum.',
+      ] },
+    ],
+  },
+  {
+    id: 'data',
+    icon: '💾',
+    title: 'Backups, Tabellen und gelöschte Elemente',
+    parents: true,
+    blocks: [
+      { ul: [
+        'Einstellungen → Daten & Datenschutz → Exportieren: ein vollständiges JSON-Backup. Hebe vor großen Änderungen eins auf.',
+        'Importieren stellt ein Backup wieder her und ERSETZT alles. Alle außer dem Elternteil, das importiert, bekommen ein neues zufälliges Passwort; lege danach unter Familienmitglieder neue Passwörter fest.',
+        'Einstellungen → Tabellen: Lade Aufgaben oder Belohnungen herunter, bearbeite sie in einer beliebigen Tabellenkalkulation und lade sie wieder hoch. Du siehst vorher eine Vorschau, und nichts wird gelöscht.',
+        'Um eine Aufgabe zu löschen, öffne sie mit Bearbeiten; Aufgabe löschen steht unten im Formular. Sie landet 30 Tage lang unter Einstellungen → Zuletzt gelöscht und kann von dort wiederhergestellt werden. Belohnungen funktionieren genauso.',
+        'Löschen nimmt nie Münzen weg und löscht nicht, was erledigt wurde: Frühere Erledigungen erscheinen weiter unter Aktivität, auf dem Board und in Zielen unter dem Namen der Aufgabe, auch nachdem sie aus Zuletzt gelöscht verschwunden ist.',
+        'Das Löschen eines Raums (Räume → 🗑) löscht auch seine Aufgaben, und der Raum lässt sich nicht zurückholen. Ihr Verlauf und die Münzen bleiben.',
+      ] },
+    ],
+  },
+  {
+    id: 'install',
+    icon: '🛠️',
+    title: 'Installieren und aktualisieren',
+    parents: true,
+    blocks: [
+      { ul: [
+        'TidyQuest läuft als ein Docker-Container mit einem Datenordner (die Datenbank, Avatare und Beweisfotos). Sichere diesen Ordner.',
+        'Setze JWT_SECRET auf eine lange Zufallszeichenfolge und TZ auf deine Zeitzone (zum Beispiel Europe/Berlin). Ohne TZ nutzt der Server UTC, und „heute“, Mitternacht und die Woche wären um Stunden verschoben.',
+        'Releases sind getaggt (zum Beispiel 0.9.0). Lege diese Nummer in docker-compose.yml fest und führe dann „docker compose pull && docker compose up -d“ aus. Das Image „:main“ ist der neueste Code, zum vorherigen Ausprobieren.',
+        'Einstellungen → Allgemein zeigt die laufende Version. Um zurückzugehen, trage die vorherige Versionsnummer wieder ein und starte es erneut (mach vorher ein Backup: Die Datenbank geht nur vorwärts).',
+        'Handy-Benachrichtigungen aus der App selbst und das Installieren als App brauchen eine sichere Adresse (https://); bis dahin nutze ntfy oder Telegram.',
+      ] },
+    ],
+  },
+  {
+    id: 'troubleshooting',
+    icon: '🧰',
+    title: 'Fehlerbehebung',
+    blocks: [
+      { qa: [
+        { q: 'Der Erledigt-Knopf ist grau', a: [
+          'Seine Beschriftung sagt, warum: „Nicht zugewiesen“ (die Aufgabe eines anderen), „Wartet auf Freigabe“ (ein Elternteil hat deine letzte noch nicht freigegeben), „Erledigt von …“ (jemand hat sie heute schon gemacht), „Heute erledigt / Diese Woche erledigt“ (das Limit einer jederzeit machbaren Aufgabe) oder „🤝 Namen“ (ein Team hat sie heute übernommen).',
+          'Wenn Erledigt die Meldung „noch nicht fällig“ zeigt: Die Aufgabe ist noch nicht wieder fällig. Ein Elternteil kann „Frühe Erledigung“ für tägliche Routinen einschalten.',
+        ] },
+        { q: 'Ich habe auf Erledigt getippt, aber keine Münzen bekommen', a: [
+          'Bei eingeschaltetem Strengen Modus wartet die Aufgabe eines Kindes auf ein Elternteil. Sie wird unter Aktivität und auf der Startseite des Elternteils unter „Wartet auf Freigabe“ als wartend angezeigt.',
+          'Aus Versehen auf Erledigt getippt? Solange sie wartet, macht ↩ Zurücknehmen (neben dem Knopf) es rückgängig; bei einem Teamwork wird es für das ganze Team zurückgenommen.',
+          'Wenn Gamification aus ist (Einstellungen → Allgemein), gibt es überhaupt keine Münzen.',
+          'Wenn ein Elternteil es abgelehnt hat, ist die Aufgabe wieder offen; bei Teamwork geht sie zurück an das Team.',
+        ] },
+        { q: 'Eine Aufgabe erscheint nicht auf der Startseite', a: [
+          'Heutige Aufgaben listet fällige Aufgaben auf, die am längsten überfälligen zuerst (bis zu 10). Die anderen sind in ihrem Raum und auf der Seite Aufgaben.',
+          'Jederzeit machbare Aufgaben brauchen eingeschaltetes „Im Dashboard anzeigen“.',
+          'Außerhalb der Saison (Nur in der Saison) oder bei bestimmten Wochentagen: Sie ist heute nicht fällig.',
+          'Deine Aufgabenansicht steht vielleicht auf „Meine“ (der Schalter oben), oder ein Elternteil hat sie auf „Nur eigene“ gestellt.',
+          'Einmalige Aufgaben sind in der To-do-Karte und verschwinden, sobald sie erledigt sind.',
+          'Du hast sie vielleicht pausiert (💤 in Vielleicht vergessen): Sie kommt nach 3 Tagen zurück, oder tippe sofort auf Rückgängig in der Meldung „Pausiert“.',
+        ] },
+        { q: 'Ein Kind sieht einen Raum oder eine Aufgabe nicht', a: [
+          'Einstellungen → Allgemein → „Private Räume anderer vor Kindern verbergen“ verbirgt Räume, die jemand anderem gehören.',
+          'Die Aufgabenansicht des Kindes steht vielleicht auf „Nur eigene“ (Einstellungen → Familienmitglieder).',
+        ] },
+        { q: 'Die Münzen für eine Aufgabe sehen falsch aus', a: [
+          'Eigene Coins gehen vor Münzen pro Aufwand.',
+          'Eine Doppelte-Münzen-Aktion oder die Rettungsmission vervielfacht sie (die größere gewinnt; sie werden nicht addiert).',
+          'Beim Teamwork werden die Münzen plus der Teambonus aufgeteilt; ein Elternteil als Helfer bekommt nichts, damit das Kind alles behält.',
+          'Abzeichen-Boni und Boni von Eltern erscheinen unter Aktivität als eigene Zeilen.',
+        ] },
+        { q: 'Benachrichtigungen kommen nicht an', a: [
+          'Prüfe der Reihe nach: Benachrichtigungen sind eingeschaltet und die Art ist angehakt (Einstellungen → Allgemein); der Kanal funktioniert (nutze den Test-Knopf); die Person hat diese Art nicht ausgeschaltet (Profil).',
+          'Private Arten (Ergebnisse, Zusammenfassungen, Hinweise, Anfeuern) brauchen den eigenen Kanal der Person.',
+          'Ruhezeiten und Schulzeiten halten Nachrichten zurück, bis sie enden.',
+          'Das Benachrichtigungsprotokoll zeigt jede Nachricht und jeden Fehler.',
+        ] },
+        { q: 'Tage, Mitternacht oder die Woche sind um ein paar Stunden verschoben', a: [
+          'Setze die Umgebungsvariable TZ auf dem Server auf deine Zeitzone und starte ihn neu (siehe „Installieren und aktualisieren“).',
+        ] },
+        { q: 'Eine Aufgabe mit Rotation scheint bei einer Person festzuhängen', a: [
+          'Prüfe ihre Rotation: „nach jeder Erledigung“ geht nach jeder Erledigung weiter (im Strengen Modus nach der Freigabe); „jeden Montag“ geht jeden Montag weiter.',
+          'Eltern und Mitglieder können sie immer für die Person machen, die gerade dran ist.',
+        ] },
+        { q: 'Es gibt keinen Knopf 🤝 Zusammen machen', a: [
+          'Teamwork braucht eine Aufgabe, die 6 oder mehr Münzen wert ist, nicht im eigenen Raum einer Person liegt, nicht nur einer Person zugewiesen ist und keine Rotation hat.',
+          'Nur ein Teamwork pro Aufgabe und Tag; schau in die Teamwork-Karte auf der Startseite.',
+          'Einstellungen → Funktionen → Teamwork muss eingeschaltet sein.',
+        ] },
+        { q: 'Eine Teamwork-Einladung ist verschwunden', a: [
+          'Einladungen enden um Mitternacht und auch, wenn jemand die Aufgabe auf andere Weise macht.',
+          'Wenn du bei einer Einladung für alle auf „Nein danke“ getippt hast, ist sie für dich den Rest des Tages verborgen.',
+          'Wenn die eingeladene Person Nein danke gesagt hat, ist die Einladung beendet, und du kannst jemand anderen fragen.',
+        ] },
+        { q: 'Ein Theme, Rahmen oder eine Feier ist gesperrt', a: [
+          'Sie werden ab einem bestimmten Level freigeschaltet (🔒 zeigt, welchem). Level entstehen aus den Münzen insgesamt und sinken nie.',
+        ] },
+        { q: 'Das Maskottchen ist noch ein Ei oder sieht traurig aus', a: [
+          'Es schlüpft bei 500 Familienmünzen (die Aufgaben aller zusammen, insgesamt), dann wächst es bei 2.000, 5.000 und 10.000.',
+          'Seine Stimmung folgt der Hausgesundheit: Unter 50 % bittet es um Hilfe beim unordentlichsten Raum; tippe auf „Los, helfen“.',
+        ] },
+        { q: 'Ein Accessoire, das jemand gekauft hat, ist verschwunden', a: [
+          'Es gibt ein gemeinsames Outfit und keinen Schrank, also ersetzt ein neu gekauftes Teil, was an dieser Stelle war. Aktivität zeigt, wer was gekauft hat.',
+          'Wer es gekauft hat, oder ein Elternteil, kann es auch ausziehen. Wenn der Laden Streit auslöst, kann ein Elternteil ihn in Einstellungen → Funktionen ausschalten.',
+        ] },
+        { q: 'Das Maskottchen ist wieder zum Ei geworden', a: [
+          'Jemand hat in Einstellungen → Funktionen ein anderes Wesen gewählt: Ein Wesen, das du noch nicht hattest, beginnt als Ei. Das alte behält Wachstum, Namen und Outfit; wähle es erneut, um es zurückzuholen.',
+        ] },
+        { q: 'Das Maskottchen schläft oder sagt, dass es Hunger hat', a: [
+          'Es schläft während der Schlafenszeit der Familie (Einstellungen → Funktionen, unter dem Maskottchen), nach der Uhr des jeweiligen Geräts.',
+          'Hunger heißt, dass in den letzten paar Tagen weniger Aufgaben gemacht wurden; jede Aufgabe füllt den Bauch ein wenig. Hunger hat nie Auswirkungen auf etwas anderes.',
+        ] },
+        { q: 'Keine Feiertagsdekoration oder -farben', a: [
+          'Einstellungen → Funktionen → Festtags-Look und der eigene Schalter dieses Feiertags müssen eingeschaltet sein. Es richtet sich nach dem Datum des Geräts.',
+          'Profil → Feiertagsfarben aus behält dein eigenes Theme (Dekoration wird weiter angezeigt).',
+          'Handys, die auf weniger Bewegung eingestellt sind, zeigen keine fallende oder fliegende Dekoration und kein Konfetti.',
+        ] },
+        { q: 'Eine Serie ist gerissen, während wir weg waren', a: [
+          'Nutze vor der Abreise den Urlaubsmodus (ganzes Haus, Einstellungen → Allgemein) oder Urlaub pro Mitglied (Familienmitglieder); er schützt Serien und friert die Gesundheit der Aufgaben ein.',
+        ] },
+        { q: 'Jemand kann sich nicht anmelden', a: [
+          'Zu viele falsche Passwörter sperren Anmeldungen für bis zu 15 Minuten: 10 bei einem Konto oder 20 von einem Gerät. Warte und versuche es erneut; ein richtiges Passwort setzt den Zähler des Kontos zurück.',
+          'Ein Elternteil kann in Einstellungen → Familienmitglieder ein neues Passwort festlegen.',
+          'Nach dem Import eines Backups braucht jeder außer dem Elternteil, das importiert hat, ein neues Passwort.',
+        ] },
+        { q: 'Es erscheint „Das hat nicht geklappt“', a: [
+          'Das Handy konnte den Server nicht erreichen (kein WLAN oder keine Daten), oder jemand hat im selben Moment dasselbe geändert. Die Seite lädt neu; prüfe es und versuche es dann noch einmal.',
+        ] },
+        { q: 'Ich habe etwas aus Versehen gelöscht', a: [
+          'Einstellungen → Zuletzt gelöscht kann Aufgaben und Belohnungen 30 Tage lang samt Verlauf zurückbringen. Bei einer Aufgabe, deren Raum gelöscht wurde, wirst du gefragt, in welchen Raum sie soll.',
+          'Eine aus Versehen als erledigt markierte Aufgabe lässt sich unter Aktivität rückgängig machen oder mit ↩️ Rückgängig in ihrem Raum (Eltern).',
+        ] },
+        { q: 'Ist die App auf dem neuesten Stand?', a: [
+          'Einstellungen → Allgemein zeigt die Version. Zum Aktualisieren oder Zurückgehen siehe „Installieren und aktualisieren“.',
+        ] },
+      ] },
+    ],
+  },
+];

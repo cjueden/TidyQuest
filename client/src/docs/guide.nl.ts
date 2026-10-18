@@ -1,0 +1,373 @@
+/** The in-app guide in Dutch. Same sections, icons and blocks as GUIDE_EN in guide.ts; only the text is translated. */
+import type { GuideSection } from './guide';
+
+export const GUIDE_NL: GuideSection[] = [
+  {
+    id: 'start',
+    icon: '🚀',
+    title: 'Aan de slag',
+    parents: true,
+    blocks: [
+      { p: 'TidyQuest maakt van huishoudelijk werk een spel: klusjes leveren munten op, met munten koop je beloningen, en levels, badges en een gezinsmascotte houden iedereen gemotiveerd. Dit is de volgorde die het beste werkt om alles in te stellen.' },
+      { ol: [
+        'Installeer de app (zie "Installeren en updaten"), open hem in een browser en maak een account. De eerste die zich aanmeldt wordt ouder (admin).',
+        'Voeg iedereen toe in Instellingen → Gezinsleden: een naam, een inlognaam en een rol (zie "Mensen en rollen"). Stel daar ook van elk kind de Klusjesweergave en de Kindermodus in.',
+        'Maak je kamers aan op de pagina Kamers. Een kamertype voegt voorgestelde klusjes toe die je kunt uitvinken. Geef een kamer aan één persoon ("toegewezen aan") om hem van die persoon te maken, zoals een slaapkamer.',
+        'Voeg klusjes toe of pas ze aan in elke kamer: hoe vaak, moeite of munten, wie het mag doen en een icoon (zie "Klusjes").',
+        'Stel de muntwaarden in bij Instellingen → Munten per klusje en bouw dan de Beloningen Winkel op met prijzen die kinderen kunnen halen (zie "Munten, beloningen en doelen").',
+        'Geef elk kind een weekdoel in Instellingen → Doelen per gezinslid, met een bonus als het gehaald wordt. In dezelfde sectie staat het gezinsteamdoel dat op het Scorebord te zien is.',
+        'Zet Oudercontrole aan in Instellingen → Algemeen als een ouder de klusjes van kinderen moet goedkeuren voordat de munten meetellen.',
+        'Stel meldingen in (zie "Meldingen"): eerst een gezinskanaal, daarna eventueel de eigen telefoon van elke persoon.',
+        'Kijk door Instellingen → Functies en zet extra’s uit die je niet wilt (Reddingsmissie, mascotte, Samen doen, feestdagen…).',
+        'Download een back-up in Instellingen → Privacy & Gegevens als alles is ingesteld, en daarna af en toe weer.',
+      ] },
+      { tip: 'Begin klein: een handjevol klusjes per kind en een paar goedkope beloningen die ze in de eerste week kunnen verdienen. Je kunt altijd meer toevoegen.' },
+    ],
+  },
+  {
+    id: 'connections',
+    icon: '🔗',
+    title: 'Hoe alles samenhangt',
+    blocks: [
+      { p: 'Bijna alles begint met een klusje dat gedaan wordt. Dit is de keten, van het tikken op Klaar! tot de beloningen aan het eind.' },
+      { flow: [
+        { title: '1. Een klusje is aan de beurt', text: 'Elk klusje heeft een schema (om de N dagen, vaste weekdagen of op elk moment). De gezondheid zakt van 100% naar 0% binnen het interval; de huisgezondheid op Home is het gemiddelde van alle klusjes, gewogen naar moeite.' },
+        { title: '2. Iemand tikt op Klaar!', text: 'Alleen, of samen met iemand (Samen doen). Met Oudercontrole aan wacht het klusje van een kind op goedkeuring van een ouder; tot die tijd gebeurt hieronder niets (behalve dat de munten al zijn uitgerekend).' },
+        { title: '3. De munten worden uitgerekend', text: 'Eigen munten als het klusje die heeft, anders Munten per klusje. Daarna de grootste vermenigvuldiger die geldt: een dubbele-muntenactie of de Reddingsmissie van vandaag (ze tellen niet bij elkaar op). Bij Samen doen worden de munten plus een teambonus verdeeld; elk deel krijgt de vermenigvuldiger.' },
+        { title: '4. De munten gaan aan het werk', text: 'Ze tellen mee voor het saldo van de persoon (om beloningen van te kopen), de levensmunten (levels en ontgrendelingen), het weekdoel (bonus als het gehaald is), het Scorebord (ranglijsten, prijzen, het gezinsdoel) en het totaal van het gezin (de mascotte groeit).' },
+        { title: '5. Al het andere wordt bijgewerkt', text: 'De gezondheid van het klusje gaat terug naar 100%, streaks lopen door, badges worden gecontroleerd (en kunnen bonusmunten opleveren), het klusje verschijnt in Activiteit en bij "Vandaag gedaan", en anderen kunnen het aanmoedigen.' },
+        { title: '6. Uitgeven', text: 'Een kind vraagt een beloning aan en een ouder keurt die goed; de prijs gaat van het saldo af. Gedeelde beloningen vullen een pot waar meerdere mensen aan bijdragen; als de pot vol is keurt een ouder hem goed, en bij afwijzing krijgt iedereen zijn munten terug.' },
+      ] },
+      { h: 'Twee soorten munten' },
+      { ul: [
+        'Saldo: wat je nu kunt uitgeven. Het gaat omlaag als je een beloning koopt of bijlegt in een pot.',
+        'Levensmunten verdiend: klusjes plus munten die een ouder geeft. Dit gaat nooit omlaag en bepaalt je level.',
+      ] },
+      { h: 'Wat vanzelf gebeurt' },
+      { ul: [
+        '’s Ochtends: de Reddingsmissie van vandaag wordt gekozen (het meest vergeten klusje levert extra op) en kinderen kunnen een overzicht van "de klusjes van vandaag" krijgen. Ouders krijgen op zondag een terugblik.',
+        'Overdag: herinneringen voor klusjes met een vast tijdstip, na 2 uur nog een keer, en daarna een bericht aan een ouder.',
+        '’s Avonds: een duwtje over wat nog niet gedaan is, een streak die dreigt te breken of een doel dat dichtbij is.',
+        'Maandag: er begint een nieuwe week (weken lopen van maandag tot zondag) en weekdoelen die zich herhalen worden opnieuw ingesteld. De bonus van een doel wordt uitbetaald zodra het gehaald is.',
+        'Middernacht: uitnodigingen voor Samen doen verlopen en "Vandaag gedaan" begint opnieuw.',
+      ] },
+    ],
+  },
+  {
+    id: 'people',
+    icon: '👨‍👩‍👧‍👦',
+    title: 'Mensen en rollen',
+    parents: true,
+    blocks: [
+      { where: 'Instellingen → Gezinsleden' },
+      { ul: [
+        'Ouder (Admin): kan alles aanpassen, keurt klusjes en beloningen goed bij Oudercontrole en telt als "helper" bij Samen doen met een kind.',
+        'Lid: een ouder kind of een andere volwassene. Heeft geen goedkeuring nodig en kan klusjes voor anderen op klaar zetten.',
+        'Kind: verdient munten; bij Oudercontrole wachten de klusjes op een ouder.',
+      ] },
+      { h: 'Instellingen per persoon' },
+      { ul: [
+        'Doet mee aan klusjes: uit voor een ouder die alleen beheert; die verdient geen munten en komt niet op het Scorebord.',
+        'Klusjesweergave: Alle (ze kiezen zelf), Begint bij Mijn klusjes, of Alleen eigen (vergrendeld).',
+        'Kindermodus: grotere knoppen, minder kaarten, munten en doel vooraan.',
+        'Thema en feestdagkleuren volgen de persoon naar elk apparaat (ze kunnen die aanpassen in Profiel).',
+        'Vakantie per gezinslid: beschermt de streak en bevriest de gezondheid van de klusjes zolang iemand weg is.',
+        'Munten aanpassen (Gezinslid beheren): munten erbij of eraf halen, met een reden. Het getal is een verandering, geen nieuw saldo: 10 voegt 10 toe, -10 haalt er 10 af. Werkt ook voor ouders, jezelf inbegrepen. Details in "Munten, beloningen en doelen" → Munten aanpassen.',
+        'Wachtwoord: een ouder kan een nieuw wachtwoord instellen als iemand het vergeten is.',
+      ] },
+      { tip: 'Zet "Privékamers van anderen verbergen voor kinderen" aan in Instellingen → Algemeen als kinderen bijvoorbeeld de eigen kamer van een ouder niet mogen zien.' },
+    ],
+  },
+  {
+    id: 'rooms',
+    icon: '🏠',
+    title: 'Kamers en zones',
+    parents: true,
+    blocks: [
+      { p: 'Kamers bevatten klusjes. Een kamer die aan één persoon is toegewezen is van die persoon: alleen die persoon (en ouders/leden) kan de klusjes daar doen, en de kamer doet nooit mee aan Samen doen.' },
+      { ul: [
+        'Maak een kamer aan op de pagina Kamers; een kamertype voegt voorgestelde klusjes toe waaruit je kunt kiezen.',
+        'Zones groeperen kamers op de pagina Kamers (bijvoorbeeld "Boven" of "Ouderquests").',
+        'De gezondheid van een kamer is het gemiddelde van de klusjes; de slechtste kamer is die waarvoor de mascotte om hulp vraagt.',
+      ] },
+    ],
+  },
+  {
+    id: 'chores',
+    icon: '🧽',
+    title: 'Klusjes',
+    parents: true,
+    blocks: [
+      { where: 'Kamers → een kamer → Klusje Toevoegen, of de ✏️ bij een klusje' },
+      { h: 'Schema' },
+      { ul: [
+        'Om de N dagen: weer aan de beurt N dagen nadat het voor het laatst is gedaan. De gezondheid daalt in die dagen.',
+        'Vaste weekdagen: in plaats daarvan aan de beurt op gekozen dagen van de week.',
+        'Alleen in het seizoen: alleen aan de beurt tussen twee maanden (daarbuiten telt het niet mee voor de huisgezondheid).',
+        'Wanneer nodig (op elk moment): geen schema; het kan altijd gedaan worden. Zet "Op het startscherm tonen" aan om het op Home te tonen en stel een herhaallimiet in (per dag of week) als het te vaak voor munten gedaan zou kunnen worden.',
+        'Eenmalig (to-do): één keer doen, daarna verdwijnt het uit de lijsten (het blijft in Activiteit staan). Optionele datum "Doen voor". Voeg er snel een toe met "+ To-do" op Home.',
+        'Vroegtijdig afronden toestaan: een klusje kan op elke nieuwe kalenderdag opnieuw gedaan worden, ook voordat het aan de beurt is (handig voor dagelijkse routines).',
+        'Herinner om: een herinnering op een vast tijdstip op de dag zelf (of de avond ervoor).',
+      ] },
+      { h: 'Munten' },
+      { ul: [
+        'Moeite (1–5) bepaalt de munten volgens Instellingen → Munten per klusje. Eigen munten gaan daar voor één klusje boven.',
+        'De Reddingsmissie en dubbele-muntenacties vermenigvuldigen ze op die dag.',
+      ] },
+      { h: 'Wie het kan doen' },
+      { ul: [
+        'Niemand toegewezen: iedereen. Wie het eerst klaar is krijgt de munten ("wie het eerst komt, het eerst maalt").',
+        'Aan sommige mensen toegewezen: alleen zij kunnen het doen.',
+        'Samen delen: elke toegewezen persoon doet zijn deel en krijgt een gelijk deel.',
+        'Eigen verdeling: elke toegewezen persoon krijgt een vast percentage.',
+        'Om de beurt: beurtelings, per voltooiing of per kalenderweek.',
+      ] },
+      { h: 'Icoon' },
+      { p: 'Tik op de iconknop om de kiezer te openen. Die toont een live voorbeeld van het klusje, stelt een icoon voor op basis van de naam van het klusje en heeft een zoekfunctie en alle iconen gegroepeerd per gebied. Een nieuw klusje dat op ✨ blijft staan krijgt automatisch het voorgestelde icoon.' },
+      { h: 'Een klusje afronden' },
+      { ul: [
+        'Tik op Klaar! op Home, in de kamer of op de pagina Klusjes. Met de 📎-knop voeg je een notitie of foto toe als bewijs.',
+        'Ouders en leden kunnen een klusje voor iemand anders op klaar zetten ("wie heeft het gedaan?").',
+        'Een vergissing kun je ongedaan maken via Activiteit (ouders), of met ↩️ Ongedaan naast "Gedaan door" van het klusje in de kamer (ouders; er wordt eerst gevraagd, omdat de munten er weer af gaan). Een Samen doen wordt voor het hele team ongedaan gemaakt en ieders munten daarvoor worden teruggenomen. Een kind kan zijn eigen Klaar terugnemen zolang het op goedkeuring wacht.',
+      ] },
+    ],
+  },
+  {
+    id: 'home',
+    icon: '🏡',
+    title: 'Home en de andere pagina’s',
+    blocks: [
+      { ul: [
+        'Home: de feestdagengroet, je level, de mascotte, Samen doen, Reddingsmissie, Je vaste klusjes, Misschien vergeten, Je Missies voor Vandaag, To-do, Vandaag gedaan en meer. Met "Aanpassen" kies je welke kaarten je ziet.',
+        'Kamers: elke kamer en de klusjes daarin. Klusjes: alle klusjes in één doorzoekbare lijst.',
+        'Kalender: wat wanneer aan de beurt is en wat er gedaan is.',
+        'Activiteit: alles wat er gebeurd is (klusjes, muntwijzigingen, bijleggen), met filters en aanmoedigingen.',
+        'Scorebord: ranglijsten op munten, doel-% of meest verbeterd, prijzen zoals Vroege vogel en kamerkampioenen, de prijzenkast en het gezinsdoel.',
+        'Medailles: badges, je level en wat er nog komt. Beloningen: de winkel en je aanvragen.',
+        'Zoeken: de 🔍-knop, of druk op / of Ctrl+K op een toetsenbord.',
+      ] },
+    ],
+  },
+  {
+    id: 'rewards',
+    icon: '🎁',
+    title: 'Munten, beloningen en doelen',
+    blocks: [
+      { where: 'Instellingen → Beloningen Winkel, Doelen per gezinslid, Munten per klusje' },
+      { h: 'Beloningen' },
+      { ul: [
+        'Elke beloning heeft een prijs. Kinderen vragen hem aan; een ouder keurt goed of wijst af.',
+        'Per ongeluk iets goedgekeurd? Bij Aangevraagde beloningen (onder de winkel) staat naast elke goedgekeurde beloning Terugbetalen: de munten gaan terug (bij een gedeelde pot naar iedereen die bijlegde) en de aanvraag staat als afgewezen.',
+        'Regels per beloning: een limiet (per dag, week, maand of ooit; per persoon of voor iedereen), een datumvenster, Wisselend (er zijn er elke week maar een paar te zien), wie hem kan zien, een andere prijs per persoon en een categorie.',
+        'Samen sparen: iedereen kan munten in een pot leggen; als hij vol is gaat hij naar een ouder. Het bijleggen-vak begint op 0 en elke bijdrage staat in Activiteit. Een volle pot kan niet geannuleerd worden vanuit Mijn aanvragen ("Gedeeld: een ouder beslist"): een ouder wijst hem af en iedereen krijgt zijn munten terug.',
+      ] },
+      { h: 'Doelen' },
+      { ul: [
+        'Weekdoel per persoon: een muntendoel met een optionele bonus als het gehaald is (automatisch uitbetaald). "Elke week" stelt het doel van volgende week vanzelf in.',
+        'Gezinsteamdoel (bij Doelen per gezinslid): een wekelijks muntendoel voor iedereen samen, met een prijs, te zien op het Scorebord. Zet het op 0 om het uit te zetten.',
+      ] },
+      { h: 'Munten aanpassen' },
+      { p: 'Instellingen → Gezinsleden → Gezinslid beheren, naast het Muntensaldo. In het vak vul je in hoeveel munten erbij of eraf gaan, niet het nieuwe saldo.' },
+      { ol: [
+        'Typ de verandering in het vak Aanpassen: een gewoon getal voegt munten toe (15 geeft er 15), een minteken haalt ze eraf (-15 haalt er 15 af).',
+        'Voeg eventueel een reden toe (tot 200 tekens). Die zien ze in hun munthistorie en Activiteit, en in de melding die ze krijgen als hun meldingen aan staan.',
+        'Tik op Aanpassen. "+15 ✓" of "-15 ✓" bevestigt het en het Muntensaldo wordt bijgewerkt.',
+      ] },
+      { ul: [
+        'Voor een exact saldo typ je het verschil: saldo 71 en het moet 59 zijn → typ -12. Saldo 40 en het moet 50 zijn → typ 10.',
+        'Een saldo kan niet onder 0 komen. Meer afhalen dan ze hebben stopt bij 0 en alleen wat echt is afgehaald wordt vastgelegd.',
+        'Toegevoegde munten tellen mee voor hun levensmunten (level en ontgrendelingen) net als munten van klusjes. Munten afhalen verlaagt alleen het saldo; een level raak je nooit kwijt.',
+        'Aanpassingen tellen niet mee voor het weekdoel of het Scorebord, want die tellen alleen klusjes.',
+      ] },
+      { tip: '-12 bedoeld maar 12 getypt? Pas nog een keer aan met -24 om op de juiste plek uit te komen.' },
+      { h: 'Munten van een ouder' },
+      { ul: [
+        'Munten aanpassen (zie hierboven) geeft munten of haalt ze met de hand weg, met een reden.',
+        'Bij het goedkeuren van een klusje voegt ⭐💬 een notitie en een bonus "Meer dan verwacht" toe (+1, +2 of +5).',
+        'Een klusje afkeuren toont 5 seconden "Afgekeurd · Ongedaan maken" voordat het doorgaat. Met 💬 Reden toevoegen stop je dat en stuur je het kind één regel over wat er ontbreekt (bij de melding over de uitkomst).',
+        'Dubbele-muntenacties (Instellingen → Dubbele-muntenacties): een vermenigvuldiger voor een tijdvak, voor alles, gekozen kamers of gekozen klusjes. Tik op Home op de actie om alle klusjes te zien die eronder vallen en die jij kunt doen, met hun munten en of ze nu klaar staan; tik op een klusje om het te openen.',
+      ] },
+    ],
+  },
+  {
+    id: 'extras',
+    icon: '✨',
+    title: 'Spelextra’s',
+    blocks: [
+      { where: 'Instellingen → Functies (elke functie kan voor het gezin uitgezet worden)' },
+      { ul: [
+        'Reddingsmissie: elke dag levert het meest vergeten klusje extra op (standaard 2×) voor wie het als eerste doet.',
+        'Je vaste klusjes / Misschien vergeten: Home toont de klusjes die je het vaakst doet (en die je vastzet) en klusjes die een heel interval te laat zijn. Met 💤 verberg je een klusje 3 dagen uit Misschien vergeten, alleen voor jou; "Uitgesteld · Ongedaan maken" haalt het meteen terug.',
+        'To-do’s: eenmalige klusjes en de To-do-kaart.',
+        'Prijzen en prijzenkast op het Scorebord. Levels en Volgende badge.',
+        'Aanmoedigen: 👏 🎉 💪 ⭐ bij het afgeronde klusje van iemand anders (Vandaag gedaan op Home en Activiteit). Nog een keer dezelfde emoji neemt het terug. De persoon krijgt een privémelding.',
+        'Samen doen: 🤝 bij een klusje van 6 of meer munten nodigt één persoon of iedereen uit. Zodra iemand meedoet is het klusje die dag van het team. Een van beide tikt op Klaar!; de munten worden gelijk verdeeld plus een teambonus (10, 20 of 30%). Een ouder met een kind is een helper en het kind houdt alle munten. Nooit bij iemands eigen kamer, klusjes voor één persoon of klusjes die om de beurt gaan. Geen zin? Met "Nee, bedankt" wijs je een uitnodiging af: een uitnodiging alleen voor jou vervalt en wie hem stuurde hoort dat, zodat diegene iemand anders kan vragen; een uitnodiging voor iedereen verdwijnt alleen voor jou. Wie het gestart heeft kan "Samen doen afblazen" (het stopt voor iedereen); anderen kunnen Stoppen.',
+        'Huismascotte: een van de 8 wezentjes, hier gekozen en een naam gegeven. Het groeit mee met de gezinsmunten die verdiend worden zolang het de actieve mascotte is (komt uit bij 500, daarna 2.000, 5.000 en 10.000), de stemming volgt de huisgezondheid en het reageert op verjaardagen, het gezinsdoel en de Reddingsmissie.',
+        'Van mascotte wisselen: kies je een wezentje dat je nog niet had, dan begint het als nieuw ei. Elk wezentje houdt zijn eigen groei, naam en outfit, dus terugwisselen brengt het precies terug zoals het was. Het buikje en de bedtijd worden gedeeld.',
+        'Spelen met de mascotte: tik erop voor een reactie. Het 🍪-buikje vult zich 5% bij elk klusje (Samen doen telt één keer) en loopt in 2 dagen leeg; als het laag is zegt de mascotte gewoon dat hij honger heeft. "Wat zal ik doen?" stelt een klusje voor dat je nu kunt doen. Bij elk afgerond klusje komt een 🐾-aanmoediging. Tijdens de bedtijd van het gezin slaapt de mascotte (in te stellen onder de mascotte bij Functies, standaard 21.00 tot 7.00 uur).',
+        'Mascottewinkel (eigen schakelaar): iedereen kan een accessoire voor de mascotte kopen voor 1 tot 5 munten. Er is één gedeelde outfit en geen kledingkast: een nieuw item gaat meteen aan voor iedereen en vervangt wat er op die plek zat (hoofd, gezicht, nek of rug). Wie een item kocht, of een ouder, kan het gratis uitdoen. Aankopen staan in Activiteit. De winkel gaat open zodra de mascotte uitkomt. Als je de winkel uitzet, verdwijnen de winkel en de outfit.',
+        'Feestdagenlook: Halloween in oktober, Thanksgiving in november, Kerst in december: kleuren, versieringen, een aftelling en een kostuum voor de mascotte. Elke feestdag heeft een eigen schakelaar en een knop Voorbeeld.',
+      ] },
+      { h: 'Levels en ontgrendelingen' },
+      { p: 'Levels komen van levensmunten (level 2 bij 50, level 5 bij 500, level 10 bij 2.250). Elk level ontgrendelt iets; kies ze in Profiel → Ontgrendeld.' },
+      { ul: [
+        'Lijsten: brons (2), zilver (6), goud (9), regenboog (10). Kroon- en diamantbadges ontgrendelen hun eigen lijsten.',
+        'Vieringen: vallende munten (3), vuurwerk (8). Thema’s: Bos (4), Sterrenstelsel (7), Lava (10). De eerste 8 thema’s zijn gratis.',
+        'Titels (5): de titel van je level of een badge die je hebt verdiend, te zien op Home, het Scorebord, de zijbalk en Activiteit.',
+      ] },
+      { h: 'Badges' },
+      { p: 'Ingebouwde badges ontgrendelen vanzelf. Ouders kunnen er zelf maken in Instellingen → Badges (bijvoorbeeld "4 weken op rij huiswerk"), met optionele bonusmunten, en munten instellen voor elke ingebouwde badge.' },
+    ],
+  },
+  {
+    id: 'notifications',
+    icon: '🔔',
+    title: 'Meldingen',
+    parents: true,
+    blocks: [
+      { where: 'Instellingen → Algemeen → Meldingen, daarna Wie krijgt wat, Tijden & stille uren en Meldingenlogboek' },
+      { ol: [
+        'Zet meldingen aan en kies welke soorten het gezin krijgt.',
+        'Stel een gezinskanaal in: ntfy (een server-URL en een topic waarop iedereen zich abonneert in de ntfy-app), Telegram (een bottoken en een chat-ID) of een Home Assistant notify-service. Gebruik de testknop.',
+        'Geef eventueel iedereen een eigen kanaal bij "Wie krijgt wat": een eigen ntfy-topic, Telegram-chat of Home Assistant-telefoon. Ze krijgen dan berichten in hun eigen taal en kunnen soorten uitzetten in Profiel.',
+        'Stel stille uren in (berichten wachten en gaan weg als ze afgelopen zijn) en of berichten voor kinderen op weekdagen wachten tijdens schooltijd.',
+      ] },
+      { ul: [
+        'Privésoorten (goedgekeurd/afgewezen, overzichten, duwtjes, aanmoedigingen) gaan alleen naar het eigen kanaal van een persoon, nooit naar het gezinskanaal.',
+        'Het Meldingenlogboek toont wat er is verstuurd, in de wachtrij staat of mislukt is, en waarom.',
+      ] },
+    ],
+  },
+  {
+    id: 'data',
+    icon: '💾',
+    title: 'Back-ups, spreadsheets en verwijderde items',
+    parents: true,
+    blocks: [
+      { ul: [
+        'Instellingen → Privacy & Gegevens → Exporteren: een volledige JSON-back-up. Bewaar er een voor je grote wijzigingen doet.',
+        'Importeren zet een back-up terug en VERVANGT alles. Iedereen behalve de ouder die importeert krijgt een nieuw willekeurig wachtwoord, dus stel daarna nieuwe wachtwoorden in bij Gezinsleden.',
+        'Instellingen → Spreadsheets: download klusjes of beloningen, bewerk ze in een spreadsheetprogramma en laad ze weer terug. Je ziet eerst een voorbeeld en er wordt niets verwijderd.',
+        'Om een klusje te verwijderen open je het met Bewerken; Klusje verwijderen staat onderaan het formulier. Het gaat 30 dagen naar Instellingen → Onlangs verwijderd en kan daar worden teruggezet. Beloningen werken hetzelfde.',
+        'Verwijderen haalt nooit munten weg en wist niet wat gedaan is: eerdere voltooiingen blijven onder de naam van het klusje zichtbaar in Activiteit, het Scorebord en de doelen, ook nadat het uit Onlangs verwijderd is.',
+        'Een kamer verwijderen (Kamers → 🗑) verwijdert ook de klusjes en de kamer kan niet worden teruggehaald. Hun historie en munten blijven.',
+      ] },
+    ],
+  },
+  {
+    id: 'install',
+    icon: '🛠️',
+    title: 'Installeren en updaten',
+    parents: true,
+    blocks: [
+      { ul: [
+        'TidyQuest draait als één Docker-container met een gegevensmap (de database, avatars en bewijsfoto’s). Maak een back-up van die map.',
+        'Zet JWT_SECRET op een lange willekeurige tekst en TZ op je tijdzone (bijvoorbeeld Europe/Amsterdam). Zonder TZ gebruikt de server UTC en lopen "vandaag", middernacht en de week uren fout.',
+        'Releases krijgen een tag (bijvoorbeeld 0.9.0). Zet dat nummer vast in docker-compose.yml en voer dan "docker compose pull && docker compose up -d" uit. De ":main"-image is de nieuwste code, om dingen eerst uit te proberen.',
+        'Instellingen → Algemeen toont de versie die draait. Om terug te gaan zet je het vorige versienummer terug en start je opnieuw (maak eerst een back-up: de database gaat alleen vooruit).',
+        'Telefoonmeldingen vanuit de app zelf en de app installeren vereisen een beveiligd adres (https://); gebruik tot die tijd ntfy of Telegram.',
+      ] },
+    ],
+  },
+  {
+    id: 'troubleshooting',
+    icon: '🧰',
+    title: 'Problemen oplossen',
+    blocks: [
+      { qa: [
+        { q: 'De knop Klaar! is grijs', a: [
+          'Het label zegt waarom: "Niet toegewezen" (klusje van iemand anders), "Wacht op goedkeuring" (een ouder heeft je vorige nog niet goedgekeurd), "Gedaan door …" (iemand heeft het vandaag al gedaan), "Vandaag gedaan / Deze week gedaan" (de herhaallimiet van een klusje voor op elk moment) of "🤝 namen" (een team heeft het vandaag opgeëist).',
+          'Als Klaar! een melding "nog niet aan de beurt" geeft: het klusje is nog niet weer aan de beurt. Een ouder kan "Vroegtijdig afronden toestaan" aanzetten voor dagelijkse routines.',
+        ] },
+        { q: 'Ik tikte op Klaar! maar kreeg geen munten', a: [
+          'Met Oudercontrole aan wacht het klusje van een kind op een ouder. Het staat als wachtend in Activiteit en op Home van de ouder onder "Wacht op goedkeuring".',
+          'Per ongeluk op Klaar! getikt? Zolang het wacht maakt ↩ Terugnemen (naast de knop) het ongedaan; bij Samen doen wordt het voor het hele team teruggenomen.',
+          'Als Spelmodus (Gamification) uit staat (Instellingen → Algemeen), zijn er helemaal geen munten.',
+          'Als een ouder het heeft afgewezen, staat het klusje weer open; bij Samen doen gaat het terug naar het team.',
+        ] },
+        { q: 'Een klusje staat niet op Home', a: [
+          'Je Missies voor Vandaag toont klusjes die aan de beurt zijn, de meest achterstallige eerst (maximaal 10). De rest staat in de kamer en op de pagina Klusjes.',
+          'Klusjes voor op elk moment moeten "Op het startscherm tonen" aan hebben.',
+          'Buiten het seizoen (Alleen in het seizoen) of vaste weekdagen: het is vandaag niet aan de beurt.',
+          'Je Klusjesweergave staat misschien op "Mijn klusjes" (de schakelaar bovenaan), of een ouder heeft hem op "Alleen eigen" gezet.',
+          'Eenmalige klusjes staan in de To-do-kaart en zijn weg zodra ze gedaan zijn.',
+          'Misschien heb je het uitgesteld (💤 bij Misschien vergeten): het komt na 3 dagen terug, of tik meteen op Ongedaan maken in de melding "Uitgesteld".',
+        ] },
+        { q: 'Een kind ziet een kamer of klusje niet', a: [
+          'Instellingen → Algemeen → "Privékamers van anderen verbergen voor kinderen" verbergt kamers die van iemand anders zijn.',
+          'Hun Klusjesweergave staat misschien op "Alleen eigen" (Instellingen → Gezinsleden).',
+        ] },
+        { q: 'De munten voor een klusje lijken niet te kloppen', a: [
+          'Eigen munten gaan boven Munten per klusje.',
+          'Een dubbele-muntenactie of de Reddingsmissie vermenigvuldigt ze (de grootste wint; ze tellen niet bij elkaar op).',
+          'Bij Samen doen worden de munten plus de teambonus verdeeld; een ouder als helper krijgt niets, zodat het kind alles houdt.',
+          'Badgebonussen en ouderbonussen staan als aparte regels in Activiteit.',
+        ] },
+        { q: 'Meldingen komen niet aan', a: [
+          'Controleer in deze volgorde: meldingen staan aan en de soort is aangevinkt (Instellingen → Algemeen); het kanaal werkt (gebruik de testknop); de persoon heeft die soort niet uitgezet (Profiel).',
+          'Privésoorten (uitkomsten, overzichten, duwtjes, aanmoedigingen) hebben het eigen kanaal van de persoon nodig.',
+          'Stille uren en schooltijden houden berichten vast tot ze afgelopen zijn.',
+          'Het Meldingenlogboek toont elk bericht en eventuele fouten.',
+        ] },
+        { q: 'Dagen, middernacht of de week lopen een paar uur fout', a: [
+          'Zet de omgevingsvariabele TZ op de server op je tijdzone en start hem opnieuw (zie "Installeren en updaten").',
+        ] },
+        { q: 'Een klusje dat om de beurt gaat lijkt bij één persoon vast te zitten', a: [
+          'Controleer de rotatie: "per voltooiing" gaat na elke voltooiing door (na goedkeuring bij Oudercontrole); "per week" gaat elke maandag door.',
+          'Ouders en leden kunnen het altijd doen voor wie aan de beurt is.',
+        ] },
+        { q: 'Er is geen knop 🤝 Samen doen', a: [
+          'Samen doen vraagt een klusje van 6 of meer munten dat niet in iemands eigen kamer zit, niet aan slechts één persoon is toegewezen en niet om de beurt gaat.',
+          'Maar één Samen doen per klusje per dag; kijk op de kaart Samen doen op Home.',
+          'Instellingen → Functies → Samen doen moet aan staan.',
+        ] },
+        { q: 'Een uitnodiging voor Samen doen is verdwenen', a: [
+          'Uitnodigingen verlopen om middernacht, en als iemand het klusje op een andere manier doet.',
+          'Als je op "Nee, bedankt" tikte bij een uitnodiging voor iedereen, is die de rest van de dag voor jou verborgen.',
+          'Als de persoon die je uitnodigde nee, bedankt zei, is de uitnodiging vervallen en kun je iemand anders vragen.',
+        ] },
+        { q: 'Een thema, lijst of viering is vergrendeld', a: [
+          'Het ontgrendelt bij een bepaald level (🔒 toont welk). Levels komen van levensmunten en gaan nooit omlaag.',
+        ] },
+        { q: 'De mascotte is nog een ei, of kijkt verdrietig', a: [
+          'Hij komt uit bij 500 gezinsmunten (de klusjes van iedereen samen, ooit), en groeit daarna bij 2.000, 5.000 en 10.000.',
+          'De stemming volgt de huisgezondheid: onder 50% vraagt hij om hulp met de rommeligste kamer; tik op "Laten we helpen".',
+        ] },
+        { q: 'Een accessoire dat iemand kocht is verdwenen', a: [
+          'Er is één gedeelde outfit en geen kledingkast, dus een nieuw item vervangt wat er op die plek zat. Activiteit toont wie wat kocht.',
+          'Wie het kocht, of een ouder, kan het ook uitdoen. Als de winkel ruzie geeft, kan een ouder hem uitzetten in Instellingen → Functies.',
+        ] },
+        { q: 'De mascotte is weer een ei geworden', a: [
+          'Iemand heeft in Instellingen → Functies een ander wezentje gekozen: een wezentje dat je nog niet had begint als ei. Het oude houdt zijn groei, naam en outfit; kies het opnieuw om het terug te halen.',
+        ] },
+        { q: 'De mascotte slaapt, of zegt dat hij honger heeft', a: [
+          'Hij slaapt tijdens de bedtijd van het gezin (Instellingen → Functies, onder de mascotte), volgens de klok van elk apparaat.',
+          'Honger betekent minder klusjes in de laatste dagen; elk klusje vult het buikje een beetje. Honger heeft nooit invloed op iets anders.',
+        ] },
+        { q: 'Geen feestdagversieringen of -kleuren', a: [
+          'Instellingen → Functies → Feestdagenlook en de eigen schakelaar van die feestdag moeten aan staan. Het volgt de datum van het apparaat.',
+          'Met Profiel → Feestdagkleuren uit blijft je eigen thema (versieringen blijven zichtbaar).',
+          'Telefoons die beweging beperken tonen geen vallende of vliegende versieringen, of confetti.',
+        ] },
+        { q: 'Een streak brak terwijl we weg waren', a: [
+          'Gebruik Vakantiemodus (het hele huis, Instellingen → Algemeen) of vakantie per gezinslid (Gezinsleden) voordat je vertrekt; het beschermt streaks en bevriest de gezondheid van klusjes.',
+        ] },
+        { q: 'Iemand kan niet inloggen', a: [
+          'Te veel foute wachtwoorden blokkeren inloggen tot 15 minuten: 10 voor één account of 20 vanaf één apparaat. Wacht en probeer opnieuw; een juist wachtwoord zet de teller van het account terug.',
+          'Een ouder kan een nieuw wachtwoord instellen in Instellingen → Gezinsleden.',
+          'Na het importeren van een back-up heeft iedereen behalve de ouder die importeerde een nieuw wachtwoord nodig.',
+        ] },
+        { q: 'Er staat "Dat lukte niet"', a: [
+          'De telefoon kon de server niet bereiken (geen wifi of data), of iemand veranderde op hetzelfde moment hetzelfde. De pagina laadt opnieuw; controleer het en probeer het nog eens.',
+        ] },
+        { q: 'Ik heb per ongeluk iets verwijderd', a: [
+          'Via Instellingen → Onlangs verwijderd kun je klusjes en beloningen 30 dagen lang terughalen, met hun historie. Bij een klusje waarvan de kamer is verwijderd wordt gevraagd in welke kamer het moet.',
+          'Een klusje dat per ongeluk op klaar is gezet kun je ongedaan maken via Activiteit, of met ↩️ Ongedaan in de kamer (ouders).',
+        ] },
+        { q: 'Is de app up-to-date?', a: [
+          'Instellingen → Algemeen toont de versie. Zie "Installeren en updaten" om te updaten of terug te gaan.',
+        ] },
+      ] },
+    ],
+  },
+];

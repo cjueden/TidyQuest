@@ -1,0 +1,373 @@
+/** The in-app guide in Spanish. Same sections, icons and blocks as GUIDE_EN in guide.ts; only the text is translated. */
+import type { GuideSection } from './guide';
+
+export const GUIDE_ES: GuideSection[] = [
+  {
+    id: 'start',
+    icon: '🚀',
+    title: 'Primeros pasos',
+    parents: true,
+    blocks: [
+      { p: 'TidyQuest convierte las tareas del hogar en un juego: las tareas dan monedas, las monedas compran recompensas, y los niveles, las insignias y una mascota de la familia mantienen a todos con ganas. Este es el orden que mejor funciona para configurarlo.' },
+      { ol: [
+        'Instálalo (mira "Instalación y actualización"), ábrelo en un navegador y regístrate. La primera persona que se registra pasa a ser padre o madre (admin).',
+        'Añade a todos en Ajustes → Miembros de la familia: un nombre, un usuario y un rol (mira "Personas y roles"). Ahí también eliges la Vista de tareas y el Modo niño de cada peque.',
+        'Crea tus habitaciones en la página Habitaciones. Un tipo de habitación añade tareas sugeridas que puedes desmarcar. Dale una habitación a una persona ("asignada a") para que sea suya, como un dormitorio.',
+        'Añade o ajusta las tareas de cada habitación: cada cuánto, esfuerzo o monedas, quién puede hacerla y un icono (mira "Tareas").',
+        'Fija el valor de las monedas en Ajustes → Monedas por esfuerzo y después crea el Catálogo de recompensas con precios que los niños puedan alcanzar (mira "Monedas, recompensas y objetivos").',
+        'Dale a cada peque un objetivo semanal en Ajustes → Objetivos por miembro, con un bonus por alcanzarlo. La misma sección tiene el objetivo de equipo de la familia que se muestra en el Tablero.',
+        'Activa el Modo estricto en Ajustes → General si un padre o una madre debe aprobar las tareas de los niños antes de que cuenten las monedas.',
+        'Configura las notificaciones (mira "Notificaciones"): un canal familiar y, si quieres, el móvil de cada persona.',
+        'Echa un vistazo a Ajustes → Funciones y desactiva los extras que no quieras (Misión de rescate, mascota, En equipo, fiestas…).',
+        'Descarga una copia de seguridad en Ajustes → Datos y privacidad cuando todo esté listo, y de vez en cuando después.',
+      ] },
+      { tip: 'Empieza poco a poco: unas pocas tareas por peque y algunas recompensas baratas que puedan ganar la primera semana. Puedes añadir más cuando quieras.' },
+    ],
+  },
+  {
+    id: 'connections',
+    icon: '🔗',
+    title: 'Cómo encaja todo',
+    blocks: [
+      { p: 'Casi todo empieza cuando se hace una tarea. Esta es la cadena, desde pulsar Hecho hasta las recompensas del final.' },
+      { flow: [
+        { title: '1. Una tarea toca', text: 'Cada tarea tiene un calendario (cada N días, ciertos días de la semana o cuando sea). Su salud baja de 100% a 0% a lo largo de su intervalo; la salud de la casa en Inicio es el promedio de todas las tareas, ponderado por el esfuerzo.' },
+        { title: '2. Alguien pulsa Hecho', text: 'Solo o En equipo. Con el Modo estricto activado, la tarea de un niño espera a que un padre o una madre la apruebe; no pasa nada de lo siguiente hasta entonces (salvo que las monedas ya están calculadas).' },
+        { title: '3. Se calculan las monedas', text: 'Monedas personalizadas si la tarea las tiene; si no, Monedas por esfuerzo. Después se aplica el multiplicador más grande que corresponda: un evento de monedas dobles o la Misión de rescate de hoy (no se suman). En equipo reparte las monedas más un bonus de equipo; cada parte recibe el multiplicador.' },
+        { title: '4. Las monedas se ponen a trabajar', text: 'Se suman al saldo de la persona (para gastar en recompensas), a sus monedas de toda la vida (niveles y desbloqueos), a su objetivo semanal (bonus al alcanzarlo), al Tablero (clasificaciones, premios, el objetivo familiar) y al total de la familia (la mascota crece).' },
+        { title: '5. Todo lo demás se actualiza', text: 'La salud de la tarea vuelve a 100%, las rachas continúan, se revisan las insignias (y pueden dar monedas extra), la tarea aparece en Actividad y en "Completadas hoy", y los demás pueden animarla.' },
+        { title: '6. Gastar', text: 'Un niño pide una recompensa y un padre o una madre la aprueba; el precio se descuenta de su saldo. Las recompensas compartidas llenan un bote al que se aportan monedas entre varios; cuando está lleno, un padre o una madre lo aprueba, y si se rechaza todos recuperan sus monedas.' },
+      ] },
+      { h: 'Dos tipos de monedas' },
+      { ul: [
+        'Saldo: lo que puedes gastar ahora. Baja cuando compras una recompensa o aportas a un bote.',
+        'Monedas ganadas de toda la vida: tareas más las monedas dadas por un padre o una madre. Nunca bajan y deciden tu nivel.',
+      ] },
+      { h: 'Lo que pasa solo' },
+      { ul: [
+        'Cada mañana: se elige la Misión de rescate de hoy (la tarea más olvidada paga extra) y los niños pueden recibir un resumen de "las tareas de hoy". Los padres reciben un resumen los domingos.',
+        'Durante el día: recordatorios de las tareas con hora fija, otra vez 2 horas después y luego un aviso a un padre o una madre.',
+        'Por la tarde: avisos sobre lo que queda por hacer, una racha a punto de romperse o un objetivo que está cerca.',
+        'Lunes: empieza una semana nueva (las semanas van de lunes a domingo) y los objetivos semanales que se repiten se preparan de nuevo. El bonus de un objetivo se paga en el momento de alcanzarlo.',
+        'Medianoche: terminan las invitaciones En equipo y "Completadas hoy" empieza de cero.',
+      ] },
+    ],
+  },
+  {
+    id: 'people',
+    icon: '👨‍👩‍👧‍👦',
+    title: 'Personas y roles',
+    parents: true,
+    blocks: [
+      { where: 'Ajustes → Miembros de la familia' },
+      { ul: [
+        'Padre o madre (admin): puede cambiarlo todo, aprueba tareas y recompensas con el Modo estricto, y cuenta como "ayudante" al hacer equipo con un niño.',
+        'Miembro: un hijo mayor u otro adulto. No necesita aprobación y puede marcar tareas como hechas por otros.',
+        'Niño: gana monedas; con el Modo estricto sus tareas esperan a un padre o una madre.',
+      ] },
+      { h: 'Ajustes por persona' },
+      { ul: [
+        'Participa en tareas: desactivado para un padre o una madre que solo gestiona; no ganará monedas ni aparecerá en el Tablero.',
+        'Vista de tareas: Todos (elige cada uno), Empieza en Mías o Solo las suyas (bloqueada).',
+        'Modo niño: botones más grandes, menos tarjetas, monedas y objetivo a la vista.',
+        'El tema y los colores de fiesta acompañan a la persona en todos sus dispositivos (puede cambiarlos en Perfil).',
+        'Vacaciones por miembro: protege su racha y congela la salud de sus tareas mientras está fuera.',
+        'Ajustar monedas (Gestionar miembro): suma o resta monedas con un motivo. El número es un cambio, no un saldo nuevo: 10 suma 10, -10 resta 10. Sirve también para padres, incluido tú. Detalles en "Monedas, recompensas y objetivos" → Ajustar monedas.',
+        'Contraseña: un padre o una madre puede poner una nueva si alguien olvida la suya.',
+      ] },
+      { tip: 'Activa "Ocultar a los niños las habitaciones privadas de otros" en Ajustes → General si los niños no deben ver, por ejemplo, la habitación de un padre o una madre.' },
+    ],
+  },
+  {
+    id: 'rooms',
+    icon: '🏠',
+    title: 'Habitaciones y zonas',
+    parents: true,
+    blocks: [
+      { p: 'Las habitaciones contienen tareas. Una habitación asignada a una persona es suya: solo ella (y los padres y miembros) puede hacer sus tareas, y nunca participa en En equipo.' },
+      { ul: [
+        'Crea una habitación en la página Habitaciones; un tipo de habitación añade tareas sugeridas entre las que puedes elegir.',
+        'Las zonas agrupan habitaciones en la página Habitaciones (por ejemplo "Planta de arriba" o "Misiones de los padres").',
+        'La salud de una habitación es el promedio de sus tareas; la peor habitación es aquella con la que la mascota pide ayuda.',
+      ] },
+    ],
+  },
+  {
+    id: 'chores',
+    icon: '🧽',
+    title: 'Tareas',
+    parents: true,
+    blocks: [
+      { where: 'Habitaciones → una habitación → Añadir tarea, o el ✏️ de una tarea' },
+      { h: 'Calendario' },
+      { ul: [
+        'Cada N días: toca de nuevo N días después de la última vez. Su salud baja durante esos días.',
+        'Días de la semana fijos: toca en los días elegidos de la semana.',
+        'Solo en temporada: solo toca entre dos meses (fuera de ellos no cuenta para la salud de la casa).',
+        'A demanda (cuando sea): sin calendario; se puede hacer en cualquier momento. Activa "Mostrar en el panel" para verla en Inicio y pon un límite de repeticiones (por día o semana) si se pudiera abusar de ella.',
+        'Una vez (pendiente): se hace una vez y desaparece de las listas (queda en Actividad). Fecha opcional "Hacer antes del". Añade una rápido con "+ Pendiente" en Inicio.',
+        'Completar antes: permite repetir una tarea en cualquier nuevo día del calendario, incluso antes de que toque (útil para rutinas diarias).',
+        'Recordar a las: un recordatorio a una hora fija ese día (o la tarde anterior).',
+      ] },
+      { h: 'Monedas' },
+      { ul: [
+        'El esfuerzo (1–5) fija las monedas de Ajustes → Monedas por esfuerzo. Las monedas personalizadas lo sustituyen en una tarea.',
+        'La Misión de rescate y los eventos de monedas dobles las multiplican ese día.',
+      ] },
+      { h: 'Quién puede hacerla' },
+      { ul: [
+        'Sin asignar: cualquiera. La primera persona que la termina se lleva las monedas ("el primero gana").',
+        'Asignada a algunas personas: solo ellas pueden hacerla.',
+        'Compartida: cada asignado hace su parte y recibe una parte igual.',
+        'Reparto personalizado: cada asignado recibe un porcentaje fijo.',
+        'Rotación: por turnos, por cada vez que se completa o por semana natural.',
+      ] },
+      { h: 'Icono' },
+      { p: 'Pulsa el botón del icono para abrir el selector. Muestra una vista previa en vivo de la tarea, sugiere un icono a partir del nombre de la tarea y tiene un buscador y todos los iconos agrupados por zona. Una tarea nueva que se queda en el ✨ recibe el icono sugerido automáticamente.' },
+      { h: 'Terminar una tarea' },
+      { ul: [
+        'Pulsa Hecho en Inicio, en la habitación o en la página Tareas. El botón 📎 añade una nota o una foto como prueba.',
+        'Los padres y miembros pueden marcar una tarea como hecha por otra persona ("¿quién la hizo?").',
+        'Un error se puede deshacer desde Actividad (padres), o con ↩️ Deshacer junto al "Hecho por" de la tarea en su habitación (padres; pregunta antes, porque las monedas se devuelven). Una tarea En equipo se deshace para todo el equipo y se retiran las monedas de todos. Un niño puede deshacer su propio Hecho mientras espera aprobación.',
+      ] },
+    ],
+  },
+  {
+    id: 'home',
+    icon: '🏡',
+    title: 'Inicio y las demás páginas',
+    blocks: [
+      { ul: [
+        'Inicio: el saludo de fiesta, tu nivel, la mascota, En equipo, Misión de rescate, Lo de siempre, Quizá olvidaste estas, Misiones de hoy, Pendientes, Completadas hoy y más. "Personalizar" elige qué tarjetas ves.',
+        'Habitaciones: cada habitación y sus tareas. Tareas: todas las tareas en una sola lista con buscador.',
+        'Calendario: qué toca cuándo y qué se hizo.',
+        'Actividad: todo lo que ha pasado (tareas, cambios de monedas, aportaciones), con filtros y ánimos.',
+        'Tablero: clasificaciones por monedas, % del objetivo o mayor mejora, premios como Madrugador y campeones de habitación, la estantería de trofeos y el objetivo familiar.',
+        'Logros: insignias, tu nivel y lo que viene después. Recompensas: el catálogo y tus solicitudes.',
+        'Buscar: el botón 🔍, o pulsa / o Ctrl+K en un teclado.',
+      ] },
+    ],
+  },
+  {
+    id: 'rewards',
+    icon: '🎁',
+    title: 'Monedas, recompensas y objetivos',
+    blocks: [
+      { where: 'Ajustes → Catálogo de recompensas, Objetivos por miembro, Monedas por esfuerzo' },
+      { h: 'Recompensas' },
+      { ul: [
+        'Cada recompensa tiene un precio. Los niños la piden; un padre o una madre la aprueba o la rechaza.',
+        '¿Aprobaste una por error? Solicitudes de recompensas (debajo del catálogo) tiene Reembolsar junto a cada recompensa aprobada: las monedas vuelven (en un bote compartido, a todos los que aportaron) y se muestra como rechazada.',
+        'Reglas por recompensa: un límite (por día, semana, mes o total; por persona o para todos), una ventana de fechas, Rotativa (solo se muestran unas pocas cada semana), quién puede verla, un precio distinto por persona y una categoría.',
+        'Ahorro compartido: cualquiera puede aportar monedas a un bote; cuando está lleno pasa a un padre o una madre. La casilla de aportar empieza en 0 y cada aportación aparece en Actividad. Un bote lleno no se puede cancelar desde Mi historial de canjes ("Compartida: decide un padre o una madre"): un padre o una madre lo rechaza y todos recuperan sus monedas.',
+      ] },
+      { h: 'Objetivos' },
+      { ul: [
+        'Objetivo semanal por persona: una meta de monedas con un bonus opcional al alcanzarla (se paga automáticamente). "Cada semana" prepara solo el objetivo de la semana siguiente.',
+        'Objetivo de equipo de la familia (en Objetivos por miembro): una meta semanal de monedas para todos juntos, con un premio, que se muestra en el Tablero. Ponlo en 0 para desactivarlo.',
+      ] },
+      { h: 'Ajustar monedas' },
+      { p: 'Ajustes → Miembros de la familia → Gestionar miembro, junto a su Saldo. La casilla admite cuántas monedas sumar o restar, no el saldo nuevo.' },
+      { ol: [
+        'Escribe el cambio en la casilla Ajustar: un número normal suma monedas (15 da 15), un signo menos las resta (-15 quita 15).',
+        'Añade un motivo si quieres (hasta 200 caracteres). Lo verán en su historial de monedas y en Actividad, y en la notificación que reciban si tienen las suyas activadas.',
+        'Pulsa Ajustar. "+15 ✓" o "-15 ✓" lo confirma y el Saldo se actualiza.',
+      ] },
+      { ul: [
+        'Para dejar un saldo exacto, escribe la diferencia: Saldo 71 y debería ser 59 → escribe -12. Saldo 40 y debería ser 50 → escribe 10.',
+        'Un saldo no puede bajar de 0. Si quitas más de lo que tiene, se queda en 0 y solo se registra lo que realmente se quitó.',
+        'Las monedas añadidas cuentan para sus monedas de toda la vida (nivel y desbloqueos) como las de las tareas. Quitar monedas solo baja el saldo; nunca se pierde un nivel.',
+        'Los ajustes no cuentan para el objetivo semanal ni para el Tablero, que solo cuentan tareas.',
+      ] },
+      { tip: '¿Escribiste 12 queriendo poner -12? Vuelve a ajustar con -24 para llegar a donde querías.' },
+      { h: 'Monedas de un padre o una madre' },
+      { ul: [
+        'Ajustar monedas (mira arriba) da o quita monedas a mano, con un motivo.',
+        'Al aprobar una tarea, ⭐💬 añade una nota y un bonus de "mucho más de lo esperado" (+1, +2 o +5).',
+        'Al rechazar una tarea aparece "Rechazada · Deshacer" durante 5 segundos antes de que se aplique. 💬 Añadir un motivo lo pausa y envía al niño una línea sobre lo que falta (con su notificación del resultado).',
+        'Eventos de monedas dobles (Ajustes → Eventos de monedas dobles): un multiplicador durante un periodo, para todo, para habitaciones elegidas o para tareas elegidas. En Inicio, pulsa el evento para ver todas las tareas que cubre y que puedes hacer, con sus monedas y si están listas ahora; pulsa una para abrirla.',
+      ] },
+    ],
+  },
+  {
+    id: 'extras',
+    icon: '✨',
+    title: 'Extras del juego',
+    blocks: [
+      { where: 'Ajustes → Funciones (cada una se puede desactivar para la familia)' },
+      { ul: [
+        'Misión de rescate: cada día la tarea más olvidada paga extra (2× por defecto) a la primera persona que la hace.',
+        'Lo de siempre / Quizá olvidaste estas: Inicio muestra las tareas que más haces (y las que fijas) y las tareas atrasadas por un intervalo entero. 💤 oculta una de Quizá olvidaste estas durante 3 días, solo para ti; "Pospuesta · Deshacer" la devuelve al instante.',
+        'Pendientes: tareas únicas y la tarjeta de Pendientes.',
+        'Premios del Tablero y estantería de trofeos. Niveles y Próxima insignia.',
+        'Ánimos: 👏 🎉 💪 ⭐ en la tarea terminada de otra persona ("Completadas hoy" de Inicio y Actividad). El mismo emoji otra vez lo retira. La persona recibe una notificación privada.',
+        'En equipo: 🤝 en una tarea de 6 o más monedas invita a una persona o a cualquiera. En cuanto alguien se une, la tarea es del equipo ese día. Cualquiera de los dos pulsa Hecho; las monedas se reparten a partes iguales más un bonus de equipo (10, 20 o 30%). Un padre o una madre con un niño es ayudante y el niño se queda con todas las monedas. Nunca en la habitación de alguien, ni en tareas de una sola persona o de rotación. ¿No te apetece? "No, gracias" rechaza una invitación: una invitación solo para ti termina y quien la hizo se entera, así que puede pedírselo a otra persona; una invitación para cualquiera simplemente desaparece para ti. Quien lo empezó puede "Cancelar el equipo" (termina para todos); cualquier otro puede Salir.',
+        'Mascota de la casa: una de 8 criaturas, que se elige y se nombra aquí. Crece con las monedas de la familia ganadas mientras es la mascota activa (eclosiona a las 500, luego a las 2.000, 5.000 y 10.000), su ánimo sigue la salud de la casa y reacciona a los cumpleaños, al objetivo familiar y a la Misión de rescate.',
+        'Cambiar de mascota: elegir una criatura que no has tenido empieza como un huevo nuevo. Cada criatura conserva su propio crecimiento, nombre y atuendo, así que al volver a la anterior vuelve tal como estaba. La barriguita y la hora de dormir son compartidas.',
+        'Jugar con la mascota: púlsala para ver una reacción. Su barriguita 🍪 se llena un 5% con cada tarea (En equipo cuenta una vez) y se vacía en 2 días; cuando está baja, solo dice que tiene hambre. "¿Qué hago?" sugiere una tarea que puedes hacer ahora mismo. Añade un ánimo 🐾 a cada tarea terminada. Duerme durante la hora de dormir de la familia (se fija bajo la mascota en Funciones, de 9 pm a 7 am por defecto).',
+        'Tienda de la mascota (con su propio interruptor): cualquiera puede comprarle un accesorio por 1 a 5 monedas. Hay un único atuendo compartido y no hay armario: un artículo nuevo se pone al instante para todos y sustituye lo que hubiera en ese sitio (cabeza, cara, cuello o espalda). Quien compró un artículo, o un padre o una madre, puede quitarlo gratis. Las compras aparecen en Actividad. La tienda abre cuando la mascota eclosiona. Al desactivar la tienda se ocultan ella y el atuendo.',
+        'Decoración de temporada: Halloween en octubre, Acción de Gracias en noviembre, Navidad en diciembre: colores, adornos, una cuenta atrás y un disfraz para la mascota. Cada fiesta tiene su propio interruptor y un botón de Vista previa.',
+      ] },
+      { h: 'Niveles y desbloqueos' },
+      { p: 'Los niveles vienen de las monedas de toda la vida (nivel 2 a las 50, 5 a las 500, 10 a las 2.250). Cada nivel desbloquea algo; elígelos en Perfil → Desbloqueos.' },
+      { ul: [
+        'Marcos: bronce (2), plata (6), oro (9), arcoíris (10). Las insignias de corona y diamante desbloquean sus propios marcos.',
+        'Celebraciones: lluvia de monedas (3), fuegos artificiales (8). Temas: Bosque (4), Galaxia (7), Lava (10). Los primeros 8 temas son gratis.',
+        'Títulos (5): el título de tu nivel o cualquier insignia que hayas ganado, que se muestra en Inicio, el Tablero, la barra lateral y Actividad.',
+      ] },
+      { h: 'Insignias' },
+      { p: 'Las insignias integradas se desbloquean solas. Los padres pueden crear las suyas en Ajustes → Insignias (por ejemplo "Deberes 4 semanas seguidas"), con monedas de bonus opcionales, y fijar monedas para cada insignia integrada.' },
+    ],
+  },
+  {
+    id: 'notifications',
+    icon: '🔔',
+    title: 'Notificaciones',
+    parents: true,
+    blocks: [
+      { where: 'Ajustes → General → Notificaciones, después Quién recibe qué, Horarios y horas de silencio y Registro de notificaciones' },
+      { ol: [
+        'Activa las notificaciones y elige qué tipos recibe la familia.',
+        'Configura un canal familiar: ntfy (la URL de un servidor y un tema al que todos se suscriben en la app de ntfy), Telegram (un token de bot y un ID de chat) o un servicio notify de Home Assistant. Usa el botón de prueba.',
+        'Si quieres, da a cada persona su propio canal en "Quién recibe qué": su propio tema de ntfy, chat de Telegram o móvil de Home Assistant. Así recibe los mensajes en su propio idioma y puede desactivar tipos en Perfil.',
+        'Fija las horas de silencio (los mensajes esperan y salen cuando terminan) y si los mensajes de los niños esperan durante el horario escolar en días laborables.',
+      ] },
+      { ul: [
+        'Los tipos privados (aprobada o rechazada, resúmenes, avisos, ánimos) solo van al canal propio de la persona, nunca al canal familiar.',
+        'El Registro de notificaciones muestra lo que se envió, quedó en cola o falló, y por qué.',
+      ] },
+    ],
+  },
+  {
+    id: 'data',
+    icon: '💾',
+    title: 'Copias de seguridad, hojas de cálculo y elementos eliminados',
+    parents: true,
+    blocks: [
+      { ul: [
+        'Ajustes → Datos y privacidad → Exportar: una copia de seguridad JSON completa. Guarda una antes de hacer cambios grandes.',
+        'Importar restaura una copia de seguridad y REEMPLAZA todo. Todos menos el padre o la madre que importa reciben una contraseña aleatoria nueva, así que después pon contraseñas nuevas en Miembros de la familia.',
+        'Ajustes → Hojas de cálculo: descarga tareas o recompensas, edítalas en cualquier aplicación de hojas de cálculo y vuelve a cargarlas. Primero ves una vista previa y no se elimina nada.',
+        'Para eliminar una tarea, ábrela con Editar; Eliminar tarea está al final del formulario. Va a Ajustes → Eliminados recientemente durante 30 días y se puede restaurar desde ahí. Las recompensas funcionan igual.',
+        'Eliminar nunca quita monedas ni borra lo que se hizo: las veces que se completó siguen apareciendo en Actividad, el Tablero y los objetivos con el nombre de la tarea, incluso cuando ya no está en Eliminados recientemente.',
+        'Eliminar una habitación (Habitaciones → 🗑) elimina también sus tareas, y la habitación no se puede recuperar. Su historial y sus monedas se quedan.',
+      ] },
+    ],
+  },
+  {
+    id: 'install',
+    icon: '🛠️',
+    title: 'Instalación y actualización',
+    parents: true,
+    blocks: [
+      { ul: [
+        'TidyQuest funciona como un único contenedor de Docker con una carpeta de datos (la base de datos, los avatares y las fotos de prueba). Haz copia de seguridad de esa carpeta.',
+        'Pon JWT_SECRET con una cadena larga y aleatoria, y TZ con tu zona horaria (por ejemplo America/New_York). Sin TZ el servidor usa UTC, y "hoy", la medianoche y la semana se desfasarían unas horas.',
+        'Las versiones llevan etiqueta (por ejemplo 0.9.0). Fija ese número en docker-compose.yml y ejecuta "docker compose pull && docker compose up -d". La imagen ":main" es el código más reciente, para probar cosas antes.',
+        'Ajustes → General muestra la versión en uso. Para volver atrás, vuelve a poner el número de la versión anterior y arráncalo de nuevo (haz antes una copia de seguridad: la base de datos solo avanza).',
+        'Las notificaciones al móvil desde la propia app y su instalación como app necesitan una dirección segura (https://); hasta entonces usa ntfy o Telegram.',
+      ] },
+    ],
+  },
+  {
+    id: 'troubleshooting',
+    icon: '🧰',
+    title: 'Solución de problemas',
+    blocks: [
+      { qa: [
+        { q: 'El botón Hecho está gris', a: [
+          'Su etiqueta dice por qué: "No asignada" (la tarea de otra persona), "Esperando aprobación" (un padre o una madre aún no ha aprobado tu última), "Hecho por …" (alguien ya la hizo hoy), "Hecho hoy / esta semana" (el límite de repeticiones de una tarea a demanda) o "🤝 nombres" (un equipo la ha reclamado hoy).',
+          'Si Hecho da un mensaje de "todavía no toca": la tarea aún no toca de nuevo. Un padre o una madre puede activar "Completar antes" para rutinas diarias.',
+        ] },
+        { q: 'Pulsé Hecho pero no recibí monedas', a: [
+          'Con el Modo estricto activado, la tarea de un niño espera a un padre o una madre. Aparece como en espera en Actividad y en el Inicio del padre o la madre, en "Esperando aprobación".',
+          '¿Pulsaste Hecho por error? Mientras espera, ↩ Deshacer (junto al botón) lo anula; en una tarea En equipo se deshace para todo el equipo.',
+          'Si la Gamificación está desactivada (Ajustes → General), no hay monedas en absoluto.',
+          'Si un padre o una madre la rechazó, la tarea vuelve a estar abierta; en En equipo vuelve al equipo.',
+        ] },
+        { q: 'Una tarea no aparece en Inicio', a: [
+          'Misiones de hoy muestra las tareas que tocan, las más atrasadas primero (hasta 10). Las demás están en su habitación y en la página Tareas.',
+          'Las tareas a demanda necesitan "Mostrar en el panel" activado.',
+          'Fuera de temporada (Solo en temporada) o con días de la semana fijos: hoy no toca.',
+          'Tu Vista de tareas puede estar en "Mías" (el interruptor de arriba), o un padre o una madre la puso en "Solo las suyas".',
+          'Las tareas únicas están en la tarjeta de Pendientes y desaparecen al hacerlas.',
+          'Puede que la hayas pospuesto (💤 en Quizá olvidaste estas): vuelve después de 3 días, o pulsa Deshacer en el mensaje de "Pospuesta" enseguida.',
+        ] },
+        { q: 'Un niño no puede ver una habitación o una tarea', a: [
+          'Ajustes → General → "Ocultar a los niños las habitaciones privadas de otros" oculta las habitaciones que pertenecen a otra persona.',
+          'Su Vista de tareas puede estar en "Solo las suyas" (Ajustes → Miembros de la familia).',
+        ] },
+        { q: 'Las monedas de una tarea parecen incorrectas', a: [
+          'Las monedas personalizadas ganan a Monedas por esfuerzo.',
+          'Un evento de monedas dobles o la Misión de rescate las multiplica (gana el mayor; no se suman).',
+          'En equipo reparte las monedas más el bonus de equipo; un padre o una madre ayudante no recibe nada para que el niño se quede con todo.',
+          'Los bonus de insignias y los bonus de los padres aparecen como líneas aparte en Actividad.',
+        ] },
+        { q: 'Las notificaciones no llegan', a: [
+          'Revisa por orden: las notificaciones están activadas y el tipo está marcado (Ajustes → General); el canal funciona (usa el botón de prueba); la persona no ha desactivado ese tipo (Perfil).',
+          'Los tipos privados (resultados, resúmenes, avisos, ánimos) necesitan el canal propio de la persona.',
+          'Las horas de silencio y el horario escolar retienen los mensajes hasta que terminan.',
+          'El Registro de notificaciones muestra cada mensaje y cualquier error.',
+        ] },
+        { q: 'Los días, la medianoche o la semana van desfasados unas horas', a: [
+          'Pon la variable de entorno TZ del servidor con tu zona horaria y reinícialo (mira "Instalación y actualización").',
+        ] },
+        { q: 'Una tarea de rotación parece atascada en una persona', a: [
+          'Revisa su rotación: "por cada vez que se completa" pasa al siguiente tras cada vez (tras la aprobación con el Modo estricto); "por semana" pasa al siguiente cada lunes.',
+          'Los padres y miembros siempre pueden hacerla por quien le toque.',
+        ] },
+        { q: 'No hay botón 🤝 Hacer equipo', a: [
+          'En equipo necesita una tarea de 6 o más monedas que no esté en la habitación de alguien, que no esté asignada a una sola persona y que no sea de rotación.',
+          'Solo un equipo por tarea y día; mira la tarjeta En equipo en Inicio.',
+          'Ajustes → Funciones → En equipo debe estar activado.',
+        ] },
+        { q: 'Una invitación En equipo desapareció', a: [
+          'Las invitaciones terminan a medianoche, y cuando alguien hace la tarea de otra forma.',
+          'Si pulsaste "No, gracias" en una invitación para cualquiera, queda oculta para ti el resto del día.',
+          'Si la persona a la que invitaste dijo no, gracias, la invitación terminó y puedes pedírselo a otra persona.',
+        ] },
+        { q: 'Un tema, marco o celebración está bloqueado', a: [
+          'Se desbloquea en un nivel (🔒 indica cuál). Los niveles vienen de las monedas de toda la vida y nunca bajan.',
+        ] },
+        { q: 'La mascota sigue siendo un huevo, o se ve triste', a: [
+          'Eclosiona a las 500 monedas de la familia (las tareas de todos juntas, de siempre), y luego crece a las 2.000, 5.000 y 10.000.',
+          'Su ánimo sigue la salud de la casa: por debajo del 50% pide ayuda con la habitación más desordenada; pulsa "Vamos a ayudar".',
+        ] },
+        { q: 'Un accesorio que alguien compró desapareció', a: [
+          'Hay un único atuendo compartido y no hay armario, así que comprar un artículo nuevo sustituye lo que hubiera en ese sitio. Actividad muestra quién compró qué.',
+          'Quien lo compró, o un padre o una madre, también puede quitarlo. Si la tienda causa discusiones, un padre o una madre puede desactivarla en Ajustes → Funciones.',
+        ] },
+        { q: 'La mascota volvió a ser un huevo', a: [
+          'Alguien eligió otra criatura en Ajustes → Funciones: una criatura que no has tenido empieza como un huevo. La anterior conserva su crecimiento, nombre y atuendo; elígela otra vez para recuperarla.',
+        ] },
+        { q: 'La mascota está dormida, o dice que tiene hambre', a: [
+          'Duerme durante la hora de dormir de la familia (Ajustes → Funciones, bajo la mascota), según el reloj de cada dispositivo.',
+          'Tener hambre significa menos tareas en los últimos dos días; cada tarea llena un poco su barriguita. El hambre nunca afecta a nada más.',
+        ] },
+        { q: 'No hay adornos ni colores de fiesta', a: [
+          'Ajustes → Funciones → Decoración de temporada, y el interruptor de esa fiesta, deben estar activados. Sigue la fecha del dispositivo.',
+          'Perfil → Colores de fiesta desactivado conserva tu propio tema (los adornos se siguen viendo).',
+          'Los móviles configurados para reducir el movimiento no muestran adornos que caen o vuelan, ni confeti.',
+        ] },
+        { q: 'Una racha se rompió mientras estábamos fuera', a: [
+          'Usa el Modo vacaciones (toda la casa, Ajustes → General) o las vacaciones por miembro (Miembros de la familia) antes de irte; protege las rachas y congela la salud de las tareas.',
+        ] },
+        { q: 'Alguien no puede iniciar sesión', a: [
+          'Demasiadas contraseñas incorrectas bloquean los inicios de sesión hasta 15 minutos: 10 en una cuenta o 20 desde un dispositivo. Espera e inténtalo de nuevo; una contraseña correcta borra el recuento de la cuenta.',
+          'Un padre o una madre puede poner una contraseña nueva en Ajustes → Miembros de la familia.',
+          'Tras importar una copia de seguridad, todos menos el padre o la madre que la importó necesitan una contraseña nueva.',
+        ] },
+        { q: 'Dice "No funcionó"', a: [
+          'El móvil no pudo llegar al servidor (sin Wi-Fi ni datos), o alguien cambió lo mismo en el mismo momento. La página se recarga; revísala y vuelve a intentarlo.',
+        ] },
+        { q: 'Eliminé algo por error', a: [
+          'Ajustes → Eliminados recientemente puede recuperar tareas y recompensas durante 30 días, con su historial. A una tarea cuya habitación se eliminó se le pregunta a qué habitación va.',
+          'Una tarea marcada como hecha por error se puede deshacer desde Actividad, o con ↩️ Deshacer en su habitación (padres).',
+        ] },
+        { q: '¿La app está actualizada?', a: [
+          'Ajustes → General muestra la versión. Mira "Instalación y actualización" para actualizar o volver atrás.',
+        ] },
+      ] },
+    ],
+  },
+];

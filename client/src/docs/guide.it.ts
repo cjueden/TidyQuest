@@ -1,0 +1,373 @@
+/** The in-app guide in Italian. Same sections, icons and blocks as GUIDE_EN in guide.ts; only the text is translated. */
+import type { GuideSection } from './guide';
+
+export const GUIDE_IT: GuideSection[] = [
+  {
+    id: 'start',
+    icon: '🚀',
+    title: 'Per iniziare',
+    parents: true,
+    blocks: [
+      { p: 'TidyQuest trasforma le faccende di casa in un gioco: le faccende fanno guadagnare monete, le monete comprano ricompense, e livelli, distintivi e una mascotte di famiglia tengono tutti sul pezzo. Ecco l’ordine che funziona meglio per configurarlo.' },
+      { ol: [
+        'Installalo (vedi "Installazione e aggiornamenti"), aprilo in un browser e registrati. La prima persona che si registra diventa genitore (admin).',
+        'Aggiungi tutti in Impostazioni → Membri della famiglia: un nome, un login e un ruolo (vedi "Persone e ruoli"). Lì imposta anche la Vista compiti e la Modalità bambino di ogni bambino.',
+        'Crea le stanze nella pagina Stanze. Un tipo di stanza aggiunge faccende suggerite che puoi deselezionare. Dai una stanza a una sola persona ("assegnata a") per renderla sua, come una camera da letto.',
+        'Aggiungi o modifica le faccende in ogni stanza: ogni quanto, sforzo o monete, chi può farla e un’icona (vedi "Faccende").',
+        'Imposta il valore delle monete in Impostazioni → Monete per sforzo, poi crea il Catalogo ricompense con prezzi che i bambini possono raggiungere (vedi "Monete, ricompense e obiettivi").',
+        'Dai a ogni bambino un obiettivo settimanale in Impostazioni → Obiettivi per membro, con un bonus se lo raggiunge. Nella stessa sezione c’è l’obiettivo di squadra della famiglia, che si vede nella Classifica.',
+        'Attiva la Modalità rigorosa in Impostazioni → Generale se un genitore deve approvare le faccende dei bambini prima che le monete contino.',
+        'Configura le notifiche (vedi "Notifiche"): un canale di famiglia, poi, se vuoi, il telefono di ciascuno.',
+        'Dai un’occhiata a Impostazioni → Funzioni e disattiva gli extra che non vuoi (Missione di salvataggio, mascotte, squadre, feste…).',
+        'Scarica un backup in Impostazioni → Dati e privacy quando tutto è pronto, e ogni tanto anche dopo.',
+      ] },
+      { tip: 'Parti in piccolo: una manciata di faccende per bambino e qualche ricompensa economica da guadagnare già nella prima settimana. Puoi aggiungerne altre quando vuoi.' },
+    ],
+  },
+  {
+    id: 'connections',
+    icon: '🔗',
+    title: 'Come si collega tutto',
+    blocks: [
+      { p: 'Quasi tutto parte da una faccenda fatta. Ecco la catena, dal tocco su Fatto fino alle ricompense finali.' },
+      { flow: [
+        { title: '1. Una faccenda scade', text: 'Ogni faccenda ha una pianificazione (ogni N giorni, giorni della settimana fissi, o quando si vuole). La sua salute scende dal 100% allo 0% lungo il suo intervallo; la salute della casa nella Home è la media di tutte le faccende, pesata in base allo sforzo.' },
+        { title: '2. Qualcuno tocca Fatto', text: 'Da solo, o in squadra. Con la Modalità rigorosa attiva, la faccenda di un bambino aspetta l’approvazione di un genitore; fino ad allora non succede nulla di quanto segue (a parte il fatto che le monete sono già calcolate).' },
+        { title: '3. Si calcolano le monete', text: 'Monete personalizzate se la faccenda le ha, altrimenti Monete per sforzo. Poi si applica il moltiplicatore più alto tra quelli validi: un evento monete doppie o la Missione di salvataggio di oggi (non si sommano). Le squadre dividono le monete più un bonus di squadra; ogni parte riceve il moltiplicatore.' },
+        { title: '4. Le monete si mettono al lavoro', text: 'Si aggiungono al saldo della persona (da spendere in ricompense), alle sue monete totali guadagnate (livelli e sblocchi), al suo obiettivo settimanale (bonus al raggiungimento), alla Classifica (posizioni, premi, obiettivo di famiglia) e al totale della famiglia (la mascotte cresce).' },
+        { title: '5. Tutto il resto si aggiorna', text: 'La salute della faccenda torna al 100%, le serie continuano, si controllano i distintivi (che possono dare monete bonus), la faccenda compare in Attività e in "Completate oggi", e gli altri possono fare il tifo.' },
+        { title: '6. Spendere', text: 'Un bambino chiede una ricompensa e un genitore la approva; il prezzo viene tolto dal suo saldo. Le ricompense condivise riempiono un salvadanaio a cui contribuiscono più persone; quando è pieno lo approva un genitore, e se viene rifiutato tutti riavranno le loro monete.' },
+      ] },
+      { h: 'Due tipi di monete' },
+      { ul: [
+        'Saldo: quello che puoi spendere adesso. Scende quando compri una ricompensa o contribuisci a un salvadanaio.',
+        'Monete totali guadagnate: faccende più monete date da un genitore. Non scendono mai e decidono il tuo livello.',
+      ] },
+      { h: 'Cosa succede da solo' },
+      { ul: [
+        'Ogni mattina: viene scelta la Missione di salvataggio di oggi (la faccenda più dimenticata vale di più), e i bambini possono ricevere un riepilogo delle "faccende di oggi". I genitori ricevono un resoconto la domenica.',
+        'Durante il giorno: promemoria per le faccende con un orario, poi di nuovo 2 ore dopo, poi un avviso a un genitore.',
+        'Sera: promemoria su cosa resta da fare, una serie che sta per spezzarsi o un obiettivo vicino.',
+        'Lunedì: inizia una nuova settimana (le settimane vanno da lunedì a domenica) e gli obiettivi settimanali che si ripetono si impostano di nuovo da soli. Il bonus di un obiettivo viene pagato nel momento in cui lo si raggiunge.',
+        'Mezzanotte: gli inviti a fare squadra finiscono e "Completate oggi" riparte da zero.',
+      ] },
+    ],
+  },
+  {
+    id: 'people',
+    icon: '👨‍👩‍👧‍👦',
+    title: 'Persone e ruoli',
+    parents: true,
+    blocks: [
+      { where: 'Impostazioni → Membri della famiglia' },
+      { ul: [
+        'Genitore (admin): può cambiare tutto, approva faccende e ricompense con la Modalità rigorosa, e conta come "aiutante" quando fa squadra con un bambino.',
+        'Membro: un bambino più grande o un altro adulto. Non ha bisogno di approvazione e può segnare le faccende come fatte per gli altri.',
+        'Bambino: guadagna monete; con la Modalità rigorosa le sue faccende aspettano un genitore.',
+      ] },
+      { h: 'Impostazioni per persona' },
+      { ul: [
+        'Partecipa alle attività: disattivato per un genitore che si limita a gestire; non guadagnerà monete né comparirà nella Classifica.',
+        'Vista compiti: Tutti (sceglie lui), Parte da I miei, o Solo i suoi (bloccata).',
+        'Modalità bambino: pulsanti più grandi, meno schede, monete e obiettivo in primo piano.',
+        'Tema e colori delle feste seguono la persona su ogni dispositivo (li può cambiare in Profilo).',
+        'Vacanza per membro: protegge la sua serie e congela la salute delle sue faccende mentre è via.',
+        'Regola monete (Gestisci membro): aggiungi o togli monete con un motivo. Il numero è una variazione, non un nuovo saldo: 10 aggiunge 10, -10 ne toglie 10. Vale anche per i genitori, te compreso. Dettagli in "Monete, ricompense e obiettivi" → Regolare le monete.',
+        'Password: un genitore può impostarne una nuova se qualcuno dimentica la sua.',
+      ] },
+      { tip: 'Attiva "Nascondi ai bambini le stanze private degli altri" in Impostazioni → Generale se i bambini non devono vedere, per esempio, la stanza personale di un genitore.' },
+    ],
+  },
+  {
+    id: 'rooms',
+    icon: '🏠',
+    title: 'Stanze e zone',
+    parents: true,
+    blocks: [
+      { p: 'Le stanze contengono le faccende. Una stanza assegnata a una sola persona è sua: solo lei (e i genitori/membri) può fare le sue faccende, e non partecipa mai alle squadre.' },
+      { ul: [
+        'Crea una stanza nella pagina Stanze; un tipo di stanza aggiunge faccende suggerite tra cui scegliere.',
+        'Le zone raggruppano le stanze nella pagina Stanze (per esempio "Piano di sopra" o "Missioni dei genitori").',
+        'La salute di una stanza è la media delle sue faccende; la stanza messa peggio è quella per cui la mascotte chiede aiuto.',
+      ] },
+    ],
+  },
+  {
+    id: 'chores',
+    icon: '🧽',
+    title: 'Faccende',
+    parents: true,
+    blocks: [
+      { where: 'Stanze → una stanza → Aggiungi attività, oppure ✏️ su una faccenda' },
+      { h: 'Pianificazione' },
+      { ul: [
+        'Ogni N giorni: scade di nuovo N giorni dopo l’ultima volta. La sua salute cala in quei giorni.',
+        'Giorni della settimana fissi: scade invece nei giorni scelti.',
+        'Solo in stagione: scade solo tra due mesi (fuori da quel periodo non conta per la salute della casa).',
+        'Su richiesta (quando si vuole): nessuna pianificazione; si può fare in qualsiasi momento. Attiva "Mostra nella dashboard" per elencarla nella Home e imposta un limite di ripetizioni (al giorno o alla settimana) se qualcuno potrebbe approfittarne.',
+        'Una volta (da fare): si fa una volta sola, poi sparisce dalle liste (resta in Attività). "Da fare entro" è una data facoltativa. Aggiungine una al volo con "+ Da fare" nella Home.',
+        'Completamento anticipato: permette di rifare una faccenda in qualsiasi nuovo giorno del calendario, anche prima che scada (utile per le routine quotidiane).',
+        'Ricorda alle: un promemoria a un’ora precisa del giorno (o la sera prima).',
+      ] },
+      { h: 'Monete' },
+      { ul: [
+        'Lo sforzo (1–5) determina le monete da Impostazioni → Monete per sforzo. Le monete personalizzate lo sostituiscono per una singola faccenda.',
+        'La Missione di salvataggio e gli eventi monete doppie le moltiplicano per quel giorno.',
+      ] },
+      { h: 'Chi può farla' },
+      { ul: [
+        'Nessuno assegnato: chiunque. Il primo che la finisce prende le monete ("chi prima arriva vince").',
+        'Assegnata ad alcune persone: solo loro possono farla.',
+        'Condivisa: ogni assegnato fa la sua parte e riceve una quota uguale.',
+        'Divisione personalizzata: ogni assegnato riceve una percentuale stabilita.',
+        'A rotazione: a turno, per completamento o per settimana di calendario.',
+      ] },
+      { h: 'Icona' },
+      { p: 'Tocca il pulsante dell’icona per aprire il selettore. Mostra un’anteprima dal vivo della faccenda, suggerisce un’icona dal nome della faccenda e ha una ricerca e tutte le icone raggruppate per area. Una nuova faccenda lasciata su ✨ riceve automaticamente l’icona suggerita.' },
+      { h: 'Finire una faccenda' },
+      { ul: [
+        'Tocca Fatto nella Home, nella stanza o nella pagina Compiti. Il pulsante 📎 aggiunge una nota o una foto come prova.',
+        'Genitori e membri possono segnare una faccenda come fatta per qualcun altro ("chi l’ha fatta?").',
+        'Un errore si può annullare da Attività (genitori), oppure con ↩️ Annulla accanto a "Fatto da" della faccenda nella sua stanza (genitori; chiede conferma, perché le monete vengono tolte). Una squadra viene annullata per tutta la squadra e le monete di tutti per quella faccenda vengono riprese. Un bambino può ritirare il proprio Fatto finché aspetta l’approvazione.',
+      ] },
+    ],
+  },
+  {
+    id: 'home',
+    icon: '🏡',
+    title: 'Home e le altre pagine',
+    blocks: [
+      { ul: [
+        'Home: il saluto delle feste, il tuo livello, la mascotte, le squadre, la Missione di salvataggio, I tuoi soliti, Forse hai dimenticato queste, Missioni di oggi, Da fare, Completate oggi e altro. "Personalizza" sceglie quali schede vedi.',
+        'Stanze: ogni stanza e le sue faccende. Compiti: tutte le faccende in un’unica lista con ricerca.',
+        'Calendario: cosa scade quando, e cosa è stato fatto.',
+        'Attività: tutto quello che è successo (faccende, cambi di monete, contributi), con filtri e tifo.',
+        'Classifica: graduatorie per monete, % dell’obiettivo o maggior miglioramento, premi come Mattiniero e i campioni delle stanze, la bacheca dei trofei e l’obiettivo di famiglia.',
+        'Obiettivi: distintivi, il tuo livello e cosa viene dopo. Ricompense: il catalogo e le tue richieste.',
+        'Cerca: il pulsante 🔍, oppure premi / o Ctrl+K sulla tastiera.',
+      ] },
+    ],
+  },
+  {
+    id: 'rewards',
+    icon: '🎁',
+    title: 'Monete, ricompense e obiettivi',
+    blocks: [
+      { where: 'Impostazioni → Catalogo ricompense, Obiettivi per membro, Monete per sforzo' },
+      { h: 'Ricompense' },
+      { ul: [
+        'Ogni ricompensa ha un prezzo. I bambini la chiedono; un genitore la approva o la rifiuta.',
+        'Approvata per sbaglio? Richieste ricompensa (sotto il catalogo) ha Rimborsa accanto a ogni ricompensa approvata: le monete tornano indietro (in un salvadanaio condiviso, a tutti quelli che hanno contribuito) e risulta rifiutata.',
+        'Regole per ricompensa: un limite (al giorno, alla settimana, al mese o in totale; per persona o per tutti), un intervallo di date, A rotazione (ogni settimana ne compaiono solo alcune), chi può vederla, un prezzo diverso per persona e una categoria.',
+        'Risparmio condiviso: chiunque può versare monete in un salvadanaio; quando è pieno passa a un genitore. Il campo del contributo parte da 0 e ogni contributo compare in Attività. Un salvadanaio pieno non si può annullare dalle mie richieste ("Condiviso: decide un genitore"): un genitore lo rifiuta e tutti riavranno le loro monete.',
+      ] },
+      { h: 'Obiettivi' },
+      { ul: [
+        'Obiettivo settimanale per persona: un traguardo di monete con un bonus facoltativo al raggiungimento (pagato in automatico). "Ogni settimana" imposta da solo l’obiettivo della settimana dopo.',
+        'Obiettivo di squadra della famiglia (in Obiettivi per membro): un traguardo settimanale di monete per tutti insieme, con un premio, mostrato nella Classifica. Impostalo a 0 per disattivarlo.',
+      ] },
+      { h: 'Regolare le monete' },
+      { p: 'Impostazioni → Membri della famiglia → Gestisci membro, accanto al suo Saldo. Il campo accetta quante monete aggiungere o togliere, non il nuovo saldo.' },
+      { ol: [
+        'Scrivi la variazione nel campo Regola: un numero semplice aggiunge monete (15 ne dà 15), un segno meno le toglie (-15 ne toglie 15).',
+        'Aggiungi un motivo se vuoi (fino a 200 caratteri). Lo vede nella cronologia delle monete e in Attività, e nella notifica che riceve se le sue sono attive.',
+        'Tocca Regola. "+15 ✓" o "-15 ✓" lo conferma e il Saldo si aggiorna.',
+      ] },
+      { ul: [
+        'Per impostare un saldo esatto, scrivi la differenza: Saldo 71 e dovrebbe essere 59 → scrivi -12. Saldo 40 e dovrebbe essere 50 → scrivi 10.',
+        'Un saldo non può scendere sotto 0. Se togli più di quante ne ha, ci si ferma a 0 e viene registrato solo quanto è stato davvero tolto.',
+        'Le monete aggiunte contano per le sue monete totali guadagnate (livello e sblocchi) come quelle delle faccende. Togliere monete abbassa solo il saldo; un livello non si perde mai.',
+        'Le regolazioni non contano per l’obiettivo settimanale né per la Classifica, che contano solo le faccende.',
+      ] },
+      { tip: 'Hai scritto 12 invece di -12? Regola di nuovo con -24 per arrivare dove volevi.' },
+      { h: 'Monete da un genitore' },
+      { ul: [
+        'Regola monete (vedi sopra) dà o toglie monete a mano, con un motivo.',
+        'Quando approva una faccenda, ⭐💬 aggiunge una nota e un bonus "oltre le aspettative" (+1, +2 o +5).',
+        'Rifiutare una faccenda mostra "Rifiutata · Annulla" per 5 secondi prima di diventare definitivo. 💬 Aggiungi un motivo sospende il rifiuto e manda al bambino una riga su cosa manca (insieme alla notifica dell’esito).',
+        'Eventi monete doppie (Impostazioni → Eventi monete doppie): un moltiplicatore per un intervallo di tempo, per tutto, per stanze scelte o per faccende scelte. Nella Home, tocca l’evento per vedere ogni faccenda che copre e che puoi fare, con le sue monete e se è pronta adesso; toccane una per aprirla.',
+      ] },
+    ],
+  },
+  {
+    id: 'extras',
+    icon: '✨',
+    title: 'Extra del gioco',
+    blocks: [
+      { where: 'Impostazioni → Funzioni (ognuna si può disattivare per la famiglia)' },
+      { ul: [
+        'Missione di salvataggio: ogni giorno la faccenda più dimenticata vale di più (2× di base) per la prima persona che la fa.',
+        'I tuoi soliti / Forse hai dimenticato queste: la Home mostra le faccende che fai di più (e quelle che fissi) e le faccende in ritardo di un intero intervallo. 💤 nasconde una faccenda da Forse hai dimenticato queste per 3 giorni, solo per te; "Annulla" nel messaggio di rinvio la riporta subito.',
+        'Da fare: faccende una tantum e la scheda Da fare.',
+        'Premi della Classifica e bacheca dei trofei. Livelli e Prossimo distintivo.',
+        'Tifo: 👏 🎉 💪 ⭐ sulla faccenda finita di qualcun altro ("Completate oggi" della Home e Attività). Lo stesso emoji di nuovo lo toglie. La persona riceve una notifica privata.',
+        'Squadre: 🤝 su una faccenda da 6 o più monete invita una persona o chiunque. Quando qualcuno si unisce, la faccenda è della squadra per quel giorno. Uno dei due tocca Fatto; le monete si dividono in parti uguali più un bonus di squadra (10, 20 o 30%). Un genitore con un bambino è un aiutante e il bambino tiene tutte le monete. Mai su una stanza personale, né su faccende per una sola persona o a rotazione. Non ti va? "No, grazie" rifiuta un invito: un invito solo per te finisce e chi l’ha fatto lo viene a sapere, così può chiedere a un altro; un invito per chiunque sparisce solo per te. Chi l’ha avviata può usare "Annulla la squadra" (finisce per tutti); chiunque altro può Uscire.',
+        'Mascotte di casa: una di 8 creature, scelta e battezzata qui. Cresce con le monete di famiglia guadagnate mentre è la mascotte attiva (si schiude a 500, poi 2.000, 5.000 e 10.000), il suo umore segue la salute della casa e reagisce a compleanni, obiettivo di famiglia e Missione di salvataggio.',
+        'Cambiare mascotte: scegliere una creatura che non hai mai avuto la fa partire come un uovo nuovo. Ogni creatura mantiene la sua crescita, il suo nome e il suo vestito, quindi tornare indietro la riporta esattamente com’era. La pancia e l’ora della nanna sono condivise.',
+        'Giocare con la mascotte: toccala per una reazione. La sua pancia 🍪 si riempie del 5% a ogni faccenda (una squadra conta una volta) e si svuota in 2 giorni; quando è vuota dice solo che ha fame. "Cosa faccio?" suggerisce una faccenda che puoi fare subito. Aggiunge un 🐾 di tifo a ogni faccenda finita. Dorme durante la nanna della famiglia (si imposta sotto la mascotte in Funzioni, dalle 21 alle 7 di base).',
+        'Negozio della mascotte (con il suo interruttore): chiunque può comprarle un accessorio da 1 a 5 monete. C’è un solo vestito condiviso e nessun armadio: un nuovo oggetto si indossa subito per tutti e sostituisce quello che c’era in quel punto (testa, viso, collo o schiena). Chi ha comprato un oggetto, o un genitore, può toglierlo gratis. Gli acquisti compaiono in Attività. Il negozio apre quando la mascotte si schiude. Spegnere il negozio nasconde negozio e vestito.',
+        'Stile delle feste: Halloween a ottobre, Ringraziamento a novembre, Natale a dicembre: colori, decorazioni, un conto alla rovescia e un costume per la mascotte. Ogni festa ha il suo interruttore e un pulsante Anteprima.',
+      ] },
+      { h: 'Livelli e sblocchi' },
+      { p: 'I livelli vengono dalle monete totali guadagnate (livello 2 a 50, 5 a 500, 10 a 2.250). Ogni livello sblocca qualcosa; scegli in Profilo → Sbloccati.' },
+      { ul: [
+        'Cornici: bronzo (2), argento (6), oro (9), arcobaleno (10). I distintivi corona e diamante sbloccano le loro cornici.',
+        'Festeggiamenti: pioggia di monete (3), fuochi d’artificio (8). Temi: Foresta (4), Galassia (7), Lava (10). I primi 8 temi sono gratuiti.',
+        'Titoli (5): il titolo del tuo livello o qualsiasi distintivo che hai guadagnato, mostrato nella Home, nella Classifica, nella barra laterale e in Attività.',
+      ] },
+      { h: 'Distintivi' },
+      { p: 'I distintivi predefiniti si sbloccano da soli. I genitori possono crearne di propri in Impostazioni → Distintivi (per esempio "Compiti per 4 settimane di fila"), con monete bonus facoltative, e impostare le monete per ogni distintivo predefinito.' },
+    ],
+  },
+  {
+    id: 'notifications',
+    icon: '🔔',
+    title: 'Notifiche',
+    parents: true,
+    blocks: [
+      { where: 'Impostazioni → Generale → Notifiche, poi Chi riceve cosa, Orari e ore di silenzio e Registro notifiche' },
+      { ol: [
+        'Attiva le notifiche e scegli quali tipi riceve la famiglia.',
+        'Configura un canale di famiglia: ntfy (l’URL di un server e un argomento a cui tutti si iscrivono nell’app ntfy), Telegram (un token del bot e un ID chat) o un servizio notify di Home Assistant. Usa il pulsante di prova.',
+        'Se vuoi, dai a ciascuno il suo canale in "Chi riceve cosa": il suo argomento ntfy, la sua chat Telegram o il suo telefono Home Assistant. Così riceve i messaggi nella propria lingua e può disattivare dei tipi in Profilo.',
+        'Imposta le ore di silenzio (i messaggi aspettano e partono alla fine) e se i messaggi dei bambini aspettano durante l’orario scolastico nei giorni feriali.',
+      ] },
+      { ul: [
+        'I tipi privati (approvato/rifiutato, riepiloghi, promemoria, tifo) vanno solo al canale personale di una persona, mai al canale di famiglia.',
+        'Il Registro notifiche mostra cosa è stato inviato, messo in coda o fallito, e perché.',
+      ] },
+    ],
+  },
+  {
+    id: 'data',
+    icon: '💾',
+    title: 'Backup, fogli di calcolo ed elementi eliminati',
+    parents: true,
+    blocks: [
+      { ul: [
+        'Impostazioni → Dati e privacy → Esporta: un backup JSON completo. Tienine uno prima dei grandi cambiamenti.',
+        'Importa ripristina un backup e SOSTITUISCE tutto. Tutti tranne il genitore che importa ricevono una nuova password casuale, quindi imposta nuove password in Membri della famiglia dopo.',
+        'Impostazioni → Fogli di calcolo: scarica faccende o ricompense, modificale in qualsiasi app di fogli di calcolo e ricaricale. Prima vedi un’anteprima e non viene eliminato nulla.',
+        'Per eliminare una faccenda, aprila con Modifica; Elimina attività è in fondo al modulo. Va in Impostazioni → Eliminati di recente per 30 giorni e da lì si può ripristinare. Le ricompense funzionano allo stesso modo.',
+        'Eliminare non toglie mai monete né cancella quanto fatto: i completamenti passati continuano a comparire in Attività, nella Classifica e negli obiettivi con il nome della faccenda, anche dopo che esce da Eliminati di recente.',
+        'Eliminare una stanza (Stanze → 🗑) elimina anche le sue faccende, e la stanza non si può riportare indietro. La loro cronologia e le monete restano.',
+      ] },
+    ],
+  },
+  {
+    id: 'install',
+    icon: '🛠️',
+    title: 'Installazione e aggiornamenti',
+    parents: true,
+    blocks: [
+      { ul: [
+        'TidyQuest gira come un unico container Docker con una cartella dati (il database, gli avatar e le foto di prova). Fai il backup di quella cartella.',
+        'Imposta JWT_SECRET su una lunga stringa casuale e TZ sul tuo fuso orario (per esempio Europe/Rome). Senza TZ il server usa UTC, e "oggi", la mezzanotte e la settimana sarebbero sfasati di ore.',
+        'Le versioni sono etichettate (per esempio 0.9.0). Fissa quel numero in docker-compose.yml, poi esegui "docker compose pull && docker compose up -d". L’immagine ":main" è il codice più recente, per provare le novità prima.',
+        'Impostazioni → Generale mostra la versione in uso. Per tornare indietro, rimetti il numero della versione precedente e riavvia (fai prima un backup: il database va solo avanti).',
+        'Le notifiche sul telefono dall’app stessa e l’installazione come app richiedono un indirizzo sicuro (https://); fino ad allora usa ntfy o Telegram.',
+      ] },
+    ],
+  },
+  {
+    id: 'troubleshooting',
+    icon: '🧰',
+    title: 'Risoluzione dei problemi',
+    blocks: [
+      { qa: [
+        { q: 'Il pulsante Fatto è grigio', a: [
+          'La sua etichetta dice perché: "Non assegnata" (la faccenda è di qualcun altro), "In attesa di approvazione" (un genitore non ha ancora approvato la tua ultima), "Fatto da …" (qualcuno l’ha già fatta oggi), "Fatto oggi / questa settimana" (il limite di ripetizioni di una faccenda libera) o "🤝 nomi" (una squadra l’ha presa oggi).',
+          'Se Fatto dà un messaggio "non ancora in scadenza": la faccenda non scade ancora. Un genitore può attivare "Completamento anticipato" per le routine quotidiane.',
+        ] },
+        { q: 'Ho toccato Fatto ma non ho ricevuto monete', a: [
+          'Con la Modalità rigorosa attiva, la faccenda di un bambino aspetta un genitore. Risulta in attesa in Attività e nella Home del genitore sotto "In attesa di approvazione".',
+          'Hai toccato Fatto per sbaglio? Finché aspetta, ↩ Annulla (accanto al pulsante) la annulla; in una squadra viene ritirata per tutta la squadra.',
+          'Se Gamification è disattivata (Impostazioni → Generale), non ci sono monete per niente.',
+          'Se un genitore l’ha rifiutata, la faccenda è di nuovo aperta; nelle squadre torna alla squadra.',
+        ] },
+        { q: 'Una faccenda non compare nella Home', a: [
+          'Missioni di oggi elenca le faccende in scadenza, prima le più in ritardo (fino a 10). Le altre sono nella loro stanza e nella pagina Compiti.',
+          'Le faccende libere hanno bisogno di "Mostra nella dashboard" attivo.',
+          'Fuori stagione (Solo in stagione) o con giorni della settimana fissi: oggi non scade.',
+          'La tua Vista compiti potrebbe essere su "I miei" (l’interruttore in alto), oppure un genitore l’ha impostata su "Solo i suoi".',
+          'Le faccende una tantum sono nella scheda Da fare e spariscono una volta fatte.',
+          'Potresti averla rimandata (💤 in Forse hai dimenticato queste): torna dopo 3 giorni, oppure tocca Annulla subito sul messaggio di rinvio.',
+        ] },
+        { q: 'Un bambino non vede una stanza o una faccenda', a: [
+          'Impostazioni → Generale → "Nascondi ai bambini le stanze private degli altri" nasconde le stanze che appartengono a qualcun altro.',
+          'La sua Vista compiti potrebbe essere "Solo i suoi" (Impostazioni → Membri della famiglia).',
+        ] },
+        { q: 'Le monete di una faccenda sembrano sbagliate', a: [
+          'Le monete personalizzate hanno la precedenza su Monete per sforzo.',
+          'Un evento monete doppie o la Missione di salvataggio le moltiplica (vince il più alto; non si sommano).',
+          'Le squadre dividono le monete più il bonus di squadra; un genitore aiutante non riceve nulla, così il bambino tiene tutto.',
+          'I bonus dei distintivi e quelli dei genitori compaiono come righe separate in Attività.',
+        ] },
+        { q: 'Le notifiche non arrivano', a: [
+          'Controlla in ordine: le notifiche sono attive e il tipo è spuntato (Impostazioni → Generale); il canale funziona (usa il pulsante di prova); la persona non ha disattivato quel tipo (Profilo).',
+          'I tipi privati (esiti, riepiloghi, promemoria, tifo) hanno bisogno del canale personale della persona.',
+          'Le ore di silenzio e l’orario scolastico trattengono i messaggi fino alla fine.',
+          'Il Registro notifiche mostra ogni messaggio ed eventuali errori.',
+        ] },
+        { q: 'I giorni, la mezzanotte o la settimana sono sfasati di qualche ora', a: [
+          'Imposta la variabile d’ambiente TZ sul server con il tuo fuso orario e riavvialo (vedi "Installazione e aggiornamenti").',
+        ] },
+        { q: 'Una faccenda a rotazione sembra bloccata su una persona', a: [
+          'Controlla la sua rotazione: "per completamento" passa al successivo dopo ogni completamento (dopo l’approvazione con la Modalità rigorosa); "per settimana" passa al successivo ogni lunedì.',
+          'Genitori e membri possono sempre farla per chi ha il turno.',
+        ] },
+        { q: 'Manca il pulsante 🤝 Fai squadra', a: [
+          'Le squadre richiedono una faccenda da 6 o più monete che non sia nella stanza personale di qualcuno, non sia assegnata a una sola persona e non sia a rotazione.',
+          'Solo una squadra per faccenda al giorno; guarda la scheda In squadra nella Home.',
+          'Impostazioni → Funzioni → In squadra deve essere attivo.',
+        ] },
+        { q: 'Un invito a fare squadra è sparito', a: [
+          'Gli inviti finiscono a mezzanotte, e quando qualcuno fa la faccenda in un altro modo.',
+          'Se hai toccato "No, grazie" su un invito per chiunque, resta nascosto per te per il resto del giorno.',
+          'Se la persona che hai invitato ha detto no, grazie, l’invito è finito e puoi chiedere a un altro.',
+        ] },
+        { q: 'Un tema, una cornice o un festeggiamento è bloccato', a: [
+          'Si sblocca a un certo livello (🔒 mostra quale). I livelli vengono dalle monete totali guadagnate e non scendono mai.',
+        ] },
+        { q: 'La mascotte è ancora un uovo, o sembra triste', a: [
+          'Si schiude a 500 monete di famiglia (le faccende di tutti insieme, di sempre), poi cresce a 2.000, 5.000 e 10.000.',
+          'Il suo umore segue la salute della casa: sotto il 50% chiede aiuto per la stanza più in disordine; tocca "Aiutiamo".',
+        ] },
+        { q: 'Un accessorio comprato da qualcuno è sparito', a: [
+          'C’è un solo vestito condiviso e nessun armadio, quindi comprare un nuovo oggetto sostituisce quello che c’era in quel punto. Attività mostra chi ha comprato cosa.',
+          'Chi l’ha comprato, o un genitore, può anche toglierlo. Se il negozio causa discussioni, un genitore può spegnerlo in Impostazioni → Funzioni.',
+        ] },
+        { q: 'La mascotte è tornata un uovo', a: [
+          'Qualcuno ha scelto una creatura diversa in Impostazioni → Funzioni: una creatura che non hai mai avuto parte come uovo. Quella vecchia mantiene crescita, nome e vestito; sceglila di nuovo per riaverla.',
+        ] },
+        { q: 'La mascotte dorme, o dice di avere fame', a: [
+          'Dorme durante la nanna della famiglia (Impostazioni → Funzioni, sotto la mascotte), secondo l’orologio di ogni dispositivo.',
+          'Avere fame significa meno faccende negli ultimi due giorni; ogni faccenda riempie un po’ la sua pancia. La fame non influisce su nient’altro.',
+        ] },
+        { q: 'Nessuna decorazione o colore delle feste', a: [
+          'Impostazioni → Funzioni → Stile delle feste, e l’interruttore di quella festa, devono essere attivi. Segue la data del dispositivo.',
+          'Profilo → Colori delle feste disattivato mantiene il tuo tema (le decorazioni si vedono comunque).',
+          'I telefoni impostati per ridurre il movimento non mostrano decorazioni che cadono o volano, né coriandoli.',
+        ] },
+        { q: 'Una serie si è spezzata mentre eravamo via', a: [
+          'Usa la Modalità vacanza (tutta la casa, Impostazioni → Generale) o la vacanza per membro (Membri della famiglia) prima di partire; protegge le serie e congela la salute delle faccende.',
+        ] },
+        { q: 'Qualcuno non riesce ad accedere', a: [
+          'Troppe password sbagliate bloccano gli accessi fino a 15 minuti: 10 per un account, o 20 da un dispositivo. Aspetta e riprova; una password corretta azzera il conteggio dell’account.',
+          'Un genitore può impostare una nuova password in Impostazioni → Membri della famiglia.',
+          'Dopo aver importato un backup, tutti tranne il genitore che l’ha importato hanno bisogno di una nuova password.',
+        ] },
+        { q: 'Dice "Non ha funzionato"', a: [
+          'Il telefono non è riuscito a raggiungere il server (niente Wi-Fi o dati), oppure qualcuno ha cambiato la stessa cosa nello stesso momento. La pagina si ricarica; controlla, poi riprova.',
+        ] },
+        { q: 'Ho eliminato qualcosa per sbaglio', a: [
+          'Impostazioni → Eliminati di recente può riportare indietro faccende e ricompense per 30 giorni, con la loro cronologia. Una faccenda la cui stanza è stata eliminata chiede in quale stanza metterla.',
+          'Una faccenda segnata come fatta per sbaglio si può annullare da Attività, oppure con ↩️ Annulla nella sua stanza (genitori).',
+        ] },
+        { q: 'L’app è aggiornata?', a: [
+          'Impostazioni → Generale mostra la versione. Vedi "Installazione e aggiornamenti" per aggiornare o tornare indietro.',
+        ] },
+      ] },
+    ],
+  },
+];
