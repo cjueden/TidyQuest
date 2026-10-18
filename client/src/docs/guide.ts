@@ -182,7 +182,7 @@ const GUIDE_EN: GuideSection[] = [
         'Each reward has a price. Kids request it; a parent approves or turns it down.',
         'Approved one by mistake? Reward requests (under the catalog) has Refund next to each approved reward: the coins go back (a shared pot to everyone who chipped in) and it shows as rejected.',
         'Rules per reward: a limit (per day, week, month or ever; per person or for everyone), a date window, Rotating (only a few show each week), who can see it, a different price per person, and a category.',
-        'Shared saving: anyone can chip coins into a pot; when it’s full it goes to a parent. The chip-in box starts at 0, and each chip-in shows in Activity.',
+        'Shared saving: anyone can chip coins into a pot; when it’s full it goes to a parent. The chip-in box starts at 0, and each chip-in shows in Activity. A full pot can’t be cancelled from My requests ("Shared: a parent decides"): a parent turns it down and everyone gets their coins back.',
       ] },
       { h: 'Goals' },
       { ul: [
@@ -208,7 +208,7 @@ const GUIDE_EN: GuideSection[] = [
         'Adjust coins (see above) gives or takes away coins by hand, with a reason.',
         'When approving a chore, ⭐💬 adds a note and an "above and beyond" bonus (+1, +2 or +5).',
         'Rejecting a chore shows "Rejected · Undo" for 5 seconds before it goes through. 💬 Add a reason pauses that and sends the kid one line on what’s missing (with their outcome notification).',
-        'Double coins events (Settings → Double coins events): a multiplier for a time window, for everything, chosen rooms, or chosen chores.',
+        'Double coins events (Settings → Double coins events): a multiplier for a time window, for everything, chosen rooms, or chosen chores. On Home, tap the event to see every chore it covers that you can do, with its coins and whether it’s ready now; tap one to open it.',
       ] },
     ],
   },
@@ -220,11 +220,11 @@ const GUIDE_EN: GuideSection[] = [
       { where: 'Settings → Features (each one can be switched off for the family)' },
       { ul: [
         'Rescue Mission: each day the most-forgotten chore pays extra (2× by default) to the first person who does it.',
-        'Your usual / Maybe you forgot: Home shows the chores you do most (and ones you pin), and chores overdue by a whole interval.',
+        'Your usual / Maybe you forgot: Home shows the chores you do most (and ones you pin), and chores overdue by a whole interval. 💤 hides one from Maybe you forgot for 3 days, just for you; "Snoozed · Undo" brings it straight back.',
         'To-dos: one-time chores and the To-do card.',
         'Board awards and trophy shelf. Levels and Next badge.',
         'Cheers: 👏 🎉 💪 ⭐ on anyone else’s finished chore (Home’s "Completed today" and Activity). The same emoji again takes it back. The person gets a private notification.',
-        'Team-ups: 🤝 on a chore worth 6 or more coins invites one person or anyone. Once someone joins, the chore is the team’s for the day. Either one taps Done; coins split evenly plus a team bonus (10, 20 or 30%). A parent with a kid is a helper and the kid keeps all the coins. Never on someone’s own room, one-person or rotating chores. Not up for it? "No thanks" turns an invite down: an invite just for you ends and the person who asked hears about it, so they can ask someone else; an invite for anyone just disappears for you.',
+        'Team-ups: 🤝 on a chore worth 6 or more coins invites one person or anyone. Once someone joins, the chore is the team’s for the day. Either one taps Done; coins split evenly plus a team bonus (10, 20 or 30%). A parent with a kid is a helper and the kid keeps all the coins. Never on someone’s own room, one-person or rotating chores. Not up for it? "No thanks" turns an invite down: an invite just for you ends and the person who asked hears about it, so they can ask someone else; an invite for anyone just disappears for you. The person who started it can "Call off team-up" (it ends for everyone); anyone else can Leave.',
         'House mascot: one of 8 creatures, picked and named here. It grows with the family coins earned while it’s the active mascot (hatches at 500, then 2,000, 5,000 and 10,000), its mood follows house health, and it reacts to birthdays, the family goal and the Rescue Mission.',
         'Swapping mascots: picking a creature you haven’t had starts it as a new egg. Each creature keeps its own growth, name and outfit, so switching back brings it back exactly as it was. The tummy and bedtime are shared.',
         'Playing with the mascot: tap it for a reaction. Its 🍪 tummy fills 5% with every chore (a team-up counts once) and empties over 2 days; when it’s low it just says it’s hungry. "What should I do?" suggests a chore you can do right now. It adds a 🐾 cheer to every finished chore. It sleeps during the family bedtime (set under the mascot in Features, 9 pm to 7 am by default).',
@@ -314,6 +314,7 @@ const GUIDE_EN: GuideSection[] = [
           'Out of season (Only in season) or set weekdays: it isn’t due today.',
           'Your Task view may be on "Mine" (the switch at the top), or a parent set it to "Only theirs".',
           'One-time chores are in the To-do card, and are gone once done.',
+          'You may have snoozed it (💤 in Maybe you forgot): it comes back after 3 days, or tap Undo on the "Snoozed" message right away.',
         ] },
         { q: 'A kid can’t see a room or chore', a: [
           'Settings → General → "Hide other people’s private rooms from kids" hides rooms that belong to someone else.',
@@ -378,6 +379,9 @@ const GUIDE_EN: GuideSection[] = [
           'Too many wrong passwords block logins for up to 15 minutes: 10 for one account, or 20 from one device. Wait and try again; a correct password clears the account’s count.',
           'A parent can set a new password in Settings → Family Members.',
           'After importing a backup, everyone except the parent who imported it needs a new password.',
+        ] },
+        { q: 'It says "That didn’t work"', a: [
+          'The phone couldn’t reach the server (no Wi-Fi or data), or someone changed the same thing at the same moment. The page reloads; check it, then try again.',
         ] },
         { q: 'I deleted something by mistake', a: [
           'Settings → Recently deleted can bring chores and rewards back for 30 days, with their history. A chore whose room was deleted asks which room to go into.',

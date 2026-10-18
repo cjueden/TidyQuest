@@ -393,7 +393,8 @@
       "sortPriceLow": "Price: low to high",
       "sortPriceHigh": "Price: high to low",
       "sortName": "Name A–Z",
-      "noMatches": "No rewards match."
+      "noMatches": "No rewards match.",
+      "sharedParentDecides": "Shared: a parent decides"
     },
     "rewardsPreset": {
       "movie_night": {
@@ -618,7 +619,8 @@
       "showMore": "Show {n} more",
       "showLess": "Show less",
       "error": "Something went wrong",
-      "close": "Close"
+      "close": "Close",
+      "actionFailed": "That didn't work. Check your connection and try again."
     },
     "units": {
       "hours": "hours",
@@ -972,7 +974,13 @@
       "left": "{time} left",
       "chores": "Chores:",
       "findChore": "Add a chore…",
-      "andMore": "+{n} more"
+      "andMore": "+{n} more",
+      "seeChores": "See chores",
+      "readyNow": "Ready now",
+      "everythingCounts": "Every chore counts. Pick a room:",
+      "theseCount": "Chores you can do: {n}",
+      "noneForYou": "None of these chores are yours to do.",
+      "roomCounts": "{ready} of {n} ready now"
     },
     "goals": {
       "repeatWeekly": "Repeats weekly",
@@ -1340,7 +1348,8 @@
       "overdueDays": "{n} days overdue",
       "overdueDay": "1 day overdue",
       "snooze": "Snooze for 3 days",
-      "seeAllRequests": "See all ({n})"
+      "seeAllRequests": "See all ({n})",
+      "snoozed": "Snoozed “{name}” for 3 days"
     },
     "rescue": {
       "title": "Rescue Mission",
@@ -1538,14 +1547,18 @@
       "team": "Team: {names}",
       "share": "{n} coins each",
       "helper": "helper",
-      "cancel": "Call it off",
+      "cancel": "Call off team-up",
       "leave": "Leave",
       "done": "Done together",
       "error_not_teamable": "This chore can't be done as a team.",
       "error_already_teamed": "Someone already started a team-up on this chore today.",
       "error_invalid_partner": "They can't do this chore.",
       "error_not_assigned": "This chore isn't yours to team up on.",
-      "decline": "No thanks"
+      "decline": "No thanks",
+      "error_not_found": "That team-up is gone. It may have been called off.",
+      "error_not_invited": "This invite was for someone else.",
+      "error_declined": "You already said no thanks to this one.",
+      "error_team_full": "That team is already full."
     },
     "iconGroups": {
       "kitchen": "Kitchen",

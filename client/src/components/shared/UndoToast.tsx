@@ -4,13 +4,16 @@ import { useTranslation } from '../../hooks/useTranslation';
 
 export interface UndoState {
   /** Trash ids to restore (one per deleted item) */
-  trashIds: number[];
+  trashIds?: number[];
+  /** Or a custom undo, such as taking back a snooze */
+  onUndo?: () => Promise<unknown>;
   message: string;
 }
 
 /**
  * "Deleted "Dishes" · Undo" after something went to the trash. Undo restores it; the toast goes away
- * on its own after a few seconds (the item stays in Settings → Recently deleted).
+ * on its own after a few seconds (the item stays in Settings → Recently deleted). With `onUndo` it
+ * runs that instead, e.g. "Snoozed for 3 days · Undo". With neither it's a plain notice, such as an error.
  */
 export function UndoToast({ undo, language, onClose, onRestored }: {
   undo: UndoState | null;
@@ -30,10 +33,12 @@ export function UndoToast({ undo, language, onClose, onRestored }: {
   }, [undo, onClose]);
 
   if (!undo) return null;
+  const canUndo = !!undo.onUndo || (undo.trashIds?.length ?? 0) > 0;
   const restore = async () => {
     setBusy(true);
     try {
-      for (const id of undo.trashIds) await api.restoreTrash(id);
+      if (undo.onUndo) await undo.onUndo();
+      else for (const id of undo.trashIds ?? []) await api.restoreTrash(id);
       onClose();
       await onRestored();
     } catch (err) {
@@ -52,10 +57,10 @@ export function UndoToast({ undo, language, onClose, onRestored }: {
       fontFamily: 'Nunito', fontSize: 14, fontWeight: 700,
     }}>
       <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{error || undo.message}</span>
-      <button onClick={restore} disabled={busy} style={{
+      {canUndo && <button onClick={restore} disabled={busy} style={{
         border: 'none', background: 'none', color: 'var(--warm-accent-light)', fontFamily: 'Nunito', fontWeight: 900,
         fontSize: 14, cursor: 'pointer', padding: '4px 6px', textTransform: 'uppercase', letterSpacing: '0.03em',
-      }}>{t('trash.undo')}</button>
+      }}>{t('trash.undo')}</button>}
       <button onClick={onClose} aria-label={t('common.close')} style={{
         border: 'none', background: 'none', color: 'inherit', opacity: 0.7, fontSize: 18, cursor: 'pointer', padding: '0 4px',
       }}>×</button>

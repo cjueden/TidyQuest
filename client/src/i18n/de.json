@@ -393,7 +393,8 @@
       "sortPriceLow": "Preis: aufsteigend",
       "sortPriceHigh": "Preis: absteigend",
       "sortName": "Name A–Z",
-      "noMatches": "Keine passenden Belohnungen."
+      "noMatches": "Keine passenden Belohnungen.",
+      "sharedParentDecides": "Gemeinsam: ein Elternteil entscheidet"
     },
     "rewardsPreset": {
       "movie_night": {
@@ -618,7 +619,8 @@
       "showMore": "{n} mehr anzeigen",
       "showLess": "Weniger anzeigen",
       "error": "Etwas ist schiefgelaufen",
-      "close": "Schließen"
+      "close": "Schließen",
+      "actionFailed": "Das hat nicht geklappt. Prüfe deine Verbindung und versuche es noch einmal."
     },
     "units": {
       "hours": "Stunden",
@@ -972,7 +974,13 @@
       "left": "Noch {time}",
       "chores": "Aufgaben:",
       "findChore": "Aufgabe hinzufügen…",
-      "andMore": "+{n} weitere"
+      "andMore": "+{n} weitere",
+      "seeChores": "Aufgaben ansehen",
+      "readyNow": "Jetzt bereit",
+      "everythingCounts": "Jede Aufgabe zählt. Wähle einen Raum:",
+      "theseCount": "Aufgaben, die du machen kannst: {n}",
+      "noneForYou": "Keine dieser Aufgaben ist für dich.",
+      "roomCounts": "{ready} von {n} jetzt bereit"
     },
     "goals": {
       "repeatWeekly": "Wöchentlich",
@@ -1340,7 +1348,8 @@
       "overdueDays": "{n} Tage überfällig",
       "overdueDay": "1 Tag überfällig",
       "snooze": "3 Tage ausblenden",
-      "seeAllRequests": "Alle ansehen ({n})"
+      "seeAllRequests": "Alle ansehen ({n})",
+      "snoozed": "„{name}“ für 3 Tage pausiert"
     },
     "rescue": {
       "title": "Rettungsmission",
@@ -1538,14 +1547,18 @@
       "team": "Team: {names}",
       "share": "{n} Münzen pro Person",
       "helper": "Helfer",
-      "cancel": "Absagen",
+      "cancel": "Teamwork absagen",
       "leave": "Aussteigen",
       "done": "Zusammen erledigt",
       "error_not_teamable": "Diese Aufgabe geht nicht im Team.",
       "error_already_teamed": "Für diese Aufgabe gibt es heute schon ein Team.",
       "error_invalid_partner": "Diese Person kann die Aufgabe nicht machen.",
       "error_not_assigned": "Diese Aufgabe ist nicht deine.",
-      "decline": "Nein danke"
+      "decline": "Nein danke",
+      "error_not_found": "Dieses Teamwork gibt es nicht mehr. Vielleicht wurde es abgesagt.",
+      "error_not_invited": "Diese Einladung war für jemand anderen.",
+      "error_declined": "Hier hast du schon Nein danke gesagt.",
+      "error_team_full": "Dieses Team ist schon voll."
     },
     "iconGroups": {
       "kitchen": "Küche",

@@ -393,7 +393,8 @@
       "sortPriceLow": "Prijs: laag naar hoog",
       "sortPriceHigh": "Prijs: hoog naar laag",
       "sortName": "Naam A–Z",
-      "noMatches": "Geen beloningen gevonden."
+      "noMatches": "Geen beloningen gevonden.",
+      "sharedParentDecides": "Gedeeld: een ouder beslist"
     },
     "rewardsPreset": {
       "movie_night": {
@@ -618,7 +619,8 @@
       "showMore": "Toon nog {n}",
       "showLess": "Minder tonen",
       "error": "Er ging iets mis",
-      "close": "Sluiten"
+      "close": "Sluiten",
+      "actionFailed": "Dat lukte niet. Controleer je verbinding en probeer het opnieuw."
     },
     "units": {
       "hours": "uur",
@@ -972,7 +974,13 @@
       "left": "Nog {time}",
       "chores": "Klusjes:",
       "findChore": "Klusje toevoegen…",
-      "andMore": "+{n} meer"
+      "andMore": "+{n} meer",
+      "seeChores": "Klusjes bekijken",
+      "readyNow": "Nu klaar",
+      "everythingCounts": "Elk klusje telt. Kies een kamer:",
+      "theseCount": "Klusjes die jij kunt doen: {n}",
+      "noneForYou": "Geen van deze klusjes is voor jou.",
+      "roomCounts": "{ready} van {n} nu klaar"
     },
     "goals": {
       "repeatWeekly": "Elke week",
@@ -1340,7 +1348,8 @@
       "overdueDays": "{n} dagen te laat",
       "overdueDay": "1 dag te laat",
       "snooze": "3 dagen uitstellen",
-      "seeAllRequests": "Alles bekijken ({n})"
+      "seeAllRequests": "Alles bekijken ({n})",
+      "snoozed": "„{name}” 3 dagen uitgesteld"
     },
     "rescue": {
       "title": "Reddingsmissie",
@@ -1538,14 +1547,18 @@
       "team": "Team: {names}",
       "share": "{n} munten per persoon",
       "helper": "helper",
-      "cancel": "Afblazen",
+      "cancel": "Samen doen afblazen",
       "leave": "Stoppen",
       "done": "Samen klaar",
       "error_not_teamable": "Dit klusje kan niet samen.",
       "error_already_teamed": "Iemand is vandaag al een team begonnen voor dit klusje.",
       "error_invalid_partner": "Die persoon kan dit klusje niet doen.",
       "error_not_assigned": "Dit klusje is niet van jou.",
-      "decline": "Nee, bedankt"
+      "decline": "Nee, bedankt",
+      "error_not_found": "Dit samen-klusje bestaat niet meer. Misschien is het afgeblazen.",
+      "error_not_invited": "Deze uitnodiging was voor iemand anders.",
+      "error_declined": "Hier heb je al nee, bedankt op gezegd.",
+      "error_team_full": "Dit team is al vol."
     },
     "iconGroups": {
       "kitchen": "Keuken",

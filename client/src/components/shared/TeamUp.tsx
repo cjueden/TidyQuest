@@ -28,8 +28,7 @@ export function TeamUpDialog({ task, people, onClose, onStarted, language }: {
   const start = async (partnerId: number | null) => {
     setBusy(true); setError('');
     try { await api.startTeamup(task.id, partnerId); onStarted(); onClose(); } catch (err) {
-      const key = `teamups.error_${err instanceof Error ? err.message : ''}`;
-      setError(t(key) === key ? t('common.error') : t(key));
+      setError(teamupError(t, err));
     } finally { setBusy(false); }
   };
   return createPortal(
@@ -55,17 +54,35 @@ export function TeamUpDialog({ task, people, onClose, onStarted, language }: {
   );
 }
 
+/** A server error code (team_full, not_found…) as a sentence, or the general "something went wrong" */
+function teamupError(t: (key: string) => string, err: unknown) {
+  const key = `teamups.error_${err instanceof Error ? err.message : ''}`;
+  return t(key) === key ? t('common.error') : t(key);
+}
+
 /** Home: team-ups you're on (Done together, leave) and invites you can join or turn down */
 export function TeamUpsCard({ items, userId, onDone, onChanged, language }: {
   items: TeamupItem[]; userId: number; onDone: (taskId: number) => void; onChanged: () => void; language?: string;
 }) {
   const { t } = useTranslation(language);
   const [busy, setBusy] = useState(false);
-  if (items.length === 0) return null;
-  const act = async (fn: () => Promise<unknown>) => { setBusy(true); try { await fn(); } catch { /* the list refreshes */ } finally { setBusy(false); onChanged(); } };
+  // The last failed action, shown on its team-up's row (the list still refreshes, e.g. a team that filled up)
+  const [failed, setFailed] = useState<{ id: number; message: string } | null>(null);
+  if (items.length === 0 && !failed) return null;
+  const act = async (id: number, fn: () => Promise<unknown>) => {
+    setBusy(true);
+    setFailed(null);
+    try { await fn(); } catch (err) {
+      setFailed({ id, message: teamupError(t, err) });
+      setTimeout(() => setFailed((cur) => (cur?.id === id ? null : cur)), 8000);
+    } finally { setBusy(false); onChanged(); }
+  };
+  // A team-up that's gone after the refresh (called off, or not found) shows its error under the title
+  const orphanError = failed && !items.some((x) => x.id === failed.id) ? failed.message : '';
   return (
     <div className="tq-card tq-card-padded" style={{ gridColumn: '1 / -1', display: 'grid', gap: 10, borderColor: 'var(--warm-accent)' }}>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: 0 }}>🤝 {t('teamups.title')}</h3>
+      {orphanError && <div role="alert" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-danger)' }}>{orphanError}</div>}
       {items.map((x) => {
         const starter = x.members.find((m) => m.id === x.createdBy)?.displayName ?? '';
         const names = x.members.map((m) => `${m.displayName}${m.helper ? ` (${t('teamups.helper')})` : ''}`).join(' + ');
@@ -80,13 +97,14 @@ export function TeamUpsCard({ items, userId, onDone, onChanged, language }: {
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
                 {line}{x.share != null && x.share > 0 ? ` · ${t('teamups.share').replace('{n}', String(x.share))}` : ''}
               </div>
+              {failed?.id === x.id && <div role="alert" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-danger)', marginTop: 2 }}>{failed.message}</div>}
             </div>
             <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
-              {x.canJoin && <button type="button" className="tq-btn tq-btn-primary tq-btn-sm" disabled={busy} onClick={() => void act(() => api.joinTeamup(x.id))}>{t('teamups.join')}</button>}
-              {x.canJoin && <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" disabled={busy} onClick={() => void act(() => api.declineTeamup(x.id))}>{t('teamups.decline')}</button>}
+              {x.canJoin && <button type="button" className="tq-btn tq-btn-primary tq-btn-sm" disabled={busy} onClick={() => void act(x.id, () => api.joinTeamup(x.id))}>{t('teamups.join')}</button>}
+              {x.canJoin && <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" disabled={busy} onClick={() => void act(x.id, () => api.declineTeamup(x.id))}>{t('teamups.decline')}</button>}
               {x.mine && ready && <button type="button" className="tq-btn tq-btn-primary tq-btn-sm" disabled={busy} onClick={() => onDone(x.taskId)}>{t('teamups.done')}</button>}
               {x.mine && (
-                <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" disabled={busy} onClick={() => void act(() => api.leaveTeamup(x.id))}>
+                <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" disabled={busy} onClick={() => void act(x.id, () => api.leaveTeamup(x.id))}>
                   {t(x.createdBy === userId ? 'teamups.cancel' : 'teamups.leave')}
                 </button>
               )}
