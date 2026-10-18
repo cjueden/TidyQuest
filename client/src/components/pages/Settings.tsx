@@ -1247,40 +1247,42 @@ export function Settings({
                   </div>
                 </div>
               </div>
-              {isAdmin && u.id !== user.id && (
+              {isAdmin && (u.id !== user.id || gamificationEnabled) && (
                 <div className="family-member-actions" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-                  <select
-                    className="tq-input"
-                    value={u.role || 'member'}
-                    onChange={(e) => onUpdateRole(u.id, e.target.value as 'admin' | 'member' | 'child')}
-                    style={{ width: 'auto', cursor: 'pointer', fontSize: 11 }}
-                  >
-                    <option value="admin">{t('settings.roleAdmin')}</option>
-                    <option value="member">{t('settings.roleMember')}</option>
-                    <option value="child">{t('settings.roleChild')}</option>
-                  </select>
-                  {u.role !== 'admin' && (
-                    <button
-                      onClick={() => {
-                        initMemberProfile(u);
-                        setMemberEditOpen((prev) => ({ ...prev, [u.id]: !prev[u.id] }));
-                      }}
-                      className="tq-btn tq-btn-secondary tq-btn-sm"
+                  {u.id !== user.id && (
+                    <select
+                      className="tq-input"
+                      value={u.role || 'member'}
+                      onChange={(e) => onUpdateRole(u.id, e.target.value as 'admin' | 'member' | 'child')}
+                      style={{ width: 'auto', cursor: 'pointer', fontSize: 11 }}
                     >
-                      {t('settings.manageMember')}
-                    </button>
+                      <option value="admin">{t('settings.roleAdmin')}</option>
+                      <option value="member">{t('settings.roleMember')}</option>
+                      <option value="child">{t('settings.roleChild')}</option>
+                    </select>
                   )}
                   <button
                     onClick={() => {
-                      if (confirm(t('settings.deleteUserConfirm').replace('{user}', u.displayName))) {
-                        onDeleteUser(u.id);
-                      }
+                      initMemberProfile(u);
+                      setMemberEditOpen((prev) => ({ ...prev, [u.id]: !prev[u.id] }));
                     }}
-                    className="tq-btn tq-btn-sm"
-                    style={{ backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}
+                    className="tq-btn tq-btn-secondary tq-btn-sm"
                   >
-                    {t('settings.deleteUser')}
+                    {t('settings.manageMember')}
                   </button>
+                  {u.id !== user.id && (
+                    <button
+                      onClick={() => {
+                        if (confirm(t('settings.deleteUserConfirm').replace('{user}', u.displayName))) {
+                          onDeleteUser(u.id);
+                        }
+                      }}
+                      className="tq-btn tq-btn-sm"
+                      style={{ backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}
+                    >
+                      {t('settings.deleteUser')}
+                    </button>
+                  )}
                 </div>
               )}
               {isAdmin && u.id !== user.id && u.role === 'admin' && (
@@ -1328,50 +1330,52 @@ export function Settings({
                   </div>
                 );
               })()}
-              {isAdmin && u.role !== 'admin' && memberEditOpen[u.id] && (
+              {isAdmin && memberEditOpen[u.id] && (
                 <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--warm-border)', display: 'grid', gap: 8 }}>
-                  <select className="tq-input" value={memberProfile[u.id]?.language || 'en'} onChange={(e) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], language: e.target.value } }))} style={{ cursor: 'pointer' }}>
-                    <option value="en">English</option>
-                    <option value="fr">Français</option>
-                    <option value="de">Deutsch</option>
-                    <option value="es">Español</option>
-                    <option value="it">Italiano</option>
-                    <option value="nl">Nederlands</option>
-                  </select>
-                  <select className="tq-input" value={memberProfile[u.id]?.avatarType || 'letter'} onChange={(e) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], avatarType: e.target.value as 'letter' | 'preset' } }))} style={{ cursor: 'pointer' }}>
-                    <option value="letter">{t('profile.letterMode')}</option>
-                    <option value="preset">{t('profile.characterMode')}</option>
-                  </select>
-                  {(memberProfile[u.id]?.avatarType || 'letter') === 'letter' ? (
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      {COLORS.map((c) => (
-                        <button key={c} onClick={() => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], avatarColor: c } }))} style={{ width: 20, height: 20, borderRadius: 8, border: (memberProfile[u.id]?.avatarColor || '#F97316') === c ? '2px solid #3D2F1E' : '1px solid transparent', backgroundColor: c }} />
-                      ))}
-                    </div>
-                  ) : (
-                    <select className="tq-input" value={memberProfile[u.id]?.avatarPreset || 'cat'} onChange={(e) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], avatarPreset: e.target.value } }))} style={{ cursor: 'pointer' }}>
-                      {Object.keys(AVATAR_PRESETS).map((id) => (
-                        <option key={id} value={id}>{t(`avatars.${id}`)}</option>
-                      ))}
+                  {u.id !== user.id && (<>
+                    <select className="tq-input" value={memberProfile[u.id]?.language || 'en'} onChange={(e) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], language: e.target.value } }))} style={{ cursor: 'pointer' }}>
+                      <option value="en">English</option>
+                      <option value="fr">Français</option>
+                      <option value="de">Deutsch</option>
+                      <option value="es">Español</option>
+                      <option value="it">Italiano</option>
+                      <option value="nl">Nederlands</option>
                     </select>
-                  )}
-                  <ThemePicker value={isTheme(memberProfile[u.id]?.theme) ? memberProfile[u.id].theme as Theme : null} language={user.language} level={cosmetics[u.id]?.level}
-                    onChange={(theme) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], theme } }))} />
-                  <BirthdayInput value={memberProfile[u.id]?.birthday ?? ''} language={user.language}
-                    onChange={(birthday) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], birthday } }))} />
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={() => handleSaveChildProfile(u)}>{t('common.save')}</button>
-                    {memberProfileMsg[u.id] && (
-                      <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{memberProfileMsg[u.id]}</div>
+                    <select className="tq-input" value={memberProfile[u.id]?.avatarType || 'letter'} onChange={(e) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], avatarType: e.target.value as 'letter' | 'preset' } }))} style={{ cursor: 'pointer' }}>
+                      <option value="letter">{t('profile.letterMode')}</option>
+                      <option value="preset">{t('profile.characterMode')}</option>
+                    </select>
+                    {(memberProfile[u.id]?.avatarType || 'letter') === 'letter' ? (
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {COLORS.map((c) => (
+                          <button key={c} onClick={() => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], avatarColor: c } }))} style={{ width: 20, height: 20, borderRadius: 8, border: (memberProfile[u.id]?.avatarColor || '#F97316') === c ? '2px solid #3D2F1E' : '1px solid transparent', backgroundColor: c }} />
+                        ))}
+                      </div>
+                    ) : (
+                      <select className="tq-input" value={memberProfile[u.id]?.avatarPreset || 'cat'} onChange={(e) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], avatarPreset: e.target.value } }))} style={{ cursor: 'pointer' }}>
+                        {Object.keys(AVATAR_PRESETS).map((id) => (
+                          <option key={id} value={id}>{t(`avatars.${id}`)}</option>
+                        ))}
+                      </select>
                     )}
-                  </div>
-                  <div className="member-edit-password-row" style={{ display: 'flex', gap: 8 }}>
-                    <input type="password" className="tq-input" value={memberPassword[u.id] || ''} onChange={(e) => setMemberPassword((prev) => ({ ...prev, [u.id]: e.target.value }))} placeholder={t('settings.newPassword')} style={{ flex: 1 }} />
-                    <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => handleSetChildPassword(u)}>{t('settings.resetPassword')}</button>
-                  </div>
-                  {memberPasswordMsg[u.id] && (
-                    <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{memberPasswordMsg[u.id]}</div>
-                  )}
+                    <ThemePicker value={isTheme(memberProfile[u.id]?.theme) ? memberProfile[u.id].theme as Theme : null} language={user.language} level={cosmetics[u.id]?.level}
+                      onChange={(theme) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], theme } }))} />
+                    <BirthdayInput value={memberProfile[u.id]?.birthday ?? ''} language={user.language}
+                      onChange={(birthday) => setMemberProfile((prev) => ({ ...prev, [u.id]: { ...prev[u.id], birthday } }))} />
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={() => handleSaveChildProfile(u)}>{t('common.save')}</button>
+                      {memberProfileMsg[u.id] && (
+                        <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{memberProfileMsg[u.id]}</div>
+                      )}
+                    </div>
+                    <div className="member-edit-password-row" style={{ display: 'flex', gap: 8 }}>
+                      <input type="password" className="tq-input" value={memberPassword[u.id] || ''} onChange={(e) => setMemberPassword((prev) => ({ ...prev, [u.id]: e.target.value }))} placeholder={t('settings.newPassword')} style={{ flex: 1 }} />
+                      <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => handleSetChildPassword(u)}>{t('settings.resetPassword')}</button>
+                    </div>
+                    {memberPasswordMsg[u.id] && (
+                      <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{memberPasswordMsg[u.id]}</div>
+                    )}
+                  </>)}
                   {gamificationEnabled && <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('settings.coinsBalance')}: {formatCoins(u.coins)}</span>
                     <input

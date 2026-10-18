@@ -96,6 +96,7 @@ export function joinTeamup(id: number, userId: number, now = new Date()): { erro
   if (!t || t.status !== 'open' || t.day !== localDateStr(now)) return { error: 'not_found' };
   if (t.members.some((m) => m.userId === userId)) return { teamup: t };
   if (t.invitedUserId != null && t.invitedUserId !== userId) return { error: 'not_invited' };
+  if (declined(id, userId)) return { error: 'declined' };
   if (t.members.length >= MAX_TEAM) return { error: 'team_full' };
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(t.taskId) as any;
   if (!canBeOnTeam(teamableTask(task), userId)) return { error: 'not_assigned' };
@@ -114,6 +115,26 @@ export function leaveTeamup(id: number, userId: number): { error: string } | { o
   return { ok: true };
 }
 
+const declined = (teamupId: number, userId: number) => !!db.prepare('SELECT 1 FROM teamup_declines WHERE teamupId = ? AND userId = ?').get(teamupId, userId);
+
+/**
+ * Say no to an invite. A personal invite ends (the starter hears about it and can ask someone else);
+ * an "anyone" invite just stops showing for you.
+ */
+export function declineTeamup(id: number, userId: number, now = new Date()): { error: string } | { ok: true } {
+  const t = getTeamup(id);
+  if (!t || t.status !== 'open' || t.day !== localDateStr(now) || t.members.some((m) => m.userId === userId)) return { error: 'not_found' };
+  if (t.invitedUserId == null) {
+    db.prepare('INSERT OR IGNORE INTO teamup_declines (teamupId, userId) VALUES (?, ?)').run(id, userId);
+    return { ok: true };
+  }
+  if (t.invitedUserId !== userId) return { error: 'not_invited' };
+  db.prepare("UPDATE teamups SET status = 'cancelled' WHERE id = ?").run(id);
+  const who = nameOf(userId);
+  void notifyPeople([t.createdBy], 'teamup', (lang) => tr(lang, 'notify.teamupDeclined', { name: who, task: taskName(t.taskId) }));
+  return { ok: true };
+}
+
 /** The chore got done another way: today's open team-up on it ends */
 export const endTeamupsFor = (taskId: number, now = new Date()) =>
   db.prepare("UPDATE teamups SET status = 'cancelled' WHERE taskId = ? AND day = ? AND status = 'open'").run(taskId, localDateStr(now));
@@ -123,8 +144,10 @@ export function teamupsFor(userId: number, now = new Date()) {
   const rows = db.prepare(`
     SELECT tu.id, tu.taskId, tu.createdBy, tu.invitedUserId, t.name AS taskName, t.roomId, r.name AS roomName, t.customCoins, t.effort, t.assignmentMode
     FROM teamups tu JOIN tasks t ON t.id = tu.taskId JOIN rooms r ON r.id = t.roomId
-    WHERE tu.day = ? AND tu.status = 'open' ORDER BY tu.id
-  `).all(localDateStr(now)) as any[];
+    WHERE tu.day = ? AND tu.status = 'open'
+      AND NOT EXISTS (SELECT 1 FROM teamup_declines d WHERE d.teamupId = tu.id AND d.userId = ?)
+    ORDER BY tu.id
+  `).all(localDateStr(now), userId) as any[];
   return rows.map((r) => {
     const members = membersOf(r.id);
     const mine = members.some((m) => m.userId === userId);

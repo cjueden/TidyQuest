@@ -1247,7 +1247,8 @@
       "cheer": "{emoji} {name} moedigde je aan voor “{task}”",
       "teamupInvite": "🤝 {name} wil hulp bij “{task}”",
       "teamupAnyone": "🤝 {name} zoekt een teamgenoot voor “{task}”",
-      "teamupJoined": "🤝 {name} doet mee met “{task}”"
+      "teamupJoined": "🤝 {name} doet mee met “{task}”",
+      "teamupDeclined": "🤝 {name} kan deze keer niet mee met “{task}”. Je kunt iemand anders vragen."
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",
@@ -1526,7 +1527,8 @@
       "error_not_teamable": "Dit klusje kan niet samen.",
       "error_already_teamed": "Iemand is vandaag al een team begonnen voor dit klusje.",
       "error_invalid_partner": "Die persoon kan dit klusje niet doen.",
-      "error_not_assigned": "Dit klusje is niet van jou."
+      "error_not_assigned": "Dit klusje is niet van jou.",
+      "decline": "Nee, bedankt"
     },
     "iconGroups": {
       "kitchen": "Keuken",

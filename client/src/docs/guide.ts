@@ -95,7 +95,7 @@ const GUIDE_EN: GuideSection[] = [
         'Kid mode: bigger buttons, fewer cards, coins and goal up front.',
         'Theme and holiday colors follow the person to every device (they can change them in Profile).',
         'Vacation per member: protects their streak and freezes their chores’ health while away.',
-        'Adjust coins: add or take away coins with a reason; it shows in their coin history and Activity.',
+        'Adjust coins (Manage member): add or take away coins with a reason; it shows in their coin history and Activity. Works for parents too, including yourself.',
         'Password: a parent can set a new one if someone forgets theirs.',
       ] },
       { tip: 'Turn on "Hide other people’s private rooms from kids" in Settings → General if kids shouldn’t see, say, a parent’s own room.' },
@@ -208,7 +208,7 @@ const GUIDE_EN: GuideSection[] = [
         'To-dos: one-time chores and the To-do card.',
         'Board awards and trophy shelf. Levels and Next badge.',
         'Cheers: 👏 🎉 💪 ⭐ on anyone else’s finished chore (Home’s "Completed today" and Activity). The same emoji again takes it back. The person gets a private notification.',
-        'Team-ups: 🤝 on a chore worth 6 or more coins invites one person or anyone. Once someone joins, the chore is the team’s for the day. Either one taps Done; coins split evenly plus a team bonus (10, 20 or 30%). A parent with a kid is a helper and the kid keeps all the coins. Never on someone’s own room, one-person or rotating chores.',
+        'Team-ups: 🤝 on a chore worth 6 or more coins invites one person or anyone. Once someone joins, the chore is the team’s for the day. Either one taps Done; coins split evenly plus a team bonus (10, 20 or 30%). A parent with a kid is a helper and the kid keeps all the coins. Never on someone’s own room, one-person or rotating chores. Not up for it? "No thanks" turns an invite down: an invite just for you ends and the person who asked hears about it, so they can ask someone else; an invite for anyone just disappears for you.',
         'House mascot: one of 8 creatures, picked and named here. It grows with the family coins earned while it’s the active mascot (hatches at 500, then 2,000, 5,000 and 10,000), its mood follows house health, and it reacts to birthdays, the family goal and the Rescue Mission.',
         'Swapping mascots: picking a creature you haven’t had starts it as a new egg. Each creature keeps its own growth, name and outfit, so switching back brings it back exactly as it was. The tummy and bedtime are shared.',
         'Playing with the mascot: tap it for a reaction. Its 🍪 tummy fills 5% with every chore (a team-up counts once) and empties over 2 days; when it’s low it just says it’s hungry. "What should I do?" suggests a chore you can do right now. It adds a 🐾 cheer to every finished chore. It sleeps during the family bedtime (set under the mascot in Features, 9 pm to 7 am by default).',
@@ -324,6 +324,11 @@ const GUIDE_EN: GuideSection[] = [
           'Only one team-up per chore per day; check the Team-ups card on Home.',
           'Settings → Features → Team-ups must be on.',
         ] },
+        { q: 'A team-up invite disappeared', a: [
+          'Invites end at midnight, and when someone does the chore another way.',
+          'If you tapped "No thanks" on an invite for anyone, it’s hidden for you for the rest of the day.',
+          'If the person you invited said no thanks, the invite ended and you can ask someone else.',
+        ] },
         { q: 'A theme, frame or celebration is locked', a: [
           'It unlocks at a level (🔒 shows which). Levels come from lifetime coins and never go down.',
         ] },
@@ -351,7 +356,7 @@ const GUIDE_EN: GuideSection[] = [
           'Use Vacation Mode (whole house, Settings → General) or vacation per member (Family Members) before leaving; it protects streaks and freezes chore health.',
         ] },
         { q: 'Someone can’t log in', a: [
-          'After 20 tries in 15 minutes from one device, logins are blocked for a while; wait and try again.',
+          'Too many wrong passwords block logins for up to 15 minutes: 10 for one account, or 20 from one device. Wait and try again; a correct password clears the account’s count.',
           'A parent can set a new password in Settings → Family Members.',
           'After importing a backup, everyone except the parent who imported it needs a new password.',
         ] },

@@ -243,6 +243,7 @@ See `.env.example` for all options. Key variables:
 | `NODE_ENV` | No | `production` or `development` |
 | `TZ` | Recommended | Timezone for day/week boundaries & notifications (e.g. `Europe/Paris`). Defaults to UTC |
 | `PORT` | No | Server port (default: 3000) |
+| `TRUST_PROXY` | Behind a reverse proxy | Addresses of the proxy in front (e.g. `loopback, 172.16.0.0/12` for nginx or Nginx Proxy Manager on the same host or in Docker), or a hop count such as `1`. The login limit then counts each visitor's own address instead of the proxy's. Leave it unset without a proxy: the `X-Forwarded-For` header is ignored, since anyone can send it |
 | `ADMIN_RESET_PASSWORD` | No | One-shot admin password recovery. Set, restart, then remove. |
 
 ### Notifications (Optional)

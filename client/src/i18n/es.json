@@ -1247,7 +1247,8 @@
       "cheer": "{emoji} {name} aplaudió tu tarea «{task}»",
       "teamupInvite": "🤝 {name} quiere ayuda con «{task}»",
       "teamupAnyone": "🤝 {name} busca compañero para «{task}»",
-      "teamupJoined": "🤝 {name} se unió a ti para «{task}»"
+      "teamupJoined": "🤝 {name} se unió a ti para «{task}»",
+      "teamupDeclined": "🤝 {name} no puede hacer «{task}» contigo esta vez. Puedes pedírselo a otra persona."
     },
     "notifyAdmin": {
       "peopleTitle": "Quién recibe qué",
@@ -1526,7 +1527,8 @@
       "error_not_teamable": "Esta tarea no se puede hacer en equipo.",
       "error_already_teamed": "Alguien ya empezó un equipo para esta tarea hoy.",
       "error_invalid_partner": "Esa persona no puede hacer esta tarea.",
-      "error_not_assigned": "Esta tarea no es tuya."
+      "error_not_assigned": "Esta tarea no es tuya.",
+      "decline": "No, gracias"
     },
     "iconGroups": {
       "kitchen": "Cocina",

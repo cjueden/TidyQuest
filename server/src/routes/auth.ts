@@ -3,10 +3,30 @@ import bcrypt from 'bcryptjs';
 import db from '../database';
 import { AuthRequest, authMiddleware, generateToken } from '../middleware/auth';
 
-// Simple in-memory rate limiter for auth endpoints
+// In-memory limits for auth endpoints (they reset on restart). The address is req.ip: the connection's own,
+// or the visitor's when TRUST_PROXY names the reverse proxy in front (utils/proxy.ts).
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const loginFailures = new Map<string, { count: number; resetAt: number }>();
+const clientIp = (req: AuthRequest) => req.ip || req.socket?.remoteAddress || 'unknown';
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-const RATE_LIMIT_MAX = 20; // max attempts per window
+const RATE_LIMIT_MAX = 20; // registrations, and failed logins, per address
+const USER_FAIL_MAX = 10; // failed logins per username, from anywhere
+
+const failuresOf = (key: string) => {
+  const entry = loginFailures.get(key);
+  return entry && entry.resetAt >= Date.now() ? entry.count : 0;
+};
+function addFailure(key: string) {
+  const now = Date.now();
+  const entry = loginFailures.get(key);
+  if (!entry || entry.resetAt < now) loginFailures.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+  else entry.count++;
+}
+/** Tests start each app with clean limits */
+export function resetLoginLimits() {
+  loginAttempts.clear();
+  loginFailures.clear();
+}
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -23,16 +43,17 @@ function checkRateLimit(ip: string): boolean {
 // Periodically purge expired entries to prevent memory leak
 setInterval(() => {
   const now = Date.now();
-  for (const [key, entry] of loginAttempts.entries()) {
-    if (entry.resetAt < now) loginAttempts.delete(key);
+  for (const map of [loginAttempts, loginFailures]) {
+    for (const [key, entry] of map.entries()) {
+      if (entry.resetAt < now) map.delete(key);
+    }
   }
 }, RATE_LIMIT_WINDOW_MS);
 
 const router = Router();
 
 router.post('/register', (req: AuthRequest, res: Response) => {
-  const ip = (req.headers['x-forwarded-for'] as string || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
-  if (!checkRateLimit(ip)) {
+  if (!checkRateLimit(clientIp(req))) {
     return res.status(429).json({ error: 'Too many registration attempts. Please try again later.' });
   }
 
@@ -86,21 +107,29 @@ router.get('/avatars', (_req: AuthRequest, res: Response) => {
 });
 
 router.post('/login', (req: AuthRequest, res: Response) => {
-  const ip = (req.headers['x-forwarded-for'] as string || req.socket?.remoteAddress || 'unknown').split(',')[0].trim();
-  if (!checkRateLimit(ip)) {
-    return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
-  }
-
   const { username, password } = req.body;
 
   if (!username || !password) {
     return res.status(400).json({ error: 'username and password are required' });
   }
 
+  // Failed tries count per address and per username, so changing addresses doesn't help a guesser
+  const ipKey = `ip:${clientIp(req)}`;
+  const userKey = `user:${String(username).toLowerCase()}`;
+  const who = JSON.stringify(String(username).slice(0, 64));
+  if (failuresOf(ipKey) >= RATE_LIMIT_MAX || failuresOf(userKey) >= USER_FAIL_MAX) {
+    console.warn(`[auth] login blocked for ${who} from ${clientIp(req)}: too many failed tries`);
+    return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
+  }
+
   const user = db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').get(username) as any;
   if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
+    addFailure(ipKey);
+    addFailure(userKey);
+    console.warn(`[auth] failed login for ${who} from ${clientIp(req)}`);
     return res.status(401).json({ error: 'Invalid credentials' });
   }
+  loginFailures.delete(userKey);
 
   const token = generateToken(user.id);
   const { passwordHash, ...safeUser } = user;

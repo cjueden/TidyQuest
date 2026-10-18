@@ -55,7 +55,7 @@ export function TeamUpDialog({ task, people, onClose, onStarted, language }: {
   );
 }
 
-/** Home: team-ups you're on (Done together, leave) and invites you can join */
+/** Home: team-ups you're on (Done together, leave) and invites you can join or turn down */
 export function TeamUpsCard({ items, userId, onDone, onChanged, language }: {
   items: TeamupItem[]; userId: number; onDone: (taskId: number) => void; onChanged: () => void; language?: string;
 }) {
@@ -81,13 +81,16 @@ export function TeamUpsCard({ items, userId, onDone, onChanged, language }: {
                 {line}{x.share != null && x.share > 0 ? ` · ${t('teamups.share').replace('{n}', String(x.share))}` : ''}
               </div>
             </div>
-            {x.canJoin && <button type="button" className="tq-btn tq-btn-primary tq-btn-sm" disabled={busy} onClick={() => void act(() => api.joinTeamup(x.id))}>{t('teamups.join')}</button>}
-            {x.mine && ready && <button type="button" className="tq-btn tq-btn-primary tq-btn-sm" disabled={busy} onClick={() => onDone(x.taskId)}>{t('teamups.done')}</button>}
-            {x.mine && (
-              <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" disabled={busy} onClick={() => void act(() => api.leaveTeamup(x.id))}>
-                {t(x.createdBy === userId ? 'teamups.cancel' : 'teamups.leave')}
-              </button>
-            )}
+            <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+              {x.canJoin && <button type="button" className="tq-btn tq-btn-primary tq-btn-sm" disabled={busy} onClick={() => void act(() => api.joinTeamup(x.id))}>{t('teamups.join')}</button>}
+              {x.canJoin && <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" disabled={busy} onClick={() => void act(() => api.declineTeamup(x.id))}>{t('teamups.decline')}</button>}
+              {x.mine && ready && <button type="button" className="tq-btn tq-btn-primary tq-btn-sm" disabled={busy} onClick={() => onDone(x.taskId)}>{t('teamups.done')}</button>}
+              {x.mine && (
+                <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" disabled={busy} onClick={() => void act(() => api.leaveTeamup(x.id))}>
+                  {t(x.createdBy === userId ? 'teamups.cancel' : 'teamups.leave')}
+                </button>
+              )}
+            </div>
           </div>
         );
       })}

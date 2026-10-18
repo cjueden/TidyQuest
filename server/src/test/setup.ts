@@ -9,6 +9,7 @@ process.env.VITEST = 'true';
 import { setDatabase } from '../database';
 import { applyForkSchema } from '../forkSchema';
 import { createApp } from '../index';
+import { resetLoginLimits } from '../routes/auth';
 
 export function createTestApp() {
   // Fresh in-memory DB for each test suite
@@ -27,8 +28,9 @@ export function createTestApp() {
 
   const app = createApp();
   const agent = supertest(app);
+  resetLoginLimits();
 
-  return { agent, db };
+  return { agent, db, app };
 }
 
 function runSchema(db: InstanceType<typeof Database>) {
