@@ -1,4 +1,5 @@
 import { localeFor } from './locale';
+import { choreSteps } from './focus';
 
 /**
  * The scheduling options of a task (server: utils/schedule.ts): due on set weekdays instead of a
@@ -21,6 +22,8 @@ export interface ScheduleValue {
   reminderDayBefore: boolean;
   /** Not scheduling, but saved with it: the chore's countdown timer in minutes ('' = none) */
   timerMinutes: string;
+  /** One thing at a time: the chore's steps, one per line */
+  steps: string;
 }
 
 export interface ScheduledTaskFields {
@@ -33,9 +36,11 @@ export interface ScheduledTaskFields {
   oneTime?: number | boolean | null;
   doBy?: string | null;
   timerMinutes?: number | null;
+  /** JSON array of strings */
+  steps?: string | null;
 }
 
-export const EMPTY_SCHEDULE: ScheduleValue = { mode: 'interval', doBy: '', weekdays: 0, seasonOn: false, seasonStart: 4, seasonEnd: 10, rotationPeriod: 'completion', reminderTime: '', reminderDayBefore: false, timerMinutes: '' };
+export const EMPTY_SCHEDULE: ScheduleValue = { mode: 'interval', doBy: '', weekdays: 0, seasonOn: false, seasonStart: 4, seasonEnd: 10, rotationPeriod: 'completion', reminderTime: '', reminderDayBefore: false, timerMinutes: '', steps: '' };
 
 export function scheduleFromTask(task: ScheduledTaskFields): ScheduleValue {
   const weekdays = Number(task.scheduleWeekdays) || 0;
@@ -51,6 +56,7 @@ export function scheduleFromTask(task: ScheduledTaskFields): ScheduleValue {
     reminderTime: task.reminderTime ?? '',
     reminderDayBefore: !!task.reminderDayBefore,
     timerMinutes: task.timerMinutes ? String(task.timerMinutes) : '',
+    steps: choreSteps(task.steps).join('\n'),
   };
 }
 
@@ -66,6 +72,7 @@ export function schedulePayload(v: ScheduleValue, opts: { onDemand: boolean; rot
     reminderTime: !opts.onDemand && v.reminderTime ? v.reminderTime : null,
     reminderDayBefore: v.reminderDayBefore,
     timerMinutes: Number(v.timerMinutes) > 0 ? Math.round(Number(v.timerMinutes)) : null,
+    steps: v.steps.split('\n').map((s) => s.trim()).filter(Boolean),
   };
 }
 

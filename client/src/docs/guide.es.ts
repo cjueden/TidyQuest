@@ -132,6 +132,8 @@ export const GUIDE_ES: GuideSection[] = [
         'Los niños inician primero el temporizador: en una tarea con temporizador, su botón Hecho vuelve cuando se acaba el tiempo. Los padres y los miembros pueden pulsar Hecho cuando quieran.',
         'La página Tareas muestra todas las tareas con temporizador: elige «⏱️ Con temporizador» en su filtro.',
       ] },
+      { h: 'Pasos' },
+      { p: 'Los pasos (uno por línea) dicen qué incluye una tarea, como «Pies en el suelo», «Luz encendida», «Vestirse». Se muestran como casillas en Una cosa cada vez. Las casillas son solo una ayuda: Hecho es lo que termina la tarea.' },
       { h: 'Terminar una tarea' },
       { ul: [
         'Pulsa Hecho en Inicio, en la habitación o en la página Tareas. El botón 📎 añade una nota o una foto como prueba.',
@@ -153,6 +155,13 @@ export const GUIDE_ES: GuideSection[] = [
         'Tablero: clasificaciones por monedas, % del objetivo o mayor mejora, premios como Madrugador y campeones de habitación, la estantería de trofeos y el objetivo familiar.',
         'Logros: insignias, tu nivel y lo que viene después. Recompensas: el catálogo y tus solicitudes.',
         'Buscar: el botón 🔍, o pulsa / o Ctrl+K en un teclado.',
+      ] },
+      { h: 'Una cosa cada vez' },
+      { ul: [
+        'Las tareas de hoy una a una, en grande: el icono, el nombre, las monedas y los pasos como casillas, con Hecho, Saltar por ahora, y ▶ cuando la tarea tiene temporizador.',
+        'El orden: tus propias tareas de hoy, luego la Misión de rescate, luego hasta 3 tareas abiertas (de cualquiera) pendientes. Saltar por ahora lleva una tarea al final de la fila de hoy.',
+        'Unos puntos muestran cuánto llevas («3 de 7 hoy»), y una fila vacía se celebra.',
+        'Los padres eligen por persona en Ajustes → Miembros de la familia → Una cosa cada vez: No, Botón en el inicio, o Es su inicio (entonces «Ver todo el inicio» abre el inicio de siempre). Los niños tienen el botón salvo que un padre lo cambie. Ajustes → Funciones la desactiva para todos.',
       ] },
     ],
   },
@@ -296,6 +305,10 @@ export const GUIDE_ES: GuideSection[] = [
           '¿Pulsaste Hecho por error? Mientras espera, ↩ Deshacer (junto al botón) lo anula; en una tarea En equipo se deshace para todo el equipo.',
           'Si la Gamificación está desactivada (Ajustes → General), no hay monedas en absoluto.',
           'Si un padre o una madre la rechazó, la tarea vuelve a estar abierta; en En equipo vuelve al equipo.',
+        ] },
+        { q: 'No aparece Una cosa cada vez, o falta una tarea', a: [
+          'Para padres y miembros está desactivada salvo que se elija en Ajustes → Miembros de la familia. Los niños la tienen (un botón en el inicio) salvo que un padre la desactive ahí. También puede estar oculta en Inicio → Personalizar, o desactivada en Ajustes → Funciones.',
+          'Muestra tareas que puedes hacer ahora: las tuyas de hoy, la Misión de rescate y hasta 3 abiertas. Las tareas en cualquier momento y las que aún no tocan están en el inicio y en la página Tareas.',
         ] },
         { q: 'Una tarea no aparece en Inicio', a: [
           'Misiones de hoy muestra las tareas que tocan, las más atrasadas primero (hasta 10). Las demás están en su habitación y en la página Tareas.',

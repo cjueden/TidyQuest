@@ -132,6 +132,8 @@ export const GUIDE_NL: GuideSection[] = [
         'Kinderen starten eerst de timer: bij een klusje met timer komt hun Klaar!-knop terug als de tijd om is. Ouders en leden kunnen altijd op Klaar! tikken.',
         'De pagina Klusjes toont alle klusjes met een timer: kies ‘⏱️ Met timer’ in het filter.',
       ] },
+      { h: 'Stappen' },
+      { p: 'Stappen (één per regel) zeggen wat een klusje inhoudt, zoals ‘Voeten op de grond’, ‘Licht aan’, ‘Aankleden’. Ze verschijnen als vinkjes in Eén ding tegelijk. De vinkjes zijn alleen een hulp: Klaar! rondt het klusje af.' },
       { h: 'Een klusje afronden' },
       { ul: [
         'Tik op Klaar! op Home, in de kamer of op de pagina Klusjes. Met de 📎-knop voeg je een notitie of foto toe als bewijs.',
@@ -153,6 +155,13 @@ export const GUIDE_NL: GuideSection[] = [
         'Scorebord: ranglijsten op munten, doel-% of meest verbeterd, prijzen zoals Vroege vogel en kamerkampioenen, de prijzenkast en het gezinsdoel.',
         'Medailles: badges, je level en wat er nog komt. Beloningen: de winkel en je aanvragen.',
         'Zoeken: de 🔍-knop, of druk op / of Ctrl+K op een toetsenbord.',
+      ] },
+      { h: 'Eén ding tegelijk' },
+      { ul: [
+        'De klusjes van vandaag één voor één, groot: het icoon, de naam, de munten en de stappen als vinkjes, met Klaar!, Nu even overslaan, en ▶ als het klusje een timer heeft.',
+        'De volgorde: je eigen klusjes van vandaag, dan de Reddingsmissie, dan tot 3 open klusjes (van iedereen) die aan de beurt zijn. Nu even overslaan zet een klusje achteraan de rij van vandaag.',
+        'Bolletjes laten zien hoe ver je bent (‘3 van 7 vandaag’), en een lege rij wordt gevierd.',
+        'Ouders kiezen per persoon bij Instellingen → Gezinsleden → Eén ding tegelijk: Uit, Knop op Home, of Is hun Home (dan opent ‘Heel Home tonen’ de gewone Home). Kinderen krijgen de knop, tenzij een ouder dat verandert. Instellingen → Functies zet het voor iedereen uit.',
       ] },
     ],
   },
@@ -296,6 +305,10 @@ export const GUIDE_NL: GuideSection[] = [
           'Per ongeluk op Klaar! getikt? Zolang het wacht maakt ↩ Terugnemen (naast de knop) het ongedaan; bij Samen doen wordt het voor het hele team teruggenomen.',
           'Als Spelmodus (Gamification) uit staat (Instellingen → Algemeen), zijn er helemaal geen munten.',
           'Als een ouder het heeft afgewezen, staat het klusje weer open; bij Samen doen gaat het terug naar het team.',
+        ] },
+        { q: 'Eén ding tegelijk ontbreekt, of een klusje staat er niet in', a: [
+          'Voor ouders en leden staat het uit, tenzij het is ingesteld bij Instellingen → Gezinsleden. Kinderen hebben het (een knop op Home), tenzij een ouder het daar uitzette. Het kan ook verborgen zijn via Home → Aanpassen, of uitgezet bij Instellingen → Functies.',
+          'Het toont klusjes die je nu kunt doen: je eigen klusjes van vandaag, de Reddingsmissie en tot 3 open klusjes. Klusjes voor elk moment en klusjes die nog niet aan de beurt zijn staan op Home en de pagina Klusjes.',
         ] },
         { q: 'Een klusje staat niet op Home', a: [
           'Je Missies voor Vandaag toont klusjes die aan de beurt zijn, de meest achterstallige eerst (maximaal 10). De rest staat in de kamer en op de pagina Klusjes.',

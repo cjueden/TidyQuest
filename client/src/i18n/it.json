@@ -1388,7 +1388,9 @@
       "teamupsDesc": "Fare una faccenda insieme (6+ monete): monete divise più un bonus di squadra.",
       "teamBonus": "Bonus di squadra",
       "mascotShop": "Negozio della mascotte",
-      "mascotShopDesc": "Chiunque può comprare un accessorio alla mascotte per 1–5 monete. Spento, nasconde negozio e vestiti."
+      "mascotShopDesc": "Chiunque può comprare un accessorio alla mascotte per 1–5 monete. Spento, nasconde negozio e vestiti.",
+      "focus": "Una cosa alla volta",
+      "focusDesc": "Le faccende di un bambino una alla volta, in grande, con i loro passaggi. Chi la vede si sceglie per persona in Membri della famiglia."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1629,6 +1631,34 @@
       "replaceConfirm": "Fermare il timer di «{name}» e avviare questo?",
       "keepsGoing": "Continua anche se cambi pagina.",
       "mayDim": "Lo schermo può spegnersi; il timer continua a contare."
+    },
+    "focus": {
+      "title": "Una cosa alla volta",
+      "progress": "{done} di {total} oggi",
+      "skip": "Salta per ora",
+      "steps": "Passaggi",
+      "upNext": "Dopo:",
+      "allDone": "Tutto fatto per oggi!",
+      "allDoneText": "Hai finito {n} faccende. Ottimo lavoro!",
+      "allDoneOne": "Hai finito 1 faccenda. Ottimo lavoro!",
+      "nothing": "Niente da fare per ora.",
+      "seeAll": "Vedi tutte le faccende",
+      "fullHome": "Mostra tutta la Home",
+      "backHome": "Torna alla Home",
+      "cardLeft": "Ancora {n} faccende oggi",
+      "cardLeftOne": "Ancora 1 faccenda oggi",
+      "cardDone": "Tutto fatto oggi 🎉",
+      "go": "Si parte",
+      "timerFirst": "Prima avvia il timer. Fatto arriva quando finisce.",
+      "settingDesc": "Una faccenda alla volta, in grande, con i suoi passaggi.",
+      "defaultButton": "Pulsante nella Home (predefinito per i bambini)",
+      "defaultOff": "No (predefinito)",
+      "modeOff": "No",
+      "modeButton": "Pulsante nella Home",
+      "modeHome": "È la sua Home",
+      "stepsLabel": "Passaggi",
+      "stepsPlaceholder": "Un passaggio per riga",
+      "stepsDesc": "Uno per riga, fino a 12. Appaiono come caselle in Una cosa alla volta."
     }
   }
 }

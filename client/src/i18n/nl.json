@@ -1388,7 +1388,9 @@
       "teamupsDesc": "Een klusje samen doen (6+ munten): munten delen plus een teambonus.",
       "teamBonus": "Teambonus",
       "mascotShop": "Mascottewinkel",
-      "mascotShopDesc": "Iedereen kan de mascotte een accessoire kopen voor 1–5 munten. Uit verbergt de winkel en de outfit."
+      "mascotShopDesc": "Iedereen kan de mascotte een accessoire kopen voor 1–5 munten. Uit verbergt de winkel en de outfit.",
+      "focus": "Eén ding tegelijk",
+      "focusDesc": "De klusjes van een kind één voor één, groot, met de stappen erbij. Wie het ziet stel je per persoon in bij Gezinsleden."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1629,6 +1631,34 @@
       "replaceConfirm": "De timer voor ‘{name}’ stoppen en deze starten?",
       "keepsGoing": "Hij loopt door als je naar een andere pagina gaat.",
       "mayDim": "Je scherm kan uitgaan; de timer telt gewoon door."
+    },
+    "focus": {
+      "title": "Eén ding tegelijk",
+      "progress": "{done} van {total} vandaag",
+      "skip": "Nu even overslaan",
+      "steps": "Stappen",
+      "upNext": "Hierna:",
+      "allDone": "Alles klaar voor vandaag!",
+      "allDoneText": "Je hebt {n} klusjes gedaan. Goed bezig!",
+      "allDoneOne": "Je hebt 1 klusje gedaan. Goed bezig!",
+      "nothing": "Nu even niets te doen.",
+      "seeAll": "Alle klusjes bekijken",
+      "fullHome": "Heel Home tonen",
+      "backHome": "Terug naar Home",
+      "cardLeft": "Nog {n} klusjes vandaag",
+      "cardLeftOne": "Nog 1 klusje vandaag",
+      "cardDone": "Alles klaar vandaag 🎉",
+      "go": "Aan de slag",
+      "timerFirst": "Start eerst de timer. Klaar! komt als hij afloopt.",
+      "settingDesc": "Eén klusje tegelijk, groot, met de stappen erbij.",
+      "defaultButton": "Knop op Home (standaard voor kinderen)",
+      "defaultOff": "Uit (standaard)",
+      "modeOff": "Uit",
+      "modeButton": "Knop op Home",
+      "modeHome": "Is hun Home",
+      "stepsLabel": "Stappen",
+      "stepsPlaceholder": "Eén stap per regel",
+      "stepsDesc": "Eén per regel, tot 12. Verschijnen als vinkjes in Eén ding tegelijk."
     }
   }
 }

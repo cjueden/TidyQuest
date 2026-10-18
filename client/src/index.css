@@ -1508,3 +1508,27 @@ html[data-theme='lava'] option {
   }
 }
 
+
+/* One thing at a time (Focus.tsx): big buttons that share a row */
+.focus-big-btn {
+  flex: 1 1 140px;
+  padding: 16px 20px !important;
+  font-size: 18px !important;
+  border-radius: 16px !important;
+}
+.focus-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.focus-card {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  cursor: pointer;
+  font-family: Nunito, sans-serif;
+  border: 2px solid var(--warm-accent) !important;
+  background: var(--warm-accent-light) !important;
+  box-sizing: border-box;
+}

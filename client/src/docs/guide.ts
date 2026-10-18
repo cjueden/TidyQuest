@@ -156,6 +156,8 @@ export const GUIDE_EN: GuideSection[] = [
         'Kids start the timer first: on a timer chore, their Done button comes back when the time is up. Parents and members can tap Done any time.',
         'The Tasks page lists every chore with a timer: pick “⏱️ Has a timer” in its filter.',
       ] },
+      { h: 'Steps' },
+      { p: 'Steps (one per line) list what a chore involves, like “Feet on the floor”, “Lights on”, “Put on the clothes”. They show as tick boxes in One thing at a time. The ticks are only a help: Done still finishes the chore.' },
       { h: 'Finishing a chore' },
       { ul: [
         'Tap Done on Home, in the room, or on the Tasks page. The 📎 button adds a note or photo as proof.',
@@ -177,6 +179,13 @@ export const GUIDE_EN: GuideSection[] = [
         'Board: rankings by coins, goal % or most improved, awards like Early Bird and room champions, the trophy shelf and the family goal.',
         'Achievements: badges, your level and what’s next. Rewards: the catalog and your requests.',
         'Search: the 🔍 button, or press / or Ctrl+K on a keyboard.',
+      ] },
+      { h: 'One thing at a time' },
+      { ul: [
+        'Today’s chores one at a time, big: the icon, name, coins and the steps as tick boxes, with Done, Skip for now, and ▶ when the chore has a timer.',
+        'The order: your own chores due today, then the Rescue Mission, then up to 3 open chores (anyone’s) that are due. Skip for now moves a chore to the back of today’s line.',
+        'Dots show how far you are (“3 of 7 today”), and an empty line gets a celebration.',
+        'Parents choose per person in Settings → Family Members → One thing at a time: Off, Button on Home, or It is their Home (then “Show all of Home” opens the usual Home). Kids get the button unless a parent changes it. Settings → Features switches it off for everyone.',
       ] },
     ],
   },
@@ -320,6 +329,10 @@ export const GUIDE_EN: GuideSection[] = [
           'Tapped Done by mistake? While it waits, ↩ Take back (next to the button) undoes it; on a team-up it’s taken back for the whole team.',
           'If Gamification is off (Settings → General), there are no coins at all.',
           'If a parent turned it down, the chore is open again; under team-ups it goes back to the team.',
+        ] },
+        { q: 'One thing at a time is missing, or a chore isn’t in it', a: [
+          'For parents and members it’s off unless it’s set in Settings → Family Members. Kids get it (a button on Home) unless a parent turned it off there. It can also be hidden in Home → Customise, or switched off in Settings → Features.',
+          'It lists chores you can do now: your own that are due today, the Rescue Mission and up to 3 open ones. Anytime chores and chores that aren’t due yet are on Home and the Tasks page.',
         ] },
         { q: 'A chore isn’t showing on Home', a: [
           'Today’s Quests lists chores that are due, most-overdue first (up to 10). Others are in their room and on the Tasks page.',

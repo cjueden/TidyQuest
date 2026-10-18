@@ -27,6 +27,7 @@ import { api } from '../../hooks/useApi';
 import { TakeBackButton } from '../shared/TakeBackButton';
 import { UndoToast, type UndoState } from '../shared/UndoToast';
 import { BoostDetails } from '../shared/BoostDetails';
+import type { FocusData } from './Focus';
 import { TimerStartButton } from '../shared/ChoreTimer';
 import { useChoreTimer } from '../../hooks/useChoreTimer';
 import type { ListRoom } from './TaskList';
@@ -173,6 +174,8 @@ interface DashboardProps {
     rescueMission?: { day: string; taskId: number | null; multiplier: number; completedBy: number | null; completedByName: string | null; taskName: string | null; task: Quest | null } | null;
     /** Parents: chores they can choose as the mission instead */
     rescueChoices?: Array<{ id: number; name: string }>;
+    /** One thing at a time: null when it's off for this person (NEW-2) */
+    focus?: FocusData | null;
     /** Optional extras switched on or off in Settings → Features */
     features?: { todos?: boolean; cheers?: boolean };
     nextUnlock?: { level: number; kind: string; id: string } | null;
@@ -206,6 +209,7 @@ interface DashboardProps {
   coinsByEffort?: Record<number, number>;
   onNavigateToActivity: () => void;
   onNavigateToRewards?: () => void;
+  onOpenFocus?: () => void;
   onRewardRequestAction: (id: number, status: 'approved' | 'rejected') => void | Promise<void>;
   gamificationEnabled?: boolean;
   leaderboardPeriod?: 'week' | 'month' | 'quarter' | 'year';
@@ -228,6 +232,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   coinsByEffort,
   onNavigateToActivity,
   onNavigateToRewards,
+  onOpenFocus,
   onRewardRequestAction,
   gamificationEnabled = true,
   leaderboardPeriod = 'week',
@@ -398,6 +403,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [teamPick, setTeamPick] = useState<Quest | null>(null);
 
   const ALL_CARDS = [
+    { id: 'focus', label: t('focus.title') },
     { id: 'mascot', label: t('mascot.title') },
     { id: 'teamups', label: t('teamups.title') },
     { id: 'rescue', label: t('rescue.title') },
@@ -426,7 +432,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     localStorage.setItem(LS_KEY, JSON.stringify([...hiddenCards]));
   }, [hiddenCards]);
   // Kid mode keeps Home to the essentials: their quests and what they finished today
-  const KID_CARDS = new Set(['mascot', 'teamups', 'rescue', 'usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
+  const KID_CARDS = new Set(['focus', 'mascot', 'teamups', 'rescue', 'usual', 'forgot', 'todaysQuests', 'todo', 'completedToday']);
   const isVisible = (id: string) => kidMode ? KID_CARDS.has(id) : !hiddenCards.has(id);
   // Your usual: pins always; the rest only when they can be done right now (6 at most)
   const usualShown = (data.usualQuests ?? []).filter((q) => q.pinned || !doneState(q).disabled).slice(0, 6);
@@ -563,6 +569,22 @@ const Dashboard: React.FC<DashboardProps> = ({
         )}
 
         {/* The house mascot: mood, what it needs, and how close it is to growing */}
+        {/* One thing at a time: today's line, one chore at a time */}
+        {data.focus && isVisible('focus') && (
+          <button type="button" className="tq-card tq-card-padded focus-card" onClick={onOpenFocus}>
+            <span style={{ fontSize: 34 }} aria-hidden="true">🎯</span>
+            <span style={{ flex: '1 1 0', width: 0, textAlign: 'left' }}>
+              <span style={{ display: 'block', fontSize: 17, fontWeight: 900, color: 'var(--warm-text)' }}>{t('focus.title')}</span>
+              <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--warm-text-muted)', marginTop: 2 }}>
+                {data.focus.line.length === 0
+                  ? (data.focus.done > 0 ? t('focus.cardDone') : t('focus.nothing'))
+                  : data.focus.line.length === 1 ? t('focus.cardLeftOne') : t('focus.cardLeft').replace('{n}', String(data.focus.line.length))}
+              </span>
+            </span>
+            <span className="tq-btn tq-btn-primary" style={{ flexShrink: 0 }}>{data.focus.line.length > 0 ? t('focus.go') : '›'}</span>
+          </button>
+        )}
+
         {data.mascot && isVisible('mascot') && (
           <MascotCard m={data.mascot} costume={seasonCostume} language={language} suggestions={mascotIdeas} userId={currentUser.id}
             isParent={currentUser.role === 'admin'} coins={currentUser.coins} onChanged={() => onRefresh?.()} />

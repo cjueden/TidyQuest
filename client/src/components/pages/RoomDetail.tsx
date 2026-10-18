@@ -11,7 +11,7 @@ import { getRoomHealth } from '../../utils/health';
 import { formatNextDue, isTaskForUser, taskNextDue } from '../../utils/tasks';
 import { TimerStartButton } from '../shared/ChoreTimer';
 import { useChoreTimer } from '../../hooks/useChoreTimer';
-import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker, TimerPicker } from '../shared/ScheduleFields';
+import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker, StepsField, TimerPicker } from '../shared/ScheduleFields';
 import { EMPTY_SCHEDULE, schedulePayload, scheduleFromTask, seasonLabel, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
 import { api } from '../../hooks/useApi';
 import { TakeBackButton } from '../shared/TakeBackButton';
@@ -624,6 +624,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     {!editForm.onDemand && editSchedule.mode !== 'once' && <SeasonPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language} />}
                     {!editForm.onDemand && <ReminderPicker value={editSchedule} onChange={setEditSchedule} t={t} />}
                     <TimerPicker value={editSchedule} onChange={setEditSchedule} t={t} />
+                    <StepsField value={editSchedule} onChange={setEditSchedule} t={t} />
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>
                       <EffortPicker effort={editForm.effort} onChange={(e) => setEditForm(f => ({ ...f, effort: e }))} />
@@ -1080,6 +1081,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                 {!newTaskOnDemand && newSchedule.mode !== 'once' && <SeasonPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language} />}
                 {!newTaskOnDemand && <ReminderPicker value={newSchedule} onChange={setNewSchedule} t={t} />}
                 <TimerPicker value={newSchedule} onChange={setNewSchedule} t={t} />
+                <StepsField value={newSchedule} onChange={setNewSchedule} t={t} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.effort')}</label>
                   <EffortPicker effort={newTaskEffort} onChange={setNewTaskEffort} />

@@ -11,6 +11,7 @@ import { SearchContext } from './components/shared/searchContext';
 import type { Proof } from './components/shared/ProofModal';
 import { AchievementUnlockToast } from './components/ui/AchievementUnlockToast';
 import Dashboard from './components/pages/Dashboard';
+import { Focus, type FocusData } from './components/pages/Focus';
 import { RoomsList } from './components/pages/RoomsList';
 import { RoomDetail } from './components/pages/RoomDetail';
 import { TaskList } from './components/pages/TaskList';
@@ -37,7 +38,7 @@ function AppContent() {
   const { user, loading, login, register, logout, refreshUser } = useAuth();
   const browserLang = typeof navigator !== 'undefined' ? navigator.language.slice(0, 2) : 'en';
   // Always call useTranslation unconditionally (React hooks rule) — use user's language if known, else browser lang
-  const { t } = useTranslation(user?.language ?? browserLang);
+  const { t, roomDisplayName } = useTranslation(user?.language ?? browserLang);
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [rooms, setRooms] = useState<any[]>([]);
@@ -241,7 +242,8 @@ function AppContent() {
     localStorage.setItem('tidyquest-sidebar-collapsed', String(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
-  const handleCompleteTask = async (taskId: number, proof?: Proof) => {
+  /** Resolves true when the chore was recorded (or waits for approval) */
+  const handleCompleteTask = async (taskId: number, proof?: Proof): Promise<boolean> => {
     try {
       const result = await api.completeTask(taskId, undefined, proof?.note ? { note: proof.note } : {});
       if (proof?.file && result.completionId) {
@@ -257,7 +259,7 @@ function AppContent() {
         setTimeout(() => setTaskErrorMsg(null), 3500);
         // Home and the room page both show "waiting for approval" once they reload
         await Promise.all([refreshRooms(), loadDashboard()]);
-        return;
+        return true;
       }
       if (result.newAchievements && result.newAchievements.length > 0) {
         setUnlockedInfo(result.newAchievementInfo ?? []);
@@ -267,6 +269,7 @@ function AppContent() {
       refreshUser();
       await Promise.all([refreshRooms(), loadDashboard()]);
       setTimeout(() => setConfetti(false), 2200);
+      return true;
     } catch (err) {
       setConfetti(false);
       const msg = err instanceof Error ? err.message : '';
@@ -284,6 +287,7 @@ function AppContent() {
         setTaskErrorMsg(msg || t('common.error'));
       }
       setTimeout(() => setTaskErrorMsg(null), 3500);
+      return false;
     }
   };
 
@@ -355,6 +359,16 @@ function AppContent() {
   // Build flat tasks list for calendar
   const allTasks = rooms.flatMap((r: any) =>
     (r.tasks || []).map((t: any) => ({ ...t, roomName: r.name, roomType: r.roomType }))
+  );
+
+  // One thing at a time: a page of its own, or Home itself when a parent chose that ("?all=1" shows the full Home)
+  const focusData: FocusData | null = dashboardData?.focus ?? null;
+  const focusIsHome = focusData?.mode === 'home' && !new URLSearchParams(location.search).has('all');
+  const focusPage = (onLeave: () => void, leaveLabel: string) => focusData && (
+    <Focus focus={focusData} userId={user.id} language={user.language} coinsByEffort={coinsByEffort}
+      gamificationEnabled={gamificationEnabled} mission={gamificationEnabled ? dashboardData?.rescueMission : null}
+      roomName={(name, roomId) => roomDisplayName(name, rooms.find((r: { id: number; roomType?: string }) => r.id === roomId)?.roomType || '')}
+      onComplete={(id) => handleCompleteTask(id)} onSeeAll={() => navigate('/tasks')} onLeave={onLeave} leaveLabel={leaveLabel} />
   );
 
   return (
@@ -446,9 +460,10 @@ function AppContent() {
         <Routes>
           <Route path="/" element={
             <>
-              <PageHeader title={t('nav.home')} subtitle={today} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
+              <PageHeader title={focusIsHome ? t('focus.title') : t('nav.home')} subtitle={today} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
               {season && <SeasonGreeting season={season} language={user.language} />}
-              {dashboardData && (
+              {focusIsHome && focusPage(() => navigate('/?all=1'), t('focus.fullHome'))}
+              {dashboardData && !focusIsHome && (
                 <Dashboard
                   data={dashboardData}
                   allRooms={rooms}
@@ -465,6 +480,7 @@ function AppContent() {
                   coinsByEffort={coinsByEffort}
                   onNavigateToActivity={() => navigate('/activity')}
                   onNavigateToRewards={() => navigate('/rewards')}
+                  onOpenFocus={() => navigate('/focus')}
                   onRewardRequestAction={async (id, status) => {
                     await api.updateRedemptionStatus(id, status);
                     await Promise.all([loadDashboard(), loadRewards()]);
@@ -504,6 +520,13 @@ function AppContent() {
 
           <Route path="/rooms/:id" element={
             <RoomDetailWrapper rooms={rooms} roomsLoaded={roomsLoaded} strictMode={!!dashboardData?.strictMode} allowOneTime={dashboardData?.features?.todos !== false} user={user} users={familySettings} coinsByEffort={coinsByEffort} gamificationEnabled={gamificationEnabled} onCompleteTask={handleCompleteTask} onRefresh={() => { refreshRooms(); loadDashboard(); }} onAchievementsUnlocked={setUnlockedAchievements} />
+          } />
+
+          <Route path="/focus" element={
+            <>
+              <PageHeader title={t('focus.title')} subtitle={today} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} />
+              {focusData ? focusPage(() => navigate('/'), t('focus.backHome')) : dashboardData && <Navigate to="/" replace />}
+            </>
           } />
 
           <Route path="/tasks" element={

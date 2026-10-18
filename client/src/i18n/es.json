@@ -1388,7 +1388,9 @@
       "teamupsDesc": "Hacer una tarea juntos (6+ monedas): monedas repartidas más un bonus de equipo.",
       "teamBonus": "Bonus de equipo",
       "mascotShop": "Tienda de la mascota",
-      "mascotShopDesc": "Cualquiera puede comprarle un accesorio a la mascota por 1–5 monedas. Desactivada, se ocultan la tienda y el atuendo."
+      "mascotShopDesc": "Cualquiera puede comprarle un accesorio a la mascota por 1–5 monedas. Desactivada, se ocultan la tienda y el atuendo.",
+      "focus": "Una cosa cada vez",
+      "focusDesc": "Las tareas de un niño una a una, en grande, con sus pasos. Quién la ve se elige por persona en Miembros de la familia."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1629,6 +1631,34 @@
       "replaceConfirm": "¿Parar el temporizador de «{name}» e iniciar este?",
       "keepsGoing": "Sigue contando si cambias de página.",
       "mayDim": "La pantalla puede apagarse; el temporizador sigue contando."
+    },
+    "focus": {
+      "title": "Una cosa cada vez",
+      "progress": "{done} de {total} hoy",
+      "skip": "Saltar por ahora",
+      "steps": "Pasos",
+      "upNext": "Después:",
+      "allDone": "¡Todo hecho por hoy!",
+      "allDoneText": "Has terminado {n} tareas. ¡Buen trabajo!",
+      "allDoneOne": "Has terminado 1 tarea. ¡Buen trabajo!",
+      "nothing": "Nada que hacer ahora mismo.",
+      "seeAll": "Ver todas las tareas",
+      "fullHome": "Ver todo el inicio",
+      "backHome": "Volver al inicio",
+      "cardLeft": "Quedan {n} tareas hoy",
+      "cardLeftOne": "Queda 1 tarea hoy",
+      "cardDone": "Todo hecho hoy 🎉",
+      "go": "¡Vamos!",
+      "timerFirst": "Primero inicia el temporizador. Hecho aparece cuando termina.",
+      "settingDesc": "Una tarea cada vez, en grande, con sus pasos.",
+      "defaultButton": "Botón en el inicio (por defecto para niños)",
+      "defaultOff": "No (por defecto)",
+      "modeOff": "No",
+      "modeButton": "Botón en el inicio",
+      "modeHome": "Es su inicio",
+      "stepsLabel": "Pasos",
+      "stepsPlaceholder": "Un paso por línea",
+      "stepsDesc": "Uno por línea, hasta 12. Se muestran como casillas en Una cosa cada vez."
     }
   }
 }

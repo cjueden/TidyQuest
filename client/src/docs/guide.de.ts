@@ -132,6 +132,8 @@ export const GUIDE_DE: GuideSection[] = [
         'Kinder starten zuerst den Timer: Bei einer Timer-Aufgabe kommt ihr Erledigt-Knopf zurück, wenn die Zeit um ist. Eltern und Mitglieder können jederzeit auf Erledigt tippen.',
         'Die Seite Aufgaben zeigt alle Aufgaben mit Timer: Wähle „⏱️ Mit Timer“ im Filter.',
       ] },
+      { h: 'Schritte' },
+      { p: 'Schritte (einer pro Zeile) zeigen, was zu einer Aufgabe gehört, etwa „Füße auf den Boden“, „Licht an“, „Anziehen“. Sie erscheinen als Häkchen in Eins nach dem anderen. Die Häkchen sind nur eine Hilfe: Erledigt schließt die Aufgabe ab.' },
       { h: 'Eine Aufgabe abschließen' },
       { ul: [
         'Tippe auf Erledigt auf der Startseite, im Raum oder auf der Seite Aufgaben. Mit dem 📎-Knopf fügst du eine Notiz oder ein Foto als Beweis hinzu.',
@@ -153,6 +155,13 @@ export const GUIDE_DE: GuideSection[] = [
         'Board: Ranglisten nach Münzen, Ziel-% oder größter Verbesserung, Auszeichnungen wie Frühaufsteher und Raumchampions, das Trophäenregal und das Familienziel.',
         'Erfolge: Abzeichen, dein Level und was als Nächstes kommt. Belohnungen: der Katalog und deine Anfragen.',
         'Suche: der 🔍-Knopf, oder drücke / oder Strg+K auf einer Tastatur.',
+      ] },
+      { h: 'Eins nach dem anderen' },
+      { ul: [
+        'Die Aufgaben von heute eine nach der anderen, groß: Symbol, Name, Münzen und die Schritte als Häkchen, mit Erledigt, Später, und ▶, wenn die Aufgabe einen Timer hat.',
+        'Die Reihenfolge: deine eigenen Aufgaben, die heute fällig sind, dann die Rettungsmission, dann bis zu 3 offene Aufgaben (für alle), die fällig sind. Später schiebt eine Aufgabe ans Ende der heutigen Reihe.',
+        'Punkte zeigen, wie weit du bist („3 von 7 heute“), und eine leere Reihe wird gefeiert.',
+        'Eltern wählen pro Person unter Einstellungen → Familienmitglieder → Eins nach dem anderen: Aus, Knopf auf der Startseite oder Ist ihre Startseite (dann öffnet „Ganze Startseite zeigen“ die gewohnte Startseite). Kinder bekommen den Knopf, außer ein Elternteil ändert das. Einstellungen → Funktionen schaltet es für alle aus.',
       ] },
     ],
   },
@@ -296,6 +305,10 @@ export const GUIDE_DE: GuideSection[] = [
           'Aus Versehen auf Erledigt getippt? Solange sie wartet, macht ↩ Zurücknehmen (neben dem Knopf) es rückgängig; bei einem Teamwork wird es für das ganze Team zurückgenommen.',
           'Wenn Gamification aus ist (Einstellungen → Allgemein), gibt es überhaupt keine Münzen.',
           'Wenn ein Elternteil es abgelehnt hat, ist die Aufgabe wieder offen; bei Teamwork geht sie zurück an das Team.',
+        ] },
+        { q: 'Eins nach dem anderen fehlt, oder eine Aufgabe ist nicht dabei', a: [
+          'Für Eltern und Mitglieder ist es aus, außer es ist unter Einstellungen → Familienmitglieder eingestellt. Kinder haben es (ein Knopf auf der Startseite), außer ein Elternteil hat es dort ausgeschaltet. Es kann auch unter Startseite → Anpassen ausgeblendet oder unter Einstellungen → Funktionen ausgeschaltet sein.',
+          'Es zeigt Aufgaben, die du jetzt machen kannst: deine eigenen, die heute fällig sind, die Rettungsmission und bis zu 3 offene. Jederzeit-Aufgaben und Aufgaben, die noch nicht fällig sind, findest du auf der Startseite und der Seite Aufgaben.',
         ] },
         { q: 'Eine Aufgabe erscheint nicht auf der Startseite', a: [
           'Heutige Aufgaben listet fällige Aufgaben auf, die am längsten überfälligen zuerst (bis zu 10). Die anderen sind in ihrem Raum und auf der Seite Aufgaben.',

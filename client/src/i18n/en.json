@@ -1388,7 +1388,9 @@
       "teamupsDesc": "Do a chore together (6+ coins): split the coins plus a team bonus.",
       "teamBonus": "Team bonus",
       "mascotShop": "Mascot shop",
-      "mascotShopDesc": "Anyone can buy the mascot an accessory for 1–5 coins. Off hides the shop and its outfit."
+      "mascotShopDesc": "Anyone can buy the mascot an accessory for 1–5 coins. Off hides the shop and its outfit.",
+      "focus": "One thing at a time",
+      "focusDesc": "A kid's chores one at a time, big, with their steps. Who sees it is set per person in Family Members."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1629,6 +1631,34 @@
       "replaceConfirm": "Stop the timer for “{name}” and start this one?",
       "keepsGoing": "It keeps running if you go to another page.",
       "mayDim": "Your screen may turn off; the timer keeps counting."
+    },
+    "focus": {
+      "title": "One thing at a time",
+      "progress": "{done} of {total} today",
+      "skip": "Skip for now",
+      "steps": "Steps",
+      "upNext": "Up next:",
+      "allDone": "All done for today!",
+      "allDoneText": "You finished {n} chores. Great work!",
+      "allDoneOne": "You finished 1 chore. Great work!",
+      "nothing": "Nothing to do right now.",
+      "seeAll": "See all chores",
+      "fullHome": "Show all of Home",
+      "backHome": "Back to Home",
+      "cardLeft": "{n} chores left today",
+      "cardLeftOne": "1 chore left today",
+      "cardDone": "All done today 🎉",
+      "go": "Let's go",
+      "timerFirst": "Start the timer first. Done comes when it ends.",
+      "settingDesc": "One chore at a time, big, with its steps.",
+      "defaultButton": "Button on Home (default for kids)",
+      "defaultOff": "Off (default)",
+      "modeOff": "Off",
+      "modeButton": "Button on Home",
+      "modeHome": "It is their Home",
+      "stepsLabel": "Steps",
+      "stepsPlaceholder": "One step per line",
+      "stepsDesc": "One per line, up to 12. Shown as tick boxes in One thing at a time."
     }
   }
 }

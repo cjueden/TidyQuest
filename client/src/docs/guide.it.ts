@@ -132,6 +132,8 @@ export const GUIDE_IT: GuideSection[] = [
         'I bambini avviano prima il timer: su una faccenda con timer, il loro pulsante Fatto torna quando il tempo è scaduto. Genitori e membri possono toccare Fatto in qualsiasi momento.',
         'La pagina Compiti elenca tutte le faccende con timer: scegli «⏱️ Con timer» nel suo filtro.',
       ] },
+      { h: 'Passaggi' },
+      { p: 'I passaggi (uno per riga) dicono cosa comprende una faccenda, come «Piedi a terra», «Luce accesa», «Vestirsi». Appaiono come caselle in Una cosa alla volta. Le caselle sono solo un aiuto: è Fatto che completa la faccenda.' },
       { h: 'Finire una faccenda' },
       { ul: [
         'Tocca Fatto nella Home, nella stanza o nella pagina Compiti. Il pulsante 📎 aggiunge una nota o una foto come prova.',
@@ -153,6 +155,13 @@ export const GUIDE_IT: GuideSection[] = [
         'Classifica: graduatorie per monete, % dell’obiettivo o maggior miglioramento, premi come Mattiniero e i campioni delle stanze, la bacheca dei trofei e l’obiettivo di famiglia.',
         'Obiettivi: distintivi, il tuo livello e cosa viene dopo. Ricompense: il catalogo e le tue richieste.',
         'Cerca: il pulsante 🔍, oppure premi / o Ctrl+K sulla tastiera.',
+      ] },
+      { h: 'Una cosa alla volta' },
+      { ul: [
+        'Le faccende di oggi una alla volta, in grande: l’icona, il nome, le monete e i passaggi come caselle, con Fatto, Salta per ora, e ▶ quando la faccenda ha un timer.',
+        'L’ordine: le tue faccende di oggi, poi la Missione di salvataggio, poi fino a 3 faccende aperte (di chiunque) da fare. Salta per ora sposta una faccenda in fondo alla fila di oggi.',
+        'Dei puntini mostrano a che punto sei («3 di 7 oggi»), e una fila vuota si festeggia.',
+        'I genitori scelgono per persona in Impostazioni → Membri della famiglia → Una cosa alla volta: No, Pulsante nella Home, o È la sua Home (allora «Mostra tutta la Home» apre la Home di sempre). I bambini hanno il pulsante a meno che un genitore non lo cambi. Impostazioni → Funzioni la disattiva per tutti.',
       ] },
     ],
   },
@@ -296,6 +305,10 @@ export const GUIDE_IT: GuideSection[] = [
           'Hai toccato Fatto per sbaglio? Finché aspetta, ↩ Annulla (accanto al pulsante) la annulla; in una squadra viene ritirata per tutta la squadra.',
           'Se Gamification è disattivata (Impostazioni → Generale), non ci sono monete per niente.',
           'Se un genitore l’ha rifiutata, la faccenda è di nuovo aperta; nelle squadre torna alla squadra.',
+        ] },
+        { q: 'Una cosa alla volta non c’è, o manca una faccenda', a: [
+          'Per genitori e membri è disattivata a meno che non sia scelta in Impostazioni → Membri della famiglia. I bambini ce l’hanno (un pulsante nella Home) a meno che un genitore non l’abbia disattivata lì. Può anche essere nascosta in Home → Personalizza, o disattivata in Impostazioni → Funzioni.',
+          'Elenca le faccende che puoi fare ora: le tue di oggi, la Missione di salvataggio e fino a 3 aperte. Le faccende in qualsiasi momento e quelle non ancora da fare sono nella Home e nella pagina Compiti.',
         ] },
         { q: 'Una faccenda non compare nella Home', a: [
           'Missioni di oggi elenca le faccende in scadenza, prima le più in ritardo (fino a 10). Le altre sono nella loro stanza e nella pagina Compiti.',

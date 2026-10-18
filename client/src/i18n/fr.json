@@ -1388,7 +1388,9 @@
       "teamupsDesc": "Faire une tâche ensemble (6+ pièces) : pièces partagées plus un bonus d'équipe.",
       "teamBonus": "Bonus d'équipe",
       "mascotShop": "Boutique de la mascotte",
-      "mascotShopDesc": "Chacun peut offrir un accessoire à la mascotte pour 1 à 5 pièces. Désactivé, la boutique et la tenue sont masquées."
+      "mascotShopDesc": "Chacun peut offrir un accessoire à la mascotte pour 1 à 5 pièces. Désactivé, la boutique et la tenue sont masquées.",
+      "focus": "Une chose à la fois",
+      "focusDesc": "Les tâches d'un enfant une à la fois, en grand, avec leurs étapes. Qui la voit se règle par personne dans Membres de la famille."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1629,6 +1631,34 @@
       "replaceConfirm": "Arrêter le minuteur de « {name} » et lancer celui-ci ?",
       "keepsGoing": "Il continue si vous changez de page.",
       "mayDim": "L'écran peut s'éteindre ; le minuteur continue de compter."
+    },
+    "focus": {
+      "title": "Une chose à la fois",
+      "progress": "{done} sur {total} aujourd'hui",
+      "skip": "Passer pour l'instant",
+      "steps": "Étapes",
+      "upNext": "Ensuite :",
+      "allDone": "Tout est fait pour aujourd'hui !",
+      "allDoneText": "Tu as terminé {n} tâches. Bravo !",
+      "allDoneOne": "Tu as terminé 1 tâche. Bravo !",
+      "nothing": "Rien à faire pour l'instant.",
+      "seeAll": "Voir toutes les tâches",
+      "fullHome": "Voir tout l'accueil",
+      "backHome": "Retour à l'accueil",
+      "cardLeft": "Encore {n} tâches aujourd'hui",
+      "cardLeftOne": "Encore 1 tâche aujourd'hui",
+      "cardDone": "Tout est fait aujourd'hui 🎉",
+      "go": "C'est parti",
+      "timerFirst": "Lance d'abord le minuteur. Fait arrive quand il se termine.",
+      "settingDesc": "Une tâche à la fois, en grand, avec ses étapes.",
+      "defaultButton": "Bouton sur l'accueil (par défaut pour les enfants)",
+      "defaultOff": "Non (par défaut)",
+      "modeOff": "Non",
+      "modeButton": "Bouton sur l'accueil",
+      "modeHome": "C'est son accueil",
+      "stepsLabel": "Étapes",
+      "stepsPlaceholder": "Une étape par ligne",
+      "stepsDesc": "Une par ligne, 12 au maximum. Affichées en cases à cocher dans Une chose à la fois."
     }
   }
 }

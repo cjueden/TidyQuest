@@ -132,6 +132,8 @@ export const GUIDE_FR: GuideSection[] = [
         'Les enfants lancent d’abord le minuteur : sur une tâche avec minuteur, leur bouton Fait revient quand le temps est écoulé. Les parents et les membres peuvent appuyer sur Fait à tout moment.',
         'La page Tâches liste toutes les tâches avec minuteur : choisissez « ⏱️ Avec minuteur » dans son filtre.',
       ] },
+      { h: 'Étapes' },
+      { p: 'Les étapes (une par ligne) disent ce que comprend une tâche, comme « Pieds par terre », « Lumière allumée », « S’habiller ». Elles s’affichent en cases à cocher dans Une chose à la fois. Les cases sont juste une aide : c’est Fait qui termine la tâche.' },
       { h: 'Terminer une tâche' },
       { ul: [
         'Appuie sur Fait sur Accueil, dans la pièce, ou sur la page Tâches. Le bouton 📎 ajoute une note ou une photo comme preuve.',
@@ -153,6 +155,13 @@ export const GUIDE_FR: GuideSection[] = [
         'Tableau : classements par pièces, % de l’objectif ou plus grands progrès, récompenses comme Lève-tôt et champions de pièces, l’étagère à trophées et l’objectif familial.',
         'Succès : les badges, ton niveau et la suite. Récompenses : le catalogue et tes demandes.',
         'Recherche : le bouton 🔍, ou appuie sur / ou Ctrl+K au clavier.',
+      ] },
+      { h: 'Une chose à la fois' },
+      { ul: [
+        'Les tâches du jour une à la fois, en grand : l’icône, le nom, les pièces et les étapes en cases à cocher, avec Fait, Passer pour l’instant, et ▶ quand la tâche a un minuteur.',
+        'L’ordre : tes propres tâches du jour, puis la Mission sauvetage, puis jusqu’à 3 tâches ouvertes (à tout le monde) à faire. Passer pour l’instant envoie une tâche à la fin de la file du jour.',
+        'Des points montrent où tu en es (« 3 sur 7 aujourd’hui »), et une file vide est fêtée.',
+        'Les parents choisissent par personne dans Paramètres → Membres de la famille → Une chose à la fois : Non, Bouton sur l’accueil, ou C’est son accueil (« Voir tout l’accueil » ouvre alors l’accueil habituel). Les enfants ont le bouton sauf si un parent change ce réglage. Paramètres → Fonctionnalités la désactive pour tout le monde.',
       ] },
     ],
   },
@@ -296,6 +305,10 @@ export const GUIDE_FR: GuideSection[] = [
           'Appuyé sur Fait par erreur ? Pendant l’attente, ↩ Annuler (à côté du bouton) l’annule ; pour une tâche en équipe, elle est annulée pour toute l’équipe.',
           'Si la Gamification est désactivée (Paramètres → Général), il n’y a aucune pièce.',
           'Si un parent l’a refusée, la tâche est de nouveau ouverte ; pour une tâche en équipe, elle retourne à l’équipe.',
+        ] },
+        { q: 'Une chose à la fois n’apparaît pas, ou une tâche n’y est pas', a: [
+          'Pour les parents et les membres, elle est désactivée sauf si elle est réglée dans Paramètres → Membres de la famille. Les enfants l’ont (un bouton sur l’accueil) sauf si un parent l’a désactivée. Elle peut aussi être masquée dans Accueil → Personnaliser, ou désactivée dans Paramètres → Fonctionnalités.',
+          'Elle liste les tâches faisables maintenant : les tiennes à faire aujourd’hui, la Mission sauvetage et jusqu’à 3 tâches ouvertes. Les tâches à tout moment et celles qui ne sont pas encore à faire sont sur l’accueil et la page Tâches.',
         ] },
         { q: 'Une tâche n’apparaît pas sur Accueil', a: [
           'Quêtes du jour liste les tâches à faire, les plus en retard d’abord (jusqu’à 10). Les autres sont dans leur pièce et sur la page Tâches.',

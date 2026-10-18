@@ -1,4 +1,5 @@
 import db from '../database';
+import { readSteps } from './focus';
 import { calculateHealth } from './health';
 
 /**
@@ -196,7 +197,7 @@ export function scheduleFields(task: ScheduledTask & Parameters<typeof rotationT
 }
 
 type ScheduleColumn = 'seasonStartMonth' | 'seasonEndMonth' | 'scheduleWeekdays' | 'rotationPeriod' | 'reminderTime' | 'reminderDayBefore' | 'oneTime' | 'doBy'
-  | 'timerMinutes';
+  | 'timerMinutes' | 'steps';
 
 /** Longest countdown a chore can have, in minutes */
 export const MAX_TIMER_MINUTES = 240;
@@ -247,6 +248,12 @@ export function readScheduleInput(body: any): ScheduleInput {
     const n = blank(body.timerMinutes) ? 0 : Number(body.timerMinutes);
     if (!Number.isInteger(n) || n < 0 || n > MAX_TIMER_MINUTES) return { error: 'invalid_timer' };
     values.timerMinutes = n > 0 ? n : null;
+  }
+  // The chore's steps (one thing at a time): an array or one per line
+  if (body && 'steps' in body) {
+    const steps = readSteps(body.steps);
+    if ('error' in steps) return steps;
+    values.steps = steps.value;
   }
   if (body && 'rotationPeriod' in body) {
     const p = blank(body.rotationPeriod) ? 'completion' : body.rotationPeriod;

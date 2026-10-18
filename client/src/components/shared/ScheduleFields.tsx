@@ -144,3 +144,21 @@ export function TimerPicker({ value, onChange, t }: {
     </div>
   );
 }
+
+/** The chore's steps, one per line: tick boxes in One thing at a time. */
+export function StepsField({ value, onChange, t }: {
+  value: ScheduleValue;
+  onChange: (v: ScheduleValue) => void;
+  t: (key: string) => string;
+}) {
+  const count = value.steps.split('\n').filter((s) => s.trim()).length;
+  return (
+    <div style={{ display: 'grid', gap: 4 }}>
+      <label style={labelStyle} htmlFor="tq-chore-steps">☑️ {t('focus.stepsLabel')}</label>
+      <textarea id="tq-chore-steps" className="tq-input-compact" rows={Math.min(6, Math.max(2, count + 1))} value={value.steps}
+        placeholder={t('focus.stepsPlaceholder')} maxLength={12 * 121}
+        onChange={(e) => onChange({ ...value, steps: e.target.value })} style={{ resize: 'vertical', fontFamily: 'inherit' }} />
+      <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-muted)' }}>{t('focus.stepsDesc')}</span>
+    </div>
+  );
+}
