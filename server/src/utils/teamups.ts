@@ -140,6 +140,11 @@ export const endTeamupsFor = (taskId: number, now = new Date()) =>
   db.prepare("UPDATE teamups SET status = 'cancelled' WHERE taskId = ? AND day = ? AND status = 'open'").run(taskId, localDateStr(now));
 
 /** Home's Team-ups card: today's team-ups you're in or could join */
+/** A team-up only lasts its day: close any still open from an earlier day (runs with the server's timers). */
+export function closeOldTeamups(now = new Date()): number {
+  return db.prepare("UPDATE teamups SET status = 'cancelled' WHERE status = 'open' AND day < ?").run(localDateStr(now)).changes;
+}
+
 export function teamupsFor(userId: number, now = new Date()) {
   const rows = db.prepare(`
     SELECT tu.id, tu.taskId, tu.createdBy, tu.invitedUserId, t.name AS taskName, t.roomId, r.name AS roomName, t.customCoins, t.effort, t.assignmentMode

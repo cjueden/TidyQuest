@@ -185,6 +185,21 @@ router.post('/:id/contribute', (req: AuthRequest, res: Response) => {
   res.json({ coins: user.coins, pot: potFor(id, rule.costCoins), redemption });
 });
 
+/** Give a request's coins back: a shared pot to everyone who chipped in, otherwise to the requester. */
+function refundRedemption(id: number, row: { userId: number; costCoins: number }) {
+  if (!refundContributions(id)) db.prepare('UPDATE users SET coins = coins + ? WHERE id = ?').run(row.costCoins, row.userId);
+}
+
+function adminRedemptionRow(id: number) {
+  return db.prepare(
+    `SELECT rr.id, rr.rewardId, rr.userId, rr.costCoins, rr.redeemedAt, rr.status, r.title, u.displayName
+     FROM reward_redemptions rr
+     JOIN rewards r ON rr.rewardId = r.id
+     JOIN users u ON rr.userId = u.id
+     WHERE rr.id = ?`
+  ).get(id) as any;
+}
+
 router.put('/redemptions/:id', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
   const id = parseInt(req.params.id as string, 10);
@@ -194,26 +209,33 @@ router.put('/redemptions/:id', (req: AuthRequest, res: Response) => {
   }
   const row = db.prepare('SELECT id, userId, costCoins, status FROM reward_redemptions WHERE id = ?').get(id) as any;
   if (!row) return res.status(404).json({ error: 'Redemption not found' });
+  // Only a request that's still waiting can be decided. Changing a decision afterwards would
+  // hand out a refunded reward for free (rejected -> approved); a mistaken approval uses /refund.
+  if (row.status !== 'requested') return res.status(400).json({ error: 'This request was already decided' });
   db.transaction(() => {
     db.prepare('UPDATE reward_redemptions SET status = ? WHERE id = ?').run(status, id);
-    // Refund coins exactly once when moving from requested -> rejected
-    if (status === 'rejected' && row.status === 'requested') {
-      // A shared pot goes back to everyone who chipped in
-      if (!refundContributions(id)) db.prepare('UPDATE users SET coins = coins + ? WHERE id = ?').run(row.costCoins, row.userId);
-    }
+    if (status === 'rejected') refundRedemption(id, row);
   })();
-  const updated = db.prepare(
-    `SELECT rr.id, rr.rewardId, rr.userId, rr.costCoins, rr.redeemedAt, rr.status, r.title, u.displayName
-     FROM reward_redemptions rr
-     JOIN rewards r ON rr.rewardId = r.id
-     JOIN users u ON rr.userId = u.id
-     WHERE rr.id = ?`
-  ).get(id) as any;
+  const updated = adminRedemptionRow(id);
   // Tell the kid when a request is decided
-  if (row.status === 'requested' && (status === 'approved' || status === 'rejected')) {
+  if (status === 'approved' || status === 'rejected') {
     void notifyRewardDecision(row.userId, req.userId!, updated?.title ?? '', status === 'approved');
   }
   res.json(updated);
+});
+
+// Undo an approval made by mistake: the reward goes back to rejected and the coins are returned
+router.post('/redemptions/:id/refund', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const id = parseInt(req.params.id as string, 10);
+  const row = db.prepare('SELECT id, userId, costCoins, status FROM reward_redemptions WHERE id = ?').get(id) as any;
+  if (!row) return res.status(404).json({ error: 'Redemption not found' });
+  if (row.status !== 'approved') return res.status(400).json({ error: 'Only an approved reward can be refunded' });
+  db.transaction(() => {
+    db.prepare("UPDATE reward_redemptions SET status = 'rejected' WHERE id = ?").run(id);
+    refundRedemption(id, row);
+  })();
+  res.json(adminRedemptionRow(id));
 });
 
 router.post('/redemptions/:id/cancel', (req: AuthRequest, res: Response) => {

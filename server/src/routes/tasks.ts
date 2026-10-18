@@ -234,7 +234,7 @@ function completeAsTeam(task: any, team: Teamup, tapperId: number, tapperIsAdult
 }
 
 /** Reject one waiting completion (it's removed; no coins). Returns an error code or null. */
-function rejectPendingCompletion(completionId: number, adminId?: number): string | null {
+function rejectPendingCompletion(completionId: number, adminId?: number, reason: string | null = null): string | null {
   const completion = db.prepare('SELECT c.id, c.status, c.userId, c.teamupId, t.name AS taskName FROM task_completions c LEFT JOIN tasks t ON t.id = c.taskId WHERE c.id = ?')
     .get(completionId) as { id: number; status: string; userId: number; teamupId: number | null; taskName: string | null } | undefined;
   if (!completion) return 'not_found';
@@ -245,13 +245,13 @@ function rejectPendingCompletion(completionId: number, adminId?: number): string
     for (const other of team) {
       db.prepare('DELETE FROM task_completions WHERE id = ?').run(other.id);
       releaseRescue(other.id);
-      if (adminId) void notifyChoreRejected(other.userId, adminId, completion.taskName ?? '');
+      if (adminId) void notifyChoreRejected(other.userId, adminId, completion.taskName ?? '', reason);
     }
     db.prepare("UPDATE teamups SET status = 'open' WHERE id = ?").run(completion.teamupId);
   }
   db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
   releaseRescue(completion.id); // a rejected Rescue Mission is open again
-  if (adminId) void notifyChoreRejected(completion.userId, adminId, completion.taskName ?? '');
+  if (adminId) void notifyChoreRejected(completion.userId, adminId, completion.taskName ?? '', reason);
   return null;
 }
 
@@ -964,6 +964,13 @@ router.get('/completions/pending', (req: AuthRequest, res: Response) => {
   res.json({ pending: groupTeamPending(pending) });
 });
 
+/** The optional one-line reason a parent gives when rejecting (sent to the kid). undefined = too long. */
+function parseRejectReason(body: any): string | null | undefined {
+  const reason = typeof body?.reason === 'string' ? body.reason.trim().replace(/\s+/g, ' ') : '';
+  if (reason.length > 200) return undefined;
+  return reason || null;
+}
+
 const PENDING_ERRORS: Record<string, number> = { not_found: 404, task_not_found: 404, completion_not_pending: 409 };
 
 router.post('/completions/:completionId/approve', (req: AuthRequest, res: Response) => {
@@ -981,7 +988,9 @@ router.delete('/completions/:completionId/reject', (req: AuthRequest, res: Respo
   if (!ensureAdmin(req.userId)) {
     return res.status(403).json({ error: 'Admin only' });
   }
-  const error = rejectPendingCompletion(Number(req.params.completionId), req.userId);
+  const reason = parseRejectReason(req.body);
+  if (reason === undefined) return res.status(400).json({ error: 'reason_too_long' });
+  const error = rejectPendingCompletion(Number(req.params.completionId), req.userId, reason);
   if (error) return res.status(PENDING_ERRORS[error]).json({ error: error === 'not_found' ? 'Completion not found' : error });
   res.json({ success: true });
 });
@@ -1006,7 +1015,9 @@ router.post('/completions/reject-batch', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
   const ids = batchIds(req.body);
   if (!ids) return res.status(400).json({ error: 'ids must be a non-empty array of completion ids' });
-  const results = db.transaction(() => ids.map((id) => ({ id, error: rejectPendingCompletion(id, req.userId) })))();
+  const reason = parseRejectReason(req.body);
+  if (reason === undefined) return res.status(400).json({ error: 'reason_too_long' });
+  const results = db.transaction(() => ids.map((id) => ({ id, error: rejectPendingCompletion(id, req.userId, reason) })))();
   res.json({ rejected: results.filter((r) => !r.error).map((r) => r.id), skipped: results.filter((r) => r.error) });
 });
 
@@ -1048,35 +1059,47 @@ router.delete('/tasks/:id/snooze', (req: AuthRequest, res: Response) => {
 });
 
 // Cancel (undo) a task completion — admin only
+// Undo a completion. A parent can undo any; the person who tapped Done can take it back while it
+// still waits for approval. A team's completions are undone together and the team-up reopens.
 router.delete('/completions/:completionId', (req: AuthRequest, res: Response) => {
-  if (!ensureAdmin(req.userId)) {
-    return res.status(403).json({ error: 'Admin only' });
-  }
-
   const completion = db.prepare(
-    'SELECT id, taskId, userId, coinsEarned, status FROM task_completions WHERE id = ?'
-  ).get(req.params.completionId) as any;
+    'SELECT id, taskId, userId, coinsEarned, status, teamupId FROM task_completions WHERE id = ?'
+  ).get(req.params.completionId) as { id: number; taskId: number; userId: number; coinsEarned: number; status: string; teamupId: number | null } | undefined;
   if (!completion) return res.status(404).json({ error: 'Completion not found' });
 
-  if (completion.status === 'approved') {
-    db.prepare('UPDATE users SET coins = MAX(0, coins - ?) WHERE id = ?')
-      .run(completion.coinsEarned, completion.userId);
+  const rows = completion.teamupId
+    ? db.prepare('SELECT id, userId, coinsEarned, status FROM task_completions WHERE teamupId = ?').all(completion.teamupId) as Array<{ id: number; userId: number; coinsEarned: number; status: string }>
+    : [completion];
+  if (!ensureAdmin(req.userId)) {
+    const mine = rows.some((r) => r.userId === req.userId);
+    if (!mine) return res.status(403).json({ error: 'Admin only' });
+    if (completion.status !== 'pending') return res.status(409).json({ error: 'completion_not_pending' });
   }
 
-  // Delete the completion record (an undone Rescue Mission is open again)
-  db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
-  releaseRescue(completion.id);
+  let coinsDeducted = 0;
+  db.transaction(() => {
+    for (const row of rows) {
+      if (row.status === 'approved') {
+        db.prepare('UPDATE users SET coins = MAX(0, coins - ?) WHERE id = ?').run(row.coinsEarned, row.userId);
+        coinsDeducted += row.coinsEarned;
+      }
+      // Delete the completion record (an undone Rescue Mission is open again)
+      db.prepare('DELETE FROM task_completions WHERE id = ?').run(row.id);
+      releaseRescue(row.id);
+    }
+    if (completion.teamupId) db.prepare("UPDATE teamups SET status = 'open' WHERE id = ?").run(completion.teamupId);
 
-  // Update task.lastCompletedAt to the previous completion's completedAt (or NULL if none)
-  const prev = db.prepare(
-    "SELECT completedAt FROM task_completions WHERE taskId = ? AND status = 'approved' ORDER BY completedAt DESC LIMIT 1"
-  ).get(completion.taskId) as any;
-  db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?')
-    .run(prev?.completedAt || null, completion.taskId);
-  // Undoing a one-time chore's completion brings it back
-  if (!prev) db.prepare('UPDATE tasks SET archivedAt = NULL WHERE id = ? AND oneTime = 1').run(completion.taskId);
+    // Update task.lastCompletedAt to the previous completion's completedAt (or NULL if none)
+    const prev = db.prepare(
+      "SELECT completedAt FROM task_completions WHERE taskId = ? AND status = 'approved' ORDER BY completedAt DESC LIMIT 1"
+    ).get(completion.taskId) as { completedAt: string } | undefined;
+    db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?')
+      .run(prev?.completedAt || null, completion.taskId);
+    // Undoing a one-time chore's completion brings it back
+    if (!prev) db.prepare('UPDATE tasks SET archivedAt = NULL WHERE id = ? AND oneTime = 1').run(completion.taskId);
+  })();
 
-  res.json({ success: true, coinsDeducted: completion.coinsEarned });
+  res.json({ success: true, coinsDeducted });
 });
 
 export default router;

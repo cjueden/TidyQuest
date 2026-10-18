@@ -24,6 +24,7 @@ import { claimedLabel } from '../../utils/teamups';
 import { formatCoins } from '../../utils/format';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { api } from '../../hooks/useApi';
+import { TakeBackButton } from '../shared/TakeBackButton';
 
 /* ── Types ── */
 
@@ -74,6 +75,8 @@ interface Quest {
   teamUp?: TeamUpInfo | null;
   /** The viewer's own completions of this task still waiting for a parent (Strict Mode) */
   myPendingCount?: number;
+  /** My latest Done that waits for approval (I can take it back) */
+  myPendingId?: number | null;
   notes?: string | null;
   customCoins?: number | null;
   repeatLimit?: number | null;
@@ -354,6 +357,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         <span style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
           {opts.actions}
           <TeamUpButton info={q.teamUp} onClick={() => setTeamPick(q)} language={language} />
+          <TakeBackButton completionId={q.myPendingId} onDone={() => onRefresh?.()} language={language} />
           {proofButton(q, !state.disabled)}
           <button onClick={(e) => { e.stopPropagation(); if (!state.disabled) finish(q); }} disabled={state.disabled} className={state.disabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
             style={{ padding: '8px 14px', fontSize: 12, ...(state.disabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)' } : {}) }}>
@@ -790,6 +794,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                   <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
                   <TeamUpButton info={q.teamUp} onClick={() => setTeamPick(q)} language={language} />
+                  <TakeBackButton completionId={q.myPendingId} onDone={() => onRefresh?.()} language={language} />
                   {proofButton(q, !btnDisabled)}
                   <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={btnDisabled} className={btnDisabled ? 'tq-btn' : 'tq-btn tq-btn-primary'}
                     style={{ padding: '8px 14px', fontSize: 12, ...(btnDisabled ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>
@@ -850,6 +855,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                       </div>
                       <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
                       <TeamUpButton info={q.teamUp} onClick={() => setTeamPick(q)} language={language} />
+                      <TakeBackButton completionId={q.myPendingId} onDone={() => onRefresh?.()} language={language} />
                       {proofButton(q, !blocked)}
                       <button onClick={(e) => { e.stopPropagation(); handleDone(); }} disabled={blocked} className={blocked ? 'tq-btn' : 'tq-btn tq-btn-primary'}
                         style={{ padding: '8px 14px', fontSize: 12, ...(blocked ? { opacity: 0.55, cursor: 'default', backgroundColor: 'var(--warm-bg-subtle)', border: '1.5px solid var(--warm-border)', color: 'var(--warm-text-muted)', boxShadow: 'none' } : { backgroundColor: 'var(--warm-accent)', color: '#fff', boxShadow: '0 4px 14px var(--warm-primary-shadow)' }) }}>

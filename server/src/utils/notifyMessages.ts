@@ -61,9 +61,10 @@ export function notifyChoreApproved(childId: number, parentId: number, taskName:
   return notifyPeople([childId], 'outcome', (lang) => tr(lang, 'notify.choreApproved', { parent, task: taskName, coins }) + more);
 }
 
-export function notifyChoreRejected(childId: number, parentId: number, taskName: string) {
+export function notifyChoreRejected(childId: number, parentId: number, taskName: string, reason?: string | null) {
   const parent = nameOf(parentId);
-  return notifyPeople([childId], 'outcome', (lang) => tr(lang, 'notify.choreRejected', { parent, task: taskName }));
+  return notifyPeople([childId], 'outcome', (lang) =>
+    reason ? tr(lang, 'notify.choreRejectedReason', { parent, task: taskName, reason }) : tr(lang, 'notify.choreRejected', { parent, task: taskName }));
 }
 
 export function notifyRewardDecision(childId: number, parentId: number, reward: string, approved: boolean) {

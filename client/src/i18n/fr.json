@@ -290,7 +290,9 @@
       "themeGalaxy": "Galaxie",
       "themeLava": "Lave",
       "showAllRewards": "Voir les {n} récompenses",
-      "showFewerRewards": "Voir moins"
+      "showFewerRewards": "Voir moins",
+      "refundReward": "Rembourser",
+      "refundRewardConfirm": "Rembourser « {reward} » ? Les {coins} pièces reviennent à qui a payé, et la demande apparaît comme refusée."
     },
     "nav": {
       "home": "Accueil",
@@ -326,7 +328,9 @@
       "tasksSubtitle": "Toutes les tâches de toutes les pièces",
       "waitingForApproval": "En attente de validation",
       "waitingCount": "{n} en attente de validation",
-      "alreadyDone": "C'est déjà fait !"
+      "alreadyDone": "C'est déjà fait !",
+      "takeBack": "Annuler",
+      "takeBackHint": "Appuyé sur Fait par erreur ? Annule-le avant qu'un parent décide."
     },
     "admin": {
       "whoDidThisTask": "Qui a fait cette tâche ?",
@@ -895,7 +899,12 @@
       "approveSelected": "Valider {n}",
       "rejectSelected": "Refuser {n}",
       "approveAll": "Tout valider ({n})",
-      "proofPhoto": "Photo de preuve"
+      "proofPhoto": "Photo de preuve",
+      "rejectedOne": "Refusé : {what}",
+      "rejectedMany": "{n} tâches refusées",
+      "addReason": "Ajouter une raison",
+      "reasonPlaceholder": "Qu'est-ce qui manque ? (facultatif)",
+      "sendReason": "Envoyer"
     },
     "proof": {
       "addProof": "Ajouter une note ou une photo",
@@ -1248,7 +1257,8 @@
       "teamupInvite": "🤝 {name} a besoin d'aide pour « {task} »",
       "teamupAnyone": "🤝 {name} cherche un coéquipier pour « {task} »",
       "teamupJoined": "🤝 {name} te rejoint pour « {task} »",
-      "teamupDeclined": "🤝 {name} ne peut pas faire « {task} » avec toi cette fois. Tu peux demander à quelqu'un d'autre."
+      "teamupDeclined": "🤝 {name} ne peut pas faire « {task} » avec toi cette fois. Tu peux demander à quelqu'un d'autre.",
+      "choreRejectedReason": "↩️ « {task} » n'a pas été validé cette fois. {parent} dit : {reason}"
     },
     "notifyAdmin": {
       "peopleTitle": "Qui reçoit quoi",

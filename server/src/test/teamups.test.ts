@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createTestApp, createAdmin, createUser } from './setup';
 import { setNotifyTransport, type Delivery } from '../utils/notify';
+import { closeOldTeamups } from '../utils/teamups';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 
@@ -98,6 +99,51 @@ describe('Team-ups: doing a chore together', () => {
     pending = (await agent.get('/api/completions/pending').set(auth(admin.token))).body.pending;
     await agent.post(`/api/completions/${pending[0].id}/approve`).set(auth(admin.token)).expect(200);
     expect(earnedBy(tub)).toEqual([{ who: 'Cecil', coins: 8, status: 'approved' }, { who: 'Cylis', coins: 8, status: 'approved' }]);
+  });
+
+  it('undoes a team chore for everyone: coins back and the team-up open again', async () => {
+    const { admin, cecil, cylis, chore } = await family();
+    const tub = await chore('Clean Shower & Tub', 12);
+    const team = (await agent.post('/api/teamups').set(auth(cecil.token)).send({ taskId: tub })).body.teamup;
+    await agent.post(`/api/teamups/${team.id}/join`).set(auth(cylis.token)).expect(200);
+    await agent.post(`/api/tasks/${tub}/complete`).set(auth(cecil.token)).expect(200);
+    const coinsOf = (id: number) => (db.prepare('SELECT coins FROM users WHERE id = ?').get(id) as { coins: number }).coins;
+    expect([coinsOf(cecil.user.id), coinsOf(cylis.user.id)]).toEqual([7, 7]);
+
+    const cylisRow = (db.prepare('SELECT id FROM task_completions WHERE taskId = ? AND userId = ?').get(tub, cylis.user.id) as { id: number }).id;
+    await agent.delete(`/api/completions/${cylisRow}`).set(auth(cecil.token)).expect(409); // approved: a parent's job
+    const res = await agent.delete(`/api/completions/${cylisRow}`).set(auth(admin.token)).expect(200);
+    expect(res.body.coinsDeducted).toBe(14);
+    expect(earnedBy(tub)).toEqual([]);
+    expect([coinsOf(cecil.user.id), coinsOf(cylis.user.id)]).toEqual([0, 0]);
+    expect((db.prepare('SELECT status FROM teamups WHERE id = ?').get(team.id) as any).status).toBe('open');
+  });
+
+  it("lets a teammate take back the team's Done while it waits for approval", async () => {
+    const { admin, cecil, cylis, wyatt, chore } = await family();
+    await agent.put('/api/users/strict-mode-config').set(auth(admin.token)).send({ strictMode: true });
+    const tub = await chore('Clean Shower & Tub', 12);
+    const team = (await agent.post('/api/teamups').set(auth(cecil.token)).send({ taskId: tub })).body.teamup;
+    await agent.post(`/api/teamups/${team.id}/join`).set(auth(cylis.token)).expect(200);
+    await agent.post(`/api/tasks/${tub}/complete`).set(auth(cecil.token)).expect(200);
+    const quest = (await agent.get('/api/dashboard').set(auth(cylis.token))).body.onDemandQuests.find((q: any) => q.id === tub);
+    expect(quest.myPendingCount).toBe(1);
+    await agent.delete(`/api/completions/${quest.myPendingId}`).set(auth(wyatt.token)).expect(403);
+    await agent.delete(`/api/completions/${quest.myPendingId}`).set(auth(cylis.token)).expect(200);
+    expect(earnedBy(tub)).toEqual([]);
+    expect((db.prepare('SELECT status FROM teamups WHERE id = ?').get(team.id) as any).status).toBe('open');
+    expect((await agent.get('/api/completions/pending').set(auth(admin.token))).body.pending).toEqual([]);
+  });
+
+  it('closes team-ups left open from an earlier day', async () => {
+    const { cecil, chore } = await family();
+    const tub = await chore('Clean Shower & Tub', 12);
+    const team = (await agent.post('/api/teamups').set(auth(cecil.token)).send({ taskId: tub })).body.teamup;
+    const status = () => (db.prepare('SELECT status FROM teamups WHERE id = ?').get(team.id) as { status: string }).status;
+    expect(closeOldTeamups()).toBe(0);
+    expect(status()).toBe('open');
+    expect(closeOldTeamups(new Date(Date.now() + 24 * HOUR))).toBe(1);
+    expect(status()).toBe('cancelled');
   });
 
   it('ends the invite when the chore gets done another way, and counts toward the Teamwork badge', async () => {

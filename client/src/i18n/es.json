@@ -290,7 +290,9 @@
       "themeGalaxy": "Galaxia",
       "themeLava": "Lava",
       "showAllRewards": "Ver las {n} recompensas",
-      "showFewerRewards": "Ver menos"
+      "showFewerRewards": "Ver menos",
+      "refundReward": "Reembolsar",
+      "refundRewardConfirm": "¿Reembolsar «{reward}»? Las {coins} monedas vuelven a quien pagó y aparecerá como rechazada."
     },
     "nav": {
       "home": "Inicio",
@@ -326,7 +328,9 @@
       "tasksSubtitle": "Todas las tareas de todas las habitaciones",
       "waitingForApproval": "Esperando aprobación",
       "waitingCount": "{n} esperando aprobación",
-      "alreadyDone": "¡Eso ya está hecho!"
+      "alreadyDone": "¡Eso ya está hecho!",
+      "takeBack": "Deshacer",
+      "takeBackHint": "¿Pulsaste Hecho por error? Deshazlo antes de que decida un padre."
     },
     "admin": {
       "whoDidThisTask": "¿Quién completó esta tarea?",
@@ -895,7 +899,12 @@
       "approveSelected": "Aprobar {n}",
       "rejectSelected": "Rechazar {n}",
       "approveAll": "Aprobar todo ({n})",
-      "proofPhoto": "Foto de prueba"
+      "proofPhoto": "Foto de prueba",
+      "rejectedOne": "Rechazada: {what}",
+      "rejectedMany": "{n} tareas rechazadas",
+      "addReason": "Añadir un motivo",
+      "reasonPlaceholder": "¿Qué falta? (opcional)",
+      "sendReason": "Enviar"
     },
     "proof": {
       "addProof": "Añadir una nota o foto",
@@ -1248,7 +1257,8 @@
       "teamupInvite": "🤝 {name} quiere ayuda con «{task}»",
       "teamupAnyone": "🤝 {name} busca compañero para «{task}»",
       "teamupJoined": "🤝 {name} se unió a ti para «{task}»",
-      "teamupDeclined": "🤝 {name} no puede hacer «{task}» contigo esta vez. Puedes pedírselo a otra persona."
+      "teamupDeclined": "🤝 {name} no puede hacer «{task}» contigo esta vez. Puedes pedírselo a otra persona.",
+      "choreRejectedReason": "↩️ «{task}» no se aprobó esta vez. {parent} dice: {reason}"
     },
     "notifyAdmin": {
       "peopleTitle": "Quién recibe qué",

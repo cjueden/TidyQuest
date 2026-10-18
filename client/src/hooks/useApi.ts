@@ -316,8 +316,8 @@ export const api = {
     }),
   approveCompletionsBatch: (ids: number[]) =>
     apiFetch<{ approved: number[]; skipped: Array<{ id: number; error: string }> }>('/completions/approve-batch', { method: 'POST', body: JSON.stringify({ ids }) }),
-  rejectCompletionsBatch: (ids: number[]) =>
-    apiFetch<{ rejected: number[]; skipped: Array<{ id: number; error: string }> }>('/completions/reject-batch', { method: 'POST', body: JSON.stringify({ ids }) }),
+  rejectCompletionsBatch: (ids: number[], reason?: string) =>
+    apiFetch<{ rejected: number[]; skipped: Array<{ id: number; error: string }> }>('/completions/reject-batch', { method: 'POST', body: JSON.stringify({ ids, reason }) }),
   uploadCompletionPhoto: async (completionId: number, file: File) => {
     const token = getToken();
     const formData = new FormData();
@@ -486,6 +486,8 @@ export const api = {
     apiFetch<{ rewards: any[]; redemptions: any[]; rotatingPerWeek?: number; rotatingThisWeek?: number[] }>('/rewards/admin'),
   updateRedemptionStatus: (id: number, status: 'requested' | 'approved' | 'rejected') =>
     apiFetch<any>(`/rewards/redemptions/${id}`, { method: 'PUT', body: JSON.stringify({ status }) }),
+  refundRedemption: (id: number) =>
+    apiFetch<{ id: number; status: string }>(`/rewards/redemptions/${id}/refund`, { method: 'POST' }),
   cancelRedemption: (id: number) =>
     apiFetch<{ redemption: any; coins: number }>(`/rewards/redemptions/${id}/cancel`, { method: 'POST' }),
   createReward: (data: { title: string; description?: string; costCoins: number }) =>
@@ -534,8 +536,8 @@ export const api = {
     apiFetch<UnlocksView>('/unlocks', { method: 'PUT', body: JSON.stringify(data) }),
   cheer: (completionId: number, emoji: string) =>
     apiFetch<{ cheers: CheerSummary }>('/cheers', { method: 'POST', body: JSON.stringify({ completionId, emoji }) }),
-  rejectPendingCompletion: (completionId: number) =>
-    apiFetch<{ success: boolean }>(`/completions/${completionId}/reject`, { method: 'DELETE' }),
+  rejectPendingCompletion: (completionId: number, reason?: string) =>
+    apiFetch<{ success: boolean }>(`/completions/${completionId}/reject`, { method: 'DELETE', body: JSON.stringify({ reason }) }),
 
   adjustCoins: (userId: number, amount: number, reason?: string) =>
     apiFetch<any>(`/users/${userId}/adjust-coins`, { method: 'POST', body: JSON.stringify({ amount, ...(reason ? { reason } : {}) }) }),

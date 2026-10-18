@@ -12,6 +12,7 @@ import { formatNextDue, isTaskForUser, taskNextDue } from '../../utils/tasks';
 import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker } from '../shared/ScheduleFields';
 import { EMPTY_SCHEDULE, schedulePayload, scheduleFromTask, seasonLabel, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
 import { api } from '../../hooks/useApi';
+import { TakeBackButton } from '../shared/TakeBackButton';
 import { localeFor } from '../../utils/locale';
 import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
@@ -81,6 +82,8 @@ interface Task extends ScheduledTaskFields {
   rotationCurrentUserId?: number | null;
   customCoins?: number | null;
   myPendingCount?: number;
+  /** My latest Done that waits for approval (I can take it back) */
+  myPendingId?: number | null;
   repeatLimit?: number | null;
   repeatPeriod?: 'day' | 'week' | null;
   /** The viewer's completions of this anytime quest in the current day/week */
@@ -967,6 +970,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     return (
                       <>
                       <TeamUpButton info={task.teamUp} onClick={() => setTeamPick(task)} language={language} />
+                      <TakeBackButton completionId={task.myPendingId} onDone={() => onRefresh?.()} language={language} />
                       {canAddProof && !btn.disabled && (
                         <button onClick={() => setProofTask(task)} className="tq-btn tq-btn-secondary tq-btn-sm" title={t('proof.addProof')} aria-label={t('proof.addProof')}>📎</button>
                       )}

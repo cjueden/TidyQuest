@@ -151,7 +151,7 @@ const GUIDE_EN: GuideSection[] = [
       { ul: [
         'Tap Done on Home, in the room, or on the Tasks page. The 📎 button adds a note or photo as proof.',
         'Parents and members can mark a chore done for someone else ("who did it?").',
-        'A mistake can be undone from Activity (parents) or the chore’s "Done by" line.',
+        'A mistake can be undone from Activity (parents) or the chore’s "Done by" line. A team-up is undone for the whole team, and everyone’s coins for it are taken back. A kid can take back their own Done while it waits for approval.',
       ] },
     ],
   },
@@ -180,6 +180,7 @@ const GUIDE_EN: GuideSection[] = [
       { h: 'Rewards' },
       { ul: [
         'Each reward has a price. Kids request it; a parent approves or turns it down.',
+        'Approved one by mistake? Reward requests (under the catalog) has Refund next to each approved reward: the coins go back (a shared pot to everyone who chipped in) and it shows as rejected.',
         'Rules per reward: a limit (per day, week, month or ever; per person or for everyone), a date window, Rotating (only a few show each week), who can see it, a different price per person, and a category.',
         'Shared saving: anyone can chip coins into a pot; when it’s full it goes to a parent. The chip-in box starts at 0, and each chip-in shows in Activity.',
       ] },
@@ -192,6 +193,7 @@ const GUIDE_EN: GuideSection[] = [
       { ul: [
         'Adjust coins (Family Members) adds or takes away coins with a reason.',
         'When approving a chore, ⭐💬 adds a note and an "above and beyond" bonus (+1, +2 or +5).',
+        'Rejecting a chore shows "Rejected · Undo" for 5 seconds before it goes through. 💬 Add a reason pauses that and sends the kid one line on what’s missing (with their outcome notification).',
         'Double coins events (Settings → Double coins events): a multiplier for a time window, for everything, chosen rooms, or chosen chores.',
       ] },
     ],
@@ -286,6 +288,7 @@ const GUIDE_EN: GuideSection[] = [
         ] },
         { q: 'I tapped Done but got no coins', a: [
           'With Strict Mode on, a kid’s chore waits for a parent. It shows as waiting in Activity and on the parent’s Home under "Waiting for approval".',
+          'Tapped Done by mistake? While it waits, ↩ Take back (next to the button) undoes it; on a team-up it’s taken back for the whole team.',
           'If Gamification is off (Settings → General), there are no coins at all.',
           'If a parent turned it down, the chore is open again; under team-ups it goes back to the team.',
         ] },

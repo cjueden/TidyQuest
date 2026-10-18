@@ -290,7 +290,9 @@
       "themeGalaxy": "Melkweg",
       "themeLava": "Lava",
       "showAllRewards": "Alle {n} beloningen tonen",
-      "showFewerRewards": "Minder tonen"
+      "showFewerRewards": "Minder tonen",
+      "refundReward": "Terugbetalen",
+      "refundRewardConfirm": "\"{reward}\" terugbetalen? De {coins} munten gaan terug naar wie betaalde, en het verzoek staat als afgewezen."
     },
     "nav": {
       "home": "Home",
@@ -326,7 +328,9 @@
       "tasksSubtitle": "Alle klusjes uit alle kamers",
       "waitingForApproval": "Wacht op goedkeuring",
       "waitingCount": "{n} wachten op goedkeuring",
-      "alreadyDone": "Dat is al gedaan!"
+      "alreadyDone": "Dat is al gedaan!",
+      "takeBack": "Terugnemen",
+      "takeBackHint": "Per ongeluk op Klaar getikt? Neem het terug voordat een ouder beslist."
     },
     "admin": {
       "whoDidThisTask": "Wie heeft dit klusje gedaan?",
@@ -895,7 +899,12 @@
       "approveSelected": "{n} goedkeuren",
       "rejectSelected": "{n} afwijzen",
       "approveAll": "Alles goedkeuren ({n})",
-      "proofPhoto": "Bewijsfoto"
+      "proofPhoto": "Bewijsfoto",
+      "rejectedOne": "Afgewezen: {what}",
+      "rejectedMany": "{n} klusjes afgewezen",
+      "addReason": "Reden toevoegen",
+      "reasonPlaceholder": "Wat ontbreekt er? (optioneel)",
+      "sendReason": "Versturen"
     },
     "proof": {
       "addProof": "Notitie of foto toevoegen",
@@ -1248,7 +1257,8 @@
       "teamupInvite": "🤝 {name} wil hulp bij “{task}”",
       "teamupAnyone": "🤝 {name} zoekt een teamgenoot voor “{task}”",
       "teamupJoined": "🤝 {name} doet mee met “{task}”",
-      "teamupDeclined": "🤝 {name} kan deze keer niet mee met “{task}”. Je kunt iemand anders vragen."
+      "teamupDeclined": "🤝 {name} kan deze keer niet mee met “{task}”. Je kunt iemand anders vragen.",
+      "choreRejectedReason": "↩️ “{task}” is deze keer niet goedgekeurd. {parent} zegt: {reason}"
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",

@@ -290,7 +290,9 @@
       "themeGalaxy": "Galaxie",
       "themeLava": "Lava",
       "showAllRewards": "Alle {n} Belohnungen zeigen",
-      "showFewerRewards": "Weniger zeigen"
+      "showFewerRewards": "Weniger zeigen",
+      "refundReward": "Erstatten",
+      "refundRewardConfirm": "„{reward}“ erstatten? Die {coins} Münzen gehen an alle zurück, die bezahlt haben, und die Anfrage gilt als abgelehnt."
     },
     "nav": {
       "home": "Startseite",
@@ -326,7 +328,9 @@
       "tasksSubtitle": "Alle Aufgaben aus allen Räumen",
       "waitingForApproval": "Wartet auf Freigabe",
       "waitingCount": "{n} warten auf Freigabe",
-      "alreadyDone": "Das ist schon erledigt!"
+      "alreadyDone": "Das ist schon erledigt!",
+      "takeBack": "Zurücknehmen",
+      "takeBackHint": "Aus Versehen auf Erledigt getippt? Nimm es zurück, bevor ein Elternteil entscheidet."
     },
     "admin": {
       "whoDidThisTask": "Wer hat diese Aufgabe erledigt?",
@@ -895,7 +899,12 @@
       "approveSelected": "{n} freigeben",
       "rejectSelected": "{n} ablehnen",
       "approveAll": "Alle freigeben ({n})",
-      "proofPhoto": "Beweisfoto"
+      "proofPhoto": "Beweisfoto",
+      "rejectedOne": "Abgelehnt: {what}",
+      "rejectedMany": "{n} Aufgaben abgelehnt",
+      "addReason": "Grund angeben",
+      "reasonPlaceholder": "Was fehlt noch? (optional)",
+      "sendReason": "Senden"
     },
     "proof": {
       "addProof": "Notiz oder Foto hinzufügen",
@@ -1248,7 +1257,8 @@
       "teamupInvite": "🤝 {name} braucht Hilfe bei „{task}“",
       "teamupAnyone": "🤝 {name} sucht einen Teampartner für „{task}“",
       "teamupJoined": "🤝 {name} macht bei „{task}“ mit",
-      "teamupDeclined": "🤝 {name} kann diesmal nicht bei „{task}“ mitmachen. Du kannst jemand anderen fragen."
+      "teamupDeclined": "🤝 {name} kann diesmal nicht bei „{task}“ mitmachen. Du kannst jemand anderen fragen.",
+      "choreRejectedReason": "↩️ „{task}“ wurde diesmal nicht bestätigt. {parent} sagt: {reason}"
     },
     "notifyAdmin": {
       "peopleTitle": "Wer bekommt was",
