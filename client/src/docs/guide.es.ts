@@ -285,6 +285,7 @@ export const GUIDE_ES: GuideSection[] = [
         'Dividir por Persona (en el color de cada uno), Habitación o Tarea. A partir de 8 habitaciones o tareas, el resto se agrupa en Otras.',
         'Momentos de más y menos actividad: los días de la semana por hora del día, de media en las últimas 4 o 12 semanas. Los colores más intensos son cuando más se hace; los cuadros pálidos son malos momentos para insistir. Mostrar números pone las medias en los cuadros.',
         'Quién hace cuánto: la parte de cada persona en el periodo y el cambio respecto al periodo anterior (si el periodo sigue en curso, hasta el mismo momento, como la semana pasada hasta ahora).',
+        'Olvidadas y con retraso (por tarea o agrupadas por habitación): tareas que a menudo se hacen después de su día y con cuántos días de retraso; tareas que quedaron atrasadas al final del día (se registran cada noche desde que se instaló esta versión); y tareas de El primero gana que nadie cogió, con cuánto esperaron y cuáles siguen esperando.',
         'El menú Todos limita las barras y los cuadros a una persona. Las tareas de los padres también cuentan.',
       ] },
       { tip: 'Con las funciones de juego desactivadas, las Estadísticas siguen funcionando; solo se oculta la medida Monedas.' },

@@ -309,6 +309,7 @@ export const GUIDE_EN: GuideSection[] = [
         'Split by Person (in each person’s color), Room or Chore. Past 8 rooms or chores, the rest are grouped as Other.',
         'Busy and quiet times: weekdays by time of day, averaged over the last 4 or 12 weeks. The strongest colors are when the most gets done; faint squares are bad times to push chores. Show numbers puts the averages in the squares.',
         'Who does how much: each person’s share of the period, and the change from the period before (while a period is still running, up to the same point, like last week by now).',
+        'Skipped and late (by chore, or rolled up by room): chores often done after their due day and by how many days; chores left overdue at the end of a day (recorded nightly from the day this version was installed); and First come, first served chores nobody grabbed, with how long they waited and which are waiting now.',
         'The Everyone menu narrows the bars and the squares to one person. Parents’ own chores are included.',
       ] },
       { tip: 'With game features switched off, Insights still works; only the Coins measure is hidden.' },

@@ -285,6 +285,7 @@ export const GUIDE_FR: GuideSection[] = [
         'Répartir par Personne (dans la couleur de chacun), Pièce ou Tâche. Au-delà de 8 pièces ou tâches, le reste est regroupé dans Autres.',
         'Moments chargés et calmes : les jours de la semaine par moment de la journée, en moyenne sur les 4 ou 12 dernières semaines. Les couleurs les plus fortes montrent quand on en fait le plus ; les cases pâles sont de mauvais moments pour insister. Afficher les chiffres met les moyennes dans les cases.',
         'Qui fait combien : la part de chacun sur la période, et l’écart avec la période d’avant (pour une période en cours, jusqu’au même moment, comme la semaine dernière à ce stade).',
+        'Oubliées et en retard (par tâche, ou regroupées par pièce) : les tâches souvent faites après leur jour prévu et de combien de jours ; les tâches restées en retard à la fin d’une journée (enregistrées chaque nuit depuis l’installation de cette version) ; et les tâches Premier arrivé, premier servi que personne n’a prises, avec leur temps d’attente et celles qui attendent encore.',
         'Le menu Tout le monde limite les barres et les cases à une seule personne. Les tâches des parents sont incluses.',
       ] },
       { tip: 'Avec les fonctions de jeu désactivées, les Statistiques marchent toujours ; seule la mesure Pièces est masquée.' },

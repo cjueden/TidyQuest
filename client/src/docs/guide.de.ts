@@ -285,6 +285,7 @@ export const GUIDE_DE: GuideSection[] = [
         'Aufteilen nach Person (in der Farbe jeder Person), Raum oder Aufgabe. Ab mehr als 8 Räumen oder Aufgaben landet der Rest unter Andere.',
         'Viel und wenig los: die Wochentage nach Tageszeit, im Durchschnitt der letzten 4 oder 12 Wochen. In den kräftigsten Feldern wird am meisten erledigt; blasse sind schlechte Zeiten, um Aufgaben zu verlangen. Zahlen zeigen schreibt die Durchschnitte in die Felder.',
         'Wer macht wie viel: der Anteil jeder Person am Zeitraum und die Veränderung zum Zeitraum davor (bei einem laufenden Zeitraum bis zum gleichen Zeitpunkt, etwa letzte Woche bis jetzt).',
+        'Liegen geblieben und verspätet (pro Aufgabe oder pro Raum zusammengefasst): Aufgaben, die oft nach dem fälligen Tag erledigt werden, und um wie viele Tage; Aufgaben, die am Ende eines Tages noch überfällig waren (jede Nacht aufgezeichnet, seit diese Version installiert ist); und Erster-gewinnt-Aufgaben, die keiner nahm, mit ihrer Wartezeit und welche gerade warten.',
         'Das Menü Alle beschränkt Balken und Felder auf eine Person. Die Aufgaben der Eltern zählen mit.',
       ] },
       { tip: 'Auch mit ausgeschalteten Spielfunktionen funktioniert die Auswertung; nur die Messgröße Münzen ist ausgeblendet.' },

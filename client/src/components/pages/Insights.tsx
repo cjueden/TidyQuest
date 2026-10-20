@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { api, type InsightsBars, type InsightsHeatmap, type InsightsPeriod } from '../../hooks/useApi';
+import { api, type InsightsBars, type InsightsHeatmap, type InsightsPeriod, type InsightsSkipped } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
-import { bucketLabels, formatValue, heatGrid, periodLabel, shares, stackBars, type Measure, type StackBy } from '../insights/insightsData';
+import { bucketLabels, formatValue, heatGrid, periodLabel, shares, skippedLists, stackBars, type ListBy, type Measure, type StackBy } from '../insights/insightsData';
+import { SkippedLists } from '../insights/SkippedLists';
+import { localeFor } from '../../utils/locale';
 import { LegendRow, PeriodBars } from '../insights/PeriodBars';
 import { HeatScale, WeekHeatmap, type HeatCell } from '../insights/WeekHeatmap';
 import { weekdayName, WEEK_ORDER } from '../../utils/schedule';
@@ -50,6 +52,8 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const [cell, setCell] = useState<HeatCell | null>(null);
   const [showTable, setShowTable] = useState(false);
   const [showNumbers, setShowNumbers] = useState(false);
+  const [skipped, setSkipped] = useState<InsightsSkipped | null>(null);
+  const [listBy, setListBy] = useState<ListBy>('chore');
 
   const measure: Measure = !gamificationEnabled && measureChoice === 'coins' ? 'chores' : measureChoice;
   const barsKey = `${period}:${offset}`;
@@ -59,6 +63,14 @@ export function Insights({ language, gamificationEnabled }: Props) {
     let live = true;
     api.getInsightsBars(period, offset)
       .then((d) => { if (live) { setBars(d); setFailed(false); } })
+      .catch(() => { if (live) setFailed(true); });
+    return () => { live = false; };
+  }, [period, offset]);
+
+  useEffect(() => {
+    let live = true;
+    api.getInsightsSkipped(period, offset)
+      .then((d) => { if (live) setSkipped(d); })
       .catch(() => { if (live) setFailed(true); });
     return () => { live = false; };
   }, [period, offset]);
@@ -85,6 +97,23 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const grid = heat ? heatGrid(heat, measure, person) : null;
   const people = current?.people ?? heat?.people ?? [];
   const shareRows = current ? shares(current, measure) : [];
+
+  // Skipped lists carry their own chores and rooms (not only the ones done this period)
+  const skipTasks = new Map((skipped?.tasks ?? []).map((x) => [x.id, x]));
+  const skipRooms = new Map((skipped?.rooms ?? []).map((x) => [x.id, x]));
+  const lists = skipped ? skippedLists(skipped, listBy, person, {
+    task: (id) => { const x = skipTasks.get(id); return x ? taskName(x.name, x.translationKey) : '?'; },
+    room: (id) => { const x = skipRooms.get(id); return x ? roomDisplayName(x.name, x.roomType) : '?'; },
+  }) : null;
+  const undoneNote = (() => {
+    if (!skipped) return null;
+    if (!skipped.snapshotSince) return t('insights.undoneNotYet');
+    const firstDay = new Date(skipped.start).toLocaleDateString('en-CA');
+    if (skipped.snapshotSince <= firstDay) return null;
+    const since = new Date(`${skipped.snapshotSince}T12:00:00`).toLocaleDateString(localeFor(language), { day: 'numeric', month: 'short' });
+    return t('insights.undoneSince').replace('{date}', since);
+  })();
+  const personName = people.find((p) => p.id === person)?.name;
 
   const canGoBack = !!current?.earliest && new Date(current.earliest) < new Date(current.start);
   const total = stacked ? stacked.totals.reduce((a, b) => a + b, 0) : 0;
@@ -258,6 +287,19 @@ export function Insights({ language, gamificationEnabled }: Props) {
               );
             })}
           </div>
+        )}
+      </section>
+
+      {/* Skipped and late */}
+      <section className="tq-card tq-card-padded" aria-labelledby="insights-skipped">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+          <h2 id="insights-skipped" style={cardTitle}>{t('insights.skippedTitle')}</h2>
+          <Segmented label={t('insights.listBy')} value={listBy} onChange={setListBy}
+            options={[{ value: 'chore', label: t('insights.chores') }, { value: 'room', label: t('insights.rooms') }]} />
+        </div>
+        {personName && <p style={{ ...muted, margin: '6px 0 0' }}>{t('insights.onlyPerson').replace('{name}', personName)}</p>}
+        {!lists ? <p style={muted}>{t('insights.loading')}</p> : (
+          <SkippedLists lists={lists} language={language} t={t} undoneNote={undoneNote} />
         )}
       </section>
     </div>

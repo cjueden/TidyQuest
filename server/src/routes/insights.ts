@@ -3,7 +3,7 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { startOfLocalDay } from '../utils/periods';
-import { bucketIndex, choresDone, heatSlot, INSIGHTS_PERIODS, parseDbTime, periodWindow, samePointBefore, type InsightsPeriod } from '../utils/insights';
+import { bucketIndex, choresDone, heatSlot, INSIGHTS_PERIODS, parseDbTime, periodWindow, samePointBefore, skippedChores, snapshotSince, type InsightsPeriod } from '../utils/insights';
 
 // Insights for parents (NEW-7). Admins only. Rows are compact arrays; the client stacks and switches measure.
 const router = Router();
@@ -63,6 +63,19 @@ router.get('/bars', (req: AuthRequest, res: Response) => {
     rows: [...grouped.values()],
     previous: [...previous.values()],
     previousSoFar: soFar,
+  });
+});
+
+// Skipped and late chores for one period (see skippedChores); rooms are rolled up on the client
+router.get('/skipped', (req: AuthRequest, res: Response) => {
+  const period = (INSIGHTS_PERIODS as string[]).includes(String(req.query.period)) ? req.query.period as InsightsPeriod : 'week';
+  const offset = Math.min(0, Math.max(-520, Math.trunc(Number(req.query.offset)) || 0));
+  const win = periodWindow(period, offset);
+  res.json({
+    period, offset, start: win.start.toISOString(), end: win.end.toISOString(),
+    snapshotSince: snapshotSince(),
+    rooms: db.prepare('SELECT id, name, roomType FROM rooms ORDER BY sortOrder, id').all(),
+    ...skippedChores(win.start, win.end),
   });
 });
 

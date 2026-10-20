@@ -68,6 +68,22 @@ export interface InsightsBars {
   /** The period is still running, so `previous` stops at the same point (this time last week) */
   previousSoFar: boolean;
 }
+/** Skipped and late chores for a period (see server utils/insights.ts skippedChores) */
+export interface InsightsSkipped {
+  period: InsightsPeriod; offset: number; start: string; end: string;
+  /** First day "left overdue" was recorded ('YYYY-MM-DD'), or null before the first night */
+  snapshotSince: string | null;
+  rooms: Array<{ id: number; name: string; roomType: string }>;
+  tasks: Array<{ id: number; name: string; translationKey: string | null; roomId: number; pool: boolean; assignees: number[] }>;
+  /** [taskId, userId, times done, times late, days late added up, most days late] */
+  late: Array<[number, number, number, number, number, number]>;
+  /** [taskId, days left overdue, most days overdue] */
+  undone: Array<[number, number, number]>;
+  /** Open pools: [taskId, times done, hours waited added up, longest wait in hours] */
+  waits: Array<[number, number, number, number]>;
+  /** Open pools overdue right now: [taskId, hours since due] */
+  waitingNow: Array<[number, number]>;
+}
 /** rows are [weekday (0 = Mon), slot, userId, chores, coins, effort] */
 export interface InsightsHeatmap { weeks: 4 | 12; start: string; end: string; people: InsightsPerson[]; rows: Array<[number, number, number, number, number, number]> }
 
@@ -583,6 +599,7 @@ export const api = {
   // Recently deleted tasks and rewards (kept 30 days)
   // Insights for parents
   getInsightsBars: (period: InsightsPeriod, offset: number) => apiFetch<InsightsBars>(`/insights/bars?period=${period}&offset=${offset}`),
+  getInsightsSkipped: (period: InsightsPeriod, offset: number) => apiFetch<InsightsSkipped>(`/insights/skipped?period=${period}&offset=${offset}`),
   getInsightsHeatmap: (weeks: 4 | 12) => apiFetch<InsightsHeatmap>(`/insights/heatmap?weeks=${weeks}`),
 
   getTrash: () => apiFetch<{ items: TrashItem[]; keepDays: number }>('/trash'),

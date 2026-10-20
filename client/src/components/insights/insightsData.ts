@@ -1,4 +1,4 @@
-import type { InsightsBars, InsightsHeatmap, InsightsPeriod } from '../../hooks/useApi';
+import type { InsightsBars, InsightsHeatmap, InsightsPeriod, InsightsSkipped } from '../../hooks/useApi';
 import { localeFor } from '../../utils/locale';
 
 export type Measure = 'chores' | 'coins' | 'effort';
@@ -139,4 +139,75 @@ export function niceTicks(max: number): number[] {
 
 export function formatValue(v: number, language: string, decimals = 0): string {
   return v.toLocaleString(localeFor(language), { maximumFractionDigits: decimals, notation: v >= 10000 ? 'compact' : 'standard' });
+}
+
+export type ListBy = 'chore' | 'room';
+export interface LateItem { key: string; name: string; room: string | null; done: number; late: number; avgDays: number; worst: number }
+export interface UndoneItem { key: string; name: string; room: string | null; days: number; worst: number }
+export interface WaitItem { key: string; name: string; room: string | null; count: number; avgHours: number; longest: number; now: number | null }
+
+/**
+ * The three skipped lists, by chore or rolled up by room. With a person picked: chores they did late,
+ * and chores assigned to them (or to nobody in particular) for "left overdue" and the open pools.
+ */
+/** What an open-pool row shows and is ranked by: the average wait, or how long it's been waiting if never done. */
+export const waitValue = (i: WaitItem) => (i.count ? i.avgHours : i.now ?? 0);
+
+export function skippedLists(data: InsightsSkipped, by: ListBy, personId: number | null, names: Names) {
+  const tasks = new Map(data.tasks.map((t) => [t.id, t]));
+  const theirs = (taskId: number) => {
+    const t = tasks.get(taskId);
+    return !!t && (personId == null || t.assignees.length === 0 || t.assignees.includes(personId));
+  };
+  const keyOf = (taskId: number) => (by === 'room' ? `r${tasks.get(taskId)?.roomId ?? 0}` : `t${taskId}`);
+  const label = (taskId: number) => {
+    const t = tasks.get(taskId)!;
+    return by === 'room'
+      ? { name: names.room(t.roomId), room: null }
+      : { name: names.task(t.id), room: names.room(t.roomId) };
+  };
+
+  const late = new Map<string, LateItem & { sum: number }>();
+  for (const [taskId, userId, done, lateN, sum, worst] of data.late) {
+    if (!tasks.has(taskId) || (personId != null && userId !== personId)) continue;
+    const k = keyOf(taskId);
+    const it = late.get(k) ?? { key: k, ...label(taskId), done: 0, late: 0, avgDays: 0, worst: 0, sum: 0 };
+    it.done += done; it.late += lateN; it.sum += sum; it.worst = Math.max(it.worst, worst);
+    late.set(k, it);
+  }
+  const undone = new Map<string, UndoneItem>();
+  for (const [taskId, days, worst] of data.undone) {
+    if (!theirs(taskId)) continue;
+    const k = keyOf(taskId);
+    const it = undone.get(k) ?? { key: k, ...label(taskId), days: 0, worst: 0 };
+    it.days += days; it.worst = Math.max(it.worst, worst);
+    undone.set(k, it);
+  }
+  const waits = new Map<string, WaitItem & { sum: number }>();
+  const waitItem = (taskId: number) => {
+    const k = keyOf(taskId);
+    const it = waits.get(k) ?? { key: k, ...label(taskId), count: 0, avgHours: 0, longest: 0, now: null, sum: 0 };
+    waits.set(k, it);
+    return it;
+  };
+  for (const [taskId, count, sum, longest] of data.waits) {
+    if (!theirs(taskId)) continue;
+    const it = waitItem(taskId);
+    it.count += count; it.sum += sum; it.longest = Math.max(it.longest, longest);
+  }
+  for (const [taskId, hours] of data.waitingNow) {
+    if (!theirs(taskId)) continue;
+    const it = waitItem(taskId);
+    it.now = Math.max(it.now ?? 0, hours);
+  }
+
+  return {
+    late: [...late.values()].filter((i) => i.late > 0)
+      .map(({ sum, ...i }) => ({ ...i, avgDays: sum / i.late }))
+      .sort((a, b) => b.late - a.late || b.avgDays - a.avgDays || a.name.localeCompare(b.name)),
+    undone: [...undone.values()].sort((a, b) => b.days - a.days || b.worst - a.worst || a.name.localeCompare(b.name)),
+    waits: [...waits.values()]
+      .map(({ sum, ...i }) => ({ ...i, avgHours: i.count ? sum / i.count : 0 }))
+      .sort((a, b) => waitValue(b) - waitValue(a) || a.name.localeCompare(b.name)),
+  };
 }

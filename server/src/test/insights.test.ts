@@ -4,6 +4,7 @@ import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { startOfLocalWeek } from '../utils/periods';
 import { heatSlot, periodWindow, snapshotOverdueChores } from '../utils/insights';
+import { localDateStr } from '../utils/dateHelpers';
 
 let agent: supertest.Agent;
 let db: InstanceType<typeof Database>;
@@ -104,11 +105,85 @@ describe('insights', () => {
     db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(new Date(Date.now() - 4 * 86400000).toISOString(), task);
     db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(new Date().toISOString(), fresh);
 
-    expect(snapshotOverdueChores()).toBe(1);
+    const quest = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name: 'Any job', effort: 1, onDemand: true, customCoins: 5 })).body.id as number;
+    db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(new Date(Date.now() - 9 * 86400000).toISOString(), quest);
+
+    expect(snapshotOverdueChores()).toBe(1); // not the anytime quest
+    expect(db.prepare("SELECT value FROM app_settings WHERE key = 'overdueSnapshotSince'").get()).toBeTruthy();
     const rows = db.prepare('SELECT taskId, roomId, daysOverdue FROM chore_overdue_days').all() as Array<{ taskId: number; roomId: number; daysOverdue: number }>;
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ taskId: task, roomId: room });
     expect(rows[0].daysOverdue).toBeGreaterThanOrEqual(2);
     expect(snapshotOverdueChores()).toBe(0); // already taken today
+  });
+
+  describe('skipped and late chores', () => {
+    /** Last week's day (0 = Monday) at hour:minute, local time. */
+    const lastWeek = (days: number, hour: number, minute = 0) => thisWeek(days - 7, hour, minute);
+    const setMode = (taskId: number, mode: string, userIds: number[]) => {
+      db.prepare('UPDATE tasks SET assignmentMode = ? WHERE id = ?').run(mode, taskId);
+      db.prepare('DELETE FROM task_assignees WHERE taskId = ?').run(taskId);
+      for (const u of userIds) db.prepare('INSERT INTO task_assignees (taskId, userId) VALUES (?, ?)').run(taskId, u);
+    };
+
+    it('works out lateness from the completion before, per person for shared chores', async () => {
+      const { admin, kid, room, task } = await family();
+      const kidId = kid.user.id as number;
+      const kid2 = (await createUser(agent, admin.token, { username: 'kid2', displayName: 'Kid 2', password: 'pass123', role: 'child' })).user.id as number;
+      setMode(task, 'first', [kidId]); // daily, assigned to one kid: not an open pool
+      done(task, kidId, lastWeek(-1, 10), 3); // the Sunday before
+      done(task, kidId, lastWeek(0, 10), 3); // on time
+      done(task, kidId, lastWeek(3, 9), 3); // due Tuesday, done Thursday: 2 days late
+
+      const shared = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name: 'Make bed', effort: 1, frequencyDays: 1 })).body.id as number;
+      setMode(shared, 'shared', [kidId, kid2]);
+      done(shared, kidId, lastWeek(-1, 9), 1);
+      done(shared, kid2, lastWeek(-3, 9), 1);
+      done(shared, kidId, lastWeek(0, 9), 1); // on time for this kid
+      done(shared, kid2, lastWeek(0, 9, 1), 1); // 2 days late for the other
+
+      const res = await agent.get('/api/insights/skipped?period=week&offset=-1').set(auth(admin.token)).expect(200);
+      expect(res.body.late).toEqual(expect.arrayContaining([
+        [task, kidId, 2, 1, 2, 2],
+        [shared, kidId, 1, 0, 0, 0],
+        [shared, kid2, 1, 1, 2, 2],
+      ]));
+      expect(res.body.waits).toEqual([]);
+      expect(res.body.tasks.find((t: { id: number }) => t.id === task)).toMatchObject({ pool: false, assignees: [kidId], roomId: room });
+    });
+
+    it('measures how long open-pool chores waited, and counts a team-up once', async () => {
+      const { admin, kid, room } = await family();
+      const kidId = kid.user.id as number;
+      const pool = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name: 'Walk dog', effort: 2, frequencyDays: 1 })).body.id as number;
+      setMode(pool, 'first', []);
+      done(pool, kidId, lastWeek(-1, 8), 4);
+      done(pool, kidId, lastWeek(0, 14), 2); // due Monday 8:00, taken at 14:00
+      done(pool, admin.user.id as number, new Date(lastWeek(0, 14).getTime() + 5000), 2); // team-up partner
+
+      const res = await agent.get('/api/insights/skipped?period=week&offset=-1').set(auth(admin.token)).expect(200);
+      expect(res.body.waits).toEqual([[pool, 1, 6, 6]]);
+      expect(res.body.late).toEqual([[pool, kidId, 1, 0, 0, 0]]);
+    });
+
+    it('reads "left overdue" from the snapshot and lists open pools still waiting now', async () => {
+      const { admin, room, task } = await family();
+      const pool = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name: 'Take out bins', effort: 1, frequencyDays: 1 })).body.id as number;
+      setMode(pool, 'first', []);
+      db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(new Date(Date.now() - 3 * 86400000).toISOString(), pool);
+      const snap = db.prepare('INSERT INTO chore_overdue_days (day, taskId, roomId, dueAt, daysOverdue) VALUES (?, ?, ?, ?, ?)');
+      snap.run(localDateStr(lastWeek(1, 12)), task, room, lastWeek(0, 0).toISOString(), 1);
+      snap.run(localDateStr(lastWeek(2, 12)), task, room, lastWeek(0, 0).toISOString(), 2);
+      snap.run(localDateStr(lastWeek(-2, 12)), task, room, lastWeek(-3, 0).toISOString(), 1); // the week before
+
+      const last = await agent.get('/api/insights/skipped?period=week&offset=-1').set(auth(admin.token)).expect(200);
+      expect(last.body.undone).toEqual([[task, 2, 2]]);
+      expect(last.body.waitingNow).toEqual([]);
+
+      const now = await agent.get('/api/insights/skipped?period=week').set(auth(admin.token)).expect(200);
+      expect(now.body.waitingNow).toHaveLength(1);
+      expect(now.body.waitingNow[0][0]).toBe(pool);
+      expect(now.body.waitingNow[0][1]).toBeGreaterThan(24);
+    });
   });
 });

@@ -285,6 +285,7 @@ export const GUIDE_NL: GuideSection[] = [
         'Verdelen per Persoon (in ieders eigen kleur), Kamer of Klusje. Boven de 8 kamers of klusjes komt de rest onder Overig.',
         'Drukke en rustige momenten: de weekdagen per tijd van de dag, gemiddeld over de laatste 4 of 12 weken. In de sterkste kleuren wordt het meest gedaan; vage vakjes zijn slechte momenten om klusjes te vragen. Cijfers tonen zet de gemiddelden in de vakjes.',
         'Wie doet hoeveel: ieders deel van de periode en het verschil met de periode ervoor (bij een lopende periode tot hetzelfde moment, zoals vorige week tot nu).',
+        'Overgeslagen en te laat (per klusje, of samengevat per kamer): klusjes die vaak na hun dag gedaan worden en hoeveel dagen te laat; klusjes die aan het eind van een dag nog te laat waren (elke nacht bijgehouden sinds deze versie is geïnstalleerd); en Wie-het-eerst-komt-klusjes die niemand pakte, met hoe lang ze wachtten en welke nu nog wachten.',
         'Het menu Iedereen beperkt de staven en vakjes tot één persoon. De klusjes van ouders tellen mee.',
       ] },
       { tip: 'Met de spelfuncties uit werken de Inzichten nog steeds; alleen de maat Munten verdwijnt.' },

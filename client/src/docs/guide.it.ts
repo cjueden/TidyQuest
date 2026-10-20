@@ -285,6 +285,7 @@ export const GUIDE_IT: GuideSection[] = [
         'Dividi per Persona (nel colore di ciascuno), Stanza o Faccenda. Oltre 8 stanze o faccende, il resto finisce in Altro.',
         'Momenti pieni e tranquilli: i giorni della settimana per ora del giorno, in media sulle ultime 4 o 12 settimane. I colori più intensi sono quando si fa di più; i quadrati pallidi sono momenti sbagliati per insistere. Mostra i numeri scrive le medie nei quadrati.',
         'Chi fa quanto: la quota di ciascuno nel periodo e la differenza rispetto al periodo prima (se il periodo è ancora in corso, fino allo stesso punto, come la settimana scorsa fin qui).',
+        'Saltate e in ritardo (per faccenda o raggruppate per stanza): le faccende spesso fatte dopo il giorno previsto e di quanti giorni; quelle rimaste in ritardo a fine giornata (registrate ogni notte da quando è installata questa versione); e le faccende Primo arrivato che nessuno ha preso, con quanto hanno aspettato e quali aspettano ancora.',
         'Il menu Tutti limita barre e quadrati a una persona. Anche le faccende dei genitori contano.',
       ] },
       { tip: 'Con le funzioni di gioco disattivate le Statistiche funzionano lo stesso; si nasconde solo la misura Monete.' },
