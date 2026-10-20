@@ -7,6 +7,7 @@ import type { BadgeItem, LevelInfo } from '../../utils/badges';
 import RingGauge from '../shared/RingGauge';
 import UserAvatar from '../shared/UserAvatar';
 import { FireIcon, CoinIcon, CheckIcon } from '../icons/UIIcons';
+import { ShieldPanel } from '../shared/StreakShields';
 import { getRoomIcon } from '../icons/RoomIcons';
 import { TaskIcon } from '../icons/TaskIcons';
 import { getHealthColor } from '../../utils/health';
@@ -101,6 +102,7 @@ interface CurrentUser {
   coins: number;
   goalCoins?: number | null;
   currentStreak: number;
+  streakShields?: number;
   avatarColor: string;
   lastActiveDate?: string | null;
   taskView?: 'all' | 'mine' | 'mineOnly';
@@ -196,6 +198,8 @@ interface DashboardProps {
     /** Chores waiting for a parent (admins only) */
     pendingCompletions?: PendingItem[];
     strictMode?: boolean;
+    /** Streak shields: null when they're off */
+    shields?: { price: number; max: number; every: number } | null;
     currentUser: CurrentUser;
     recentActivity: ActivityEntry[];
     badges?: Record<number, string | null>;
@@ -205,6 +209,8 @@ interface DashboardProps {
   language?: string;
   onCompleteTask: (taskId: number, proof?: Proof) => void;
   onRefresh?: () => void;
+  /** Coins changed outside a chore (a streak shield bought): refresh the header's total */
+  onCoinsChanged?: () => void;
   /** Every room with its chores (the dashboard's own rooms are summaries), for a double coins event's chore list */
   allRooms?: ListRoom[];
   onNavigateToRoom: (roomId: number) => void;
@@ -230,6 +236,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   language,
   onCompleteTask,
   onRefresh,
+  onCoinsChanged,
   allRooms = [],
   onNavigateToRoom,
   onOpenTask,
@@ -1101,6 +1108,10 @@ const Dashboard: React.FC<DashboardProps> = ({
         >
           {streakDoneToday ? t('dashboard.streakDoneToday') : t('dashboard.keepStreak')}
         </div>
+        {data.shields && (
+          <ShieldPanel shields={currentUser.streakShields ?? 0} streak={currentUser.currentStreak} coins={currentUser.coins} config={data.shields}
+            language={language} onChanged={() => { onRefresh?.(); onCoinsChanged?.(); }} />
+        )}
       </div>,
     coins: gamificationEnabled && isVisible('coins') && <div className="tq-card tq-card-padded">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -1381,6 +1392,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <FireIcon /> {currentUser.currentStreak}
               </div>
             </div>
+            {/* Kid mode has no streak card, so buying a shield lives here */}
+            {data.shields && (
+              <ShieldPanel shields={currentUser.streakShields ?? 0} streak={currentUser.currentStreak} coins={currentUser.coins} config={data.shields}
+                language={language} onChanged={() => { onRefresh?.(); onCoinsChanged?.(); }} />
+            )}
             {myGoal && (
               <div style={{ marginTop: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 15, fontWeight: 800, color: 'var(--warm-text)', marginBottom: 6 }}>

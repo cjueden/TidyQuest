@@ -455,7 +455,12 @@
       "pot_requested": "Cagnotte pleine · en attente d'un parent",
       "pot_approved": "Récompense validée",
       "pot_rejected": "Remboursé",
-      "boughtForMascot": "🐾 A acheté {item} pour la mascotte"
+      "boughtForMascot": "🐾 A acheté {item} pour la mascotte",
+      "shield_earned": "A gagné un bouclier de série (série de {n} jours)",
+      "shield_bought": "A acheté un bouclier de série",
+      "shield_given": "A reçu un bouclier de série",
+      "shield_used": "Un bouclier a sauvé une série de {n} jours",
+      "shield_usedMany": "{count} boucliers ont sauvé une série de {n} jours"
     },
     "roomDetail": {
       "name": "Nom",
@@ -1289,7 +1294,10 @@
       "teamupAnyone": "🤝 {name} cherche un coéquipier pour « {task} »",
       "teamupJoined": "🤝 {name} te rejoint pour « {task} »",
       "teamupDeclined": "🤝 {name} ne peut pas faire « {task} » avec toi cette fois. Tu peux demander à quelqu'un d'autre.",
-      "choreRejectedReason": "↩️ « {task} » n'a pas été validé cette fois. {parent} dit : {reason}"
+      "choreRejectedReason": "↩️ « {task} » n'a pas été validé cette fois. {parent} dit : {reason}",
+      "shieldSaved": "🛡️ Ton bouclier a sauvé ta série de {n} jours !",
+      "shieldsSaved": "🛡️ {count} boucliers ont sauvé ta série de {n} jours !",
+      "shieldGiven": "🛡️ {name} t'a donné un bouclier de série. Il protège ta série si tu manques un jour."
     },
     "notifyAdmin": {
       "peopleTitle": "Qui reçoit quoi",
@@ -1407,7 +1415,10 @@
       "mascotShop": "Boutique de la mascotte",
       "mascotShopDesc": "Chacun peut offrir un accessoire à la mascotte pour 1 à 5 pièces. Désactivé, la boutique et la tenue sont masquées.",
       "focus": "Une chose à la fois",
-      "focusDesc": "Les tâches d'un enfant une à la fois, en grand, avec leurs étapes. Qui la voit se règle par personne dans Membres de la famille."
+      "focusDesc": "Les tâches d'un enfant une à la fois, en grand, avec leurs étapes. Qui la voit se règle par personne dans Membres de la famille.",
+      "shields": "🛡️ Boucliers de série",
+      "shieldsDesc": "Gagnés tous les 7 jours d'affilée, ou achetés avec des pièces (2 au maximum). Un bouclier sauve la série un jour manqué.",
+      "shieldPrice": "Prix"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1687,6 +1698,20 @@
       "reset": "Revenir à l'ordre par défaut",
       "done": "Terminé",
       "saveFailed": "Impossible d'enregistrer la disposition. Vérifiez la connexion et réessayez."
+    },
+    "shields": {
+      "held": "{n} boucliers de série",
+      "full": "Boucliers au complet",
+      "nextIn": "Prochain bouclier après encore {n} jours de tâches",
+      "nextInOne": "Prochain bouclier après encore 1 jour de tâches",
+      "buy": "Acheter un bouclier",
+      "buyConfirm": "Acheter un bouclier de série pour {n} pièces ? Il protège ta série si tu manques un jour.",
+      "buyFailed": "Impossible d'acheter le bouclier. Réessaie.",
+      "notEnough": "Pas assez de pièces",
+      "what": "Un bouclier protège ta série quand tu manques un jour. Tu en gagnes un tous les 7 jours d'affilée.",
+      "give": "Donner un bouclier",
+      "giveConfirm": "Donner un bouclier de série à {name} ?",
+      "giveFailed": "Impossible de donner le bouclier. Réessaie."
     }
   }
 }

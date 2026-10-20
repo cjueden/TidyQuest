@@ -455,7 +455,12 @@
       "pot_requested": "Bote lleno · esperando a un padre",
       "pot_approved": "Recompensa aprobada",
       "pot_rejected": "Devuelto",
-      "boughtForMascot": "🐾 Compró {item} para la mascota"
+      "boughtForMascot": "🐾 Compró {item} para la mascota",
+      "shield_earned": "Ganó un escudo de racha (racha de {n} días)",
+      "shield_bought": "Compró un escudo de racha",
+      "shield_given": "Recibió un escudo de racha",
+      "shield_used": "Un escudo salvó una racha de {n} días",
+      "shield_usedMany": "{count} escudos salvaron una racha de {n} días"
     },
     "roomDetail": {
       "name": "Nombre",
@@ -1289,7 +1294,10 @@
       "teamupAnyone": "🤝 {name} busca compañero para «{task}»",
       "teamupJoined": "🤝 {name} se unió a ti para «{task}»",
       "teamupDeclined": "🤝 {name} no puede hacer «{task}» contigo esta vez. Puedes pedírselo a otra persona.",
-      "choreRejectedReason": "↩️ «{task}» no se aprobó esta vez. {parent} dice: {reason}"
+      "choreRejectedReason": "↩️ «{task}» no se aprobó esta vez. {parent} dice: {reason}",
+      "shieldSaved": "🛡️ ¡Tu escudo salvó tu racha de {n} días!",
+      "shieldsSaved": "🛡️ ¡{count} escudos salvaron tu racha de {n} días!",
+      "shieldGiven": "🛡️ {name} te dio un escudo de racha. Salva tu racha si te saltas un día."
     },
     "notifyAdmin": {
       "peopleTitle": "Quién recibe qué",
@@ -1407,7 +1415,10 @@
       "mascotShop": "Tienda de la mascota",
       "mascotShopDesc": "Cualquiera puede comprarle un accesorio a la mascota por 1–5 monedas. Desactivada, se ocultan la tienda y el atuendo.",
       "focus": "Una cosa cada vez",
-      "focusDesc": "Las tareas de un niño una a una, en grande, con sus pasos. Quién la ve se elige por persona en Miembros de la familia."
+      "focusDesc": "Las tareas de un niño una a una, en grande, con sus pasos. Quién la ve se elige por persona en Miembros de la familia.",
+      "shields": "🛡️ Escudos de racha",
+      "shieldsDesc": "Se ganan cada 7 días seguidos o se compran con monedas (2 como máximo). Un escudo salva la racha un día que se pierde.",
+      "shieldPrice": "Precio"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1687,6 +1698,20 @@
       "reset": "Volver al orden por defecto",
       "done": "Listo",
       "saveFailed": "No se pudo guardar la disposición. Revisa la conexión e inténtalo de nuevo."
+    },
+    "shields": {
+      "held": "{n} escudos de racha",
+      "full": "Escudos completos",
+      "nextIn": "Próximo escudo tras {n} días más de tareas",
+      "nextInOne": "Próximo escudo tras 1 día más de tareas",
+      "buy": "Comprar un escudo",
+      "buyConfirm": "¿Comprar un escudo de racha por {n} monedas? Salva tu racha si te saltas un día.",
+      "buyFailed": "No se pudo comprar el escudo. Inténtalo de nuevo.",
+      "notEnough": "No tienes suficientes monedas",
+      "what": "Un escudo salva tu racha cuando te saltas un día. Ganas uno cada 7 días seguidos.",
+      "give": "Dar un escudo",
+      "giveConfirm": "¿Dar un escudo de racha a {name}?",
+      "giveFailed": "No se pudo dar el escudo. Inténtalo de nuevo."
     }
   }
 }

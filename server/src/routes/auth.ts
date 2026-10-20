@@ -87,7 +87,7 @@ router.post('/register', (req: AuthRequest, res: Response) => {
   ).run(username, displayName, passwordHash, role, avatarColor || '#F97316', language || 'en');
 
   const token = generateToken(result.lastInsertRowid as number);
-  const user = db.prepare('SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, language FROM users WHERE id = ?')
+  const user = db.prepare('SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, streakShields, goalCoins, goalStartAt, goalEndAt, language FROM users WHERE id = ?')
     .get(result.lastInsertRowid) as any;
   user.points = 0;
 
@@ -146,7 +146,7 @@ router.post('/login', (req: AuthRequest, res: Response) => {
 
 router.get('/me', authMiddleware, (req: AuthRequest, res: Response) => {
   const user = db.prepare(
-    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, isVacationMode, language, createdAt, taskView, kidMode, birthday, theme, holidayColors, focusMode, homeLayout FROM users WHERE id = ?'
+    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, streakShields, goalCoins, goalStartAt, goalEndAt, lastActiveDate, isVacationMode, language, createdAt, taskView, kidMode, birthday, theme, holidayColors, focusMode, homeLayout FROM users WHERE id = ?'
   ).get(req.userId) as any;
   if (!user) {
     return res.status(404).json({ error: 'User not found' });

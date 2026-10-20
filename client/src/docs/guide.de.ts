@@ -234,6 +234,14 @@ export const GUIDE_DE: GuideSection[] = [
         'Maskottchen-Laden (eigener Schalter): Jeder kann ihm ein Accessoire für 1 bis 5 Münzen kaufen. Es gibt ein gemeinsames Outfit und keinen Schrank: Ein neues Teil wird sofort für alle angezogen und ersetzt, was an dieser Stelle war (Kopf, Gesicht, Hals oder Rücken). Wer ein Teil gekauft hat, oder ein Elternteil, kann es kostenlos ausziehen. Käufe erscheinen unter Aktivität. Der Laden öffnet, sobald das Maskottchen geschlüpft ist. Schaltest du den Laden aus, sind er und das Outfit verborgen.',
         'Festtags-Look: Halloween im Oktober, Thanksgiving im November, Weihnachten im Dezember: Farben, Dekoration, ein Countdown und ein Kostüm für das Maskottchen. Jeder Feiertag hat einen eigenen Schalter und einen Vorschau-Knopf.',
       ] },
+      { h: 'Serienschilde' },
+      { ul: [
+        'Eine Serie zählt die Tage am Stück mit mindestens einer Aufgabe. Alle 7 Tage am Stück gibt es einen 🛡️ Schild; du kannst 2 behalten.',
+        'Kauf einen Schild auf der Serienkarte der Startseite (standardmäßig 25 Münzen; Eltern legen den Preis in Einstellungen → Funktionen fest).',
+        'Ein verpasster Tag verbraucht von selbst einen Schild, kurz nach Mitternacht, und die Serie läuft weiter (der verpasste Tag zählt nicht mit). Zwei verpasste Tage brauchen zwei Schilde; reichen sie nicht, wird keiner verbraucht und die Serie beginnt neu.',
+        'Eine Aufgabe, die auf die Freigabe der Eltern wartet, zählt für ihren Tag.',
+        'Eltern können einen Schild schenken (ein Krankheitstag, ein volles Wochenende) mit 🛡️ Schild schenken in Einstellungen → Familienmitglieder. Gekaufte, verdiente, geschenkte und verbrauchte Schilde stehen in Aktivität.',
+      ] },
       { h: 'Level und Freischaltungen' },
       { p: 'Level entstehen aus den Münzen insgesamt (Level 2 bei 50, 5 bei 500, 10 bei 2.250). Jedes Level schaltet etwas frei; wähle sie unter Profil → Freigeschaltet.' },
       { ul: [
@@ -390,6 +398,10 @@ export const GUIDE_DE: GuideSection[] = [
         ] },
         { q: 'Eine Serie ist gerissen, während wir weg waren', a: [
           'Nutze vor der Abreise den Urlaubsmodus (ganzes Haus, Einstellungen → Allgemein) oder Urlaub pro Mitglied (Familienmitglieder); er schützt Serien und friert die Gesundheit der Aufgaben ein.',
+        ] },
+        { q: 'Ein Schild hat die Serie nicht gerettet', a: [
+          'Jeder verpasste Tag braucht seinen eigenen Schild. Mit weniger Schilden als verpassten Tagen wird keiner verbraucht: die Serie beginnt neu und die Schilde bleiben.',
+          'Im Urlaubsmodus werden keine Schilde verbraucht; der Urlaub schützt die Serie schon.',
         ] },
         { q: 'Jemand kann sich nicht anmelden', a: [
           'Zu viele falsche Passwörter sperren Anmeldungen für bis zu 15 Minuten: 10 bei einem Konto oder 20 von einem Gerät. Warte und versuche es erneut; ein richtiges Passwort setzt den Zähler des Kontos zurück.',

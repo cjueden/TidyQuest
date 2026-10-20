@@ -234,6 +234,14 @@ export const GUIDE_NL: GuideSection[] = [
         'Mascottewinkel (eigen schakelaar): iedereen kan een accessoire voor de mascotte kopen voor 1 tot 5 munten. Er is één gedeelde outfit en geen kledingkast: een nieuw item gaat meteen aan voor iedereen en vervangt wat er op die plek zat (hoofd, gezicht, nek of rug). Wie een item kocht, of een ouder, kan het gratis uitdoen. Aankopen staan in Activiteit. De winkel gaat open zodra de mascotte uitkomt. Als je de winkel uitzet, verdwijnen de winkel en de outfit.',
         'Feestdagenlook: Halloween in oktober, Thanksgiving in november, Kerst in december: kleuren, versieringen, een aftelling en een kostuum voor de mascotte. Elke feestdag heeft een eigen schakelaar en een knop Voorbeeld.',
       ] },
+      { h: 'Reeksschilden' },
+      { ul: [
+        'Een reeks telt de dagen op rij met minstens één taak. Na elke 7 dagen op rij verdien je een 🛡️ schild; je kunt er 2 bewaren.',
+        'Koop een schild op de reekskaart van Home (standaard 25 munten; ouders stellen de prijs in bij Instellingen → Functies).',
+        'Een gemiste dag gebruikt vanzelf een schild, net na middernacht, en de reeks gaat door (de gemiste dag telt niet mee). Twee gemiste dagen vragen twee schilden; zijn er te weinig, dan wordt er geen gebruikt en begint de reeks opnieuw.',
+        'Een taak die wacht op goedkeuring van een ouder telt voor zijn dag.',
+        'Ouders kunnen een schild geven (een ziektedag, een druk weekend) met 🛡️ Schild geven in Instellingen → Gezinsleden. Gekochte, verdiende, gegeven en gebruikte schilden staan in Activiteit.',
+      ] },
       { h: 'Levels en ontgrendelingen' },
       { p: 'Levels komen van levensmunten (level 2 bij 50, level 5 bij 500, level 10 bij 2.250). Elk level ontgrendelt iets; kies ze in Profiel → Ontgrendeld.' },
       { ul: [
@@ -390,6 +398,10 @@ export const GUIDE_NL: GuideSection[] = [
         ] },
         { q: 'Een streak brak terwijl we weg waren', a: [
           'Gebruik Vakantiemodus (het hele huis, Instellingen → Algemeen) of vakantie per gezinslid (Gezinsleden) voordat je vertrekt; het beschermt streaks en bevriest de gezondheid van klusjes.',
+        ] },
+        { q: 'Een schild heeft de reeks niet gered', a: [
+          'Elke gemiste dag heeft een eigen schild nodig. Met minder schilden dan gemiste dagen wordt er geen gebruikt: de reeks begint opnieuw en de schilden blijven.',
+          'Tijdens de vakantiemodus worden geen schilden gebruikt; vakantie beschermt de reeks al.',
         ] },
         { q: 'Iemand kan niet inloggen', a: [
           'Te veel foute wachtwoorden blokkeren inloggen tot 15 minuten: 10 voor één account of 20 vanaf één apparaat. Wacht en probeer opnieuw; een juist wachtwoord zet de teller van het account terug.',

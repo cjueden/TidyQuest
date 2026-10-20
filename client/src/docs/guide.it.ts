@@ -234,6 +234,14 @@ export const GUIDE_IT: GuideSection[] = [
         'Negozio della mascotte (con il suo interruttore): chiunque può comprarle un accessorio da 1 a 5 monete. C’è un solo vestito condiviso e nessun armadio: un nuovo oggetto si indossa subito per tutti e sostituisce quello che c’era in quel punto (testa, viso, collo o schiena). Chi ha comprato un oggetto, o un genitore, può toglierlo gratis. Gli acquisti compaiono in Attività. Il negozio apre quando la mascotte si schiude. Spegnere il negozio nasconde negozio e vestito.',
         'Stile delle feste: Halloween a ottobre, Ringraziamento a novembre, Natale a dicembre: colori, decorazioni, un conto alla rovescia e un costume per la mascotte. Ogni festa ha il suo interruttore e un pulsante Anteprima.',
       ] },
+      { h: 'Scudi della serie' },
+      { ul: [
+        'Una serie conta i giorni di fila con almeno un’attività. Ogni 7 giorni di fila guadagni uno 🛡️ scudo; puoi tenerne 2.',
+        'Compra uno scudo sulla scheda della serie in Home (25 monete di base; i genitori scelgono il prezzo in Impostazioni → Funzioni).',
+        'Un giorno saltato usa uno scudo da solo, subito dopo mezzanotte, e la serie continua (il giorno saltato non si somma). Due giorni saltati richiedono due scudi; se non bastano, non se ne usa nessuno e la serie ricomincia.',
+        'Un’attività in attesa dell’approvazione di un genitore conta per il suo giorno.',
+        'I genitori possono regalare uno scudo (un giorno di malattia, un weekend pieno) con 🛡️ Regala uno scudo in Impostazioni → Membri della famiglia. Gli scudi comprati, guadagnati, regalati e usati compaiono in Attività.',
+      ] },
       { h: 'Livelli e sblocchi' },
       { p: 'I livelli vengono dalle monete totali guadagnate (livello 2 a 50, 5 a 500, 10 a 2.250). Ogni livello sblocca qualcosa; scegli in Profilo → Sbloccati.' },
       { ul: [
@@ -390,6 +398,10 @@ export const GUIDE_IT: GuideSection[] = [
         ] },
         { q: 'Una serie si è spezzata mentre eravamo via', a: [
           'Usa la Modalità vacanza (tutta la casa, Impostazioni → Generale) o la vacanza per membro (Membri della famiglia) prima di partire; protegge le serie e congela la salute delle faccende.',
+        ] },
+        { q: 'Uno scudo non ha salvato la serie', a: [
+          'Ogni giorno saltato richiede il suo scudo. Con meno scudi che giorni saltati, non se ne usa nessuno: la serie ricomincia e gli scudi restano.',
+          'Gli scudi non si usano durante la modalità vacanza; la vacanza protegge già la serie.',
         ] },
         { q: 'Qualcuno non riesce ad accedere', a: [
           'Troppe password sbagliate bloccano gli accessi fino a 15 minuti: 10 per un account, o 20 da un dispositivo. Aspetta e riprova; una password corretta azzera il conteggio dell’account.',

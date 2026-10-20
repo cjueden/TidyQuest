@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { UserAvatar } from '../shared/UserAvatar';
 import { EffortDots } from '../shared/EffortDots';
 import { Toggle } from '../shared/Toggle';
+import { ShieldIcons } from '../shared/StreakShields';
 import { PendingApprovals } from '../shared/PendingApprovals';
 import { RewardRulesEditor } from '../shared/RewardRulesEditor';
 import { CoinBoostsAdmin } from '../shared/CoinBoostsAdmin';
@@ -37,6 +38,7 @@ interface FamilyUser {
   avatarPhotoUrl?: string;
   coins: number;
   currentStreak: number;
+  streakShields?: number;
   language?: string;
   /** 'MM-DD' */
   birthday?: string | null;
@@ -96,6 +98,9 @@ interface SettingsProps {
   onGamificationChange?: (enabled: boolean) => void;
   /** Tasks or rooms changed here (spreadsheet import, restore from the trash): reload them */
   onDataChanged?: () => void;
+  /** Streak shields (null when off) and a parent giving one */
+  shields?: { max: number } | null;
+  onGiveShield?: (userId: number) => Promise<void>;
 }
 
 const COLORS = ['#F97316', '#9B72CF', '#4AABDE', '#5CB85C', '#D4A017', '#E25A5A', '#38BDF8', '#EC4899'];
@@ -122,6 +127,8 @@ export function Settings({
   gamificationEnabled = true,
   onGamificationChange,
   onDataChanged,
+  shields = null,
+  onGiveShield,
 }: SettingsProps) {
   const { t } = useTranslation(user.language);
   // Each person's level, so a parent sees which themes a kid has unlocked
@@ -1269,6 +1276,7 @@ export function Settings({
                   <div className="family-member-stats" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
                     <span style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{u.coins} {t('settings.coins')}</span>
                     <span style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{u.currentStreak}d {t('settings.streak')}</span>
+                    {shields && <ShieldIcons count={u.streakShields} language={user.language} style={{ fontSize: 11 }} />}
                   </div>
                 </div>
               </div>
@@ -1295,6 +1303,16 @@ export function Settings({
                   >
                     {t('settings.manageMember')}
                   </button>
+                  {shields && onGiveShield && (u.streakShields ?? 0) < shields.max && (
+                    <button
+                      onClick={() => {
+                        if (confirm(t('shields.giveConfirm').replace('{name}', u.displayName))) void onGiveShield(u.id).catch(() => alert(t('shields.giveFailed')));
+                      }}
+                      className="tq-btn tq-btn-secondary tq-btn-sm"
+                    >
+                      🛡️ {t('shields.give')}
+                    </button>
+                  )}
                   {u.id !== user.id && (
                     <button
                       onClick={() => {

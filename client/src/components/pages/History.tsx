@@ -151,6 +151,7 @@ export function History({ language, isAdmin, users = [], rooms = [], userId, mas
             // A chip-in to a shared reward (Family Goal); refunded ones are crossed out
             const isChipIn = h.type === 'contribution';
             const isPurchase = h.type === 'mascotPurchase';
+            const isShield = h.type === 'shield';
             const refunded = isChipIn && h.potStatus === 'rejected';
             const isDuo = h.participants && h.participants.length > 1;
             const byName = isDuo
@@ -174,7 +175,17 @@ export function History({ language, isAdmin, users = [], rooms = [], userId, mas
                 <UserAvatar userId={h.userId} name={h.displayName} color={h.avatarColor} size={34} avatarType={h.avatarType} avatarPreset={h.avatarPreset} avatarPhotoUrl={h.avatarPhotoUrl} />
               )}
               <div>
-                {isPurchase ? (
+                {isShield ? (
+                  <>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>
+                      🛡️ {t(h.shieldKind === 'used' && h.shieldCount > 1 ? 'history.shield_usedMany' : `history.shield_${h.shieldKind}`).replace('{n}', String(h.streak)).replace('{count}', String(h.shieldCount))}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
+                      {h.displayName}{h.createdByName ? ` · ${t('coins.by').replace('{name}', h.createdByName)}` : ''}
+                    </div>
+                    <div className="history-mobile-meta">{timeAgo(h.completedAt)}</div>
+                  </>
+                ) : isPurchase ? (
                   <>
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('history.boughtForMascot').replace('{item}', t(`mascot.item_${h.itemId}`))}</div>
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{h.displayName}</div>
@@ -210,13 +221,13 @@ export function History({ language, isAdmin, users = [], rooms = [], userId, mas
                   </>
                 )}
               </div>
-              <div className="history-col-room" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>{isAdjustment || isChipIn || isPurchase ? '—' : roomDisplayName(h.roomName, h.roomType || '')}</div>
+              <div className="history-col-room" style={{ fontSize: 13, color: 'var(--warm-text-secondary)', fontWeight: 600 }}>{isAdjustment || isChipIn || isPurchase || isShield ? '—' : roomDisplayName(h.roomName, h.roomType || '')}</div>
               <div className="history-col-when" style={{ fontSize: 12, color: 'var(--warm-text-light)', fontWeight: 600 }}>{timeAgo(h.completedAt)}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end', fontSize: 13, fontWeight: 800, color: refunded ? 'var(--warm-text-light)' : h.coinsEarned < 0 ? 'var(--warm-danger)' : 'var(--warm-coin)', textDecoration: refunded ? 'line-through' : undefined }}>
-                {h.coinsEarned < 0 ? '' : '+'}{formatCoins(h.coinsEarned)} <CoinIcon />
+                {isShield && !h.coinsEarned ? '—' : <>{h.coinsEarned < 0 ? '' : '+'}{formatCoins(h.coinsEarned)} <CoinIcon /></>}
               </div>
-              {isAdmin && (isAdjustment || isChipIn || isPurchase) && <div />}
-              {isAdmin && !isAdjustment && !isChipIn && !isPurchase && (
+              {isAdmin && (isAdjustment || isChipIn || isPurchase || isShield) && <div />}
+              {isAdmin && !isAdjustment && !isChipIn && !isPurchase && !isShield && (
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   {confirmCancel === h.id ? (
                     <div style={{ display: 'flex', gap: 4 }}>

@@ -120,6 +120,7 @@ export interface FeatureFlags {
   teamups: boolean;
   mascotShop: boolean;
   focus: boolean;
+  shields: boolean;
 }
 
 /** Team-ups on a chore in a list: can you start one, and has a team claimed it today? */
@@ -144,7 +145,7 @@ export interface UnlocksView {
 /** Cheers on one finished chore (counts in 👏 🎉 💪 ⭐ order, and the viewer's own) */
 export interface CheerSummary { counts: Array<{ emoji: string; count: number; names: string[] }>; mine: string | null }
 
-export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[]; mascot: { creature: string; name: string; bedtimeFrom: string; bedtimeTo: string }; teamBonus: number;
+export interface FeaturesView { features: FeatureFlags; rescueMultiplier: number; holidaysOff: string[]; mascot: { creature: string; name: string; bedtimeFrom: string; bedtimeTo: string }; teamBonus: number; shieldPrice?: number;
   /** Every creature: the active one, resting ones (with their name and stage) and new eggs */
   mascotRoster?: Array<{ creature: string; status: 'active' | 'resting' | 'new'; name: string; stage: string }> }
 
@@ -343,9 +344,12 @@ export const api = {
   // Leaderboard
   leaderboard: (period: 'week' | 'month' | 'quarter' | 'year') => apiFetch<any[]>(`/leaderboard?period=${period}`),
   getFeatures: () => apiFetch<FeaturesView>('/features'),
-  updateFeatures: (data: { features?: Partial<FeatureFlags>; rescueMultiplier?: number; holidaysOff?: string[]; mascot?: { creature?: string; name?: string; bedtimeFrom?: string; bedtimeTo?: string }; teamBonus?: number }) =>
+  updateFeatures: (data: { features?: Partial<FeatureFlags>; rescueMultiplier?: number; holidaysOff?: string[]; mascot?: { creature?: string; name?: string; bedtimeFrom?: string; bedtimeTo?: string }; teamBonus?: number; shieldPrice?: number }) =>
     apiFetch<FeaturesView>('/features', { method: 'PUT', body: JSON.stringify(data) }),
   // Today's Rescue Mission (parents): another one, a chosen chore, or none today
+  // Streak shields: buy one with your coins, or a parent gives one
+  buyShield: () => apiFetch<{ shields: number; coins: number }>('/shields/buy', { method: 'POST' }),
+  giveShield: (userId: number) => apiFetch<{ shields: number; coins: number }>('/shields/give', { method: 'POST', body: JSON.stringify({ userId }) }),
   rescueReroll: () => apiFetch<unknown>('/rescue/reroll', { method: 'POST' }),
   rescueChoose: (taskId: number) => apiFetch<unknown>('/rescue', { method: 'PUT', body: JSON.stringify({ taskId }) }),
   rescueSkip: () => apiFetch<unknown>('/rescue', { method: 'DELETE' }),

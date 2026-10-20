@@ -21,7 +21,7 @@ router.use(authMiddleware);
 // The 8 free themes, then the ones unlocked by levels (utils/unlocks.ts)
 export const THEMES = ['orange', 'blue', 'rose', 'mint', 'grape', 'sunny', 'night', 'ocean', ...UNLOCKABLE_THEMES];
 
-const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme, holidayColors, focusMode, homeLayout';
+const USER_SELECT = 'id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, streakShields, goalCoins, goalStartAt, goalEndAt, isVacationMode, vacationStartDate, vacationEndDate, language, createdAt, isParticipant, taskView, kidMode, birthday, theme, holidayColors, focusMode, homeLayout';
 
 function normalizeNotificationTime(value: string | undefined): string | null {
   if (value === undefined) return null;

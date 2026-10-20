@@ -5,12 +5,13 @@ import { ensureAdmin } from '../utils/adminHelpers';
 import { FEATURES, HOLIDAYS, getFeatures, holidaysOff, rescueMultiplier } from '../utils/features';
 import { mascotRoster, mascotSettings, saveMascot } from '../utils/mascot';
 import { TEAM_BONUSES, teamBonus } from '../utils/teamups';
+import { shieldPrice } from '../utils/streaks';
 
 /** Settings → Features: switch optional extras on or off for the whole family. */
 const router = Router();
 router.use(authMiddleware);
 
-const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier(), holidaysOff: holidaysOff(), mascot: mascotSettings(), mascotRoster: mascotRoster(), teamBonus: teamBonus() });
+const view = () => ({ features: getFeatures(), rescueMultiplier: rescueMultiplier(), holidaysOff: holidaysOff(), mascot: mascotSettings(), mascotRoster: mascotRoster(), teamBonus: teamBonus(), shieldPrice: shieldPrice() });
 
 router.get('/', (_req: AuthRequest, res: Response) => res.json(view()));
 
@@ -34,6 +35,12 @@ router.put('/', (req: AuthRequest, res: Response) => {
     const b = Number(req.body.teamBonus);
     if (!TEAM_BONUSES.includes(b)) return res.status(400).json({ error: 'invalid_team_bonus' });
     db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('teamBonus', ?)").run(String(b));
+  }
+  // Streak shields: what one costs in coins
+  if (req.body?.shieldPrice !== undefined) {
+    const p = Number(req.body.shieldPrice);
+    if (!(Number.isInteger(p) && p >= 1 && p <= 500)) return res.status(400).json({ error: 'invalid_shield_price' });
+    db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('shieldPrice', ?)").run(String(p));
   }
   // The house mascot: which creature and its name
   if (req.body?.mascot !== undefined) {

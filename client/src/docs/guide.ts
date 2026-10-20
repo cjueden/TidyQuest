@@ -258,6 +258,14 @@ export const GUIDE_EN: GuideSection[] = [
         'Mascot shop (its own switch): anyone can buy it an accessory for 1 to 5 coins. There’s one shared outfit and no closet: a new item goes on right away for everyone and replaces whatever was in that spot (head, face, neck or back). Whoever bought an item, or a parent, can take it off for free. Purchases show in Activity. The shop opens once the mascot hatches. Turning the shop off hides it and the outfit.',
         'Seasonal styling: Halloween in October, Thanksgiving in November, Christmas in December: colors, decorations, a countdown and a costume for the mascot. Each holiday has its own switch and a Preview button.',
       ] },
+      { h: 'Streak shields' },
+      { ul: [
+        'A streak counts the days in a row with at least one chore. Every 7 days in a row earns a 🛡️ shield; you can hold 2.',
+        'Buy a shield on Home’s streak card (25 coins by default; parents set the price in Settings → Features).',
+        'A missed day uses a shield by itself, just after midnight, and the streak carries on (the missed day doesn’t add to it). Two missed days need two shields; with too few, none are used and the streak starts again.',
+        'A chore waiting for a parent’s approval counts for its day.',
+        'Parents can give a shield (a sick day, a busy weekend) with 🛡️ Give a shield in Settings → Family Members. Bought, earned, given and used shields show in Activity.',
+      ] },
       { h: 'Levels and unlocks' },
       { p: 'Levels come from lifetime coins (level 2 at 50, 5 at 500, 10 at 2,250). Each level unlocks something; pick them in Profile → Unlocks.' },
       { ul: [
@@ -414,6 +422,10 @@ export const GUIDE_EN: GuideSection[] = [
         ] },
         { q: 'A streak broke while we were away', a: [
           'Use Vacation Mode (whole house, Settings → General) or vacation per member (Family Members) before leaving; it protects streaks and freezes chore health.',
+        ] },
+        { q: 'A shield didn’t save the streak', a: [
+          'Each missed day needs its own shield. With fewer shields than missed days, none are used: the streak starts again and the shields are kept.',
+          'Shields aren’t used during Vacation Mode; vacation already protects the streak.',
         ] },
         { q: 'Someone can’t log in', a: [
           'Too many wrong passwords block logins for up to 15 minutes: 10 for one account, or 20 from one device. Wait and try again; a correct password clears the account’s count.',

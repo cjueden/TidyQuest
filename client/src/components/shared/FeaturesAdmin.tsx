@@ -7,8 +7,9 @@ import { SEASONS, setSeasonPreview, useSeasonPreview } from '../../utils/seasons
 import { CREATURE_IDS, CREATURES, type CreatureId } from '../mascot/MascotArt';
 import { MascotPicture } from '../mascot/MascotCard';
 
-const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'cheers', 'teamups', 'mascot', 'mascotShop', 'focus', 'seasonal'];
+const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'shields', 'cheers', 'teamups', 'mascot', 'mascotShop', 'focus', 'seasonal'];
 const MULTIPLIERS = [1.5, 2, 3];
+const SHIELD_PRICES = [10, 15, 20, 25, 30, 40, 50, 75, 100];
 
 /** Settings → Features: optional extras, on or off for the whole family (all on to start). */
 export function FeaturesAdmin({ language, onChanged }: { language?: string; onChanged?: () => void }) {
@@ -19,12 +20,14 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
   const [mascot, setMascot] = useState({ creature: 'dog', name: '', bedtimeFrom: '21:00', bedtimeTo: '07:00' });
   const [mascotName, setMascotName] = useState('');
   const [teamBonus, setTeamBonus] = useState(20);
+  const [shieldPrice, setShieldPrice] = useState(25);
   const [roster, setRoster] = useState<NonNullable<FeaturesView['mascotRoster']>>([]);
   const previewing = useSeasonPreview();
   const show = (r: FeaturesView) => {
     setFlags(r.features); setMultiplier(r.rescueMultiplier); setHolidaysOff(r.holidaysOff ?? []);
     if (r.mascot) { setMascot(r.mascot); setMascotName(r.mascot.name); }
     if (r.teamBonus) setTeamBonus(r.teamBonus);
+    if (r.shieldPrice) setShieldPrice(r.shieldPrice);
     if (r.mascotRoster) setRoster(r.mascotRoster);
   };
   useEffect(() => {
@@ -50,6 +53,14 @@ export function FeaturesAdmin({ language, onChanged }: { language?: string; onCh
                 {t('features.multiplier')}
                 <select className="tq-input-compact" value={multiplier} onChange={(e) => void save({ rescueMultiplier: Number(e.target.value) })}>
                   {MULTIPLIERS.map((m) => <option key={m} value={m}>{m}×</option>)}
+                </select>
+              </label>
+            )}
+            {f === 'shields' && flags.shields && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>
+                {t('features.shieldPrice')}
+                <select className="tq-input-compact" value={shieldPrice} onChange={(e) => void save({ shieldPrice: Number(e.target.value) })}>
+                  {[...new Set([...SHIELD_PRICES, shieldPrice])].sort((a, b) => a - b).map((p) => <option key={p} value={p}>{p} 🪙</option>)}
                 </select>
               </label>
             )}

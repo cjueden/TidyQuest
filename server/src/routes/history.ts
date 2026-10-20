@@ -4,6 +4,7 @@ import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { cheersFor } from '../utils/cheers';
 import { isFeatureOn } from '../utils/features';
+import { shieldsOn } from '../utils/streaks';
 
 const router = Router();
 router.use(authMiddleware);
@@ -142,8 +143,28 @@ router.get('/', (req: AuthRequest, res: Response) => {
     `).all(...pParams) as any[];
   }
 
+  // Streak shields earned, bought, given or used. Each person sees their own; parents see everyone's.
+  let shieldEvents: any[] = [];
+  if (!filterRoomId && !q && shieldsOn()) {
+    const sWhere: string[] = [];
+    const sParams: (string | number)[] = [];
+    if (!viewerIsAdmin) { sWhere.push('s.userId = ?'); sParams.push(req.userId!); }
+    if (filterUserId) { sWhere.push('s.userId = ?'); sParams.push(filterUserId); }
+    if (from) { sWhere.push('s.createdAt >= ?'); sParams.push(from); }
+    if (to) { sWhere.push('s.createdAt < ?'); sParams.push(to); }
+    shieldEvents = db.prepare(`
+      SELECT 'shield' AS type, s.id, s.createdAt AS completedAt, -s.coins AS coinsEarned, s.kind AS shieldKind, s.count AS shieldCount,
+             s.streak, b.displayName AS createdByName,
+             u.id as userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
+      FROM streak_shield_events s JOIN users u ON u.id = s.userId
+      LEFT JOIN users b ON b.id = s.byUserId
+      ${sWhere.length ? `WHERE ${sWhere.join(' AND ')}` : ''}
+      ORDER BY s.createdAt DESC, s.id DESC
+    `).all(...sParams) as any[];
+  }
+
   // Stable sort: completions keep their order among themselves
-  const extra = [...adjustments, ...contributions, ...purchases];
+  const extra = [...adjustments, ...contributions, ...purchases, ...shieldEvents];
   const merged = extra.length
     ? [...filtered, ...extra].sort((a, b) => (a.completedAt < b.completedAt ? 1 : a.completedAt > b.completedAt ? -1 : 0))
     : filtered;

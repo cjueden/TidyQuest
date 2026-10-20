@@ -71,7 +71,8 @@ export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps)
   useEffect(() => {
     const id = ++latest.current;
     api.history(2000, 0, { from: new Date(year, month, 1).toISOString(), to: new Date(year, month + 1, 1).toISOString() })
-      .then((data) => { if (id === latest.current) setCompletions(data.history || []); })
+      // Only chores: coin adjustments, chip-ins, purchases and shields are in the history too
+      .then((data) => { if (id === latest.current) setCompletions((data.history || []).filter((h: { type?: string }) => !h.type || h.type === 'completion')); })
       .catch(() => { if (id === latest.current) setCompletions([]); });
   }, [year, month]);
 

@@ -20,6 +20,7 @@ import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatL
 import { boostMultiplierFor } from '../utils/boosts';
 import { trashTask } from '../utils/trash';
 import { tr } from '../utils/i18n';
+import { earnShieldAt, nextStreak, settleStreak } from '../utils/streaks';
 import { baseCoinsOf, endTeamupsFor, groupTeamPending, openTeamupFor, teamShares, teamUpInfo, type Teamup } from '../utils/teamups';
 
 // Proof photos kids can attach to a completion (served at /api/proofs)
@@ -40,20 +41,6 @@ const proofUpload = multer({
 
 const router = Router();
 router.use(authMiddleware);
-
-function hadDueTaskOnDate(dateIsoDay: string): boolean {
-  const endOfDay = new Date(`${dateIsoDay}T23:59:59.999Z`).getTime();
-  const tasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND oneTime = 0').all() as Array<ScheduledTask & {
-    id: number; isSeasonal: number;
-  }>;
-
-  for (const t of tasks) {
-    if (isSeasonalNow(t, new Date(`${dateIsoDay}T12:00:00`))) continue;
-    const dueTs = nextDueAt(t)?.getTime() ?? 0;
-    if (dueTs <= endOfDay && taskHealth(t) < 100) return true;
-  }
-  return false;
-}
 
 function applyApprovedCompletion(
   task: any,
@@ -109,27 +96,13 @@ function applyApprovedCompletion(
     const streakVacation = resolveVacation(globalVac, userVac);
 
     if (!streakVacation.isVacation && user.lastActiveDate !== today) {
-      const yesterday = localDateStr(new Date(Date.now() - 86400000));
-      let keepGapWithoutPenalty = false;
-      if (user.lastActiveDate && user.lastActiveDate < yesterday) {
-        keepGapWithoutPenalty = true;
-        const start = new Date(`${user.lastActiveDate}T00:00:00`);
-        const end = new Date(`${yesterday}T00:00:00`);
-        for (let d = new Date(start.getTime() + 86400000); d <= end; d = new Date(d.getTime() + 86400000)) {
-          const day = localDateStr(d);
-          if (hadDueTaskOnDate(day)) {
-            keepGapWithoutPenalty = false;
-            break;
-          }
-        }
-      }
-      const newStreak = user.lastActiveDate === yesterday
-        ? user.currentStreak + 1
-        : keepGapWithoutPenalty
-          ? user.currentStreak + 1
-          : 1;
+      // Shields first cover any days missed since the last counted day, so the streak can carry on
+      settleStreak(effectiveUserId);
+      const last = (db.prepare('SELECT lastActiveDate FROM users WHERE id = ?').get(effectiveUserId) as { lastActiveDate: string | null }).lastActiveDate;
+      const newStreak = nextStreak(effectiveUserId, user.currentStreak, last, today);
       db.prepare('UPDATE users SET currentStreak = ?, lastActiveDate = ? WHERE id = ?')
         .run(newStreak, today, effectiveUserId);
+      earnShieldAt(effectiveUserId, newStreak);
     }
 
   }
