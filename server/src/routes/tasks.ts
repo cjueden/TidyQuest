@@ -14,13 +14,13 @@ import { claimRescue, releaseRescue, setRescueCompletion, todaysMission } from '
 import { notifyChoreApproved, notifyChoreRejected, notifyChoreWaiting } from '../utils/notifyMessages';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
-import { hasFixedSchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth, type ScheduledTask } from '../utils/schedule';
+import { hasFixedSchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, parseStored, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth, type ScheduledTask } from '../utils/schedule';
 import { isNotificationTypeEnabled, sendNotification } from '../utils/notifications';
 import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatLimits';
 import { boostMultiplierFor } from '../utils/boosts';
 import { trashTask } from '../utils/trash';
 import { tr } from '../utils/i18n';
-import { earnShieldAt, nextStreak, settleStreak } from '../utils/streaks';
+import { earnShieldAt, lateStreak, nextStreak, noteBrokenStreak, settleStreak } from '../utils/streaks';
 import { baseCoinsOf, endTeamupsFor, groupTeamPending, openTeamupFor, teamShares, teamUpInfo, type Teamup } from '../utils/teamups';
 
 // Proof photos kids can attach to a completion (served at /api/proofs)
@@ -49,7 +49,7 @@ function applyApprovedCompletion(
   coins: number,
   now: string,
   gamificationOn: boolean = true,
-  options?: { completionId?: number; approvedByUserId?: number; approvedAt?: string; note?: string | null }
+  options?: { completionId?: number; approvedByUserId?: number; approvedAt?: string; note?: string | null; loggedAt?: string; lateDay?: string }
 ): number {
   const approvedByUserId = options?.approvedByUserId ?? effectiveUserId;
   const approvedAt = options?.approvedAt ?? now;
@@ -60,11 +60,13 @@ function applyApprovedCompletion(
     ).run(approvedByUserId, approvedAt, options.completionId);
   } else {
     completionId = Number(db.prepare(
-      'INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, approvedByUserId, approvedAt, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(taskId, effectiveUserId, now, coins, 'approved', approvedByUserId, approvedAt, options?.note ?? null).lastInsertRowid);
+      'INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, approvedByUserId, approvedAt, note, loggedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(taskId, effectiveUserId, now, coins, 'approved', approvedByUserId, approvedAt, options?.note ?? null, options?.loggedAt ?? null).lastInsertRowid);
   }
 
   const taskAssignees = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ?').all(taskId) as { userId: number }[];
+  // lastCompletedAt only moves forward (a late log can be older than the last completion)
+  const setLastCompleted = () => db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ? AND (lastCompletedAt IS NULL OR lastCompletedAt < ?)').run(now, taskId, now);
 
   // A one-time chore is finished: it leaves every list (its history stays)
   if (task.oneTime) db.prepare('UPDATE tasks SET archivedAt = ? WHERE id = ?').run(now, taskId);
@@ -76,14 +78,12 @@ function applyApprovedCompletion(
          FROM task_completions
          WHERE taskId = ? AND status = 'approved' AND date(completedAt, 'localtime') = date(?, 'localtime')`
       ).get(taskId, now) as { cnt: number };
-      if (doneCount.cnt >= taskAssignees.length) {
-        db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(now, taskId);
-      }
+      if (doneCount.cnt >= taskAssignees.length) setLastCompleted();
     } else {
-      db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(now, taskId);
+      setLastCompleted();
     }
   } else {
-    db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(now, taskId);
+    setLastCompleted();
   }
 
   if (gamificationOn) {
@@ -91,6 +91,10 @@ function applyApprovedCompletion(
 
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(effectiveUserId) as any;
     const today = localDateStr();
+    if (options?.lateDay) {
+      lateStreak(effectiveUserId, options.lateDay);
+      return completionId;
+    }
     const globalVac = getGlobalVacation();
     const userVac = getUserVacation(effectiveUserId);
     const streakVacation = resolveVacation(globalVac, userVac);
@@ -100,6 +104,7 @@ function applyApprovedCompletion(
       settleStreak(effectiveUserId);
       const last = (db.prepare('SELECT lastActiveDate FROM users WHERE id = ?').get(effectiveUserId) as { lastActiveDate: string | null }).lastActiveDate;
       const newStreak = nextStreak(effectiveUserId, user.currentStreak, last, today);
+      if (newStreak === 1 && user.currentStreak > 0 && last) noteBrokenStreak(effectiveUserId, user.currentStreak, last, today);
       db.prepare('UPDATE users SET currentStreak = ?, lastActiveDate = ? WHERE id = ?')
         .run(newStreak, today, effectiveUserId);
       earnShieldAt(effectiveUserId, newStreak);
@@ -133,7 +138,7 @@ function approvePendingCompletion(completionId: number, adminId: number, extras:
 }
 
 function approveOne(completionId: number, adminId: number, extras: { note: string | null; bonus: number }): string | null {
-  const completion = db.prepare('SELECT id, taskId, userId, completedAt, coinsEarned, status FROM task_completions WHERE id = ?').get(completionId) as any;
+  const completion = db.prepare('SELECT id, taskId, userId, completedAt, coinsEarned, status, loggedAt FROM task_completions WHERE id = ?').get(completionId) as any;
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(completion.taskId) as any;
   if (!task) return 'task_not_found';
   const gamifRow = db.prepare("SELECT value FROM app_settings WHERE key = 'gamificationEnabled'").get() as { value: string } | undefined;
@@ -142,9 +147,11 @@ function approveOne(completionId: number, adminId: number, extras: { note: strin
     completionId: completion.id,
     approvedByUserId: adminId,
     approvedAt: new Date().toISOString(),
+    lateDay: completion.loggedAt ? localDateStr(new Date(completion.completedAt)) : undefined,
   });
-  // The turn moves on once the parent approves (it used to stay stuck under Strict Mode)
-  advanceRotation(task, completion.userId);
+  // The turn moves on once the parent approves (it used to stay stuck under Strict Mode); a late log
+  // only moves it if nothing was done since
+  if (!completion.loggedAt || isLatestCompletion(task.id, completion.completedAt)) advanceRotation(task, completion.userId);
   if (extras.note) db.prepare('UPDATE task_completions SET approvalNote = ? WHERE id = ?').run(extras.note, completion.id);
   // The bonus goes in the coin ledger as "above and beyond", in the kid's language
   if (extras.bonus > 0 && completion.coinsEarned > 0) { // not to a parent helping on a team
@@ -722,6 +729,44 @@ function advanceRotation(task: any, completedByUserId: number) {
   }
 }
 
+/** "Done earlier…" (ENH-7): how many days back a chore can be logged late */
+const LATE_DAYS = 7;
+
+/** A late log's day from the request ('YYYY-MM-DD', 1–7 days ago), null for a normal tap, or an error. */
+function readDoneOn(body: any): string | null | { error: string } {
+  const v = body?.doneOn;
+  if (v == null || v === '') return null;
+  if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return { error: 'invalid_done_on' };
+  const today = localDateStr();
+  const earliest = new Date(`${today}T12:00:00`);
+  earliest.setDate(earliest.getDate() - LATE_DAYS);
+  if (v >= today || v < localDateStr(earliest)) return { error: 'invalid_done_on' };
+  return v;
+}
+
+/** Nothing was done after this (the task's lastCompletedAt is this completion's). */
+function isLatestCompletion(taskId: number, completedAt: string): boolean {
+  return (db.prepare('SELECT lastCompletedAt FROM tasks WHERE id = ?').get(taskId) as { lastCompletedAt: string | null } | undefined)?.lastCompletedAt === completedAt;
+}
+
+/**
+ * Was the chore due on a late log's day? Judged from the completion before that day, like the
+ * "not yet due" check on a normal tap (per person when everyone does their own share).
+ */
+function dueOnDay(task: any, userId: number, when: string): boolean {
+  const perPerson = task.assignmentMode === 'shared' || task.assignmentMode === 'custom';
+  const prev = db.prepare(
+    `SELECT completedAt FROM task_completions WHERE taskId = ? AND status IN ('approved', 'pending')
+     AND date(completedAt, 'localtime') < date(?, 'localtime')${perPerson ? ' AND userId = ?' : ''}
+     ORDER BY completedAt DESC LIMIT 1`
+  ).get(...(perPerson ? [task.id, when, userId] : [task.id, when])) as { completedAt: string } | undefined;
+  if (!prev || task.allowEarlyCompletion) return true;
+  const endOfDay = new Date(when);
+  endOfDay.setHours(23, 59, 59, 999);
+  const due = nextDueAt({ ...task, lastCompletedAt: prev.completedAt }, endOfDay);
+  return !due || due.getTime() <= endOfDay.getTime();
+}
+
 // Complete task
 router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND deletedAt IS NULL').get(req.params.id) as any;
@@ -737,6 +782,14 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   const requester = db.prepare('SELECT role FROM users WHERE id = ?').get(req.userId) as any;
   const isAdminOrMember = requester?.role === 'admin' || requester?.role === 'member';
 
+  // "Done earlier…": logged late for a past day
+  const lateDay = readDoneOn(req.body);
+  if (lateDay && typeof lateDay === 'object') return res.status(400).json(lateDay);
+  if (lateDay) {
+    const added = task.createdAt ? localDateStr(parseStored(task.createdAt)) : '';
+    if (lateDay < added || (task.startsOn && lateDay < task.startsOn)) return res.status(409).json({ error: 'before_start' });
+  }
+
   // Support completing on behalf of another user (admin/member only)
   const { onBehalfOfUserId } = req.body;
   if (onBehalfOfUserId && !isAdminOrMember) {
@@ -746,8 +799,8 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     ? Number(onBehalfOfUserId)
     : req.userId!;
 
-  // Team-ups: once someone has joined, the chore belongs to the team for the day
-  const team = openTeamupFor(task.id);
+  // Team-ups: once someone has joined, the chore belongs to the team for the day (a late log is for another day)
+  const team = lateDay ? null : openTeamupFor(task.id);
   const teamClaimed = !!team && team.members.length >= 2;
   if (teamClaimed && !team!.members.some((m) => m.userId === effectiveUserId)) {
     return res.status(409).json({ error: 'claimed_by_team', names: team!.members.map((m) => m.displayName) });
@@ -778,30 +831,33 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     }
   }
 
-  // Always use server timestamp — never trust client-supplied completedAt
+  // Always use server timestamp — never trust client-supplied completedAt. A late log is stored at noon on its day.
   const now = new Date().toISOString();
+  const when = lateDay ? new Date(`${lateDay}T12:00:00`).toISOString() : now;
 
   if (!task.onDemand) {
     // Block if effective user already completed this task today
     const alreadyDoneBySelf = db.prepare(
       "SELECT id FROM task_completions WHERE taskId = ? AND userId = ? AND status IN ('approved', 'pending') AND date(completedAt, 'localtime') = date(?, 'localtime')"
-    ).get(task.id, effectiveUserId, now);
+    ).get(task.id, effectiveUserId, when);
     if (alreadyDoneBySelf) {
-      return res.status(409).json({ error: 'already_done_today' });
+      return res.status(409).json({ error: lateDay ? 'already_done_that_day' : 'already_done_today' });
     }
 
     if (task.assignmentMode !== 'shared' && task.assignmentMode !== 'custom') {
       // In 'first' mode: block if someone else already completed today
       const alreadyDoneByOther = db.prepare(
         "SELECT id FROM task_completions WHERE taskId = ? AND userId != ? AND status IN ('approved', 'pending') AND date(completedAt, 'localtime') = date(?, 'localtime')"
-      ).get(task.id, effectiveUserId, now);
+      ).get(task.id, effectiveUserId, when);
       if (alreadyDoneByOther) {
         return res.status(409).json({ error: 'already_done_by_other' });
       }
     }
 
     // Block if frequency cooldown hasn't elapsed (task not yet due); a one-time chore can be done any time
-    if (task.lastCompletedAt && !task.oneTime) {
+    if (lateDay) {
+      if (!task.oneTime && !dueOnDay(task, effectiveUserId, when)) return res.status(409).json({ error: 'not_yet_due' });
+    } else if (task.lastCompletedAt && !task.oneTime) {
       const globalVac = getGlobalVacation();
       const taskAssigneesForVac = db.prepare('SELECT userId FROM task_assignees WHERE taskId = ?').all(task.id) as { userId: number }[];
       const taskVac = taskAssigneesForVac.length === 1
@@ -826,7 +882,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     // Anytime quests skip the cooldowns above, but may be capped per person per day/week
     const repeat = repeatLimitOf(task);
     if (repeat) {
-      const count = countInPeriod(task.id, effectiveUserId, repeat.period, new Date(now));
+      const count = countInPeriod(task.id, effectiveUserId, repeat.period, new Date(when));
       if (count >= repeat.limit) {
         return res.status(409).json({ error: 'repeat_limit_reached', limit: repeat.limit, period: repeat.period, count });
       }
@@ -846,8 +902,8 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   const gamificationOn = gamifRow ? gamifRow.value !== '0' : true;
 
   // Today's Rescue Mission: the first completion of that chore claims its bonus (before coins are
-  // counted, so two people finishing at once can't both get it)
-  const mission = todaysMission(new Date(now));
+  // counted, so two people finishing at once can't both get it). It and double coins are for doing it on the day, not late.
+  const mission = lateDay ? null : todaysMission(new Date(now));
   const rescued = !!mission && mission.taskId === task.id && claimRescue(task.id, effectiveUserId, new Date(now));
 
   let coins: number;
@@ -868,7 +924,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     // Double coins event running for this chore or its room: the boosted amount is stored on the completion,
     // so a parent approving it later (Strict Mode) still pays the boost
     // The Rescue Mission doesn't stack with a double coins event: the bigger multiplier wins
-    const multiplier = Math.max(boostMultiplierFor(task.id, task.roomId, new Date(now)), rescued ? mission!.multiplier : 1);
+    const multiplier = lateDay ? 1 : Math.max(boostMultiplierFor(task.id, task.roomId, new Date(now)), rescued ? mission!.multiplier : 1);
     if (multiplier > 1) coins = Math.round(coins * multiplier);
   }
 
@@ -880,28 +936,34 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   // completion must still go through Strict Mode (upstream #142). In-app "who did it?" stays instant.
   const actingForChild = !!onBehalfOfUserId && req.body.requireApproval === true;
   const strictNeedsApproval = isStrictModeEnabled() && targetUser?.role === 'child' && (!isAdminOrMember || actingForChild);
+  // A late log always waits for a parent, unless a parent logged it
+  const lateNeedsApproval = !!lateDay && (requester?.role !== 'admin' || actingForChild);
+  const loggedAt = lateDay ? now : null;
 
-  if (strictNeedsApproval) {
+  if (strictNeedsApproval || lateNeedsApproval) {
     const pendingId = Number(db.prepare(
-      "INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, note) VALUES (?, ?, ?, ?, 'pending', ?)"
-    ).run(task.id, effectiveUserId, now, coins, note).lastInsertRowid);
+      "INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, note, loggedAt) VALUES (?, ?, ?, ?, 'pending', ?, ?)"
+    ).run(task.id, effectiveUserId, when, coins, note, loggedAt).lastInsertRowid);
     void notifyChoreWaiting(effectiveUserId, task.name);
     if (rescued) setRescueCompletion(mission!.day, pendingId);
-    endTeamupsFor(task.id);
-    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId, rescued });
+    if (!lateDay) endTeamupsFor(task.id);
+    return res.json({ coinsEarned: 0, health: task.health, pendingApproval: true, completionId: pendingId, rescued, late: !!lateDay });
   }
 
-  const completionId = applyApprovedCompletion(task, task.id, effectiveUserId, coins, now, gamificationOn, { note });
+  const completionId = applyApprovedCompletion(task, task.id, effectiveUserId, coins, when, gamificationOn, {
+    note, ...(lateDay ? { loggedAt: now, approvedAt: now, lateDay } : {}),
+  });
   if (rescued) setRescueCompletion(mission!.day, completionId);
-  endTeamupsFor(task.id);
-  advanceRotation(task, effectiveUserId);
+  if (!lateDay) endTeamupsFor(task.id);
+  if (!lateDay || isLatestCompletion(task.id, when)) advanceRotation(task, effectiveUserId);
 
   const newAchievements = gamificationOn ? checkAndRecordNewAchievements(effectiveUserId) : [];
   if (newAchievements.length > 0) {
     void notifyAchievementUnlocksForUser(effectiveUserId);
   }
   // Titles for the pop-up: parent-made and secret badges aren't in the page data the app already has
-  res.json({ coinsEarned: coins, health: 100, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(effectiveUserId, newAchievements), completionId, rescued });
+  const health = lateDay ? taskHealth(db.prepare('SELECT * FROM tasks WHERE id = ?').get(task.id) as ScheduledTask) : 100;
+  res.json({ coinsEarned: coins, health, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(effectiveUserId, newAchievements), completionId, rescued, late: !!lateDay });
 });
 
 router.get('/completions/pending', (req: AuthRequest, res: Response) => {
@@ -910,7 +972,7 @@ router.get('/completions/pending', (req: AuthRequest, res: Response) => {
   }
 
   const pending = db.prepare(`
-    SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl, tc.teamupId,
+    SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl, tc.teamupId, tc.loggedAt,
            t.name AS taskName, t.translationKey, t.roomId, t.assignmentMode, t.effort,
            r.name AS roomName, r.roomType,
            u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl

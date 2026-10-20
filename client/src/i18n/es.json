@@ -1834,7 +1834,26 @@
       "nDays": "{n} días",
       "prev_custom": "los {n} días anteriores",
       "sofar_custom": "los {n} días anteriores, hasta ahora",
-      "weeksTo": "{n} semanas hasta el {date}."
+      "weeksTo": "{n} semanas hasta el {date}.",
+      "onlyPeople": "Solo las tareas de {names}: las que hicieron tarde o las que les tocan."
+    },
+    "late": {
+      "button": "Hecho antes…",
+      "title": "Hecho antes",
+      "whichDay": "¿Qué día se hizo?",
+      "yesterday": "Ayer",
+      "who": "¿Quién lo hizo?",
+      "hintKid": "Un padre revisa las tareas apuntadas tarde antes de que lleguen las monedas. Dan las monedas de siempre, sin monedas dobles ni Misión de rescate.",
+      "hintParent": "Cuenta para ese día y da las monedas de siempre, sin monedas dobles ni Misión de rescate.",
+      "submit": "Apuntar",
+      "logged": "Apuntado para el {date}.",
+      "sentForApproval": "Enviado a un padre, para el {date}.",
+      "errAlreadyDone": "Ya está apuntado para ese día.",
+      "errDoneByOther": "Alguien ya lo hizo ese día.",
+      "errNotDue": "Ese día todavía no tocaba.",
+      "errBeforeStart": "La tarea aún no había empezado ese día.",
+      "tag": "Apuntado tarde",
+      "tagFor": "Apuntado tarde, para el {date}"
     }
   }
 }

@@ -367,8 +367,9 @@ export const api = {
     apiFetch<any>(`/tasks/${id}/duplicate`, { method: 'POST' }),
   resetTask: (id: number) =>
     apiFetch<{ success: boolean; completionsRemoved: number; coinsDeducted: number; lastCompletedAt: string }>(`/tasks/${id}/reset`, { method: 'POST' }),
-  completeTask: (id: number, onBehalfOfUserId?: number, extra: { note?: string } = {}) =>
-    apiFetch<{ coinsEarned: number; health: number; pendingApproval?: boolean; newAchievements?: string[]; newAchievementInfo?: Array<{ id: string; titleKey: string | null; title: string | null; icon: string }>; completionId?: number }>(`/tasks/${id}/complete`, {
+  /** doneOn: "Done earlier…" for a past day ('YYYY-MM-DD', up to 7 days back) */
+  completeTask: (id: number, onBehalfOfUserId?: number, extra: { note?: string; doneOn?: string } = {}) =>
+    apiFetch<{ coinsEarned: number; health: number; pendingApproval?: boolean; newAchievements?: string[]; newAchievementInfo?: Array<{ id: string; titleKey: string | null; title: string | null; icon: string }>; completionId?: number; late?: boolean }>(`/tasks/${id}/complete`, {
       method: 'POST', body: JSON.stringify({ ...(onBehalfOfUserId ? { onBehalfOfUserId } : {}), ...extra }),
     }),
   approveCompletionsBatch: (ids: number[]) =>

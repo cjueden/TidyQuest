@@ -13,11 +13,29 @@ function topRounded(x: number, y: number, w: number, h: number, r: number) {
   return `M${x},${y + h}V${y + rr}Q${x},${y} ${x + rr},${y}H${x + w - rr}Q${x + w},${y} ${x + w},${y + rr}V${y + h}Z`;
 }
 
-export function LegendRow({ series }: { series: Stacked['series'] }) {
+/** A toggle chip: a color swatch (hollow when off) and a name; also used for the person chips (ENH-9) */
+export function ToggleChip({ color, label, on, onClick }: { color?: string; label: string; on: boolean; onClick: () => void }) {
+  return (
+    <button type="button" aria-pressed={on} onClick={onClick} style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 32, padding: '4px 10px', borderRadius: 99, minWidth: 0,
+      border: `1.5px solid ${on ? 'var(--warm-border)' : 'var(--warm-border-subtle)'}`, background: on ? 'var(--warm-bg-subtle)' : 'none',
+      color: on ? 'var(--warm-text)' : 'var(--warm-text-muted)', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
+    }}>
+      {color && <span aria-hidden style={{ width: 10, height: 10, borderRadius: 3, flexShrink: 0, boxSizing: 'border-box', border: `2px solid ${color}`, background: on ? color : 'transparent' }} />}
+      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140, textDecoration: on ? 'none' : 'line-through' }}>{label}</span>
+    </button>
+  );
+}
+
+/** The series' colors; with onToggle, each one is a chip that hides or shows it */
+export function LegendRow({ series, onToggle, label }: { series: Stacked['series']; onToggle?: (key: string) => void; label?: string }) {
   if (series.length < 2) return null;
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginBottom: 8 }}>
-      {series.map((s) => (
+    <div role={onToggle ? 'group' : undefined} aria-label={onToggle ? label : undefined}
+      style={{ display: 'flex', flexWrap: 'wrap', gap: onToggle ? 6 : '4px 12px', marginBottom: 8 }}>
+      {series.map((s) => onToggle ? (
+        <ToggleChip key={s.key} color={s.color} label={s.label} on={!s.hidden} onClick={() => onToggle(s.key)} />
+      ) : (
         <span key={s.key} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--warm-text)', minWidth: 0 }}>
           <span style={{ width: 10, height: 10, borderRadius: 3, background: s.color, flexShrink: 0 }} />
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>{s.label}</span>

@@ -79,6 +79,43 @@ export function nextStreak(userId: number, current: number, lastActiveDate: stri
   return missedStreakDays(userId, lastActiveDate, yesterday, 1).length === 0 ? current + 1 : 1;
 }
 
+/** A streak just broke (restarted at 1 on `restartedOn`): remember it, so a late log for a missed day can bring it back. */
+export function noteBrokenStreak(userId: number, streak: number, lastCounted: string, restartedOn: string): void {
+  db.prepare('UPDATE users SET brokenStreak = ?, brokenStreakAfter = ?, brokenStreakOn = ? WHERE id = ?').run(streak, lastCounted, restartedOn, userId);
+}
+
+/**
+ * A chore logged late for `day` ("Done earlier…", ENH-7) counts for the streak on that day:
+ * - after the streak's last counted day, the streak goes on (or restarts) as a chore on that day would have;
+ * - inside the gap that last broke the streak, once no missed day is left in it, the old streak comes back,
+ *   with the days filled in and the days counted since.
+ */
+export function lateStreak(userId: number, day: string): void {
+  if (resolveVacation(getGlobalVacation(), getUserVacation(userId)).isVacation) return;
+  settleStreak(userId);
+  const u = db.prepare('SELECT currentStreak, lastActiveDate, brokenStreak, brokenStreakAfter, brokenStreakOn FROM users WHERE id = ?').get(userId) as {
+    currentStreak: number; lastActiveDate: string | null; brokenStreak: number | null; brokenStreakAfter: string | null; brokenStreakOn: string | null;
+  } | undefined;
+  if (!u) return;
+  if (!u.lastActiveDate || day > u.lastActiveDate) {
+    const streak = nextStreak(userId, u.currentStreak, u.lastActiveDate, day);
+    if (streak === 1 && u.currentStreak > 0 && u.lastActiveDate) noteBrokenStreak(userId, u.currentStreak, u.lastActiveDate, day);
+    db.prepare('UPDATE users SET currentStreak = ?, lastActiveDate = ? WHERE id = ?').run(streak, day, userId);
+    earnShieldAt(userId, streak);
+    return;
+  }
+  const { brokenStreak: old, brokenStreakAfter: after, brokenStreakOn: restarted } = u;
+  if (!old || !after || !restarted || day <= after || day >= restarted) return;
+  if (missedStreakDays(userId, after, addDays(restarted, -1), 1).length > 0) return;
+  const filled = (db.prepare(
+    `SELECT COUNT(DISTINCT date(completedAt, 'localtime')) AS n FROM task_completions
+     WHERE userId = ? AND status = 'approved' AND date(completedAt, 'localtime') > ? AND date(completedAt, 'localtime') < ?`
+  ).get(userId, after, restarted) as { n: number }).n;
+  const streak = old + filled + u.currentStreak;
+  db.prepare('UPDATE users SET currentStreak = ?, brokenStreak = NULL, brokenStreakAfter = NULL, brokenStreakOn = NULL WHERE id = ?').run(streak, userId);
+  earnShieldAt(userId, streak);
+}
+
 function logShield(userId: number, kind: 'earned' | 'bought' | 'given' | 'used', fields: { count?: number; coins?: number; streak?: number; byUserId?: number } = {}) {
   db.prepare('INSERT INTO streak_shield_events (userId, kind, count, coins, streak, byUserId) VALUES (?, ?, ?, ?, ?, ?)')
     .run(userId, kind, fields.count ?? 1, fields.coins ?? 0, fields.streak ?? 0, fields.byUserId ?? null);

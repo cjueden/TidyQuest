@@ -1834,7 +1834,26 @@
       "nDays": "{n} jours",
       "prev_custom": "les {n} jours d'avant",
       "sofar_custom": "les {n} jours d'avant, au même stade",
-      "weeksTo": "{n} semaines jusqu'au {date}."
+      "weeksTo": "{n} semaines jusqu'au {date}.",
+      "onlyPeople": "Seulement les tâches de {names} : faites en retard par ces personnes, ou à faire par elles."
+    },
+    "late": {
+      "button": "Fait plus tôt…",
+      "title": "Fait plus tôt",
+      "whichDay": "Quel jour était-ce ?",
+      "yesterday": "Hier",
+      "who": "Qui l'a fait ?",
+      "hintKid": "Un parent vérifie les tâches notées en retard avant que les pièces arrivent. Elles rapportent les pièces habituelles, sans pièces doublées ni Mission sauvetage.",
+      "hintParent": "Elle compte pour ce jour-là et rapporte les pièces habituelles, sans pièces doublées ni Mission sauvetage.",
+      "submit": "Noter",
+      "logged": "Noté pour le {date}.",
+      "sentForApproval": "Envoyé à un parent, pour le {date}.",
+      "errAlreadyDone": "C'est déjà noté pour ce jour-là.",
+      "errDoneByOther": "Quelqu'un l'a déjà fait ce jour-là.",
+      "errNotDue": "Ce n'était pas encore à faire ce jour-là.",
+      "errBeforeStart": "La tâche n'avait pas encore commencé ce jour-là.",
+      "tag": "Noté en retard",
+      "tagFor": "Noté en retard, pour le {date}"
     }
   }
 }

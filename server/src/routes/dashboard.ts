@@ -286,7 +286,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   // Chores waiting for a parent's approval (Strict Mode), newest first
   const pendingCompletions = user.role === 'admin'
     ? db.prepare(`
-      SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl, tc.teamupId,
+      SELECT tc.id, tc.taskId, tc.userId, tc.completedAt, tc.coinsEarned, tc.note, tc.photoUrl, tc.teamupId, tc.loggedAt,
              t.name AS taskName, t.translationKey, t.roomId, t.iconKey, r.name AS roomName, r.roomType, r.color AS roomColor,
              u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
       FROM task_completions tc

@@ -165,7 +165,7 @@ function previousScheduledDay(rule: FixedRule, before: Date): Date {
 }
 
 /** SQLite datetime('now') ("2026-10-16 07:12:00", UTC) or an ISO string, as a Date */
-const parseStored = (v: string) => new Date(v.includes('T') ? v : `${v.replace(' ', 'T')}Z`);
+export const parseStored = (v: string) => new Date(v.includes('T') ? v : `${v.replace(' ', 'T')}Z`);
 
 /**
  * A one-time chore is due from its do-by day (or from when it was added) and overdue once that day

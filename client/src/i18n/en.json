@@ -1834,7 +1834,26 @@
       "nDays": "{n} days",
       "prev_custom": "the {n} days before",
       "sofar_custom": "the {n} days before, by now",
-      "weeksTo": "{n} weeks to {date}."
+      "weeksTo": "{n} weeks to {date}.",
+      "onlyPeople": "Only the chores of {names}: done late by them, or theirs to do."
+    },
+    "late": {
+      "button": "Done earlier…",
+      "title": "Done earlier",
+      "whichDay": "Which day was it done?",
+      "yesterday": "Yesterday",
+      "who": "Who did it?",
+      "hintKid": "A parent checks late logs before the coins arrive. They pay the chore's usual coins, without double coins or the Rescue Mission.",
+      "hintParent": "It counts on that day and pays the chore's usual coins, without double coins or the Rescue Mission.",
+      "submit": "Log it",
+      "logged": "Logged for {date}.",
+      "sentForApproval": "Sent to a parent, for {date}.",
+      "errAlreadyDone": "It's already logged for that day.",
+      "errDoneByOther": "Someone already did it that day.",
+      "errNotDue": "It wasn't due yet that day.",
+      "errBeforeStart": "The chore hadn't started yet that day.",
+      "tag": "Logged late",
+      "tagFor": "Logged late, for {date}"
     }
   }
 }

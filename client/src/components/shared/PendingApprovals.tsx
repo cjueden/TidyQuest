@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { api } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { CoinIcon } from '../icons/UIIcons';
+import { lateDayLabel } from '../../utils/lateLog';
 
 export interface PendingItem {
   id: number;
@@ -15,6 +16,8 @@ export interface PendingItem {
   coinsEarned: number;
   note?: string | null;
   photoUrl?: string | null;
+  /** A late log ("Done earlier…"): when it was tapped; completedAt is the day it was done */
+  loggedAt?: string | null;
 }
 
 /**
@@ -184,7 +187,8 @@ export function PendingApprovals({ items, language, onChanged, gamificationEnabl
             </div>
             <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600, display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
               {p.roomName && <span>{roomDisplayName(p.roomName, p.roomType || '')}</span>}
-              <span>{timeAgo(p.completedAt)}</span>
+              <span>{timeAgo(p.loggedAt ?? p.completedAt)}</span>
+              {p.loggedAt && <span style={{ color: 'var(--warm-text)', fontWeight: 800 }}>🕘 {t('late.tagFor').replace('{date}', lateDayLabel(p.completedAt, language))}</span>}
               {gamificationEnabled && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, color: 'var(--warm-accent)', fontWeight: 800 }}><CoinIcon />{p.coinsEarned}</span>}
             </div>
             {p.note && (

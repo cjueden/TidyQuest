@@ -3,14 +3,14 @@ import { api, type InsightsBars, type InsightsCoins, type InsightsHeatmap, type 
 import { useTranslation } from '../../hooks/useTranslation';
 import {
   addDays, bucketLabels, daysIncl, formatValue, fromYmd, heatGrid, lastDayOf, periodLabel, shares, shiftDay, skippedLists, stackBars, ymd,
-  type ListBy, type Measure, type StackBy,
+  type ListBy, type Measure, type People, type StackBy,
 } from '../insights/insightsData';
 import { DatePick } from '../insights/DatePick';
 import { SkippedLists } from '../insights/SkippedLists';
 import { Segmented } from '../insights/Segmented';
 import { CoinsCard } from '../insights/CoinsCard';
 import { localeFor } from '../../utils/locale';
-import { LegendRow, PeriodBars } from '../insights/PeriodBars';
+import { LegendRow, PeriodBars, ToggleChip } from '../insights/PeriodBars';
 import { HeatScale, WeekHeatmap, type HeatCell } from '../insights/WeekHeatmap';
 import { weekdayName, WEEK_ORDER } from '../../utils/schedule';
 
@@ -34,7 +34,9 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const [range, setRange] = useState<{ from: string; to: string }>({ from: addDays(today, -29), to: today });
   const [measureChoice, setMeasure] = useState<Measure>('chores');
   const [stack, setStack] = useState<StackBy>('person');
-  const [person, setPerson] = useState<number | null>(null);
+  /** Who's tapped off (ENH-9): hidden people, and hidden rooms or chores when the bars are split by them */
+  const [hiddenPeople, setHiddenPeople] = useState<ReadonlySet<number>>(new Set());
+  const [hiddenSeries, setHiddenSeries] = useState<ReadonlySet<string>>(new Set());
   const [heatWeeks, setHeatWeeks] = useState<4 | 12>(4);
   const [bars, setBars] = useState<InsightsBars | null>(null);
   const [heat, setHeat] = useState<InsightsHeatmap | null>(null);
@@ -96,16 +98,32 @@ export function Insights({ language, gamificationEnabled }: Props) {
     task: (id: number) => { const x = tasks.get(id); return x ? taskName(x.name, x.translationKey) : '?'; },
     room: (id: number) => { const x = rooms.get(id); return x ? roomDisplayName(x.name, x.roomType) : '?'; },
   };
-  const stacked = current ? stackBars(current, stack, measure, person, names, t('insights.other')) : null;
-  const labels = current ? bucketLabels(current.grain, current.buckets, language, t('insights.weekOf')) : [];
-  const grid = heat ? heatGrid(heat, measure, person) : null;
   const people = current?.people ?? heat?.people ?? [];
-  const shareRows = current ? shares(current, measure) : [];
+  const shownPeople = people.filter((p) => !hiddenPeople.has(p.id));
+  const shown: People = hiddenPeople.size ? new Set(shownPeople.map((p) => p.id)) : null;
+  /** Tap a name: hide or show them everywhere; the last one shown stays */
+  const togglePerson = (id: number) => {
+    if (!hiddenPeople.has(id) && shownPeople.length <= 1) return;
+    const next = new Set(hiddenPeople);
+    if (!next.delete(id)) next.add(id);
+    setHiddenPeople(next);
+  };
+  const stacked = current ? stackBars(current, stack, measure, shown, names, t('insights.other'), stack === 'person' ? undefined : hiddenSeries) : null;
+  const toggleSeries = (key: string) => {
+    if (stack === 'person') return togglePerson(Number(key.slice(1)));
+    if (!hiddenSeries.has(key) && (stacked?.series.filter((s) => !s.hidden).length ?? 0) <= 1) return;
+    const next = new Set(hiddenSeries);
+    if (!next.delete(key)) next.add(key);
+    setHiddenSeries(next);
+  };
+  const labels = current ? bucketLabels(current.grain, current.buckets, language, t('insights.weekOf')) : [];
+  const grid = heat ? heatGrid(heat, measure, shown) : null;
+  const shareRows = current ? shares(current, measure, shown) : [];
 
   // Skipped lists carry their own chores and rooms (not only the ones done this period)
   const skipTasks = new Map((skipped?.tasks ?? []).map((x) => [x.id, x]));
   const skipRooms = new Map((skipped?.rooms ?? []).map((x) => [x.id, x]));
-  const lists = skipped ? skippedLists(skipped, listBy, person, {
+  const lists = skipped ? skippedLists(skipped, listBy, shown, {
     task: (id) => { const x = skipTasks.get(id); return x ? taskName(x.name, x.translationKey) : '?'; },
     room: (id) => { const x = skipRooms.get(id); return x ? roomDisplayName(x.name, x.roomType) : '?'; },
   }) : null;
@@ -117,7 +135,9 @@ export function Insights({ language, gamificationEnabled }: Props) {
     const since = new Date(`${skipped.snapshotSince}T12:00:00`).toLocaleDateString(localeFor(language), { day: 'numeric', month: 'short' });
     return t('insights.undoneSince').replace('{date}', since);
   })();
-  const personName = people.find((p) => p.id === person)?.name;
+  const onlyNote = !shown ? null : shownPeople.length === 1
+    ? t('insights.onlyPerson').replace('{name}', shownPeople[0].name)
+    : t('insights.onlyPeople').replace('{names}', shownPeople.map((p) => p.name).join(', '));
 
   const canGoBack = !!current?.earliest && new Date(current.earliest) < new Date(current.start);
   const running = !!current?.previousSoFar;
@@ -210,16 +230,17 @@ export function Insights({ language, gamificationEnabled }: Props) {
             <Segmented label={t('insights.measure')} value={measure} onChange={setMeasure} options={measures} />
           </div>
           <div style={{ flex: '1 1 160px', minWidth: 0 }}>
-            <Segmented label={t('insights.stackBy')} value={stack} onChange={setStack}
+            <Segmented label={t('insights.stackBy')} value={stack} onChange={(s) => { setStack(s); setHiddenSeries(new Set()); }}
               options={(['person', 'room', 'chore'] as const).map((s) => ({ value: s, label: t(`insights.by_${s}`) }))} />
           </div>
-          <select className="tq-input-compact" aria-label={t('insights.person')} value={person ?? ''}
-            onChange={(e) => setPerson(e.target.value ? Number(e.target.value) : null)}
-            style={{ flex: '1 1 140px', minWidth: 0, padding: '6px 10px', fontSize: 13 }}>
-            <option value="">{t('insights.everyone')}</option>
-            {people.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
         </div>
+        {/* Who's shown, on every card: tap names to hide or show them (ENH-9) */}
+        {people.length > 1 && (
+          <div role="group" aria-label={t('insights.person')} style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <ToggleChip label={t('insights.everyone')} on={hiddenPeople.size === 0} onClick={() => setHiddenPeople(new Set())} />
+            {people.map((p) => <ToggleChip key={p.id} color={p.color} label={p.name} on={!hiddenPeople.has(p.id)} onClick={() => togglePerson(p.id)} />)}
+          </div>
+        )}
       </div>
 
       {failed && <div className="tq-card tq-card-padded" role="alert" style={{ color: 'var(--warm-text)' }}>{t('insights.loadError')}</div>}
@@ -230,11 +251,12 @@ export function Insights({ language, gamificationEnabled }: Props) {
           <h2 id="insights-bars" style={cardTitle}>{t('insights.whenTitle')}</h2>
           <span style={muted}>{measureName}: <strong style={{ color: 'var(--warm-text)' }}>{fmt(total)}</strong></span>
         </div>
-        {!stacked ? <p style={muted}>{t('insights.loading')}</p> : total === 0 ? (
+        {!stacked ? <p style={muted}>{t('insights.loading')}</p> : total === 0 && !stacked.series.some((s) => s.hidden) ? (
           <p style={muted}>{t('insights.noData')}</p>
         ) : (
           <>
-            <LegendRow series={stacked.series} />
+            <LegendRow series={stacked.series} onToggle={toggleSeries} label={`${t('insights.whenTitle')}: ${t(`insights.by_${stack}`)}`} />
+            {total === 0 ? <p style={muted}>{t('insights.noData')}</p> : <>
             <PeriodBars labels={labels} stacked={stacked} language={language} wideLabels={current?.grain === 'hour' || current?.grain === 'week'}
               selected={selected} onSelect={(i) => setPicked(i == null ? null : { key: query, index: i })}
               ariaLabel={`${measureName} · ${current ? periodLabel(current.period, current.start, current.end, language) : ''}`} />
@@ -281,6 +303,7 @@ export function Insights({ language, gamificationEnabled }: Props) {
                 </tbody>
               </table>
             )}
+            </>}
           </>
         )}
       </section>
@@ -327,14 +350,15 @@ export function Insights({ language, gamificationEnabled }: Props) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {shareRows.map((r) => {
               const delta = r.value - r.previous;
-              const dim = person != null && person !== r.person.id;
               return (
-                <div key={r.person.id} style={{ opacity: dim ? 0.45 : 1 }}>
+                // Tap a row to hide or show that person everywhere
+                <button key={r.person.id} type="button" aria-pressed={r.shown} onClick={() => togglePerson(r.person.id)}
+                  style={{ opacity: r.shown ? 1 : 0.45, display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', cursor: 'pointer' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                     <span style={{ width: 10, height: 10, borderRadius: 99, background: r.person.color, flexShrink: 0, alignSelf: 'center' }} />
                     <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--warm-text)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.person.name}</span>
                     <strong style={{ fontSize: 15, color: 'var(--warm-text)' }}>{fmt(r.value)}</strong>
-                    <span style={{ ...muted, width: 38, textAlign: 'right' }}>{Math.round(r.share * 100)}%</span>
+                    <span style={{ ...muted, width: 38, textAlign: 'right' }}>{r.shown ? `${Math.round(r.share * 100)}%` : '–'}</span>
                   </div>
                   <div style={{ height: 6, borderRadius: 3, background: 'var(--viz-heat-0)', margin: '5px 0 3px 18px' }}>
                     <div style={{ height: 6, borderRadius: 3, width: `${Math.max(r.value > 0 ? 2 : 0, r.share * 100)}%`, background: r.person.color }} />
@@ -344,7 +368,7 @@ export function Insights({ language, gamificationEnabled }: Props) {
                       .replace('{delta}', delta === 0 ? '±0' : `${delta > 0 ? '+' : '−'}${fmt(Math.abs(delta))}`)
                       .replace('{prev}', prevName).replace('{before}', fmt(r.previous))}
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -358,7 +382,7 @@ export function Insights({ language, gamificationEnabled }: Props) {
           <Segmented label={t('insights.listBy')} value={listBy} onChange={setListBy}
             options={[{ value: 'chore', label: t('insights.chores') }, { value: 'room', label: t('insights.rooms') }]} />
         </div>
-        {personName && <p style={{ ...muted, margin: '6px 0 0' }}>{t('insights.onlyPerson').replace('{name}', personName)}</p>}
+        {onlyNote && <p style={{ ...muted, margin: '6px 0 0' }}>{onlyNote}</p>}
         {!lists ? <p style={muted}>{t('insights.loading')}</p> : (
           <SkippedLists lists={lists} language={language} t={t} undoneNote={undoneNote} />
         )}
@@ -366,7 +390,7 @@ export function Insights({ language, gamificationEnabled }: Props) {
 
       {/* Coins in and out (hidden with game features off) */}
       {gamificationEnabled && (
-        <CoinsCard data={coins} weeks={coinRange} onWeeks={setCoinRange} personId={person} language={language} t={t}
+        <CoinsCard data={coins} weeks={coinRange} onWeeks={setCoinRange} people={shown} language={language} t={t}
           rangeLabel={t('insights.weeksTo').replace('{n}', String(coinRange)).replace('{date}', shortDate(lastDay))} />
       )}
     </div>
