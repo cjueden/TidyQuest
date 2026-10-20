@@ -19,6 +19,7 @@ import { localeFor } from '../../utils/locale';
 import { useTranslation } from '../../hooks/useTranslation';
 import { AdminCompleteModal } from '../shared/AdminCompleteModal';
 import { ProofModal, type Proof } from '../shared/ProofModal';
+import { LateLogModal } from '../shared/LateLogModal';
 import { UndoToast, type UndoState } from '../shared/UndoToast';
 import { TeamUpButton, TeamUpDialog } from '../shared/TeamUp';
 import { claimedLabel } from '../../utils/teamups';
@@ -204,6 +205,8 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const [sortAsc, setSortAsc] = useState(true);
   const focusedOnce = useRef<number | null>(null);
   const [proofTask, setProofTask] = useState<Task | null>(null);
+  /** "Done earlier…" (ENH-7) */
+  const [lateTask, setLateTask] = useState<Task | null>(null);
   // The chore someone is picking a team-up partner for
   const [teamPick, setTeamPick] = useState<Task | null>(null);
   const canAddProof = !!strictMode && currentUserRole === 'child';
@@ -1003,6 +1006,9 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       {canAddProof && !btn.disabled && !waitForTimer && (
                         <button onClick={() => setProofTask(task)} className="tq-btn tq-btn-secondary tq-btn-sm" title={t('proof.addProof')} aria-label={t('proof.addProof')}>📎</button>
                       )}
+                      {btn.label !== t('app.notAssigned') && !claimedLabel(task.teamUp) && (
+                        <button onClick={() => setLateTask(task)} className="tq-btn tq-btn-secondary tq-btn-sm" title={t('late.button')} aria-label={t('late.button')}>📅</button>
+                      )}
                       {!btn.disabled && <TimerStartButton task={{ ...task, name: translateTask(task.name, task.translationKey) }} language={language} primary={waitForTimer} />}
                       {!(waitForTimer && !btn.disabled) && <button
                         onClick={() => !btn.disabled && handleComplete(task)}
@@ -1296,6 +1302,25 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
         onSubmit={async (proof) => { onCompleteTask(proofTask.id, proof); setProofTask(null); }}
       />
     )}
+    {lateTask && (() => {
+      // Admins and members can say who did it: the chore's people, or everyone
+      const canPick = currentUserRole === 'admin' || currentUserRole === 'member';
+      const ids = lateTask.effectiveAssignedUserIds ?? [];
+      const all = users ?? [];
+      const others = all.filter((u) => u.id !== currentUserId && (ids.length > 0 ? ids.includes(u.id) : !lateTask.assignedToChildren || u.role === 'child'));
+      const me = all.find((u) => u.id === currentUserId);
+      return (
+        <LateLogModal
+          task={{ id: lateTask.id, title: translateTask(lateTask.name, lateTask.translationKey) }}
+          people={canPick && me ? [me, ...others] : []}
+          currentUserId={currentUserId}
+          isParent={currentUserRole === 'admin'}
+          language={language}
+          onClose={() => setLateTask(null)}
+          onLogged={(r) => { if (r.newAchievements?.length) onAchievementsUnlocked?.(r.newAchievements); onRefresh?.(); }}
+        />
+      );
+    })()}
     {adminModalTask && (
       <AdminCompleteModal
         task={adminModalTask}

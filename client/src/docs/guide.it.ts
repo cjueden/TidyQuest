@@ -142,6 +142,13 @@ export const GUIDE_IT: GuideSection[] = [
         'Genitori e membri possono segnare una faccenda come fatta per qualcun altro ("chi l’ha fatta?").',
         'Un errore si può annullare da Attività (genitori), oppure con ↩️ Annulla accanto a "Fatto da" della faccenda nella sua stanza (genitori; chiede conferma, perché le monete vengono tolte). Una squadra viene annullata per tutta la squadra e le monete di tutti per quella faccenda vengono riprese. Un bambino può ritirare il proprio Fatto finché aspetta l’approvazione.',
       ] },
+      { h: 'Segnarla in ritardo' },
+      { ul: [
+        'Hai dimenticato di toccare Fatto? Tocca 📅 (Fatto prima…) accanto alla faccenda nella sua stanza, scegli il giorno (fino a 7 giorni fa) e tocca Segna. Genitori e membri possono scegliere chi l’ha fatta.',
+        'Conta per quel giorno: per le serie, l’obiettivo settimanale, la Classifica e il Calendario. Se riempie il giorno che ha interrotto una serie, la serie torna. Un obiettivo la cui settimana è finita paga comunque il suo bonus quando le monete lo raggiungono.',
+        'Dà le solite monete della faccenda, senza monete doppie né Missione di salvataggio. Tutti tranne i genitori aspettano l’approvazione di un genitore, anche con la Modalità rigorosa spenta. Attività e l’elenco da approvare la segnano 🕘 Segnato in ritardo.',
+        'Non si può mettere in un giorno in cui la faccenda era già fatta (con Primo arrivato, da chiunque), prima che la faccenda fosse aggiunta o della sua data di inizio, o in un giorno in cui non era ancora da fare.',
+      ] },
     ],
   },
   {
@@ -343,6 +350,9 @@ export const GUIDE_IT: GuideSection[] = [
           'Hai toccato Fatto per sbaglio? Finché aspetta, ↩ Annulla (accanto al pulsante) la annulla; in una squadra viene ritirata per tutta la squadra.',
           'Se Gamification è disattivata (Impostazioni → Generale), non ci sono monete per niente.',
           'Se un genitore l’ha rifiutata, la faccenda è di nuovo aperta; nelle squadre torna alla squadra.',
+        ] },
+        { q: 'Ieri ho dimenticato di toccare Fatto', a: [
+          'Tocca 📅 accanto alla faccenda nella sua stanza e scegli il giorno. Conta per quel giorno (serie compresa) appena un genitore la approva. Vedi Faccende → Segnarla in ritardo.',
         ] },
         { q: 'Manca una scheda nella Home', a: [
           'Forse è nascosta: apri Personalizza (il pulsante in fondo alla Home) e tocca il suo 🚫 per mostrarla di nuovo, oppure usa Ripristina l’ordine predefinito.',

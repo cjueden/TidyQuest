@@ -137,6 +137,7 @@ router.get('/heatmap', (req: AuthRequest, res: Response) => {
 
   const grouped = new Map<string, number[]>();
   for (const d of choresDone(start, end)) {
+    if (d.late) continue; // a late log's time of day is unknown
     const w = (d.at.getDay() + 6) % 7;
     const s = heatSlot(d.at);
     const key = `${w}:${s}:${d.userId}`;

@@ -1835,6 +1835,24 @@
       "prev_custom": "i {n} giorni prima",
       "sofar_custom": "i {n} giorni prima, fin qui",
       "weeksTo": "{n} settimane fino al {date}."
+    },
+    "late": {
+      "button": "Fatto prima…",
+      "title": "Fatto prima",
+      "whichDay": "Che giorno è stato fatto?",
+      "yesterday": "Ieri",
+      "who": "Chi l'ha fatto?",
+      "hintKid": "Un genitore controlla le faccende segnate in ritardo prima che arrivino le monete. Danno le solite monete, senza monete doppie né Missione di salvataggio.",
+      "hintParent": "Conta per quel giorno e dà le solite monete, senza monete doppie né Missione di salvataggio.",
+      "submit": "Segna",
+      "logged": "Segnato per {date}.",
+      "sentForApproval": "Inviato a un genitore, per {date}.",
+      "errAlreadyDone": "È già segnato per quel giorno.",
+      "errDoneByOther": "Qualcuno l'ha già fatto quel giorno.",
+      "errNotDue": "Quel giorno non era ancora da fare.",
+      "errBeforeStart": "La faccenda non era ancora iniziata quel giorno.",
+      "tag": "Segnato in ritardo",
+      "tagFor": "Segnato in ritardo, per {date}"
     }
   }
 }

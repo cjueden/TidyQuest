@@ -142,6 +142,13 @@ export const GUIDE_FR: GuideSection[] = [
         'Les parents et les membres peuvent marquer une tâche comme faite pour quelqu’un d’autre (« qui l’a faite ? »).',
         'Une erreur peut être annulée depuis Activité (parents), ou avec ↩️ Annuler à côté du « Fait par » de la tâche dans sa pièce (parents ; l’appli demande d’abord, car les pièces sont reprises). Une tâche en équipe est annulée pour toute l’équipe, et les pièces de chacun sont reprises. Un enfant peut annuler son propre Fait tant qu’il attend la validation.',
       ] },
+      { h: 'Noter en retard' },
+      { ul: [
+        'Oublié d’appuyer sur Fait ? Appuyez sur 📅 (Fait plus tôt…) à côté de la tâche dans sa pièce, choisissez le jour (jusqu’à 7 jours en arrière) puis Noter. Les parents et les membres peuvent choisir qui l’a fait.',
+        'Elle compte pour ce jour-là : pour les séries, l’objectif de la semaine, le Tableau et le Calendrier. Si elle remplit le jour qui a cassé une série, la série revient. Un objectif dont la semaine est finie verse quand même son bonus quand les pièces l’atteignent.',
+        'Elle rapporte les pièces habituelles de la tâche, sans pièces doublées ni Mission sauvetage. Tout le monde sauf les parents attend l’accord d’un parent, même sans le Mode strict. Activité et la liste à approuver la marquent 🕘 Noté en retard.',
+        'Impossible de la noter un jour où la tâche était déjà faite (en Premier arrivé, premier servi, par n’importe qui), avant que la tâche soit ajoutée ou avant sa date de début, ou un jour où elle n’était pas encore à faire.',
+      ] },
     ],
   },
   {
@@ -343,6 +350,9 @@ export const GUIDE_FR: GuideSection[] = [
           'Appuyé sur Fait par erreur ? Pendant l’attente, ↩ Annuler (à côté du bouton) l’annule ; pour une tâche en équipe, elle est annulée pour toute l’équipe.',
           'Si la Gamification est désactivée (Paramètres → Général), il n’y a aucune pièce.',
           'Si un parent l’a refusée, la tâche est de nouveau ouverte ; pour une tâche en équipe, elle retourne à l’équipe.',
+        ] },
+        { q: 'J’ai oublié d’appuyer sur Fait hier', a: [
+          'Appuyez sur 📅 à côté de la tâche dans sa pièce et choisissez le jour. Elle compte pour ce jour-là (série comprise) dès qu’un parent l’approuve. Voir Tâches → Noter en retard.',
         ] },
         { q: 'Une carte a disparu de l’accueil', a: [
           'Elle est peut-être masquée : ouvrez Personnaliser (le bouton en bas de l’accueil) et appuyez sur son 🚫 pour l’afficher à nouveau, ou utilisez Revenir à l’ordre par défaut.',

@@ -36,11 +36,14 @@ export function periodStart(period: RepeatPeriod, now: Date = new Date()): Date 
   return period === 'day' ? startOfLocalDay(now) : startOfLocalWeek(now);
 }
 
-/** Times this person did the task in the current day/week; completions waiting for a parent count too. */
+/** Times this person did the task in the day/week containing `now` (a late log's is a past one); completions waiting for a parent count too. */
 export function countInPeriod(taskId: number, userId: number, period: RepeatPeriod, now: Date = new Date()): number {
+  const start = periodStart(period, now);
+  const end = new Date(start);
+  end.setDate(end.getDate() + (period === 'day' ? 1 : 7));
   const row = db.prepare(
-    "SELECT COUNT(*) AS n FROM task_completions WHERE taskId = ? AND userId = ? AND status IN ('approved', 'pending') AND completedAt >= ?"
-  ).get(taskId, userId, periodStart(period, now).toISOString()) as { n: number };
+    "SELECT COUNT(*) AS n FROM task_completions WHERE taskId = ? AND userId = ? AND status IN ('approved', 'pending') AND completedAt >= ? AND completedAt < ?"
+  ).get(taskId, userId, start.toISOString(), end.toISOString()) as { n: number };
   return row.n;
 }
 

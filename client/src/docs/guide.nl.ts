@@ -142,6 +142,13 @@ export const GUIDE_NL: GuideSection[] = [
         'Ouders en leden kunnen een klusje voor iemand anders op klaar zetten ("wie heeft het gedaan?").',
         'Een vergissing kun je ongedaan maken via Activiteit (ouders), of met ↩️ Ongedaan naast "Gedaan door" van het klusje in de kamer (ouders; er wordt eerst gevraagd, omdat de munten er weer af gaan). Een Samen doen wordt voor het hele team ongedaan gemaakt en ieders munten daarvoor worden teruggenomen. Een kind kan zijn eigen Klaar terugnemen zolang het op goedkeuring wacht.',
       ] },
+      { h: 'Te laat invullen' },
+      { ul: [
+        'Vergeten op Klaar! te tikken? Tik naast het klusje in de kamer op 📅 (Eerder gedaan…), kies de dag (tot 7 dagen terug) en tik op Invullen. Ouders en leden kunnen kiezen wie het deed.',
+        'Het telt voor die dag: voor reeksen, het weekdoel, het Scorebord en de Kalender. Vult het de dag waarop een reeks brak, dan komt de reeks terug. Een doel waarvan de week voorbij is, betaalt zijn bonus toch zodra de munten het halen.',
+        'Het levert de gewone munten van het klusje op, zonder dubbele munten of Reddingsmissie. Iedereen behalve ouders wacht op goedkeuring van een ouder, ook als Oudercontrole uit staat. Activiteit en de goedkeuringslijst markeren het met 🕘 Te laat ingevuld.',
+        'Het kan niet op een dag waarop het klusje al gedaan was (bij Wie het eerst komt, wie het eerst maalt, door wie dan ook), vóór het klusje werd toegevoegd of vóór de startdatum, of op een dag waarop het nog niet hoefde.',
+      ] },
     ],
   },
   {
@@ -343,6 +350,9 @@ export const GUIDE_NL: GuideSection[] = [
           'Per ongeluk op Klaar! getikt? Zolang het wacht maakt ↩ Terugnemen (naast de knop) het ongedaan; bij Samen doen wordt het voor het hele team teruggenomen.',
           'Als Spelmodus (Gamification) uit staat (Instellingen → Algemeen), zijn er helemaal geen munten.',
           'Als een ouder het heeft afgewezen, staat het klusje weer open; bij Samen doen gaat het terug naar het team.',
+        ] },
+        { q: 'Ik ben gisteren vergeten op Klaar! te tikken', a: [
+          'Tik naast het klusje in de kamer op 📅 en kies de dag. Het telt voor die dag (reeks inbegrepen) zodra een ouder het goedkeurt. Zie Klusjes → Te laat invullen.',
         ] },
         { q: 'Er ontbreekt een kaart op Home', a: [
           'Hij is misschien verborgen: open Aanpassen (de knop onderaan Home) en tik op zijn 🚫 om hem weer te tonen, of gebruik Standaardvolgorde terugzetten.',

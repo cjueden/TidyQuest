@@ -142,6 +142,13 @@ export const GUIDE_DE: GuideSection[] = [
         'Eltern und Mitglieder können eine Aufgabe für jemand anderen als erledigt markieren („Wer hat es gemacht?“).',
         'Ein Fehler lässt sich unter Aktivität rückgängig machen (Eltern) oder mit ↩️ Rückgängig neben „Erledigt von“ der Aufgabe in ihrem Raum (Eltern; es fragt vorher nach, weil die Münzen wieder abgezogen werden). Ein Teamwork wird für das ganze Team rückgängig gemacht, und die Münzen aller dafür werden zurückgenommen. Ein Kind kann sein eigenes Erledigt zurücknehmen, solange es auf Freigabe wartet.',
       ] },
+      { h: 'Nachtragen' },
+      { ul: [
+        'Vergessen, auf Erledigt zu tippen? Tippe im Raum neben der Aufgabe auf 📅 (Früher erledigt…), wähle den Tag (bis zu 7 Tage zurück) und tippe auf Eintragen. Eltern und Mitglieder können wählen, wer es gemacht hat.',
+        'Sie zählt für diesen Tag: für Serien, das Wochenziel, das Board und den Kalender. Füllt sie den Tag, an dem eine Serie gerissen ist, kommt die Serie zurück. Ein Ziel, dessen Woche vorbei ist, zahlt seinen Bonus trotzdem, sobald die Münzen reichen.',
+        'Sie bringt die üblichen Münzen der Aufgabe, ohne doppelte Münzen oder Rettungsmission. Alle außer Eltern warten auf die Freigabe eines Elternteils, auch ohne Strenger Modus. Aktivität und die Freigabeliste markieren sie mit 🕘 Nachgetragen.',
+        'Nicht möglich an einem Tag, an dem die Aufgabe schon erledigt war (bei Erster gewinnt von irgendwem), vor dem Anlegen der Aufgabe oder ihrem Startdatum, oder an einem Tag, an dem sie noch nicht fällig war.',
+      ] },
     ],
   },
   {
@@ -343,6 +350,9 @@ export const GUIDE_DE: GuideSection[] = [
           'Aus Versehen auf Erledigt getippt? Solange sie wartet, macht ↩ Zurücknehmen (neben dem Knopf) es rückgängig; bei einem Teamwork wird es für das ganze Team zurückgenommen.',
           'Wenn Gamification aus ist (Einstellungen → Allgemein), gibt es überhaupt keine Münzen.',
           'Wenn ein Elternteil es abgelehnt hat, ist die Aufgabe wieder offen; bei Teamwork geht sie zurück an das Team.',
+        ] },
+        { q: 'Ich habe gestern vergessen, auf Erledigt zu tippen', a: [
+          'Tippe im Raum neben der Aufgabe auf 📅 und wähle den Tag. Sie zählt für diesen Tag (auch für die Serie), sobald ein Elternteil sie freigibt. Siehe Aufgaben → Nachtragen.',
         ] },
         { q: 'Eine Karte fehlt auf der Startseite', a: [
           'Sie ist vielleicht ausgeblendet: Öffne Anpassen (der Knopf unten auf der Startseite) und tippe auf ihr 🚫, um sie wieder zu zeigen, oder nutze Auf Standard zurücksetzen.',

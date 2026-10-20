@@ -1835,6 +1835,24 @@
       "prev_custom": "{n} Tage davor",
       "sofar_custom": "{n} Tage davor bis jetzt",
       "weeksTo": "{n} Wochen bis {date}."
+    },
+    "late": {
+      "button": "Früher erledigt…",
+      "title": "Früher erledigt",
+      "whichDay": "An welchem Tag?",
+      "yesterday": "Gestern",
+      "who": "Wer hat es gemacht?",
+      "hintKid": "Ein Elternteil prüft nachgetragene Aufgaben, bevor die Münzen kommen. Sie bringen die üblichen Münzen, ohne doppelte Münzen oder Rettungsmission.",
+      "hintParent": "Sie zählt für diesen Tag und bringt die üblichen Münzen, ohne doppelte Münzen oder Rettungsmission.",
+      "submit": "Eintragen",
+      "logged": "Eingetragen für {date}.",
+      "sentForApproval": "An ein Elternteil geschickt, für {date}.",
+      "errAlreadyDone": "Für diesen Tag ist es schon eingetragen.",
+      "errDoneByOther": "Jemand hat es an dem Tag schon gemacht.",
+      "errNotDue": "An dem Tag war es noch nicht fällig.",
+      "errBeforeStart": "Die Aufgabe hatte an dem Tag noch nicht begonnen.",
+      "tag": "Nachgetragen",
+      "tagFor": "Nachgetragen, für {date}"
     }
   }
 }

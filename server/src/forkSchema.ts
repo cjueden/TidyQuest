@@ -283,6 +283,13 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE tasks ADD COLUMN startsOn TEXT`,
   // Streak shields held (0–2): each one covers a missed day so the streak carries on
   `ALTER TABLE users ADD COLUMN streakShields INTEGER NOT NULL DEFAULT 0`,
+  // "Done earlier…" (ENH-7): when a late log was tapped; its completedAt is noon on the day it was done
+  `ALTER TABLE task_completions ADD COLUMN loggedAt TEXT`,
+  // The streak that last broke and the gap that broke it (last counted day, day it restarted), so a
+  // late log that fills the gap can bring it back
+  `ALTER TABLE users ADD COLUMN brokenStreak INTEGER`,
+  `ALTER TABLE users ADD COLUMN brokenStreakAfter TEXT`,
+  `ALTER TABLE users ADD COLUMN brokenStreakOn TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

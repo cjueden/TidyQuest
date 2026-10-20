@@ -116,23 +116,24 @@ export function parseDbTime(s: string): Date {
   return new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? s : `${s.replace(' ', 'T')}Z`);
 }
 
-export interface DoneRow { at: Date; userId: number; taskId: number; coins: number; effort: number }
+/** late: logged late ("Done earlier…"), so the day is known but not the time */
+export interface DoneRow { at: Date; userId: number; taskId: number; coins: number; effort: number; late: boolean }
 
 /** Chores done in [start, end): approved and waiting for approval. Coins count only once paid. */
 export function choresDone(start: Date, end: Date): DoneRow[] {
   // Widen the text range by a day, then filter on parsed times (mixed stored formats)
   const rows = db.prepare(
-    `SELECT tc.completedAt, tc.userId, tc.taskId, tc.status, tc.coinsEarned, t.effort
+    `SELECT tc.completedAt, tc.userId, tc.taskId, tc.status, tc.coinsEarned, tc.loggedAt, t.effort
      FROM task_completions tc JOIN tasks t ON t.id = tc.taskId
      WHERE tc.status IN ('approved', 'pending') AND tc.completedAt >= ? AND tc.completedAt < ?`
   ).all(new Date(start.getTime() - DAY_MS).toISOString(), new Date(end.getTime() + DAY_MS).toISOString()) as Array<{
-    completedAt: string; userId: number; taskId: number; status: string; coinsEarned: number; effort: number;
+    completedAt: string; userId: number; taskId: number; status: string; coinsEarned: number; loggedAt: string | null; effort: number;
   }>;
   const out: DoneRow[] = [];
   for (const r of rows) {
     const at = parseDbTime(r.completedAt);
     if (at < start || at >= end) continue;
-    out.push({ at, userId: r.userId, taskId: r.taskId, coins: r.status === 'approved' ? r.coinsEarned : 0, effort: r.effort || 1 });
+    out.push({ at, userId: r.userId, taskId: r.taskId, coins: r.status === 'approved' ? r.coinsEarned : 0, effort: r.effort || 1, late: !!r.loggedAt });
   }
   return out;
 }

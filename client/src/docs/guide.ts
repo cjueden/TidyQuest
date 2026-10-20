@@ -166,6 +166,13 @@ export const GUIDE_EN: GuideSection[] = [
         'Parents and members can mark a chore done for someone else ("who did it?").',
         'A mistake can be undone from Activity (parents), or with ↩️ Undo next to the chore’s "Done by" in its room (parents; it asks first, because the coins come back off). A team-up is undone for the whole team, and everyone’s coins for it are taken back. A kid can take back their own Done while it waits for approval.',
       ] },
+      { h: 'Logging it late' },
+      { ul: [
+        'Forgot to tap Done? Tap 📅 (Done earlier…) next to the chore in its room, pick the day (up to 7 days back) and tap Log it. Parents and members can pick who did it.',
+        'It counts on that day: for streaks, the weekly goal, the Board and the Calendar. If it fills the day that broke a streak, the streak comes back. A goal whose week has ended still pays its bonus once the coins reach it.',
+        'It pays the chore’s usual coins, without double coins or the Rescue Mission. Everyone but parents waits for a parent’s approval, even with Strict Mode off. Activity and the approval list mark it 🕘 Logged late.',
+        'It can’t go on a day the chore was already done (with First come, first served, by anyone), before the chore was added or its start date, or on a day it wasn’t due yet.',
+      ] },
     ],
   },
   {
@@ -367,6 +374,9 @@ export const GUIDE_EN: GuideSection[] = [
           'Tapped Done by mistake? While it waits, ↩ Take back (next to the button) undoes it; on a team-up it’s taken back for the whole team.',
           'If Gamification is off (Settings → General), there are no coins at all.',
           'If a parent turned it down, the chore is open again; under team-ups it goes back to the team.',
+        ] },
+        { q: 'I forgot to tap Done yesterday', a: [
+          'Tap 📅 next to the chore in its room and pick the day. It counts on that day (streak included) once a parent approves it. See Chores → Logging it late.',
         ] },
         { q: 'A card is missing from Home', a: [
           'It may be hidden: open Customise (the button at the bottom of Home) and tap its 🚫 to show it again, or use Reset to default.',

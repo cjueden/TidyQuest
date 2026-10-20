@@ -1835,6 +1835,24 @@
       "prev_custom": "de {n} dagen ervoor",
       "sofar_custom": "de {n} dagen ervoor, tot nu",
       "weeksTo": "{n} weken tot {date}."
+    },
+    "late": {
+      "button": "Eerder gedaan…",
+      "title": "Eerder gedaan",
+      "whichDay": "Op welke dag?",
+      "yesterday": "Gisteren",
+      "who": "Wie heeft het gedaan?",
+      "hintKid": "Een ouder controleert te laat ingevulde taken voordat de munten komen. Ze leveren de gewone munten op, zonder dubbele munten of Reddingsmissie.",
+      "hintParent": "Het telt voor die dag en levert de gewone munten op, zonder dubbele munten of Reddingsmissie.",
+      "submit": "Invullen",
+      "logged": "Ingevuld voor {date}.",
+      "sentForApproval": "Naar een ouder gestuurd, voor {date}.",
+      "errAlreadyDone": "Het is al ingevuld voor die dag.",
+      "errDoneByOther": "Iemand heeft het die dag al gedaan.",
+      "errNotDue": "Het hoefde die dag nog niet.",
+      "errBeforeStart": "De taak was die dag nog niet begonnen.",
+      "tag": "Te laat ingevuld",
+      "tagFor": "Te laat ingevuld, voor {date}"
     }
   }
 }

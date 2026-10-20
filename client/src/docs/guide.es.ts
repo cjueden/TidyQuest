@@ -142,6 +142,13 @@ export const GUIDE_ES: GuideSection[] = [
         'Los padres y miembros pueden marcar una tarea como hecha por otra persona ("¿quién la hizo?").',
         'Un error se puede deshacer desde Actividad (padres), o con ↩️ Deshacer junto al "Hecho por" de la tarea en su habitación (padres; pregunta antes, porque las monedas se devuelven). Una tarea En equipo se deshace para todo el equipo y se retiran las monedas de todos. Un niño puede deshacer su propio Hecho mientras espera aprobación.',
       ] },
+      { h: 'Apuntarlo tarde' },
+      { ul: [
+        '¿Se te olvidó tocar Hecho? Toca 📅 (Hecho antes…) junto a la tarea en su habitación, elige el día (hasta 7 días atrás) y toca Apuntar. Los padres y los miembros pueden elegir quién lo hizo.',
+        'Cuenta para ese día: para las rachas, el objetivo semanal, el Tablero y el Calendario. Si llena el día que rompió una racha, la racha vuelve. Un objetivo cuya semana ya terminó paga igualmente su bono cuando las monedas lo alcanzan.',
+        'Da las monedas de siempre de la tarea, sin monedas dobles ni Misión de rescate. Todos menos los padres esperan la aprobación de un padre, aunque el Modo estricto esté apagado. Actividad y la lista de aprobaciones la marcan 🕘 Apuntado tarde.',
+        'No se puede poner en un día en que la tarea ya estaba hecha (con El primero gana, por cualquiera), antes de que se añadiera la tarea o de su fecha de inicio, ni en un día en que todavía no tocaba.',
+      ] },
     ],
   },
   {
@@ -343,6 +350,9 @@ export const GUIDE_ES: GuideSection[] = [
           '¿Pulsaste Hecho por error? Mientras espera, ↩ Deshacer (junto al botón) lo anula; en una tarea En equipo se deshace para todo el equipo.',
           'Si la Gamificación está desactivada (Ajustes → General), no hay monedas en absoluto.',
           'Si un padre o una madre la rechazó, la tarea vuelve a estar abierta; en En equipo vuelve al equipo.',
+        ] },
+        { q: 'Ayer se me olvidó tocar Hecho', a: [
+          'Toca 📅 junto a la tarea en su habitación y elige el día. Cuenta para ese día (racha incluida) en cuanto un padre la aprueba. Mira Tareas → Apuntarlo tarde.',
         ] },
         { q: 'Falta una tarjeta en el inicio', a: [
           'Puede estar oculta: abre Personalizar (el botón al final del inicio) y pulsa su 🚫 para mostrarla otra vez, o usa Volver al orden por defecto.',
