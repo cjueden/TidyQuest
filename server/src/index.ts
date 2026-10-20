@@ -33,6 +33,7 @@ import { proxyHint, trustProxySetting } from './utils/proxy';
 import { closeOldTeamups } from './utils/teamups';
 import { settleAllStreaks } from './utils/streaks';
 import { snapshotOverdueChores } from './utils/insights';
+import { resumeDuePauses } from './utils/pause';
 import insightsRoutes from './routes/insights';
 
 export function createApp() {
@@ -122,6 +123,7 @@ if (require.main === module || !process.env.VITEST) {
     closeOldTeamups();
     settleAllStreaks();
     snapshotOverdueChores();
+    resumeDuePauses();
     setInterval(() => {
       void sendDueTaskNotificationsIfNeeded();
       void sendCoinBoostNotificationsIfNeeded();
@@ -129,6 +131,7 @@ if (require.main === module || !process.env.VITEST) {
       closeOldTeamups();
       settleAllStreaks();
       snapshotOverdueChores();
+      resumeDuePauses();
     }, 30000);
   });
 }

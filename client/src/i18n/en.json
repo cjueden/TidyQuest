@@ -1854,6 +1854,20 @@
       "errBeforeStart": "The chore hadn't started yet that day.",
       "tag": "Logged late",
       "tagFor": "Logged late, for {date}"
+    },
+    "pause": {
+      "pause": "⏸️ Pause",
+      "resume": "▶️ Switch back on",
+      "paused": "⏸️ Paused",
+      "pausedUntil": "⏸️ Paused until {date}",
+      "switch": "⏸️ Paused",
+      "untilLabel": "Back on (optional)",
+      "hint": "It leaves everyone's lists until it's switched back on, and comes back as if just done. Its history stays.",
+      "hidden": "Hidden",
+      "hide": "Hide",
+      "show": "Show",
+      "rewardHidden": "“{name}” is hidden from kids. It's at the end of the list.",
+      "rewardShown": "“{name}” is back for kids."
     }
   }
 }

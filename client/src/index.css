@@ -1560,3 +1560,8 @@ html[data-theme='night'] input[type='date'], html[data-theme='ocean'] input[type
 html[data-theme='lava'] input[type='date'], html[data-season-dark] input[type='date'] {
   color-scheme: dark;
 }
+
+/* A paused chore (ENH-1): greyed in its room; its buttons (Edit, ⋯ to switch it back on) stay clear */
+.room-task-paused > :not(.room-task-actions) {
+  opacity: 0.5;
+}

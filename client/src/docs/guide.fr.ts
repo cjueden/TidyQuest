@@ -149,6 +149,12 @@ export const GUIDE_FR: GuideSection[] = [
         'Elle rapporte les pièces habituelles de la tâche, sans pièces doublées ni Mission sauvetage. Tout le monde sauf les parents attend l’accord d’un parent, même sans le Mode strict. Activité et la liste à approuver la marquent 🕘 Noté en retard.',
         'Impossible de la noter un jour où la tâche était déjà faite (en Premier arrivé, premier servi, par n’importe qui), avant que la tâche soit ajoutée ou avant sa date de début, ou un jour où elle n’était pas encore à faire.',
       ] },
+      { h: 'Mettre une tâche en pause' },
+      { ul: [
+        'Pas utile pendant un temps (la piscine en hiver, un enfant en colonie) ? Les parents touchent ⋯ (Plus d’options) sur la tâche dans sa pièce, puis ⏸️ Mettre en pause. Ou ouvrent Modifier, cochent ⏸️ En pause et choisissent un jour sous Reprend le (facultatif) pour qu’elle se réactive toute seule.',
+        'Une tâche en pause quitte l’accueil, la page Tâches, le calendrier, les rappels, la mission de sauvetage, les équipes et la santé de la maison. Les parents la voient encore grisée dans sa pièce, marquée ⏸️ En pause ; les enfants ne la voient pas du tout.',
+        'Touche ⋯ → ▶️ Réactiver (ou décoche ⏸️ En pause). Elle revient comme si elle venait d’être faite, donc pas en retard. Son historique, ses pièces et les personnes assignées ne changent pas.',
+      ] },
     ],
   },
   {
@@ -193,6 +199,11 @@ export const GUIDE_FR: GuideSection[] = [
         'Validée par erreur ? Demandes de récompenses (sous le catalogue) a Rembourser à côté de chaque récompense validée : les pièces sont rendues (à tous ceux qui ont contribué, pour une cagnotte partagée) et elle apparaît comme refusée.',
         'Règles par récompense : une limite (par jour, semaine, mois ou à vie ; par personne ou pour tout le monde), une période, En rotation (seules quelques-unes s’affichent chaque semaine), qui peut la voir, un prix différent par personne, et une catégorie.',
         'Épargne partagée : chacun peut mettre des pièces dans une cagnotte ; quand elle est pleine, elle va à un parent. La case de contribution démarre à 0, et chaque contribution apparaît dans Activité. Une cagnotte pleine ne peut pas être annulée depuis Mes demandes (« Partagée : un parent décide ») : un parent la refuse et tout le monde récupère ses pièces.',
+      ] },
+      { h: 'Masquer une récompense' },
+      { ul: [
+        'Paramètres → Catalogue des récompenses : touche Masquer à côté d’une récompense. Les enfants ne la voient plus ; les parents la voient grisée en fin de liste, marquée Masquée. Touche Afficher pour la remettre.',
+        'Les demandes déjà faites suivent leur cours. Une cagnotte commune garde ses pièces mais n’accepte plus de contributions tant que la récompense est masquée.',
       ] },
       { h: 'Objectifs' },
       { ul: [
@@ -370,6 +381,11 @@ export const GUIDE_FR: GuideSection[] = [
           'Ton Affichage des tâches est peut-être sur « Les miennes » (l’interrupteur en haut), ou un parent l’a mis sur « Seulement les siennes ».',
           'Les tâches uniques sont dans la carte À faire, et disparaissent une fois faites.',
           'Tu l’as peut-être mise en pause (💤 dans Tu as peut-être oublié ceux-ci) : elle revient après 3 jours, ou appuie tout de suite sur Annuler dans le message « mis en pause ».',
+        ] },
+        { q: 'Une tâche ou une récompense a disparu', a: [
+          'Elle est peut-être en pause : les parents la voient grisée dans sa pièce, marquée ⏸️ En pause. Touche ⋯ → ▶️ Réactiver.',
+          'Une récompense masquée apparaît comme Masquée dans Paramètres → Catalogue des récompenses : touche Afficher.',
+          'Supprimée par erreur ? Paramètres → Supprimés récemment la restaure pendant 30 jours.',
         ] },
         { q: 'Un enfant ne voit pas une pièce ou une tâche', a: [
           'Paramètres → Général → « Masquer aux enfants les pièces privées des autres » cache les pièces qui appartiennent à quelqu’un d’autre.',

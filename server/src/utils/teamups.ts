@@ -71,7 +71,7 @@ const nameOf = (userId: number) => (db.prepare('SELECT displayName FROM users WH
 
 /** Start a team-up on a chore: invite one person, or anyone who can do it. Returns an error code or the team-up. */
 export function startTeamup(taskId: number, userId: number, partnerId: number | null, now = new Date()): { error: string } | { teamup: Teamup } {
-  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND archivedAt IS NULL AND deletedAt IS NULL').get(taskId) as any;
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ? AND archivedAt IS NULL AND deletedAt IS NULL AND pausedAt IS NULL').get(taskId) as any;
   if (!task) return { error: 'not_found' };
   const team = teamableTask(task);
   if (!team.ok) return { error: 'not_teamable' };
@@ -168,8 +168,8 @@ export function teamupsFor(userId: number, now = new Date()) {
 }
 
 /** For a chore list: can the viewer start a team-up here, and has a team claimed it today? */
-export function teamUpInfo(t: { id: number; roomId: number; customCoins?: number | null; effort: number; assignmentMode?: string | null; archivedAt?: string | null }, viewerId: number) {
-  if (!isFeatureOn('teamups') || t.archivedAt) return null;
+export function teamUpInfo(t: { id: number; roomId: number; customCoins?: number | null; effort: number; assignmentMode?: string | null; archivedAt?: string | null; pausedAt?: string | null }, viewerId: number) {
+  if (!isFeatureOn('teamups') || t.archivedAt || t.pausedAt) return null;
   const open = openTeamupFor(t.id);
   const claimed = open && open.members.length >= 2 ? open.members : null;
   return {

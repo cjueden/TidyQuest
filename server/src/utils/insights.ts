@@ -160,7 +160,7 @@ export function snapshotOverdueChores(now: Date = new Date()): number {
     db.prepare('INSERT OR IGNORE INTO app_settings (key, value) VALUES (?, ?)').run(SNAPSHOT_SINCE_KEY, day);
     if (getGlobalVacation().isVacation) return;
     const tasks = db.prepare(
-      `SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND onDemand = 0 AND (oneTime = 0 OR doBy IS NOT NULL)`
+      `SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND pausedAt IS NULL AND onDemand = 0 AND (oneTime = 0 OR doBy IS NOT NULL)`
     ).all() as Array<ScheduledTask & { id: number; roomId: number; createdAt?: string | null }>;
     const insert = db.prepare('INSERT OR IGNORE INTO chore_overdue_days (day, taskId, roomId, dueAt, daysOverdue) VALUES (?, ?, ?, ?, ?)');
     const noon = new Date(yesterday);
@@ -184,7 +184,7 @@ export function snapshotSince(): string | null {
 
 type ChoreRow = ScheduledTask & {
   id: number; roomId: number; name: string; translationKey: string | null; onDemand: number;
-  assignmentMode: string | null; createdAt?: string | null; archivedAt?: string | null; deletedAt?: string | null;
+  assignmentMode: string | null; createdAt?: string | null; archivedAt?: string | null; deletedAt?: string | null; pausedAt?: string | null;
 };
 
 /** Whole local calendar days from the due day to the day it was done (0 = on time). */
@@ -279,7 +279,7 @@ export function skippedChores(start: Date, end: Date, now: Date = new Date()) {
   if (end > now && start <= now) {
     const today = startOfLocalDay(now);
     for (const t of tasks.values()) {
-      if (t.archivedAt || t.deletedAt || t.onDemand || t.oneTime || !isPool(t)) continue;
+      if (t.archivedAt || t.deletedAt || t.pausedAt || t.onDemand || t.oneTime || !isPool(t)) continue;
       if (isSeasonalNow(t, now) || beforeStart(t, now)) continue;
       const due = nextDueAt(t, now) ?? (t.createdAt ? parseDbTime(t.createdAt) : null);
       if (due && due < today) waitingNow.push([t.id, (now.getTime() - due.getTime()) / HOUR_MS]);

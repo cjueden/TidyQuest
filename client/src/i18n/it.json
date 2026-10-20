@@ -1854,6 +1854,20 @@
       "errBeforeStart": "La faccenda non era ancora iniziata quel giorno.",
       "tag": "Segnato in ritardo",
       "tagFor": "Segnato in ritardo, per {date}"
+    },
+    "pause": {
+      "pause": "⏸️ Metti in pausa",
+      "resume": "▶️ Riattiva",
+      "paused": "⏸️ In pausa",
+      "pausedUntil": "⏸️ In pausa fino al {date}",
+      "switch": "⏸️ In pausa",
+      "untilLabel": "Torna il (facoltativo)",
+      "hint": "Sparisce dalle liste di tutti finché non viene riattivato, poi torna come appena fatto. La cronologia resta.",
+      "hidden": "Nascosto",
+      "hide": "Nascondi",
+      "show": "Mostra",
+      "rewardHidden": "«{name}» è nascosta ai figli. È in fondo alla lista.",
+      "rewardShown": "«{name}» è di nuovo visibile ai figli."
     }
   }
 }

@@ -42,7 +42,7 @@ const addDays = (day: string, n: number) => {
 
 export function hadDueTaskOnDate(dateIsoDay: string): boolean {
   const endOfDay = new Date(`${dateIsoDay}T23:59:59.999Z`).getTime();
-  const tasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND oneTime = 0').all() as Array<ScheduledTask & {
+  const tasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND pausedAt IS NULL AND oneTime = 0').all() as Array<ScheduledTask & {
     id: number; isSeasonal: number;
   }>;
 

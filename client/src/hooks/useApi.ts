@@ -411,6 +411,9 @@ export const api = {
   unpinTask: (id: number) => apiFetch<{ pinned: boolean }>(`/tasks/${id}/pin`, { method: 'DELETE' }),
   snoozeTask: (id: number, days = 3) => apiFetch<{ snoozedUntil: string }>(`/tasks/${id}/snooze`, { method: 'POST', body: JSON.stringify({ days }) }),
   unsnoozeTask: (id: number) => apiFetch<{ success: boolean }>(`/tasks/${id}/snooze`, { method: 'DELETE' }),
+  // ENH-1: parents pause a chore (until = 'YYYY-MM-DD' switches it back on that day) or switch it back on
+  pauseTask: (id: number, until?: string | null) => apiFetch<{ pausedAt: string; pausedUntil: string | null }>(`/tasks/${id}/pause`, { method: 'POST', body: JSON.stringify({ until: until || null }) }),
+  resumeTask: (id: number) => apiFetch<{ pausedAt: null }>(`/tasks/${id}/pause`, { method: 'DELETE' }),
   // "+ To-do" on Home (one-time chores, parents)
   createTodo: (data: { name: string; assignedUserIds?: number[]; doBy?: string | null; customCoins?: number | null; roomId?: number }) =>
     apiFetch<{ id: number; roomId: number }>('/todos', { method: 'POST', body: JSON.stringify(data) }),

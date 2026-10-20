@@ -149,6 +149,12 @@ export const GUIDE_DE: GuideSection[] = [
         'Sie bringt die üblichen Münzen der Aufgabe, ohne doppelte Münzen oder Rettungsmission. Alle außer Eltern warten auf die Freigabe eines Elternteils, auch ohne Strenger Modus. Aktivität und die Freigabeliste markieren sie mit 🕘 Nachgetragen.',
         'Nicht möglich an einem Tag, an dem die Aufgabe schon erledigt war (bei Erster gewinnt von irgendwem), vor dem Anlegen der Aufgabe oder ihrem Startdatum, oder an einem Tag, an dem sie noch nicht fällig war.',
       ] },
+      { h: 'Eine Aufgabe pausieren' },
+      { ul: [
+        'Eine Weile nicht nötig (der Pool im Winter, ein Kind im Ferienlager)? Eltern tippen in ihrem Raum bei der Aufgabe auf ⋯ (Weitere Optionen), dann auf ⏸️ Pausieren. Oder sie öffnen Bearbeiten, haken ⏸️ Pausiert an und wählen unter Wieder an (optional) einen Tag, an dem sie sich von selbst wieder einschaltet.',
+        'Eine pausierte Aufgabe verschwindet von der Startseite, der Aufgaben-Seite, dem Kalender, den Erinnerungen, der Rettungsmission, den Team-ups und der Hausgesundheit. Eltern sehen sie weiter ausgegraut in ihrem Raum, markiert mit ⏸️ Pausiert; Kinder sehen sie gar nicht.',
+        'Tippe auf ⋯ → ▶️ Wieder einschalten (oder entferne den Haken bei ⏸️ Pausiert). Sie kommt zurück, als wäre sie gerade erledigt, also nicht überfällig. Verlauf, Münzen und Zuständige bleiben gleich.',
+      ] },
     ],
   },
   {
@@ -193,6 +199,11 @@ export const GUIDE_DE: GuideSection[] = [
         'Aus Versehen freigegeben? Unter Belohnungsanfragen (unter dem Katalog) steht neben jeder freigegebenen Belohnung Erstatten: Die Münzen gehen zurück (bei einem gemeinsamen Topf an alle, die eingezahlt haben), und sie wird als abgelehnt angezeigt.',
         'Regeln pro Belohnung: ein Limit (pro Tag, Woche, Monat oder insgesamt; pro Person oder für alle), ein Zeitfenster, Wechselnd (nur einige erscheinen pro Woche), wer sie sieht, ein anderer Preis pro Person und eine Kategorie.',
         'Gemeinsam sparen: Jeder kann Münzen in einen Topf beisteuern; ist er voll, geht er an ein Elternteil. Das Feld zum Beisteuern beginnt bei 0, und jede Einzahlung erscheint unter Aktivität. Ein voller Topf lässt sich unter „Meine Anfragen“ nicht absagen („Gemeinsam: ein Elternteil entscheidet“): Ein Elternteil lehnt ihn ab, und alle bekommen ihre Münzen zurück.',
+      ] },
+      { h: 'Eine Belohnung verstecken' },
+      { ul: [
+        'Einstellungen → Belohnungskatalog: Tippe neben einer Belohnung auf Verstecken. Kinder sehen sie nicht mehr; Eltern sehen sie ausgegraut am Ende der Liste, markiert mit Versteckt. Mit Zeigen kommt sie zurück.',
+        'Schon gestellte Anfragen laufen weiter. Ein gemeinsamer Topf behält seine Münzen, nimmt aber keine neuen Beiträge an, bis die Belohnung wieder gezeigt wird.',
       ] },
       { h: 'Ziele' },
       { ul: [
@@ -370,6 +381,11 @@ export const GUIDE_DE: GuideSection[] = [
           'Deine Aufgabenansicht steht vielleicht auf „Meine“ (der Schalter oben), oder ein Elternteil hat sie auf „Nur eigene“ gestellt.',
           'Einmalige Aufgaben sind in der To-do-Karte und verschwinden, sobald sie erledigt sind.',
           'Du hast sie vielleicht pausiert (💤 in Vielleicht vergessen): Sie kommt nach 3 Tagen zurück, oder tippe sofort auf Rückgängig in der Meldung „Pausiert“.',
+        ] },
+        { q: 'Eine Aufgabe oder Belohnung ist verschwunden', a: [
+          'Sie ist vielleicht pausiert: Eltern sehen sie ausgegraut in ihrem Raum, markiert mit ⏸️ Pausiert. Tippe auf ⋯ → ▶️ Wieder einschalten.',
+          'Eine versteckte Belohnung steht als Versteckt in Einstellungen → Belohnungskatalog: Tippe auf Zeigen.',
+          'Aus Versehen gelöscht? Einstellungen → Zuletzt gelöscht holt sie 30 Tage lang zurück.',
         ] },
         { q: 'Ein Kind sieht einen Raum oder eine Aufgabe nicht', a: [
           'Einstellungen → Allgemein → „Private Räume anderer vor Kindern verbergen“ verbirgt Räume, die jemand anderem gehören.',

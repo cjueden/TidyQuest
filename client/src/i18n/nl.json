@@ -1854,6 +1854,20 @@
       "errBeforeStart": "De taak was die dag nog niet begonnen.",
       "tag": "Te laat ingevuld",
       "tagFor": "Te laat ingevuld, voor {date}"
+    },
+    "pause": {
+      "pause": "⏸️ Pauzeren",
+      "resume": "▶️ Weer aanzetten",
+      "paused": "⏸️ Gepauzeerd",
+      "pausedUntil": "⏸️ Gepauzeerd tot {date}",
+      "switch": "⏸️ Gepauzeerd",
+      "untilLabel": "Weer aan op (optioneel)",
+      "hint": "Het verdwijnt uit ieders lijsten tot het weer aan staat, en komt terug alsof het net gedaan is. De geschiedenis blijft.",
+      "hidden": "Verborgen",
+      "hide": "Verbergen",
+      "show": "Tonen",
+      "rewardHidden": "‘{name}’ is verborgen voor kinderen. Hij staat onderaan de lijst.",
+      "rewardShown": "‘{name}’ is weer zichtbaar voor kinderen."
     }
   }
 }

@@ -1854,6 +1854,20 @@
       "errBeforeStart": "Die Aufgabe hatte an dem Tag noch nicht begonnen.",
       "tag": "Nachgetragen",
       "tagFor": "Nachgetragen, für {date}"
+    },
+    "pause": {
+      "pause": "⏸️ Pausieren",
+      "resume": "▶️ Wieder einschalten",
+      "paused": "⏸️ Pausiert",
+      "pausedUntil": "⏸️ Pausiert bis {date}",
+      "switch": "⏸️ Pausiert",
+      "untilLabel": "Wieder an (optional)",
+      "hint": "Sie verschwindet aus allen Listen, bis sie wieder eingeschaltet wird, und kommt dann zurück, als wäre sie gerade erledigt. Der Verlauf bleibt.",
+      "hidden": "Versteckt",
+      "hide": "Verstecken",
+      "show": "Zeigen",
+      "rewardHidden": "„{name}“ ist für Kinder versteckt. Sie steht am Ende der Liste.",
+      "rewardShown": "„{name}“ ist für Kinder wieder da."
     }
   }
 }

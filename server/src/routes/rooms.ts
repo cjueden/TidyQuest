@@ -135,8 +135,11 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const rooms = (db.prepare('SELECT * FROM rooms WHERE deletedAt IS NULL ORDER BY sortOrder, id').all() as any[]).filter((r) => !hiddenRooms.has(r.id));
   const vacation = getGlobalVacation();
 
-  // Fetch all tasks in one query, then group by roomId (done one-time chores are archived, not listed)
-  const allTasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL').all() as any[];
+  // Fetch all tasks in one query, then group by roomId (done one-time chores are archived, not listed).
+  // Paused chores (ENH-1) only go to parents, who see them greyed in the room; they never count for health.
+  const seesPaused = ensureAdmin(req.userId);
+  const allTasks = (db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL').all() as any[])
+    .filter((t) => !t.pausedAt || seesPaused);
   const tasksByRoom = new Map<number, any[]>();
   for (const t of allTasks) {
     if (!tasksByRoom.has(t.roomId)) tasksByRoom.set(t.roomId, []);
@@ -226,7 +229,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     });
 
     // One-time chores don't count toward health
-    const regular = tasksWithHealth.filter((t: any) => !t.oneTime);
+    const regular = tasksWithHealth.filter((t: any) => !t.oneTime && !t.pausedAt);
     const nonSeasonal = regular.filter((t: any) => !t.isSeasonal);
     const forAvg = nonSeasonal.length > 0 ? nonSeasonal : regular;
     const totalEffort = forAvg.reduce((s, t) => s + t.effort, 0);

@@ -281,17 +281,18 @@ router.post('/', (req: AuthRequest, res: Response) => {
 router.put('/:id', (req: AuthRequest, res: Response) => {
   if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
   const id = parseInt(req.params.id as string, 10);
-  const reward = db.prepare('SELECT id FROM rewards WHERE id = ?').get(id) as any;
+  const reward = db.prepare('SELECT id, isActive FROM rewards WHERE id = ?').get(id) as any;
   if (!reward) return res.status(404).json({ error: 'Reward not found' });
 
-  const { title, description, costCoins, isActive } = req.body as { title?: string; description?: string; costCoins?: number; isActive?: boolean };
+  const { title, description, costCoins, isActive } = req.body as { title?: string; description?: string; costCoins?: number; isActive?: boolean | number };
   const cleanTitle = String(title || '').trim();
   if (!cleanTitle) return res.status(400).json({ error: 'title is required' });
   const cost = Math.round(Number(costCoins));
   if (!Number.isFinite(cost) || cost <= 0) return res.status(400).json({ error: 'costCoins must be > 0' });
 
   db.prepare('UPDATE rewards SET title = ?, description = ?, costCoins = ?, isActive = ? WHERE id = ?')
-    .run(cleanTitle, description?.trim() || null, cost, isActive === false ? 0 : 1, id);
+    // Hidden or shown (ENH-1); left as it is when not sent, so the plan sync can't show a hidden reward again
+    .run(cleanTitle, description?.trim() || null, cost, isActive === undefined || isActive === null ? reward.isActive : isActive ? 1 : 0, id);
   // A lower price can fill a shared reward's pot
   db.transaction(() => completePotIfFull(id))();
 
