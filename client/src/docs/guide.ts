@@ -305,6 +305,7 @@ export const GUIDE_EN: GuideSection[] = [
       { where: 'Insights in the menu (parents only)' },
       { ul: [
         'Chores done: bars for a day (by hour), a week or a month (by day), or a year (by month). ◀ ▶ steps back through earlier periods. Tap a bar for its numbers, or use Show as a table.',
+        'To look further back, tap the date and pick any day from the calendar, or choose Custom for a From–To range; the bars then go by hour, day, week or month to fit. Busy and quiet times and Coins in and out end on the picked dates too. Back to today returns to now.',
         'Measure: Chores counts what was done, Coins what was actually paid (with double coins, the Rescue Mission and team bonuses), and Effort adds up the chores’ effort levels. A chore waiting for approval counts when it was done; its coins count once a parent approves it.',
         'Split by Person (in each person’s color), Room or Chore. Past 8 rooms or chores, the rest are grouped as Other.',
         'Busy and quiet times: weekdays by time of day, averaged over the last 4 or 12 weeks. The strongest colors are when the most gets done; faint squares are bad times to push chores. Show numbers puts the averages in the squares.',

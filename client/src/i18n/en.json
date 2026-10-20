@@ -1825,7 +1825,16 @@
       "cat_chipins": "Chip-ins",
       "cat_mascot": "Mascot shop",
       "cat_shields": "Streak shields",
-      "cat_adjust": "Taken off"
+      "cat_adjust": "Taken off",
+      "custom": "Custom",
+      "from": "From",
+      "to": "To",
+      "pickDate": "Pick a date",
+      "today": "Back to today",
+      "nDays": "{n} days",
+      "prev_custom": "the {n} days before",
+      "sofar_custom": "the {n} days before, by now",
+      "weeksTo": "{n} weeks to {date}."
     }
   }
 }

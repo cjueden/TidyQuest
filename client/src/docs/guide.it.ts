@@ -281,6 +281,7 @@ export const GUIDE_IT: GuideSection[] = [
       { where: 'Statistiche nel menu (solo genitori)' },
       { ul: [
         'Faccende fatte: barre per un giorno (per ora), una settimana o un mese (per giorno), o un anno (per mese). ◀ ▶ torna ai periodi precedenti. Tocca una barra per vedere i suoi numeri, oppure usa Mostra come tabella.',
+        'Per guardare più indietro, tocca la data e scegli un giorno dal calendario, oppure usa Date per un intervallo Dal–Al; le barre vanno allora per ora, giorno, settimana o mese. Momenti pieni e tranquilli e Monete in entrata e in uscita finiscono anch’esse a quelle date. Torna a oggi riporta al presente.',
         'Misura: Faccende conta ciò che è stato fatto, Monete ciò che è stato davvero pagato (con monete doppie, la Missione di salvataggio e i bonus di squadra), e Fatica somma i livelli di fatica delle faccende. Una faccenda in attesa di approvazione conta quando è stata fatta; le sue monete contano quando un genitore la approva.',
         'Dividi per Persona (nel colore di ciascuno), Stanza o Faccenda. Oltre 8 stanze o faccende, il resto finisce in Altro.',
         'Momenti pieni e tranquilli: i giorni della settimana per ora del giorno, in media sulle ultime 4 o 12 settimane. I colori più intensi sono quando si fa di più; i quadrati pallidi sono momenti sbagliati per insistere. Mostra i numeri scrive le medie nei quadrati.',

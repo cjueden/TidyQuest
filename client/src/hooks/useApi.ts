@@ -56,9 +56,13 @@ export interface CoinBoost {
 
 /** Insights (parents): rows are [bucket, userId, taskId, chores, coins, effort] */
 export type InsightsPeriod = 'day' | 'week' | 'month' | 'year';
+/** A fixed period, or a From–To range */
+export type InsightsRange = InsightsPeriod | 'custom';
+/** What one bar covers */
+export type InsightsGrain = 'hour' | 'day' | 'week' | 'month';
 export interface InsightsPerson { id: number; name: string; color: string }
 export interface InsightsBars {
-  period: InsightsPeriod; offset: number; start: string; end: string; buckets: string[]; earliest: string | null;
+  period: InsightsRange; grain: InsightsGrain; start: string; end: string; buckets: string[]; earliest: string | null;
   people: InsightsPerson[];
   rooms: Array<{ id: number; name: string; roomType: string }>;
   tasks: Array<{ id: number; name: string; roomId: number; translationKey: string | null }>;
@@ -70,7 +74,7 @@ export interface InsightsBars {
 }
 /** Skipped and late chores for a period (see server utils/insights.ts skippedChores) */
 export interface InsightsSkipped {
-  period: InsightsPeriod; offset: number; start: string; end: string;
+  period: InsightsRange; start: string; end: string;
   /** First day "left overdue" was recorded ('YYYY-MM-DD'), or null before the first night */
   snapshotSince: string | null;
   rooms: Array<{ id: number; name: string; roomType: string }>;
@@ -88,6 +92,8 @@ export type CoinCategory = 'chores' | 'bonus' | 'rewards' | 'chipins' | 'mascot'
 /** Coins in and out per person and week (server utils/insights.ts coinsByWeek) */
 export interface InsightsCoins {
   weeks: 8 | 26; starts: string[]; end: string;
+  /** Net coins since the last week ended [userId, net] (balances are worked back from today's) */
+  afterNet: Array<[number, number]>;
   people: Array<InsightsPerson & { balance: number }>;
   /** [week, userId, category, coins]; coins are positive both ways */
   flows: Array<[number, number, CoinCategory, number]>;
@@ -611,10 +617,12 @@ export const api = {
 
   // Recently deleted tasks and rewards (kept 30 days)
   // Insights for parents
-  getInsightsBars: (period: InsightsPeriod, offset: number) => apiFetch<InsightsBars>(`/insights/bars?period=${period}&offset=${offset}`),
-  getInsightsSkipped: (period: InsightsPeriod, offset: number) => apiFetch<InsightsSkipped>(`/insights/skipped?period=${period}&offset=${offset}`),
-  getInsightsCoins: (weeks: 8 | 26) => apiFetch<InsightsCoins>(`/insights/coins?weeks=${weeks}`),
-  getInsightsHeatmap: (weeks: 4 | 12) => apiFetch<InsightsHeatmap>(`/insights/heatmap?weeks=${weeks}`),
+  /** query: period=day|week|month|year&date=YYYY-MM-DD, or period=custom&from=…&to=… */
+  getInsightsBars: (query: string) => apiFetch<InsightsBars>(`/insights/bars?${query}`),
+  getInsightsSkipped: (query: string) => apiFetch<InsightsSkipped>(`/insights/skipped?${query}`),
+  /** end: the last day (YYYY-MM-DD) the weeks cover */
+  getInsightsCoins: (weeks: 8 | 26, end: string) => apiFetch<InsightsCoins>(`/insights/coins?weeks=${weeks}&end=${end}`),
+  getInsightsHeatmap: (weeks: 4 | 12, end: string) => apiFetch<InsightsHeatmap>(`/insights/heatmap?weeks=${weeks}&end=${end}`),
 
   getTrash: () => apiFetch<{ items: TrashItem[]; keepDays: number }>('/trash'),
   restoreTrash: (id: number, roomId?: number) =>

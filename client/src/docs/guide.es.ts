@@ -281,6 +281,7 @@ export const GUIDE_ES: GuideSection[] = [
       { where: 'Estadísticas en el menú (solo padres)' },
       { ul: [
         'Tareas hechas: barras para un día (por hora), una semana o un mes (por día), o un año (por mes). ◀ ▶ retrocede a periodos anteriores. Toca una barra para ver sus números, o usa Ver como tabla.',
+        'Para mirar más atrás, toca la fecha y elige un día en el calendario, o usa Fechas para un rango Desde–Hasta; las barras van entonces por hora, día, semana o mes. Momentos de más y menos actividad y Monedas que entran y salen también terminan en esas fechas. Volver a hoy regresa al presente.',
         'Medida: Tareas cuenta lo que se hizo, Monedas lo que se pagó de verdad (con monedas dobles, la Misión de rescate y los bonus de equipo), y Esfuerzo suma los niveles de esfuerzo de las tareas. Una tarea pendiente de aprobación cuenta cuando se hizo; sus monedas cuentan cuando un padre la aprueba.',
         'Dividir por Persona (en el color de cada uno), Habitación o Tarea. A partir de 8 habitaciones o tareas, el resto se agrupa en Otras.',
         'Momentos de más y menos actividad: los días de la semana por hora del día, de media en las últimas 4 o 12 semanas. Los colores más intensos son cuando más se hace; los cuadros pálidos son malos momentos para insistir. Mostrar números pone las medias en los cuadros.',

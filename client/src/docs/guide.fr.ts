@@ -281,6 +281,7 @@ export const GUIDE_FR: GuideSection[] = [
       { where: 'Statistiques dans le menu (parents seulement)' },
       { ul: [
         'Tâches faites : des barres pour un jour (par heure), une semaine ou un mois (par jour), ou une année (par mois). ◀ ▶ remonte aux périodes précédentes. Touchez une barre pour voir ses chiffres, ou utilisez Voir en tableau.',
+        'Pour remonter plus loin, touchez la date et choisissez un jour dans le calendrier, ou prenez Dates pour une période Du–Au ; les barres passent alors par heure, jour, semaine ou mois. Moments chargés et calmes et Pièces gagnées et dépensées s’arrêtent aussi à ces dates. Revenir à aujourd\'hui ramène au présent.',
         'Mesure : Tâches compte ce qui a été fait, Pièces ce qui a vraiment été payé (avec les pièces doublées, la Mission sauvetage et les bonus d’équipe), et Effort additionne les niveaux d’effort des tâches. Une tâche en attente de validation compte au moment où elle a été faite ; ses pièces comptent une fois qu’un parent l’a validée.',
         'Répartir par Personne (dans la couleur de chacun), Pièce ou Tâche. Au-delà de 8 pièces ou tâches, le reste est regroupé dans Autres.',
         'Moments chargés et calmes : les jours de la semaine par moment de la journée, en moyenne sur les 4 ou 12 dernières semaines. Les couleurs les plus fortes montrent quand on en fait le plus ; les cases pâles sont de mauvais moments pour insister. Afficher les chiffres met les moyennes dans les cases.',

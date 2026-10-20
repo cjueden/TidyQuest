@@ -18,17 +18,19 @@ interface Props {
   personId: number | null;
   language: string;
   t: (k: string) => string;
+  /** e.g. "8 weeks to Oct 25" */
+  rangeLabel: string;
 }
 
 /** Coins in and out per week (NEW-7 part 3): earned vs spent, the weekly goal, the balance, and rewards bought. */
-export function CoinsCard({ data, weeks, onWeeks, personId, language, t }: Props) {
+export function CoinsCard({ data, weeks, onWeeks, personId, language, t, rangeLabel }: Props) {
   const [picked, setPicked] = useState<{ key: string; index: number } | null>(null);
   const [showTable, setShowTable] = useState(false);
   const [allNever, setAllNever] = useState(false);
   const fmt = (v: number) => formatValue(v, language);
   const signed = (v: number, sign: '+' | '−') => (v > 0 ? `${sign}${fmt(v)}` : '0');
   const locale = localeFor(language);
-  const key = `${weeks}:${personId ?? ''}`;
+  const key = `${weeks}:${personId ?? ''}:${data?.end ?? ''}`;
   const selected = picked?.key === key ? picked.index : null;
 
   const header = (
@@ -56,7 +58,10 @@ export function CoinsCard({ data, weeks, onWeeks, personId, language, t }: Props
   return (
     <section className="tq-card tq-card-padded" aria-labelledby="insights-coins">
       {header}
-      <p style={{ ...muted, margin: '6px 0 8px' }}>{t('insights.coinsHint')}{hasGoals ? ` ${t('insights.goalHint')}` : ''}</p>
+      <p style={{ ...muted, margin: '6px 0 8px' }}>
+        {t('insights.coinsHint')}{hasGoals ? ` ${t('insights.goalHint')}` : ''}{' '}
+        <strong style={{ color: 'var(--warm-text)', fontWeight: 700 }}>{rangeLabel}</strong>
+      </p>
       {empty ? <p style={muted}>{t('insights.coinsEmpty')}</p> : (
         <>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginBottom: 8 }}>

@@ -281,6 +281,7 @@ export const GUIDE_DE: GuideSection[] = [
       { where: 'Auswertung im Menü (nur Eltern)' },
       { ul: [
         'Erledigte Aufgaben: Balken für einen Tag (pro Stunde), eine Woche oder einen Monat (pro Tag) oder ein Jahr (pro Monat). Mit ◀ ▶ blätterst du zu früheren Zeiträumen. Tippe auf einen Balken für seine Zahlen, oder nimm Als Tabelle zeigen.',
+        'Um weiter zurückzuschauen, tippe auf das Datum und wähle einen Tag im Kalender, oder nimm Zeitraum für Von–Bis; die Balken gehen dann nach Stunde, Tag, Woche oder Monat. Viel und wenig los und Münzen rein und raus enden ebenfalls an diesen Daten. Zurück zu heute bringt dich zur Gegenwart.',
         'Messgröße: Aufgaben zählt, was erledigt wurde, Münzen, was wirklich ausgezahlt wurde (mit doppelten Münzen, der Rettungsmission und Teambonus), und Aufwand addiert die Aufwandsstufen der Aufgaben. Eine Aufgabe, die auf Freigabe wartet, zählt zu dem Zeitpunkt, an dem sie erledigt wurde; ihre Münzen zählen, sobald ein Elternteil sie freigibt.',
         'Aufteilen nach Person (in der Farbe jeder Person), Raum oder Aufgabe. Ab mehr als 8 Räumen oder Aufgaben landet der Rest unter Andere.',
         'Viel und wenig los: die Wochentage nach Tageszeit, im Durchschnitt der letzten 4 oder 12 Wochen. In den kräftigsten Feldern wird am meisten erledigt; blasse sind schlechte Zeiten, um Aufgaben zu verlangen. Zahlen zeigen schreibt die Durchschnitte in die Felder.',

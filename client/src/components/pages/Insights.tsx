@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { api, type InsightsBars, type InsightsCoins, type InsightsHeatmap, type InsightsPeriod, type InsightsSkipped } from '../../hooks/useApi';
+import { api, type InsightsBars, type InsightsCoins, type InsightsHeatmap, type InsightsRange, type InsightsSkipped } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
-import { bucketLabels, formatValue, heatGrid, periodLabel, shares, skippedLists, stackBars, type ListBy, type Measure, type StackBy } from '../insights/insightsData';
+import {
+  addDays, bucketLabels, daysIncl, formatValue, fromYmd, heatGrid, lastDayOf, periodLabel, shares, shiftDay, skippedLists, stackBars, ymd,
+  type ListBy, type Measure, type StackBy,
+} from '../insights/insightsData';
+import { DatePick } from '../insights/DatePick';
 import { SkippedLists } from '../insights/SkippedLists';
 import { Segmented } from '../insights/Segmented';
 import { CoinsCard } from '../insights/CoinsCard';
@@ -22,8 +26,12 @@ const linkButton = { background: 'none', border: 'none', padding: 0, cursor: 'po
 /** Parents' Insights page (NEW-7): when chores get done, by whom, and in which rooms. Charts only. */
 export function Insights({ language, gamificationEnabled }: Props) {
   const { t, taskName, roomDisplayName } = useTranslation(language);
-  const [period, setPeriod] = useState<InsightsPeriod>('week');
-  const [offset, setOffset] = useState(0);
+  const today = ymd(new Date());
+  const [period, setPeriod] = useState<InsightsRange>('week');
+  /** A day inside the period shown (Day/Week/Month/Year) */
+  const [day, setDay] = useState(today);
+  /** Custom: From–To, both days included */
+  const [range, setRange] = useState<{ from: string; to: string }>({ from: addDays(today, -29), to: today });
   const [measureChoice, setMeasure] = useState<Measure>('chores');
   const [stack, setStack] = useState<StackBy>('person');
   const [person, setPerson] = useState<number | null>(null);
@@ -41,41 +49,43 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const [coins, setCoins] = useState<InsightsCoins | null>(null);
 
   const measure: Measure = !gamificationEnabled && measureChoice === 'coins' ? 'chores' : measureChoice;
-  const barsKey = `${period}:${offset}`;
-  const selected = picked?.key === barsKey ? picked.index : null;
+  const query = period === 'custom' ? `period=custom&from=${range.from}&to=${range.to}` : `period=${period}&date=${day}`;
+  const selected = picked?.key === query ? picked.index : null;
+  // The heatmap and coins card end where the picked dates end (never after today)
+  const lastDay = (() => { const d = period === 'custom' ? range.to : lastDayOf(period, day); return d > today ? today : d; })();
 
   useEffect(() => {
     let live = true;
-    api.getInsightsBars(period, offset)
+    api.getInsightsBars(query)
       .then((d) => { if (live) { setBars(d); setFailed(false); } })
       .catch(() => { if (live) setFailed(true); });
     return () => { live = false; };
-  }, [period, offset]);
+  }, [query]);
 
   useEffect(() => {
     let live = true;
-    api.getInsightsSkipped(period, offset)
+    api.getInsightsSkipped(query)
       .then((d) => { if (live) setSkipped(d); })
       .catch(() => { if (live) setFailed(true); });
     return () => { live = false; };
-  }, [period, offset]);
+  }, [query]);
 
   useEffect(() => {
     if (!gamificationEnabled) return;
     let live = true;
-    api.getInsightsCoins(coinRange)
+    api.getInsightsCoins(coinRange, lastDay)
       .then((d) => { if (live) setCoins(d); })
       .catch(() => { if (live) setFailed(true); });
     return () => { live = false; };
-  }, [coinRange, gamificationEnabled]);
+  }, [coinRange, gamificationEnabled, lastDay]);
 
   useEffect(() => {
     let live = true;
-    api.getInsightsHeatmap(heatWeeks)
+    api.getInsightsHeatmap(heatWeeks, lastDay)
       .then((d) => { if (live) setHeat(d); })
       .catch(() => { if (live) setFailed(true); });
     return () => { live = false; };
-  }, [heatWeeks]);
+  }, [heatWeeks, lastDay]);
 
   const measureName = t(`insights.${measure}`);
   // The last loaded period stays on screen until the next one arrives (no flash while stepping)
@@ -87,7 +97,7 @@ export function Insights({ language, gamificationEnabled }: Props) {
     room: (id: number) => { const x = rooms.get(id); return x ? roomDisplayName(x.name, x.roomType) : '?'; },
   };
   const stacked = current ? stackBars(current, stack, measure, person, names, t('insights.other')) : null;
-  const labels = current ? bucketLabels(current.period, current.buckets, language, true) : [];
+  const labels = current ? bucketLabels(current.grain, current.buckets, language, t('insights.weekOf')) : [];
   const grid = heat ? heatGrid(heat, measure, person) : null;
   const people = current?.people ?? heat?.people ?? [];
   const shareRows = current ? shares(current, measure) : [];
@@ -110,9 +120,34 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const personName = people.find((p) => p.id === person)?.name;
 
   const canGoBack = !!current?.earliest && new Date(current.earliest) < new Date(current.start);
+  const running = !!current?.previousSoFar;
+  const rangeDays = daysIncl(range.from, range.to);
+  const earliestDay = current?.earliest ? ymd(new Date(current.earliest)) : undefined;
+  const shortDate = (s: string) => fromYmd(s).toLocaleDateString(localeFor(language), { day: 'numeric', month: 'short', ...(s.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}) });
+  /** ◀ ▶: a period at a time, or a custom range by its own length (never past today) */
+  const step = (dir: -1 | 1) => {
+    if (period === 'custom') {
+      let to = addDays(range.to, dir * rangeDays);
+      if (to > today) to = today;
+      setRange({ from: addDays(to, -(rangeDays - 1)), to });
+    } else {
+      const next = shiftDay(period, day, dir);
+      setDay(next > today ? today : next);
+    }
+  };
+  const pickPeriod = (p: InsightsRange) => {
+    if (p === 'custom' && period !== 'custom' && current) {
+      // Start the range on what's showing
+      const last = ymd(new Date(new Date(current.end).getTime() - 1));
+      setRange({ from: ymd(new Date(current.start)), to: last > today ? today : last });
+    }
+    if (p !== 'custom' && period === 'custom') setDay(range.to);
+    setPeriod(p);
+  };
+  const backToToday = () => (period === 'custom' ? setRange({ from: addDays(today, -(rangeDays - 1)), to: today }) : setDay(today));
   const total = stacked ? stacked.totals.reduce((a, b) => a + b, 0) : 0;
   const fmt = (v: number, d = 0) => formatValue(v, language, d);
-  const prevName = current ? t(`insights.${current.previousSoFar ? 'sofar' : 'prev'}_${current.period}`) : '';
+  const prevName = current ? t(`insights.${current.previousSoFar ? 'sofar' : 'prev'}_${current.period}`).replace('{n}', String(rangeDays)) : '';
   const slotLabels = [0, 1, 2, 3, 4, 5].map((i) => t(`insights.slot${i}`));
   const dayLabels = WEEK_ORDER.map((d) => weekdayName(d, language, 'short'));
 
@@ -126,21 +161,50 @@ export function Insights({ language, gamificationEnabled }: Props) {
     <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Filters scope everything below them */}
       <div className="tq-card tq-card-padded" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <Segmented label={t('insights.period')} value={period}
-          onChange={(p) => { setPeriod(p); setOffset(0); }}
-          options={(['day', 'week', 'month', 'year'] as const).map((p) => ({ value: p, label: t(`insights.${p}`) }))} />
+        <Segmented label={t('insights.period')} value={period} onChange={pickPeriod}
+          options={(['day', 'week', 'month', 'year', 'custom'] as const).map((p) => ({ value: p, label: t(`insights.${p}`) }))} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button type="button" className="tq-btn-secondary" aria-label={t('insights.earlier')} disabled={!canGoBack}
-            onClick={() => setOffset((o) => o - 1)} style={{ padding: '6px 12px', opacity: canGoBack ? 1 : 0.4 }}>◀</button>
+            onClick={() => step(-1)} style={{ padding: '6px 12px', opacity: canGoBack ? 1 : 0.4 }}>◀</button>
           <div style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
-            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--warm-text)' }}>
-              {current ? periodLabel(current.period, current.start, current.end, language) : '…'}
+            {period === 'custom' ? (
+              <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--warm-text)' }}>
+                {current ? periodLabel('custom', current.start, current.end, language) : '…'}
+              </div>
+            ) : (
+              <DatePick value={day} min={earliestDay} max={today} label={t('insights.pickDate')} onChange={setDay}
+                text={current ? periodLabel(current.period, current.start, current.end, language) : '…'} />
+            )}
+            <div style={muted}>
+              {period === 'custom' && t('insights.nDays').replace('{n}', String(rangeDays))}
+              {period === 'custom' && !running && ' · '}
+              {running ? (period !== 'custom' && t(`insights.this_${period}`)) : (
+                <button type="button" style={linkButton} onClick={backToToday}>{t('insights.today')}</button>
+              )}
             </div>
-            {offset === 0 && <div style={muted}>{t(`insights.this_${period}`)}</div>}
           </div>
-          <button type="button" className="tq-btn-secondary" aria-label={t('insights.later')} disabled={offset >= 0}
-            onClick={() => setOffset((o) => Math.min(0, o + 1))} style={{ padding: '6px 12px', opacity: offset < 0 ? 1 : 0.4 }}>▶</button>
+          <button type="button" className="tq-btn-secondary" aria-label={t('insights.later')} disabled={running}
+            onClick={() => step(1)} style={{ padding: '6px 12px', opacity: running ? 0.4 : 1 }}>▶</button>
         </div>
+        {period === 'custom' && (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'end' }}>
+            {(['from', 'to'] as const).map((k) => (
+              <label key={k} style={{ flex: 1, minWidth: 0, ...muted, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {t(`insights.${k}`)}
+                <input type="date" className="tq-input-compact" value={range[k]} min={earliestDay} max={today}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (!v) return;
+                    const picked = v > today ? today : v;
+                    // Moving one end past the other drags the other one along
+                    setRange(k === 'from' ? { from: picked, to: picked > range.to ? picked : range.to }
+                      : { from: picked < range.from ? picked : range.from, to: picked });
+                  }}
+                  style={{ width: '100%', minWidth: 0, padding: '6px 8px', fontSize: 13, boxSizing: 'border-box' }} />
+              </label>
+            ))}
+          </div>
+        )}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           <div style={{ flex: '1 1 160px', minWidth: 0 }}>
             <Segmented label={t('insights.measure')} value={measure} onChange={setMeasure} options={measures} />
@@ -171,8 +235,8 @@ export function Insights({ language, gamificationEnabled }: Props) {
         ) : (
           <>
             <LegendRow series={stacked.series} />
-            <PeriodBars labels={labels} stacked={stacked} language={language} wideLabels={period === 'day'}
-              selected={selected} onSelect={(i) => setPicked(i == null ? null : { key: barsKey, index: i })}
+            <PeriodBars labels={labels} stacked={stacked} language={language} wideLabels={current?.grain === 'hour' || current?.grain === 'week'}
+              selected={selected} onSelect={(i) => setPicked(i == null ? null : { key: query, index: i })}
               ariaLabel={`${measureName} · ${current ? periodLabel(current.period, current.start, current.end, language) : ''}`} />
             <div aria-live="polite" style={{ minHeight: 44, marginTop: 6 }}>
               {selected == null ? <p style={{ ...muted, margin: 0 }}>{t('insights.tapBar')}</p> : (
@@ -229,7 +293,10 @@ export function Insights({ language, gamificationEnabled }: Props) {
             onChange={(v) => { setHeatWeeks(v === '12' ? 12 : 4); setCell(null); }}
             options={[{ value: '4', label: t('insights.weeks4') }, { value: '12', label: t('insights.weeks12') }]} />
         </div>
-        <p style={{ ...muted, margin: '0 0 10px' }}>{t('insights.heatHint')}</p>
+        <p style={{ ...muted, margin: '0 0 10px' }}>
+          {t('insights.heatHint')}{' '}
+          <strong style={{ color: 'var(--warm-text)', fontWeight: 700 }}>{t('insights.weeksTo').replace('{n}', String(heatWeeks)).replace('{date}', shortDate(lastDay))}</strong>
+        </p>
         {!grid ? <p style={muted}>{t('insights.loading')}</p> : (
           <>
             <WeekHeatmap grid={grid} dayLabels={dayLabels} slotLabels={slotLabels} language={language}
@@ -299,7 +366,8 @@ export function Insights({ language, gamificationEnabled }: Props) {
 
       {/* Coins in and out (hidden with game features off) */}
       {gamificationEnabled && (
-        <CoinsCard data={coins} weeks={coinRange} onWeeks={setCoinRange} personId={person} language={language} t={t} />
+        <CoinsCard data={coins} weeks={coinRange} onWeeks={setCoinRange} personId={person} language={language} t={t}
+          rangeLabel={t('insights.weeksTo').replace('{n}', String(coinRange)).replace('{date}', shortDate(lastDay))} />
       )}
     </div>
   );

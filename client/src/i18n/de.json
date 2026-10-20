@@ -1825,7 +1825,16 @@
       "cat_chipins": "Beiträge",
       "cat_mascot": "Maskottchen-Laden",
       "cat_shields": "Serienschilde",
-      "cat_adjust": "Abgezogen"
+      "cat_adjust": "Abgezogen",
+      "custom": "Zeitraum",
+      "from": "Von",
+      "to": "Bis",
+      "pickDate": "Datum wählen",
+      "today": "Zurück zu heute",
+      "nDays": "{n} Tage",
+      "prev_custom": "{n} Tage davor",
+      "sofar_custom": "{n} Tage davor bis jetzt",
+      "weeksTo": "{n} Wochen bis {date}."
     }
   }
 }

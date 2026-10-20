@@ -1825,7 +1825,16 @@
       "cat_chipins": "Aportaciones",
       "cat_mascot": "Tienda de la mascota",
       "cat_shields": "Escudos de racha",
-      "cat_adjust": "Quitadas"
+      "cat_adjust": "Quitadas",
+      "custom": "Fechas",
+      "from": "Desde",
+      "to": "Hasta",
+      "pickDate": "Elegir una fecha",
+      "today": "Volver a hoy",
+      "nDays": "{n} días",
+      "prev_custom": "los {n} días anteriores",
+      "sofar_custom": "los {n} días anteriores, hasta ahora",
+      "weeksTo": "{n} semanas hasta el {date}."
     }
   }
 }
