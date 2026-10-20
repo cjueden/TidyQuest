@@ -273,6 +273,24 @@ export const GUIDE_DE: GuideSection[] = [
     ],
   },
   {
+    id: 'insights',
+    icon: '📊',
+    title: 'Auswertung für Eltern',
+    parents: true,
+    blocks: [
+      { where: 'Auswertung im Menü (nur Eltern)' },
+      { ul: [
+        'Erledigte Aufgaben: Balken für einen Tag (pro Stunde), eine Woche oder einen Monat (pro Tag) oder ein Jahr (pro Monat). Mit ◀ ▶ blätterst du zu früheren Zeiträumen. Tippe auf einen Balken für seine Zahlen, oder nimm Als Tabelle zeigen.',
+        'Messgröße: Aufgaben zählt, was erledigt wurde, Münzen, was wirklich ausgezahlt wurde (mit doppelten Münzen, der Rettungsmission und Teambonus), und Aufwand addiert die Aufwandsstufen der Aufgaben. Eine Aufgabe, die auf Freigabe wartet, zählt zu dem Zeitpunkt, an dem sie erledigt wurde; ihre Münzen zählen, sobald ein Elternteil sie freigibt.',
+        'Aufteilen nach Person (in der Farbe jeder Person), Raum oder Aufgabe. Ab mehr als 8 Räumen oder Aufgaben landet der Rest unter Andere.',
+        'Viel und wenig los: die Wochentage nach Tageszeit, im Durchschnitt der letzten 4 oder 12 Wochen. In den kräftigsten Feldern wird am meisten erledigt; blasse sind schlechte Zeiten, um Aufgaben zu verlangen. Zahlen zeigen schreibt die Durchschnitte in die Felder.',
+        'Wer macht wie viel: der Anteil jeder Person am Zeitraum und die Veränderung zum Zeitraum davor (bei einem laufenden Zeitraum bis zum gleichen Zeitpunkt, etwa letzte Woche bis jetzt).',
+        'Das Menü Alle beschränkt Balken und Felder auf eine Person. Die Aufgaben der Eltern zählen mit.',
+      ] },
+      { tip: 'Auch mit ausgeschalteten Spielfunktionen funktioniert die Auswertung; nur die Messgröße Münzen ist ausgeblendet.' },
+    ],
+  },
+  {
     id: 'data',
     icon: '💾',
     title: 'Backups, Tabellen und gelöschte Elemente',

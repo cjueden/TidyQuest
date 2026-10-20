@@ -273,6 +273,24 @@ export const GUIDE_IT: GuideSection[] = [
     ],
   },
   {
+    id: 'insights',
+    icon: '📊',
+    title: 'Statistiche per i genitori',
+    parents: true,
+    blocks: [
+      { where: 'Statistiche nel menu (solo genitori)' },
+      { ul: [
+        'Faccende fatte: barre per un giorno (per ora), una settimana o un mese (per giorno), o un anno (per mese). ◀ ▶ torna ai periodi precedenti. Tocca una barra per vedere i suoi numeri, oppure usa Mostra come tabella.',
+        'Misura: Faccende conta ciò che è stato fatto, Monete ciò che è stato davvero pagato (con monete doppie, la Missione di salvataggio e i bonus di squadra), e Fatica somma i livelli di fatica delle faccende. Una faccenda in attesa di approvazione conta quando è stata fatta; le sue monete contano quando un genitore la approva.',
+        'Dividi per Persona (nel colore di ciascuno), Stanza o Faccenda. Oltre 8 stanze o faccende, il resto finisce in Altro.',
+        'Momenti pieni e tranquilli: i giorni della settimana per ora del giorno, in media sulle ultime 4 o 12 settimane. I colori più intensi sono quando si fa di più; i quadrati pallidi sono momenti sbagliati per insistere. Mostra i numeri scrive le medie nei quadrati.',
+        'Chi fa quanto: la quota di ciascuno nel periodo e la differenza rispetto al periodo prima (se il periodo è ancora in corso, fino allo stesso punto, come la settimana scorsa fin qui).',
+        'Il menu Tutti limita barre e quadrati a una persona. Anche le faccende dei genitori contano.',
+      ] },
+      { tip: 'Con le funzioni di gioco disattivate le Statistiche funzionano lo stesso; si nasconde solo la misura Monete.' },
+    ],
+  },
+  {
     id: 'data',
     icon: '💾',
     title: 'Backup, fogli di calcolo ed elementi eliminati',

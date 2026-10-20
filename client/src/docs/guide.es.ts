@@ -273,6 +273,24 @@ export const GUIDE_ES: GuideSection[] = [
     ],
   },
   {
+    id: 'insights',
+    icon: '📊',
+    title: 'Estadísticas para padres',
+    parents: true,
+    blocks: [
+      { where: 'Estadísticas en el menú (solo padres)' },
+      { ul: [
+        'Tareas hechas: barras para un día (por hora), una semana o un mes (por día), o un año (por mes). ◀ ▶ retrocede a periodos anteriores. Toca una barra para ver sus números, o usa Ver como tabla.',
+        'Medida: Tareas cuenta lo que se hizo, Monedas lo que se pagó de verdad (con monedas dobles, la Misión de rescate y los bonus de equipo), y Esfuerzo suma los niveles de esfuerzo de las tareas. Una tarea pendiente de aprobación cuenta cuando se hizo; sus monedas cuentan cuando un padre la aprueba.',
+        'Dividir por Persona (en el color de cada uno), Habitación o Tarea. A partir de 8 habitaciones o tareas, el resto se agrupa en Otras.',
+        'Momentos de más y menos actividad: los días de la semana por hora del día, de media en las últimas 4 o 12 semanas. Los colores más intensos son cuando más se hace; los cuadros pálidos son malos momentos para insistir. Mostrar números pone las medias en los cuadros.',
+        'Quién hace cuánto: la parte de cada persona en el periodo y el cambio respecto al periodo anterior (si el periodo sigue en curso, hasta el mismo momento, como la semana pasada hasta ahora).',
+        'El menú Todos limita las barras y los cuadros a una persona. Las tareas de los padres también cuentan.',
+      ] },
+      { tip: 'Con las funciones de juego desactivadas, las Estadísticas siguen funcionando; solo se oculta la medida Monedas.' },
+    ],
+  },
+  {
     id: 'data',
     icon: '💾',
     title: 'Copias de seguridad, hojas de cálculo y elementos eliminados',

@@ -18,6 +18,7 @@ import { TaskList } from './components/pages/TaskList';
 import { Calendar } from './components/pages/Calendar';
 import { Leaderboard } from './components/pages/Leaderboard';
 import { History } from './components/pages/History';
+import { Insights } from './components/pages/Insights';
 import { Settings } from './components/pages/Settings';
 import { Profile } from './components/pages/Profile';
 import { Guide } from './components/pages/Guide';
@@ -578,6 +579,13 @@ function AppContent() {
               <History language={user.language} isAdmin={user.role === 'admin'} users={familySettings} rooms={rooms} userId={user.id} mascotName={dashboardData?.mascot?.name} />
             </>
           } />
+
+          <Route path="/insights" element={user.role !== 'admin' ? <Navigate to="/" replace /> : (
+            <>
+              <PageHeader title={t('nav.insights')} subtitle={t('insights.subtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} shieldsOn={!!dashboardData?.shields} />
+              <Insights language={user.language} gamificationEnabled={gamificationEnabled} />
+            </>
+          )} />
 
           <Route path="/profile" element={
             <>

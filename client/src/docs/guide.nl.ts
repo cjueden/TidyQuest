@@ -273,6 +273,24 @@ export const GUIDE_NL: GuideSection[] = [
     ],
   },
   {
+    id: 'insights',
+    icon: '📊',
+    title: 'Inzichten voor ouders',
+    parents: true,
+    blocks: [
+      { where: 'Inzichten in het menu (alleen ouders)' },
+      { ul: [
+        'Gedane klusjes: staven voor een dag (per uur), een week of een maand (per dag), of een jaar (per maand). Met ◀ ▶ ga je terug naar eerdere periodes. Tik op een staaf voor de cijfers, of kies Als tabel tonen.',
+        'Maat: Klusjes telt wat er gedaan is, Munten wat er echt is uitbetaald (met dubbele munten, de Reddingsmissie en teambonussen), en Moeite telt de moeiteniveaus van de klusjes op. Een klusje dat op goedkeuring wacht, telt op het moment dat het gedaan is; de munten tellen zodra een ouder het goedkeurt.',
+        'Verdelen per Persoon (in ieders eigen kleur), Kamer of Klusje. Boven de 8 kamers of klusjes komt de rest onder Overig.',
+        'Drukke en rustige momenten: de weekdagen per tijd van de dag, gemiddeld over de laatste 4 of 12 weken. In de sterkste kleuren wordt het meest gedaan; vage vakjes zijn slechte momenten om klusjes te vragen. Cijfers tonen zet de gemiddelden in de vakjes.',
+        'Wie doet hoeveel: ieders deel van de periode en het verschil met de periode ervoor (bij een lopende periode tot hetzelfde moment, zoals vorige week tot nu).',
+        'Het menu Iedereen beperkt de staven en vakjes tot één persoon. De klusjes van ouders tellen mee.',
+      ] },
+      { tip: 'Met de spelfuncties uit werken de Inzichten nog steeds; alleen de maat Munten verdwijnt.' },
+    ],
+  },
+  {
     id: 'data',
     icon: '💾',
     title: 'Back-ups, spreadsheets en verwijderde items',

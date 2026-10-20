@@ -54,6 +54,23 @@ export interface CoinBoost {
   taskNames?: string[];
 }
 
+/** Insights (parents): rows are [bucket, userId, taskId, chores, coins, effort] */
+export type InsightsPeriod = 'day' | 'week' | 'month' | 'year';
+export interface InsightsPerson { id: number; name: string; color: string }
+export interface InsightsBars {
+  period: InsightsPeriod; offset: number; start: string; end: string; buckets: string[]; earliest: string | null;
+  people: InsightsPerson[];
+  rooms: Array<{ id: number; name: string; roomType: string }>;
+  tasks: Array<{ id: number; name: string; roomId: number; translationKey: string | null }>;
+  rows: Array<[number, number, number, number, number, number]>;
+  /** Last period per person: [userId, chores, coins, effort] */
+  previous: Array<[number, number, number, number]>;
+  /** The period is still running, so `previous` stops at the same point (this time last week) */
+  previousSoFar: boolean;
+}
+/** rows are [weekday (0 = Mon), slot, userId, chores, coins, effort] */
+export interface InsightsHeatmap { weeks: 4 | 12; start: string; end: string; people: InsightsPerson[]; rows: Array<[number, number, number, number, number, number]> }
+
 export interface TrashItem {
   id: number;
   kind: 'task' | 'reward';
@@ -564,6 +581,10 @@ export const api = {
   deleteBoost: (id: number) => apiFetch<{ success: boolean }>(`/boosts/${id}`, { method: 'DELETE' }),
 
   // Recently deleted tasks and rewards (kept 30 days)
+  // Insights for parents
+  getInsightsBars: (period: InsightsPeriod, offset: number) => apiFetch<InsightsBars>(`/insights/bars?period=${period}&offset=${offset}`),
+  getInsightsHeatmap: (weeks: 4 | 12) => apiFetch<InsightsHeatmap>(`/insights/heatmap?weeks=${weeks}`),
+
   getTrash: () => apiFetch<{ items: TrashItem[]; keepDays: number }>('/trash'),
   restoreTrash: (id: number, roomId?: number) =>
     apiFetch<{ kind: 'task' | 'reward'; id: number; roomId?: number }>(`/trash/${id}/restore`, { method: 'POST', body: JSON.stringify(roomId ? { roomId } : {}) }),

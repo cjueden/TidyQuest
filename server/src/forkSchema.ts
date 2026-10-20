@@ -190,6 +190,16 @@ const NEW_TABLES: string[] = [
     byUserId INTEGER REFERENCES users(id) ON DELETE SET NULL,
     createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
   )`,
+  // Insights (utils/insights.ts): chores left overdue at the end of each local day, recorded nightly
+  `CREATE TABLE IF NOT EXISTS chore_overdue_days (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    day TEXT NOT NULL,
+    taskId INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    roomId INTEGER,
+    dueAt TEXT NOT NULL,
+    daysOverdue INTEGER NOT NULL,
+    UNIQUE(day, taskId)
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
@@ -291,6 +301,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'teamupDeclines', table: 'teamup_declines' },
   { key: 'mascotPurchases', table: 'mascot_purchases' },
   { key: 'streakShieldEvents', table: 'streak_shield_events' },
+  { key: 'choreOverdueDays', table: 'chore_overdue_days' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

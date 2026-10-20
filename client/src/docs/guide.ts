@@ -297,6 +297,24 @@ export const GUIDE_EN: GuideSection[] = [
     ],
   },
   {
+    id: 'insights',
+    icon: '📊',
+    title: 'Insights for parents',
+    parents: true,
+    blocks: [
+      { where: 'Insights in the menu (parents only)' },
+      { ul: [
+        'Chores done: bars for a day (by hour), a week or a month (by day), or a year (by month). ◀ ▶ steps back through earlier periods. Tap a bar for its numbers, or use Show as a table.',
+        'Measure: Chores counts what was done, Coins what was actually paid (with double coins, the Rescue Mission and team bonuses), and Effort adds up the chores’ effort levels. A chore waiting for approval counts when it was done; its coins count once a parent approves it.',
+        'Split by Person (in each person’s color), Room or Chore. Past 8 rooms or chores, the rest are grouped as Other.',
+        'Busy and quiet times: weekdays by time of day, averaged over the last 4 or 12 weeks. The strongest colors are when the most gets done; faint squares are bad times to push chores. Show numbers puts the averages in the squares.',
+        'Who does how much: each person’s share of the period, and the change from the period before (while a period is still running, up to the same point, like last week by now).',
+        'The Everyone menu narrows the bars and the squares to one person. Parents’ own chores are included.',
+      ] },
+      { tip: 'With game features switched off, Insights still works; only the Coins measure is hidden.' },
+    ],
+  },
+  {
     id: 'data',
     icon: '💾',
     title: 'Backups, spreadsheets and deleted items',
