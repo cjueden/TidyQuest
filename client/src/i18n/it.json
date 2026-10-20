@@ -1834,7 +1834,8 @@
       "nDays": "{n} giorni",
       "prev_custom": "i {n} giorni prima",
       "sofar_custom": "i {n} giorni prima, fin qui",
-      "weeksTo": "{n} settimane fino al {date}."
+      "weeksTo": "{n} settimane fino al {date}.",
+      "onlyPeople": "Solo le faccende di {names}: fatte in ritardo da loro, o assegnate a loro."
     },
     "late": {
       "button": "Fatto prima…",

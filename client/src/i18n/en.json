@@ -1834,7 +1834,8 @@
       "nDays": "{n} days",
       "prev_custom": "the {n} days before",
       "sofar_custom": "the {n} days before, by now",
-      "weeksTo": "{n} weeks to {date}."
+      "weeksTo": "{n} weeks to {date}.",
+      "onlyPeople": "Only the chores of {names}: done late by them, or theirs to do."
     },
     "late": {
       "button": "Done earlier…",

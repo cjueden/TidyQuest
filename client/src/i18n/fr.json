@@ -1834,7 +1834,8 @@
       "nDays": "{n} jours",
       "prev_custom": "les {n} jours d'avant",
       "sofar_custom": "les {n} jours d'avant, au même stade",
-      "weeksTo": "{n} semaines jusqu'au {date}."
+      "weeksTo": "{n} semaines jusqu'au {date}.",
+      "onlyPeople": "Seulement les tâches de {names} : faites en retard par ces personnes, ou à faire par elles."
     },
     "late": {
       "button": "Fait plus tôt…",

@@ -1834,7 +1834,8 @@
       "nDays": "{n} días",
       "prev_custom": "los {n} días anteriores",
       "sofar_custom": "los {n} días anteriores, hasta ahora",
-      "weeksTo": "{n} semanas hasta el {date}."
+      "weeksTo": "{n} semanas hasta el {date}.",
+      "onlyPeople": "Solo las tareas de {names}: las que hicieron tarde o las que les tocan."
     },
     "late": {
       "button": "Hecho antes…",

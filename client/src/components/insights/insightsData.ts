@@ -4,7 +4,14 @@ import { localeFor } from '../../utils/locale';
 export type Measure = 'chores' | 'coins' | 'effort';
 export type StackBy = 'person' | 'room' | 'chore';
 
-export interface Series { key: string; label: string; color: string }
+/** hidden: tapped off in the legend (kept in the legend, greyed, with no values) */
+export interface Series { key: string; label: string; color: string; hidden?: boolean }
+
+/** Who Insights shows: a set of person ids, or null for everyone (ENH-9) */
+export type People = ReadonlySet<number> | null;
+export const shows = (people: People, id: number) => people == null || people.has(id);
+/** The one person shown, if only one is */
+export const soloOf = (people: People) => (people?.size === 1 ? [...people][0] : null);
 export interface Stacked { series: Series[]; values: number[][]; totals: number[] }
 
 /** Rows hold [.., chores, coins, effort] starting at this column. */
@@ -18,10 +25,12 @@ export interface Names { task: (id: number) => string; room: (id: number) => str
  * Stack a period's rows by person, room or chore. Past 8 rooms or chores, the rest fold into a gray
  * "Other". Colors follow the entity: people keep their own color; rooms and chores take palette slots in
  * room order (rooms by their place in the family's list when there are 8 or fewer), never by rank.
+ * By person, people who aren't shown stay in the legend, hidden; by room or chore, only the people
+ * shown count, and `hidden` series keys are tapped off.
  */
-export function stackBars(data: InsightsBars, stack: StackBy, measure: Measure, personId: number | null, names: Names, otherLabel: string): Stacked {
+export function stackBars(data: InsightsBars, stack: StackBy, measure: Measure, people: People, names: Names, otherLabel: string, hidden: ReadonlySet<string> = new Set()): Stacked {
   const col = 3 + MEASURE_COL[measure];
-  const rows = data.rows.filter((r) => personId == null || r[1] === personId);
+  const rows = stack === 'person' ? data.rows : data.rows.filter((r) => shows(people, r[1]));
   const roomOf = new Map(data.tasks.map((t) => [t.id, t.roomId]));
   const roomOrder = new Map(data.rooms.map((r, i) => [r.id, i]));
   const keyOf = (r: InsightsBars['rows'][number]) =>
@@ -34,9 +43,9 @@ export function stackBars(data: InsightsBars, stack: StackBy, measure: Measure, 
   let series: Series[];
   let index: (key: number) => number;
   if (stack === 'person') {
-    const people = data.people.filter((p) => present.includes(p.id));
-    series = people.map((p) => ({ key: `p${p.id}`, label: p.name, color: p.color }));
-    const at = new Map(people.map((p, i) => [p.id, i]));
+    const inLegend = data.people.filter((p) => present.includes(p.id));
+    series = inLegend.map((p) => ({ key: `p${p.id}`, label: p.name, color: p.color, hidden: !shows(people, p.id) }));
+    const at = new Map(inLegend.map((p, i) => [p.id, i]));
     index = (k) => at.get(k) ?? -1;
   } else {
     const order = (k: number) => stack === 'room'
@@ -52,6 +61,7 @@ export function stackBars(data: InsightsBars, stack: StackBy, measure: Measure, 
       color: slotColor(stable ? roomOrder.get(k) ?? i : i),
     }));
     if (fold) series.push({ key: 'other', label: otherLabel, color: 'var(--viz-other)' });
+    for (const s of series) s.hidden = hidden.has(s.key);
     const at = new Map(kept.map((k, i) => [k, i]));
     index = (k) => at.get(k) ?? (fold ? kept.length : -1);
   }
@@ -59,31 +69,31 @@ export function stackBars(data: InsightsBars, stack: StackBy, measure: Measure, 
   const values = data.buckets.map(() => series.map(() => 0));
   for (const r of rows) {
     const i = index(keyOf(r));
-    if (i >= 0 && values[r[0]]) values[r[0]][i] += r[col];
+    if (i >= 0 && !series[i].hidden && values[r[0]]) values[r[0]][i] += r[col];
   }
   return { series, values, totals: values.map((v) => v.reduce((a, b) => a + b, 0)) };
 }
 
-/** Each person's total this period and last, for the chosen measure (ignores the person filter). */
-export function shares(data: InsightsBars, measure: Measure) {
+/** Each person's total this period and last, for the chosen measure. Shares are of the people shown; the others stay listed, not shown. */
+export function shares(data: InsightsBars, measure: Measure, people: People = null) {
   const col = MEASURE_COL[measure];
   const now = new Map<number, number>();
   for (const r of data.rows) now.set(r[1], (now.get(r[1]) ?? 0) + r[3 + col]);
   const before = new Map(data.previous.map((p) => [p[0], p[1 + col]]));
-  const total = [...now.values()].reduce((a, b) => a + b, 0);
+  const total = [...now.entries()].filter(([id]) => shows(people, id)).reduce((a, [, v]) => a + v, 0);
   return data.people
-    .map((p) => ({ person: p, value: now.get(p.id) ?? 0, previous: before.get(p.id) ?? 0 }))
+    .map((p) => ({ person: p, value: now.get(p.id) ?? 0, previous: before.get(p.id) ?? 0, shown: shows(people, p.id) }))
     .filter((s) => s.value > 0 || s.previous > 0)
-    .map((s) => ({ ...s, share: total > 0 ? s.value / total : 0 }))
+    .map((s) => ({ ...s, share: total > 0 && s.shown ? s.value / total : 0 }))
     .sort((a, b) => b.value - a.value || a.person.id - b.person.id);
 }
 
 /** 7 × 6 grid of weekly averages (Monday first). */
-export function heatGrid(data: InsightsHeatmap, measure: Measure, personId: number | null): number[][] {
+export function heatGrid(data: InsightsHeatmap, measure: Measure, people: People): number[][] {
   const col = 3 + MEASURE_COL[measure];
   const grid = Array.from({ length: 7 }, () => Array(6).fill(0) as number[]);
   for (const r of data.rows) {
-    if (personId != null && r[2] !== personId) continue;
+    if (!shows(people, r[2])) continue;
     grid[r[0]][r[1]] += r[col];
   }
   return grid.map((row) => row.map((v) => v / data.weeks));
@@ -196,11 +206,11 @@ export interface WaitItem { key: string; name: string; room: string | null; coun
 /** What an open-pool row shows and is ranked by: the average wait, or how long it's been waiting if never done. */
 export const waitValue = (i: WaitItem) => (i.count ? i.avgHours : i.now ?? 0);
 
-export function skippedLists(data: InsightsSkipped, by: ListBy, personId: number | null, names: Names) {
+export function skippedLists(data: InsightsSkipped, by: ListBy, people: People, names: Names) {
   const tasks = new Map(data.tasks.map((t) => [t.id, t]));
   const theirs = (taskId: number) => {
     const t = tasks.get(taskId);
-    return !!t && (personId == null || t.assignees.length === 0 || t.assignees.includes(personId));
+    return !!t && (people == null || t.assignees.length === 0 || t.assignees.some((a) => people.has(a)));
   };
   const keyOf = (taskId: number) => (by === 'room' ? `r${tasks.get(taskId)?.roomId ?? 0}` : `t${taskId}`);
   const label = (taskId: number) => {
@@ -212,7 +222,7 @@ export function skippedLists(data: InsightsSkipped, by: ListBy, personId: number
 
   const late = new Map<string, LateItem & { sum: number }>();
   for (const [taskId, userId, done, lateN, sum, worst] of data.late) {
-    if (!tasks.has(taskId) || (personId != null && userId !== personId)) continue;
+    if (!tasks.has(taskId) || !shows(people, userId)) continue;
     const k = keyOf(taskId);
     const it = late.get(k) ?? { key: k, ...label(taskId), done: 0, late: 0, avgDays: 0, worst: 0, sum: 0 };
     it.done += done; it.late += lateN; it.sum += sum; it.worst = Math.max(it.worst, worst);
@@ -271,10 +281,10 @@ export interface CoinWeeks {
   balance: number[];
 }
 
-/** One person's weeks (or everyone's added up, without goals). */
-export function coinWeeks(data: InsightsCoins, personId: number | null): CoinWeeks {
+/** The weeks of the people shown, added up (with the weekly goal when it's one person). */
+export function coinWeeks(data: InsightsCoins, people: People): CoinWeeks {
   const n = data.starts.length;
-  const flows = data.flows.filter((f) => personId == null || f[1] === personId);
+  const flows = data.flows.filter((f) => shows(people, f[1]));
   const has = new Set(flows.filter((f) => f[3] > 0).map((f) => f[2]));
   const inCats = COINS_IN.filter((c) => has.has(c));
   const outCats = COINS_OUT.filter((c) => has.has(c));
@@ -289,9 +299,10 @@ export function coinWeeks(data: InsightsCoins, personId: number | null): CoinWee
   const spent = down.map(sum);
   const ci = inCats.indexOf('chores');
   const goals: Array<number | null> = Array(n).fill(null);
-  if (personId != null) for (const [w, u, g] of data.goals) if (u === personId) goals[w] = g;
+  const solo = soloOf(people);
+  if (solo != null) for (const [w, u, g] of data.goals) if (u === solo) goals[w] = g;
   const balance = Array(n).fill(0) as number[];
-  const who = (id: number) => personId == null || id === personId;
+  const who = (id: number) => shows(people, id);
   let b = data.people.filter((p) => who(p.id)).reduce((a, p) => a + p.balance, 0)
     - data.afterNet.filter(([id]) => who(id)).reduce((a, [, net]) => a + net, 0);
   for (let w = n - 1; w >= 0; w--) {
@@ -302,8 +313,8 @@ export function coinWeeks(data: InsightsCoins, personId: number | null): CoinWee
 }
 
 /** Rewards bought most (times, coins) and the active ones never bought in the window. */
-export function rewardStats(data: InsightsCoins, personId: number | null) {
-  const rows = data.bought.filter((b) => personId == null || b[1] === personId);
+export function rewardStats(data: InsightsCoins, people: People) {
+  const rows = data.bought.filter((b) => shows(people, b[1]));
   const by = new Map<number, { ids: Set<number>; coins: number }>();
   for (const [rewardId, , redemptionId, coins] of rows) {
     const it = by.get(rewardId) ?? { ids: new Set<number>(), coins: 0 };

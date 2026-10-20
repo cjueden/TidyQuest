@@ -1834,7 +1834,8 @@
       "nDays": "{n} dagen",
       "prev_custom": "de {n} dagen ervoor",
       "sofar_custom": "de {n} dagen ervoor, tot nu",
-      "weeksTo": "{n} weken tot {date}."
+      "weeksTo": "{n} weken tot {date}.",
+      "onlyPeople": "Alleen klusjes van {names}: door hen te laat gedaan, of voor hen om te doen."
     },
     "late": {
       "button": "Eerder gedaan…",

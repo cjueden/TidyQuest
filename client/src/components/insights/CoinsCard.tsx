@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { InsightsCoins } from '../../hooks/useApi';
 import { localeFor } from '../../utils/locale';
 import { CoinBars } from './CoinBars';
-import { coinColor, coinWeeks, formatValue, rewardStats } from './insightsData';
+import { coinColor, coinWeeks, formatValue, rewardStats, shows, soloOf, type People } from './insightsData';
 import { Segmented } from './Segmented';
 
 const muted = { fontSize: 12, color: 'var(--warm-text-muted)' } as const;
@@ -15,7 +15,8 @@ interface Props {
   data: InsightsCoins | null;
   weeks: 8 | 26;
   onWeeks: (w: 8 | 26) => void;
-  personId: number | null;
+  /** Who's shown (null: everyone) */
+  people: People;
   language: string;
   t: (k: string) => string;
   /** e.g. "8 weeks to Oct 25" */
@@ -23,14 +24,14 @@ interface Props {
 }
 
 /** Coins in and out per week (NEW-7 part 3): earned vs spent, the weekly goal, the balance, and rewards bought. */
-export function CoinsCard({ data, weeks, onWeeks, personId, language, t, rangeLabel }: Props) {
+export function CoinsCard({ data, weeks, onWeeks, people, language, t, rangeLabel }: Props) {
   const [picked, setPicked] = useState<{ key: string; index: number } | null>(null);
   const [showTable, setShowTable] = useState(false);
   const [allNever, setAllNever] = useState(false);
   const fmt = (v: number) => formatValue(v, language);
   const signed = (v: number, sign: '+' | '−') => (v > 0 ? `${sign}${fmt(v)}` : '0');
   const locale = localeFor(language);
-  const key = `${weeks}:${personId ?? ''}:${data?.end ?? ''}`;
+  const key = `${weeks}:${people ? [...people].join(',') : ''}:${data?.end ?? ''}`;
   const selected = picked?.key === key ? picked.index : null;
 
   const header = (
@@ -44,15 +45,16 @@ export function CoinsCard({ data, weeks, onWeeks, personId, language, t, rangeLa
     return <section className="tq-card tq-card-padded" aria-labelledby="insights-coins">{header}<p style={muted}>{t('insights.loading')}</p></section>;
   }
 
-  const w = coinWeeks(data, personId);
-  const person = data.people.find((p) => p.id === personId);
+  const w = coinWeeks(data, people);
+  const solo = soloOf(people);
+  const person = data.people.find((p) => p.id === solo);
   const labels = data.starts.map((iso) => new Date(iso).toLocaleDateString(locale, { day: 'numeric', month: 'short' }));
   const cat = (c: string) => t(`insights.cat_${c}`);
   const hasGoals = w.goals.some((g) => g != null);
   const goalWeeks = w.goals.map((g, i) => [g, w.choreCoins[i]] as const).filter(([g]) => g != null);
   const met = goalWeeks.filter(([g, c]) => c >= (g as number)).length;
   const empty = w.earned.every((v) => v === 0) && w.spent.every((v) => v === 0);
-  const rewards = rewardStats(data, personId);
+  const rewards = rewardStats(data, people);
   const maxTimes = Math.max(1, ...rewards.most.map((r) => r.times));
 
   return (
@@ -142,8 +144,8 @@ export function CoinsCard({ data, weeks, onWeeks, personId, language, t, rangeLa
         </>
       )}
 
-      {/* Everyone: each person's totals for the window */}
-      {personId == null && (
+      {/* More than one person: each one's totals for the window */}
+      {solo == null && (
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginTop: 14, color: 'var(--warm-text)' }}>
           <thead>
             <tr style={{ color: 'var(--warm-text-muted)', fontSize: 12 }}>
@@ -154,8 +156,8 @@ export function CoinsCard({ data, weeks, onWeeks, personId, language, t, rangeLa
             </tr>
           </thead>
           <tbody>
-            {data.people.map((p) => {
-              const pw = coinWeeks(data, p.id);
+            {data.people.filter((p) => shows(people, p.id)).map((p) => {
+              const pw = coinWeeks(data, new Set([p.id]));
               const inSum = pw.earned.reduce((a, b) => a + b, 0);
               const outSum = pw.spent.reduce((a, b) => a + b, 0);
               if (!inSum && !outSum && !p.balance) return null;

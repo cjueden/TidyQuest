@@ -1834,7 +1834,8 @@
       "nDays": "{n} Tage",
       "prev_custom": "{n} Tage davor",
       "sofar_custom": "{n} Tage davor bis jetzt",
-      "weeksTo": "{n} Wochen bis {date}."
+      "weeksTo": "{n} Wochen bis {date}.",
+      "onlyPeople": "Nur Aufgaben von {names}: von ihnen verspätet erledigt oder ihnen zugeteilt."
     },
     "late": {
       "button": "Früher erledigt…",
