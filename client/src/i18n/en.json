@@ -455,7 +455,12 @@
       "pot_requested": "Pot full · waiting for a parent",
       "pot_approved": "Reward approved",
       "pot_rejected": "Refunded",
-      "boughtForMascot": "🐾 Bought {item} for the mascot"
+      "boughtForMascot": "🐾 Bought {item} for the mascot",
+      "shield_earned": "Earned a streak shield ({n}-day streak)",
+      "shield_bought": "Bought a streak shield",
+      "shield_given": "Got a streak shield",
+      "shield_used": "A shield saved a {n}-day streak",
+      "shield_usedMany": "{count} shields saved a {n}-day streak"
     },
     "roomDetail": {
       "name": "Name",
@@ -1289,7 +1294,10 @@
       "teamupAnyone": "🤝 {name} is looking for a teammate for “{task}”",
       "teamupJoined": "🤝 {name} joined you for “{task}”",
       "teamupDeclined": "🤝 {name} can't do “{task}” with you this time. You can ask someone else.",
-      "choreRejectedReason": "↩️ “{task}” wasn't approved this time. {parent} says: {reason}"
+      "choreRejectedReason": "↩️ “{task}” wasn't approved this time. {parent} says: {reason}",
+      "shieldSaved": "🛡️ Your shield saved your {n}-day streak!",
+      "shieldsSaved": "🛡️ {count} shields saved your {n}-day streak!",
+      "shieldGiven": "🛡️ {name} gave you a streak shield. It saves your streak if you miss a day."
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",
@@ -1407,7 +1415,10 @@
       "mascotShop": "Mascot shop",
       "mascotShopDesc": "Anyone can buy the mascot an accessory for 1–5 coins. Off hides the shop and its outfit.",
       "focus": "One thing at a time",
-      "focusDesc": "A kid's chores one at a time, big, with their steps. Who sees it is set per person in Family Members."
+      "focusDesc": "A kid's chores one at a time, big, with their steps. Who sees it is set per person in Family Members.",
+      "shields": "🛡️ Streak shields",
+      "shieldsDesc": "Earned every 7 days in a row, or bought with coins (2 at most). A shield saves the streak on a missed day.",
+      "shieldPrice": "Price"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1687,6 +1698,20 @@
       "reset": "Reset to default",
       "done": "Done",
       "saveFailed": "Couldn't save your layout. Check the connection and try again."
+    },
+    "shields": {
+      "held": "{n} streak shields",
+      "full": "Shields full",
+      "nextIn": "Next shield after {n} more days of chores",
+      "nextInOne": "Next shield after 1 more day of chores",
+      "buy": "Buy a shield",
+      "buyConfirm": "Buy a streak shield for {n} coins? It saves your streak if you miss a day.",
+      "buyFailed": "Couldn't buy a shield. Try again.",
+      "notEnough": "Not enough coins",
+      "what": "A shield saves your streak when you miss a day. You earn one every 7 days in a row.",
+      "give": "Give a shield",
+      "giveConfirm": "Give {name} a streak shield?",
+      "giveFailed": "Couldn't give the shield. Try again."
     }
   }
 }

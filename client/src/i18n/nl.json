@@ -455,7 +455,12 @@
       "pot_requested": "Pot vol · wacht op een ouder",
       "pot_approved": "Beloning goedgekeurd",
       "pot_rejected": "Terugbetaald",
-      "boughtForMascot": "🐾 Kocht {item} voor de mascotte"
+      "boughtForMascot": "🐾 Kocht {item} voor de mascotte",
+      "shield_earned": "Verdiende een reeksschild (reeks van {n} dagen)",
+      "shield_bought": "Kocht een reeksschild",
+      "shield_given": "Kreeg een reeksschild",
+      "shield_used": "Een schild redde een reeks van {n} dagen",
+      "shield_usedMany": "{count} schilden redden een reeks van {n} dagen"
     },
     "roomDetail": {
       "name": "Naam",
@@ -1289,7 +1294,10 @@
       "teamupAnyone": "🤝 {name} zoekt een teamgenoot voor “{task}”",
       "teamupJoined": "🤝 {name} doet mee met “{task}”",
       "teamupDeclined": "🤝 {name} kan deze keer niet mee met “{task}”. Je kunt iemand anders vragen.",
-      "choreRejectedReason": "↩️ “{task}” is deze keer niet goedgekeurd. {parent} zegt: {reason}"
+      "choreRejectedReason": "↩️ “{task}” is deze keer niet goedgekeurd. {parent} zegt: {reason}",
+      "shieldSaved": "🛡️ Je schild heeft je reeks van {n} dagen gered!",
+      "shieldsSaved": "🛡️ {count} schilden hebben je reeks van {n} dagen gered!",
+      "shieldGiven": "🛡️ {name} gaf je een reeksschild. Het redt je reeks als je een dag mist."
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",
@@ -1407,7 +1415,10 @@
       "mascotShop": "Mascottewinkel",
       "mascotShopDesc": "Iedereen kan de mascotte een accessoire kopen voor 1–5 munten. Uit verbergt de winkel en de outfit.",
       "focus": "Eén ding tegelijk",
-      "focusDesc": "De klusjes van een kind één voor één, groot, met de stappen erbij. Wie het ziet stel je per persoon in bij Gezinsleden."
+      "focusDesc": "De klusjes van een kind één voor één, groot, met de stappen erbij. Wie het ziet stel je per persoon in bij Gezinsleden.",
+      "shields": "🛡️ Reeksschilden",
+      "shieldsDesc": "Verdiend na elke 7 dagen op rij, of gekocht met munten (hooguit 2). Een schild redt de reeks op een gemiste dag.",
+      "shieldPrice": "Prijs"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1687,6 +1698,20 @@
       "reset": "Standaardvolgorde terugzetten",
       "done": "Klaar",
       "saveFailed": "Je indeling kon niet worden opgeslagen. Controleer de verbinding en probeer het opnieuw."
+    },
+    "shields": {
+      "held": "{n} reeksschilden",
+      "full": "Schilden vol",
+      "nextIn": "Volgend schild na nog {n} dagen met taken",
+      "nextInOne": "Volgend schild na nog 1 dag met taken",
+      "buy": "Schild kopen",
+      "buyConfirm": "Een reeksschild kopen voor {n} munten? Het redt je reeks als je een dag mist.",
+      "buyFailed": "Schild kopen lukte niet. Probeer het opnieuw.",
+      "notEnough": "Niet genoeg munten",
+      "what": "Een schild redt je reeks als je een dag mist. Je verdient er een na elke 7 dagen op rij.",
+      "give": "Schild geven",
+      "giveConfirm": "{name} een reeksschild geven?",
+      "giveFailed": "Schild geven lukte niet. Probeer het opnieuw."
     }
   }
 }

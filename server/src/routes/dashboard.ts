@@ -12,6 +12,7 @@ import { achievementsFor } from '../utils/achievementStats';
 import { forgottenTasks, usualTasks } from '../utils/homeSections';
 import { rescueCandidates, todaysMission } from '../utils/rescue';
 import { getFeatures, holidaysOff, isFeatureOn } from '../utils/features';
+import { MAX_SHIELDS, SHIELD_EVERY, shieldPrice, shieldsOn } from '../utils/streaks';
 import { cheersFor } from '../utils/cheers';
 import { cosmetics, unlocksFor } from '../utils/unlocks';
 import { mascotFor } from '../utils/mascot';
@@ -24,7 +25,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   // Refresh the cached goal first so it rolls over to the current week (and completes) on its own
   const myPrimaryGoal = syncPrimaryGoal(req.userId!);
   const user = db.prepare(
-    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, goalCoins, goalStartAt, goalEndAt, lastActiveDate, language, taskView, kidMode, focusMode, homeLayout FROM users WHERE id = ?'
+    'SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, streakShields, goalCoins, goalStartAt, goalEndAt, lastActiveDate, language, taskView, kidMode, focusMode, homeLayout FROM users WHERE id = ?'
   ).get(req.userId) as any;
   const vacation = getGlobalVacation();
 
@@ -369,6 +370,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
       return { myLevel: features.levels ? mine?.level ?? null : null, nextBadge: features.nextBadge ? mine?.nextBadge ?? null : null };
     })(),
     vacation: { vacationMode: vacation.isVacation, vacationStartDate: vacation.startDate, vacationEndDate: vacation.endDate },
+    // Streak shields: null when they're off (or gamification is)
+    shields: shieldsOn() ? { price: shieldPrice(), max: MAX_SHIELDS, every: SHIELD_EVERY } : null,
   });
 });
 

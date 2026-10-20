@@ -234,6 +234,14 @@ export const GUIDE_ES: GuideSection[] = [
         'Tienda de la mascota (con su propio interruptor): cualquiera puede comprarle un accesorio por 1 a 5 monedas. Hay un único atuendo compartido y no hay armario: un artículo nuevo se pone al instante para todos y sustituye lo que hubiera en ese sitio (cabeza, cara, cuello o espalda). Quien compró un artículo, o un padre o una madre, puede quitarlo gratis. Las compras aparecen en Actividad. La tienda abre cuando la mascota eclosiona. Al desactivar la tienda se ocultan ella y el atuendo.',
         'Decoración de temporada: Halloween en octubre, Acción de Gracias en noviembre, Navidad en diciembre: colores, adornos, una cuenta atrás y un disfraz para la mascota. Cada fiesta tiene su propio interruptor y un botón de Vista previa.',
       ] },
+      { h: 'Escudos de racha' },
+      { ul: [
+        'Una racha cuenta los días seguidos con al menos una tarea. Cada 7 días seguidos ganas un 🛡️ escudo; puedes guardar 2.',
+        'Compra un escudo en la tarjeta de racha de Inicio (25 monedas por defecto; los padres fijan el precio en Ajustes → Funciones).',
+        'Un día perdido usa un escudo solo, justo después de medianoche, y la racha sigue (el día perdido no suma). Dos días perdidos necesitan dos escudos; si faltan, no se usa ninguno y la racha vuelve a empezar.',
+        'Una tarea que espera la aprobación de un padre cuenta para su día.',
+        'Los padres pueden dar un escudo (un día enfermo, un fin de semana ajetreado) con 🛡️ Dar un escudo en Ajustes → Miembros de la familia. Los escudos comprados, ganados, dados y usados aparecen en Actividad.',
+      ] },
       { h: 'Niveles y desbloqueos' },
       { p: 'Los niveles vienen de las monedas de toda la vida (nivel 2 a las 50, 5 a las 500, 10 a las 2.250). Cada nivel desbloquea algo; elígelos en Perfil → Desbloqueos.' },
       { ul: [
@@ -390,6 +398,10 @@ export const GUIDE_ES: GuideSection[] = [
         ] },
         { q: 'Una racha se rompió mientras estábamos fuera', a: [
           'Usa el Modo vacaciones (toda la casa, Ajustes → General) o las vacaciones por miembro (Miembros de la familia) antes de irte; protege las rachas y congela la salud de las tareas.',
+        ] },
+        { q: 'Un escudo no salvó la racha', a: [
+          'Cada día perdido necesita su propio escudo. Con menos escudos que días perdidos, no se usa ninguno: la racha vuelve a empezar y los escudos se guardan.',
+          'Los escudos no se usan durante el modo vacaciones; las vacaciones ya protegen la racha.',
         ] },
         { q: 'Alguien no puede iniciar sesión', a: [
           'Demasiadas contraseñas incorrectas bloquean los inicios de sesión hasta 15 minutos: 10 en una cuenta o 20 desde un dispositivo. Espera e inténtalo de nuevo; una contraseña correcta borra el recuento de la cuenta.',

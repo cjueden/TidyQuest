@@ -178,6 +178,18 @@ const NEW_TABLES: string[] = [
     createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     UNIQUE (teamupId, userId)
   )`,
+  // Streak shields (utils/streaks.ts): earned, bought, given by a parent, or used up on a missed day.
+  // coins is what a bought one cost; streak is the streak it was earned at or saved.
+  `CREATE TABLE IF NOT EXISTS streak_shield_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL CHECK (kind IN ('earned', 'bought', 'given', 'used')),
+    count INTEGER NOT NULL DEFAULT 1,
+    coins INTEGER NOT NULL DEFAULT 0,
+    streak INTEGER NOT NULL DEFAULT 0,
+    byUserId INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    createdAt TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  )`,
 ];
 
 /** Columns added to existing tables (ignored when they already exist). */
@@ -259,6 +271,8 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE tasks ADD COLUMN scheduleMonthWeekday INTEGER`,
   // A repeating chore's start date ('YYYY-MM-DD', local): nothing is due before it, and it's first due on it
   `ALTER TABLE tasks ADD COLUMN startsOn TEXT`,
+  // Streak shields held (0–2): each one covers a missed day so the streak carries on
+  `ALTER TABLE users ADD COLUMN streakShields INTEGER NOT NULL DEFAULT 0`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */
@@ -276,6 +290,7 @@ export const BACKUP_TABLES: Array<{ key: string; table: string }> = [
   { key: 'teamupMembers', table: 'teamup_members' },
   { key: 'teamupDeclines', table: 'teamup_declines' },
   { key: 'mascotPurchases', table: 'mascot_purchases' },
+  { key: 'streakShieldEvents', table: 'streak_shield_events' },
 ];
 
 export function applyForkSchema(instance: InstanceType<typeof Database>) {

@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { FireIcon, CoinIcon, PointsIcon } from '../icons/UIIcons';
+import { ShieldIcons } from '../shared/StreakShields';
 import { SearchContext } from '../shared/searchContext';
 import { SearchIcon } from '../shared/SearchOverlay';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -17,9 +18,11 @@ interface PageHeaderProps {
   userPoints?: number;
   pointsPeriodLabel?: string;
   gamificationEnabled?: boolean;
+  /** Streak shields are on: show the ones held next to the streak */
+  shieldsOn?: boolean;
 }
 
-export function PageHeader({ title, subtitle, user, rightContent, onCoinsClick, onStreakClick, onPointsClick, userPoints, pointsPeriodLabel, gamificationEnabled = true }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, user, rightContent, onCoinsClick, onStreakClick, onPointsClick, userPoints, pointsPeriodLabel, gamificationEnabled = true, shieldsOn = false }: PageHeaderProps) {
   const openSearch = useContext(SearchContext);
   const { t } = useTranslation(user.language);
   return (
@@ -71,6 +74,7 @@ export function PageHeader({ title, subtitle, user, rightContent, onCoinsClick, 
         }}>
           <FireIcon />
           <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-streak-text)' }}>{user.currentStreak}</span>
+          {shieldsOn && <ShieldIcons count={user.streakShields} language={user.language} style={{ fontSize: 13 }} />}
         </div>
         <div
           onClick={onCoinsClick}

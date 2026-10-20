@@ -234,6 +234,14 @@ export const GUIDE_FR: GuideSection[] = [
         'Boutique de la mascotte (son propre interrupteur) : chacun peut lui acheter un accessoire de 1 à 5 pièces. Il y a une seule tenue partagée et pas de placard : un nouvel objet se met aussitôt pour tout le monde et remplace ce qui était à cet endroit (tête, visage, cou ou dos). Celui qui a acheté un objet, ou un parent, peut l’enlever gratuitement. Les achats apparaissent dans Activité. La boutique ouvre quand la mascotte éclôt. Désactiver la boutique la cache, ainsi que la tenue.',
         'Décor de saison : Halloween en octobre, Thanksgiving en novembre, Noël en décembre : couleurs, décorations, un compte à rebours et un costume pour la mascotte. Chaque fête a son propre interrupteur et un bouton Aperçu.',
       ] },
+      { h: 'Boucliers de série' },
+      { ul: [
+        'Une série compte les jours d’affilée avec au moins une tâche. Tous les 7 jours d’affilée, tu gagnes un 🛡️ bouclier ; tu peux en garder 2.',
+        'Achète un bouclier sur la carte de série de l’Accueil (25 pièces par défaut ; les parents fixent le prix dans Paramètres → Fonctionnalités).',
+        'Un jour manqué utilise un bouclier tout seul, juste après minuit, et la série continue (le jour manqué ne compte pas). Deux jours manqués demandent deux boucliers ; s’il en manque, aucun n’est utilisé et la série recommence.',
+        'Une tâche qui attend l’approbation d’un parent compte pour son jour.',
+        'Les parents peuvent donner un bouclier (un jour de maladie, un week-end chargé) avec 🛡️ Donner un bouclier dans Paramètres → Membres de la famille. Les boucliers achetés, gagnés, donnés et utilisés apparaissent dans Activité.',
+      ] },
       { h: 'Niveaux et déblocages' },
       { p: 'Les niveaux viennent des pièces cumulées (niveau 2 à 50, 5 à 500, 10 à 2 250). Chaque niveau débloque quelque chose ; choisis-les dans Profil → Débloqués.' },
       { ul: [
@@ -390,6 +398,10 @@ export const GUIDE_FR: GuideSection[] = [
         ] },
         { q: 'Une série s’est brisée pendant notre absence', a: [
           'Utilise le Mode vacances (toute la maison, Paramètres → Général) ou les vacances par membre (Membres de la famille) avant de partir ; cela protège les séries et gèle la santé des tâches.',
+        ] },
+        { q: 'Un bouclier n’a pas sauvé la série', a: [
+          'Chaque jour manqué demande son propre bouclier. Avec moins de boucliers que de jours manqués, aucun n’est utilisé : la série recommence et les boucliers sont gardés.',
+          'Les boucliers ne sont pas utilisés pendant le mode vacances ; les vacances protègent déjà la série.',
         ] },
         { q: 'Quelqu’un ne peut pas se connecter', a: [
           'Trop de mots de passe erronés bloquent les connexions jusqu’à 15 minutes : 10 pour un compte, ou 20 depuis un appareil. Attends et réessaie ; un bon mot de passe remet à zéro le compteur du compte.',

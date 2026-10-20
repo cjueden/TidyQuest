@@ -455,7 +455,12 @@
       "pot_requested": "Topf voll · wartet auf ein Elternteil",
       "pot_approved": "Belohnung genehmigt",
       "pot_rejected": "Erstattet",
-      "boughtForMascot": "🐾 Hat {item} fürs Maskottchen gekauft"
+      "boughtForMascot": "🐾 Hat {item} fürs Maskottchen gekauft",
+      "shield_earned": "Hat einen Serienschild verdient ({n}-Tage-Serie)",
+      "shield_bought": "Hat einen Serienschild gekauft",
+      "shield_given": "Hat einen Serienschild bekommen",
+      "shield_used": "Ein Schild hat eine {n}-Tage-Serie gerettet",
+      "shield_usedMany": "{count} Schilde haben eine {n}-Tage-Serie gerettet"
     },
     "roomDetail": {
       "name": "Name",
@@ -1289,7 +1294,10 @@
       "teamupAnyone": "🤝 {name} sucht einen Teampartner für „{task}“",
       "teamupJoined": "🤝 {name} macht bei „{task}“ mit",
       "teamupDeclined": "🤝 {name} kann diesmal nicht bei „{task}“ mitmachen. Du kannst jemand anderen fragen.",
-      "choreRejectedReason": "↩️ „{task}“ wurde diesmal nicht bestätigt. {parent} sagt: {reason}"
+      "choreRejectedReason": "↩️ „{task}“ wurde diesmal nicht bestätigt. {parent} sagt: {reason}",
+      "shieldSaved": "🛡️ Dein Schild hat deine {n}-Tage-Serie gerettet!",
+      "shieldsSaved": "🛡️ {count} Schilde haben deine {n}-Tage-Serie gerettet!",
+      "shieldGiven": "🛡️ {name} hat dir einen Serienschild geschenkt. Er rettet deine Serie, wenn du einen Tag verpasst."
     },
     "notifyAdmin": {
       "peopleTitle": "Wer bekommt was",
@@ -1407,7 +1415,10 @@
       "mascotShop": "Maskottchen-Laden",
       "mascotShopDesc": "Alle können dem Maskottchen für 1–5 Münzen ein Accessoire kaufen. Aus blendet Laden und Outfit aus.",
       "focus": "Eins nach dem anderen",
-      "focusDesc": "Die Aufgaben eines Kindes eine nach der anderen, groß, mit ihren Schritten. Wer es sieht, stellst du pro Person bei Familienmitglieder ein."
+      "focusDesc": "Die Aufgaben eines Kindes eine nach der anderen, groß, mit ihren Schritten. Wer es sieht, stellst du pro Person bei Familienmitglieder ein.",
+      "shields": "🛡️ Serienschilde",
+      "shieldsDesc": "Alle 7 Tage am Stück verdient oder mit Münzen gekauft (höchstens 2). Ein Schild rettet die Serie an einem verpassten Tag.",
+      "shieldPrice": "Preis"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1687,6 +1698,20 @@
       "reset": "Auf Standard zurücksetzen",
       "done": "Fertig",
       "saveFailed": "Die Anordnung konnte nicht gespeichert werden. Prüfe die Verbindung und versuche es noch einmal."
+    },
+    "shields": {
+      "held": "{n} Serienschilde",
+      "full": "Schilde voll",
+      "nextIn": "Nächster Schild nach {n} weiteren Tagen mit Aufgaben",
+      "nextInOne": "Nächster Schild nach 1 weiteren Tag mit Aufgaben",
+      "buy": "Schild kaufen",
+      "buyConfirm": "Einen Serienschild für {n} Münzen kaufen? Er rettet deine Serie, wenn du einen Tag verpasst.",
+      "buyFailed": "Schild konnte nicht gekauft werden. Versuch es noch einmal.",
+      "notEnough": "Nicht genug Münzen",
+      "what": "Ein Schild rettet deine Serie, wenn du einen Tag verpasst. Du bekommst einen alle 7 Tage am Stück.",
+      "give": "Schild schenken",
+      "giveConfirm": "{name} einen Serienschild schenken?",
+      "giveFailed": "Schild konnte nicht geschenkt werden. Versuch es noch einmal."
     }
   }
 }

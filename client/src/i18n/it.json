@@ -455,7 +455,12 @@
       "pot_requested": "Salvadanaio pieno · in attesa di un genitore",
       "pot_approved": "Premio approvato",
       "pot_rejected": "Rimborsato",
-      "boughtForMascot": "🐾 Ha comprato {item} per la mascotte"
+      "boughtForMascot": "🐾 Ha comprato {item} per la mascotte",
+      "shield_earned": "Ha guadagnato uno scudo della serie (serie di {n} giorni)",
+      "shield_bought": "Ha comprato uno scudo della serie",
+      "shield_given": "Ha ricevuto uno scudo della serie",
+      "shield_used": "Uno scudo ha salvato una serie di {n} giorni",
+      "shield_usedMany": "{count} scudi hanno salvato una serie di {n} giorni"
     },
     "roomDetail": {
       "name": "Nome",
@@ -1289,7 +1294,10 @@
       "teamupAnyone": "🤝 {name} cerca un compagno per «{task}»",
       "teamupJoined": "🤝 {name} si è unito a te per «{task}»",
       "teamupDeclined": "🤝 {name} questa volta non può fare «{task}» con te. Puoi chiedere a qualcun altro.",
-      "choreRejectedReason": "↩️ «{task}» non è stato approvato questa volta. {parent} dice: {reason}"
+      "choreRejectedReason": "↩️ «{task}» non è stato approvato questa volta. {parent} dice: {reason}",
+      "shieldSaved": "🛡️ Il tuo scudo ha salvato la tua serie di {n} giorni!",
+      "shieldsSaved": "🛡️ {count} scudi hanno salvato la tua serie di {n} giorni!",
+      "shieldGiven": "🛡️ {name} ti ha regalato uno scudo della serie. Salva la tua serie se salti un giorno."
     },
     "notifyAdmin": {
       "peopleTitle": "Chi riceve cosa",
@@ -1407,7 +1415,10 @@
       "mascotShop": "Negozio della mascotte",
       "mascotShopDesc": "Chiunque può comprare un accessorio alla mascotte per 1–5 monete. Spento, nasconde negozio e vestiti.",
       "focus": "Una cosa alla volta",
-      "focusDesc": "Le faccende di un bambino una alla volta, in grande, con i loro passaggi. Chi la vede si sceglie per persona in Membri della famiglia."
+      "focusDesc": "Le faccende di un bambino una alla volta, in grande, con i loro passaggi. Chi la vede si sceglie per persona in Membri della famiglia.",
+      "shields": "🛡️ Scudi della serie",
+      "shieldsDesc": "Si guadagnano ogni 7 giorni di fila o si comprano con le monete (al massimo 2). Uno scudo salva la serie in un giorno saltato.",
+      "shieldPrice": "Prezzo"
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1687,6 +1698,20 @@
       "reset": "Ripristina l'ordine predefinito",
       "done": "Fatto",
       "saveFailed": "Impossibile salvare la disposizione. Controlla la connessione e riprova."
+    },
+    "shields": {
+      "held": "{n} scudi della serie",
+      "full": "Scudi al completo",
+      "nextIn": "Prossimo scudo dopo altri {n} giorni di attività",
+      "nextInOne": "Prossimo scudo dopo 1 altro giorno di attività",
+      "buy": "Compra uno scudo",
+      "buyConfirm": "Comprare uno scudo della serie per {n} monete? Salva la tua serie se salti un giorno.",
+      "buyFailed": "Impossibile comprare lo scudo. Riprova.",
+      "notEnough": "Monete insufficienti",
+      "what": "Uno scudo salva la tua serie quando salti un giorno. Ne guadagni uno ogni 7 giorni di fila.",
+      "give": "Regala uno scudo",
+      "giveConfirm": "Regalare uno scudo della serie a {name}?",
+      "giveFailed": "Impossibile regalare lo scudo. Riprova."
     }
   }
 }

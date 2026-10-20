@@ -12,6 +12,7 @@ export interface User {
   avatarPhotoUrl: string | null;
   coins: number;
   currentStreak: number;
+  streakShields?: number;
   points: number;
   isVacationMode: boolean;
   language: string;

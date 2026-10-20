@@ -20,6 +20,7 @@ import { runScheduledNotifications } from './utils/notifySchedule';
 import notifyRoutes from './routes/notify';
 import todosRoutes from './routes/todos';
 import rescueRoutes from './routes/rescue';
+import shieldsRoutes from './routes/shields';
 import featuresRoutes from './routes/features';
 import cheersRoutes from './routes/cheers';
 import unlocksRoutes from './routes/unlocks';
@@ -30,6 +31,7 @@ import csvRoutes from './routes/csv';
 import trashRoutes from './routes/trash';
 import { proxyHint, trustProxySetting } from './utils/proxy';
 import { closeOldTeamups } from './utils/teamups';
+import { settleAllStreaks } from './utils/streaks';
 
 export function createApp() {
   const app = express();
@@ -81,6 +83,7 @@ export function createApp() {
   app.use('/api/notify', notifyRoutes);
   app.use('/api/todos', todosRoutes);
   app.use('/api/rescue', rescueRoutes);
+  app.use('/api/shields', shieldsRoutes);
   app.use('/api/features', featuresRoutes);
   app.use('/api/cheers', cheersRoutes);
   app.use('/api/unlocks', unlocksRoutes);
@@ -114,11 +117,13 @@ if (require.main === module || !process.env.VITEST) {
     void sendCoinBoostNotificationsIfNeeded();
     void runScheduledNotifications();
     closeOldTeamups();
+    settleAllStreaks();
     setInterval(() => {
       void sendDueTaskNotificationsIfNeeded();
       void sendCoinBoostNotificationsIfNeeded();
       void runScheduledNotifications();
       closeOldTeamups();
+      settleAllStreaks();
     }, 30000);
   });
 }
