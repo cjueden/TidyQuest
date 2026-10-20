@@ -84,6 +84,19 @@ export interface InsightsSkipped {
   /** Open pools overdue right now: [taskId, hours since due] */
   waitingNow: Array<[number, number]>;
 }
+export type CoinCategory = 'chores' | 'bonus' | 'rewards' | 'chipins' | 'mascot' | 'shields' | 'adjust';
+/** Coins in and out per person and week (server utils/insights.ts coinsByWeek) */
+export interface InsightsCoins {
+  weeks: 8 | 26; starts: string[]; end: string;
+  people: Array<InsightsPerson & { balance: number }>;
+  /** [week, userId, category, coins]; coins are positive both ways */
+  flows: Array<[number, number, CoinCategory, number]>;
+  /** Repeating weekly goals: [week, userId, goal coins] */
+  goals: Array<[number, number, number]>;
+  rewards: Array<{ id: number; title: string; costCoins: number; isActive: number }>;
+  /** [rewardId, userId, redemptionId, coins]; a shared pot has one row per person who chipped in */
+  bought: Array<[number, number, number, number]>;
+}
 /** rows are [weekday (0 = Mon), slot, userId, chores, coins, effort] */
 export interface InsightsHeatmap { weeks: 4 | 12; start: string; end: string; people: InsightsPerson[]; rows: Array<[number, number, number, number, number, number]> }
 
@@ -600,6 +613,7 @@ export const api = {
   // Insights for parents
   getInsightsBars: (period: InsightsPeriod, offset: number) => apiFetch<InsightsBars>(`/insights/bars?period=${period}&offset=${offset}`),
   getInsightsSkipped: (period: InsightsPeriod, offset: number) => apiFetch<InsightsSkipped>(`/insights/skipped?period=${period}&offset=${offset}`),
+  getInsightsCoins: (weeks: 8 | 26) => apiFetch<InsightsCoins>(`/insights/coins?weeks=${weeks}`),
   getInsightsHeatmap: (weeks: 4 | 12) => apiFetch<InsightsHeatmap>(`/insights/heatmap?weeks=${weeks}`),
 
   getTrash: () => apiFetch<{ items: TrashItem[]; keepDays: number }>('/trash'),

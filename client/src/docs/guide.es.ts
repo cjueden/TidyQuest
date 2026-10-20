@@ -286,9 +286,10 @@ export const GUIDE_ES: GuideSection[] = [
         'Momentos de más y menos actividad: los días de la semana por hora del día, de media en las últimas 4 o 12 semanas. Los colores más intensos son cuando más se hace; los cuadros pálidos son malos momentos para insistir. Mostrar números pone las medias en los cuadros.',
         'Quién hace cuánto: la parte de cada persona en el periodo y el cambio respecto al periodo anterior (si el periodo sigue en curso, hasta el mismo momento, como la semana pasada hasta ahora).',
         'Olvidadas y con retraso (por tarea o agrupadas por habitación): tareas que a menudo se hacen después de su día y con cuántos días de retraso; tareas que quedaron atrasadas al final del día (se registran cada noche desde que se instaló esta versión); y tareas de El primero gana que nadie cogió, con cuánto esperaron y cuáles siguen esperando.',
+        'Monedas que entran y salen (últimas 8 o 26 semanas): las que entran sobre la línea (tareas, bonus) y las que salen debajo (recompensas, aportaciones, Tienda de la mascota, escudos de racha, monedas quitadas), el saldo al final de cada semana y el objetivo semanal como una marca sobre la barra (solo cuenta las monedas de las tareas). Elige una persona para ver su objetivo; con Todos, una tabla muestra los totales de cada uno. Debajo: las recompensas más compradas y las que nunca se compraron.',
         'El menú Todos limita las barras y los cuadros a una persona. Las tareas de los padres también cuentan.',
       ] },
-      { tip: 'Con las funciones de juego desactivadas, las Estadísticas siguen funcionando; solo se oculta la medida Monedas.' },
+      { tip: 'Con las funciones de juego desactivadas, las Estadísticas siguen funcionando; solo se ocultan la medida Monedas y «Monedas que entran y salen».' },
     ],
   },
   {

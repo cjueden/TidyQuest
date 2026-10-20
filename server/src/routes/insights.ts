@@ -3,7 +3,7 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { startOfLocalDay } from '../utils/periods';
-import { bucketIndex, choresDone, heatSlot, INSIGHTS_PERIODS, parseDbTime, periodWindow, samePointBefore, skippedChores, snapshotSince, type InsightsPeriod } from '../utils/insights';
+import { bucketIndex, choresDone, coinsByWeek, heatSlot, INSIGHTS_PERIODS, parseDbTime, periodWindow, samePointBefore, skippedChores, snapshotSince, type InsightsPeriod } from '../utils/insights';
 
 // Insights for parents (NEW-7). Admins only. Rows are compact arrays; the client stacks and switches measure.
 const router = Router();
@@ -77,6 +77,11 @@ router.get('/skipped', (req: AuthRequest, res: Response) => {
     rooms: db.prepare('SELECT id, name, roomType FROM rooms ORDER BY sortOrder, id').all(),
     ...skippedChores(win.start, win.end),
   });
+});
+
+// Coins in and out per person and week, over the last 8 or 26 weeks
+router.get('/coins', (req: AuthRequest, res: Response) => {
+  res.json(coinsByWeek(Number(req.query.weeks) === 26 ? 26 : 8));
 });
 
 // Weekday × time of day over the last 4 or 12 weeks: rows [weekday (0 = Mon), slot, userId, chores, coins, effort]

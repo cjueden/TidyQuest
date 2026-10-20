@@ -1,4 +1,4 @@
-import type { InsightsBars, InsightsHeatmap, InsightsPeriod, InsightsSkipped } from '../../hooks/useApi';
+import type { CoinCategory, InsightsBars, InsightsCoins, InsightsHeatmap, InsightsPeriod, InsightsSkipped } from '../../hooks/useApi';
 import { localeFor } from '../../utils/locale';
 
 export type Measure = 'chores' | 'coins' | 'effort';
@@ -210,4 +210,65 @@ export function skippedLists(data: InsightsSkipped, by: ListBy, personId: number
       .map(({ sum, ...i }) => ({ ...i, avgHours: i.count ? sum / i.count : 0 }))
       .sort((a, b) => waitValue(b) - waitValue(a) || a.name.localeCompare(b.name)),
   };
+}
+
+/** Coins in sit above the line, coins out below. Palette slots in this order keep stacked neighbours distinct. */
+export const COINS_IN: CoinCategory[] = ['chores', 'bonus'];
+export const COINS_OUT: CoinCategory[] = ['rewards', 'chipins', 'mascot', 'shields', 'adjust'];
+export const coinColor = (c: CoinCategory) => `var(--viz-${[...COINS_IN, ...COINS_OUT].indexOf(c) + 1})`;
+
+export interface CoinWeeks {
+  inCats: CoinCategory[]; outCats: CoinCategory[];
+  /** [week][category index] */
+  up: number[][]; down: number[][];
+  earned: number[]; spent: number[]; choreCoins: number[];
+  /** The weekly goal (one person only), or null */
+  goals: Array<number | null>;
+  /** End-of-week balance, worked back from today's */
+  balance: number[];
+}
+
+/** One person's weeks (or everyone's added up, without goals). */
+export function coinWeeks(data: InsightsCoins, personId: number | null): CoinWeeks {
+  const n = data.starts.length;
+  const flows = data.flows.filter((f) => personId == null || f[1] === personId);
+  const has = new Set(flows.filter((f) => f[3] > 0).map((f) => f[2]));
+  const inCats = COINS_IN.filter((c) => has.has(c));
+  const outCats = COINS_OUT.filter((c) => has.has(c));
+  const up = Array.from({ length: n }, () => inCats.map(() => 0));
+  const down = Array.from({ length: n }, () => outCats.map(() => 0));
+  for (const [w, , c, coins] of flows) {
+    const i = inCats.indexOf(c);
+    if (i >= 0) up[w][i] += coins; else { const j = outCats.indexOf(c); if (j >= 0) down[w][j] += coins; }
+  }
+  const sum = (v: number[]) => v.reduce((a, b) => a + b, 0);
+  const earned = up.map(sum);
+  const spent = down.map(sum);
+  const ci = inCats.indexOf('chores');
+  const goals: Array<number | null> = Array(n).fill(null);
+  if (personId != null) for (const [w, u, g] of data.goals) if (u === personId) goals[w] = g;
+  const balance = Array(n).fill(0) as number[];
+  let b = data.people.filter((p) => personId == null || p.id === personId).reduce((a, p) => a + p.balance, 0);
+  for (let w = n - 1; w >= 0; w--) {
+    balance[w] = Math.max(0, b);
+    b -= earned[w] - spent[w];
+  }
+  return { inCats, outCats, up, down, earned, spent, choreCoins: up.map((v) => (ci >= 0 ? v[ci] : 0)), goals, balance };
+}
+
+/** Rewards bought most (times, coins) and the active ones never bought in the window. */
+export function rewardStats(data: InsightsCoins, personId: number | null) {
+  const rows = data.bought.filter((b) => personId == null || b[1] === personId);
+  const by = new Map<number, { ids: Set<number>; coins: number }>();
+  for (const [rewardId, , redemptionId, coins] of rows) {
+    const it = by.get(rewardId) ?? { ids: new Set<number>(), coins: 0 };
+    it.ids.add(redemptionId); it.coins += coins;
+    by.set(rewardId, it);
+  }
+  const title = new Map(data.rewards.map((r) => [r.id, r.title]));
+  const most = [...by.entries()]
+    .map(([id, v]) => ({ key: `w${id}`, name: title.get(id) ?? '?', times: v.ids.size, coins: v.coins }))
+    .sort((a, b) => b.times - a.times || b.coins - a.coins || a.name.localeCompare(b.name));
+  const never = data.rewards.filter((r) => r.isActive && !by.has(r.id)).map((r) => r.title);
+  return { most, never };
 }

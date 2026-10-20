@@ -310,9 +310,10 @@ export const GUIDE_EN: GuideSection[] = [
         'Busy and quiet times: weekdays by time of day, averaged over the last 4 or 12 weeks. The strongest colors are when the most gets done; faint squares are bad times to push chores. Show numbers puts the averages in the squares.',
         'Who does how much: each person’s share of the period, and the change from the period before (while a period is still running, up to the same point, like last week by now).',
         'Skipped and late (by chore, or rolled up by room): chores often done after their due day and by how many days; chores left overdue at the end of a day (recorded nightly from the day this version was installed); and First come, first served chores nobody grabbed, with how long they waited and which are waiting now.',
+        'Coins in and out (last 8 or 26 weeks): coins in above the line (chores, bonuses) and out below (rewards, chip-ins, the Mascot shop, streak shields, coins taken off), the balance at the end of each week, and the weekly goal as a mark across the bar (it counts chore coins only). Pick a person to see their goal; with Everyone, a table shows each person’s totals. Underneath: the rewards bought most, and the ones never bought.',
         'The Everyone menu narrows the bars and the squares to one person. Parents’ own chores are included.',
       ] },
-      { tip: 'With game features switched off, Insights still works; only the Coins measure is hidden.' },
+      { tip: 'With game features switched off, Insights still works; only the Coins measure and Coins in and out are hidden.' },
     ],
   },
   {

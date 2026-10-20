@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useWidth } from './useWidth';
 import { formatValue, niceTicks, type Stacked } from './insightsData';
 
 const AXIS_W = 30;
@@ -11,19 +11,6 @@ const GAP = 2;
 function topRounded(x: number, y: number, w: number, h: number, r: number) {
   const rr = Math.max(0, Math.min(r, w / 2, h));
   return `M${x},${y + h}V${y + rr}Q${x},${y} ${x + rr},${y}H${x + w - rr}Q${x + w},${y} ${x + w},${y + rr}V${y + h}Z`;
-}
-
-function useWidth<T extends HTMLElement>(fallback = 340) {
-  const ref = useRef<T>(null);
-  const [width, setWidth] = useState(fallback);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => setWidth(Math.round(entry.contentRect.width)));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  return [ref, width] as const;
 }
 
 export function LegendRow({ series }: { series: Stacked['series'] }) {

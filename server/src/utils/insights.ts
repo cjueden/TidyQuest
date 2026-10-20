@@ -262,3 +262,95 @@ export function skippedChores(start: Date, end: Date, now: Date = new Date()) {
     waitingNow: waitingNow.map((w) => [w[0], round(w[1])]),
   };
 }
+
+/** Where coins come from and go. In: chores, bonuses (any coin adjustment above 0). Out: the rest. */
+export type CoinCategory = 'chores' | 'bonus' | 'rewards' | 'chipins' | 'mascot' | 'shields' | 'adjust';
+export interface LedgerEntry { at: Date; userId: number; category: CoinCategory; coins: number }
+
+const REFUNDED = "('rejected', 'cancelled')";
+
+/**
+ * Every coin that came in or went out in [start, end), gathered from the tables that hold them. Coins are
+ * positive either way; the category says which. Refunded rewards and chip-ins are left out (the coins came
+ * back), and a shared pot's reward isn't counted again on top of its chip-ins.
+ */
+export function coinLedger(start: Date, end: Date): LedgerEntry[] {
+  const from = new Date(start.getTime() - DAY_MS).toISOString();
+  const to = new Date(end.getTime() + DAY_MS).toISOString();
+  const rows: Array<{ at: string; userId: number; category: CoinCategory; coins: number }> = [
+    ...db.prepare(`SELECT completedAt AS at, userId, 'chores' AS category, coinsEarned AS coins FROM task_completions
+      WHERE status = 'approved' AND coinsEarned > 0 AND completedAt >= ? AND completedAt < ?`).all(from, to),
+    ...db.prepare(`SELECT createdAt AS at, userId, CASE WHEN amount > 0 THEN 'bonus' ELSE 'adjust' END AS category, ABS(amount) AS coins
+      FROM coin_adjustments WHERE amount <> 0 AND createdAt >= ? AND createdAt < ?`).all(from, to),
+    ...db.prepare(`SELECT rr.redeemedAt AS at, rr.userId, 'rewards' AS category, rr.costCoins AS coins FROM reward_redemptions rr
+      WHERE rr.status NOT IN ${REFUNDED} AND rr.costCoins > 0 AND rr.redeemedAt >= ? AND rr.redeemedAt < ?
+        AND NOT EXISTS (SELECT 1 FROM reward_contributions c WHERE c.redemptionId = rr.id)`).all(from, to),
+    ...db.prepare(`SELECT c.createdAt AS at, c.userId, 'chipins' AS category, c.amount AS coins FROM reward_contributions c
+      LEFT JOIN reward_redemptions rr ON rr.id = c.redemptionId
+      WHERE (rr.id IS NULL OR rr.status NOT IN ${REFUNDED}) AND c.createdAt >= ? AND c.createdAt < ?`).all(from, to),
+    ...db.prepare(`SELECT createdAt AS at, userId, 'mascot' AS category, price AS coins FROM mascot_purchases
+      WHERE price > 0 AND createdAt >= ? AND createdAt < ?`).all(from, to),
+    ...db.prepare(`SELECT createdAt AS at, userId, 'shields' AS category, coins FROM streak_shield_events
+      WHERE kind = 'bought' AND coins > 0 AND createdAt >= ? AND createdAt < ?`).all(from, to),
+  ] as Array<{ at: string; userId: number; category: CoinCategory; coins: number }>;
+  return rows.map((r) => ({ ...r, at: parseDbTime(r.at) })).filter((r) => r.at >= start && r.at < end);
+}
+
+/**
+ * Coins per person and week over the last `weeks` weeks (Monday first): flows [week, userId, category, coins],
+ * weekly goals [week, userId, goal], everyone's balance now (end-of-week balances are worked back from it),
+ * and rewards bought [rewardId, userId, redemptionId, coins] for "bought most or never".
+ */
+export function coinsByWeek(weeks: number, now: Date = new Date()) {
+  const start = startOfLocalWeek(now);
+  start.setDate(start.getDate() - (weeks - 1) * 7);
+  const starts: Date[] = [];
+  for (let i = 0; i <= weeks; i++) { const d = new Date(start); d.setDate(d.getDate() + i * 7); starts.push(d); }
+  const end = starts[weeks];
+  const weekOf = (at: Date) => { let w = 0; while (w < weeks - 1 && at >= starts[w + 1]) w++; return w; };
+
+  const flows = new Map<string, [number, number, CoinCategory, number]>();
+  for (const e of coinLedger(start, end)) {
+    const w = weekOf(e.at);
+    const key = `${w}:${e.userId}:${e.category}`;
+    const row = flows.get(key) ?? [w, e.userId, e.category, 0];
+    row[3] += e.coins;
+    flows.set(key, row);
+  }
+
+  // Weekly goals: a goal that repeats weekly, or one set for a single week. A repeating goal's flag moves on
+  // to next week's copy when it rolls over, so past weeks are found by their one-week window.
+  const goals: number[][] = [];
+  for (const g of db.prepare(`SELECT userId, goalCoins, startAt, endAt, createdAt, repeatWeekly FROM user_goals
+      WHERE goalCoins > 0 ORDER BY id`).all() as Array<{ userId: number; goalCoins: number; startAt: string | null; endAt: string | null; createdAt: string; repeatWeekly: number }>) {
+    const at = parseDbTime(g.startAt || g.createdAt);
+    const days = g.startAt && g.endAt ? (parseDbTime(g.endAt).getTime() - at.getTime()) / DAY_MS : null;
+    if (!g.repeatWeekly && !(days != null && days >= 5 && days <= 8)) continue;
+    if (at < start || at >= end) continue;
+    const w = weekOf(at);
+    const i = goals.findIndex((x) => x[0] === w && x[1] === g.userId);
+    if (i >= 0) goals[i][2] = g.goalCoins; else goals.push([w, g.userId, g.goalCoins]);
+  }
+
+  const bought: number[][] = [];
+  const redemptions = db.prepare(`SELECT id, rewardId, userId, costCoins, redeemedAt FROM reward_redemptions
+    WHERE status NOT IN ${REFUNDED}`).all() as Array<{ id: number; rewardId: number; userId: number; costCoins: number; redeemedAt: string }>;
+  const chipIns = db.prepare('SELECT redemptionId, userId, SUM(amount) AS amount FROM reward_contributions WHERE redemptionId IS NOT NULL GROUP BY redemptionId, userId')
+    .all() as Array<{ redemptionId: number; userId: number; amount: number }>;
+  for (const r of redemptions) {
+    const at = parseDbTime(r.redeemedAt);
+    if (at < start || at >= end) continue;
+    const pot = chipIns.filter((c) => c.redemptionId === r.id);
+    if (pot.length) for (const c of pot) bought.push([r.rewardId, c.userId, r.id, c.amount]);
+    else bought.push([r.rewardId, r.userId, r.id, r.costCoins]);
+  }
+
+  return {
+    weeks, starts: starts.slice(0, weeks).map((d) => d.toISOString()), end: end.toISOString(),
+    people: db.prepare('SELECT id, displayName AS name, avatarColor AS color, coins AS balance FROM users ORDER BY id').all(),
+    flows: [...flows.values()],
+    goals,
+    rewards: db.prepare('SELECT id, title, costCoins, isActive FROM rewards ORDER BY sortOrder, id').all(),
+    bought,
+  };
+}

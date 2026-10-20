@@ -186,4 +186,55 @@ describe('insights', () => {
       expect(now.body.waitingNow[0][1]).toBeGreaterThan(24);
     });
   });
+
+  describe('coins in and out', () => {
+    it('gathers every coin in and out per week, leaving out refunds and pending coins', async () => {
+      const { admin, kid, task } = await family();
+      const kidId = kid.user.id as number;
+      const now = new Date(Date.now() - 60000);
+      done(task, kidId, now, 10);
+      done(task, kidId, now, 5, 'pending'); // not paid yet
+      db.prepare('INSERT INTO coin_adjustments (userId, amount, reason, createdBy, createdAt) VALUES (?, ?, ?, ?, ?)').run(kidId, 7, 'Bonus', admin.user.id, now.toISOString());
+      db.prepare('INSERT INTO coin_adjustments (userId, amount, reason, createdBy, createdAt) VALUES (?, ?, ?, ?, ?)').run(kidId, -3, 'Oops', admin.user.id, now.toISOString());
+      const reward = (title: string, cost: number) => Number(db.prepare('INSERT INTO rewards (title, costCoins, isActive) VALUES (?, ?, 1)').run(title, cost).lastInsertRowid);
+      const movie = reward('Movie night', 20);
+      const candy = reward('Candy', 15);
+      const pizza = reward('Pizza', 30);
+      reward('Never wanted', 99);
+      const redeem = (rewardId: number, cost: number, status: string) =>
+        Number(db.prepare('INSERT INTO reward_redemptions (rewardId, userId, costCoins, status) VALUES (?, ?, ?, ?)').run(rewardId, kidId, cost, status).lastInsertRowid);
+      const movieId = redeem(movie, 20, 'requested');
+      redeem(candy, 15, 'rejected'); // refunded
+      const potId = redeem(pizza, 30, 'approved'); // a full shared pot: its chip-ins are the spending
+      db.prepare('INSERT INTO reward_contributions (rewardId, userId, amount, redemptionId, createdAt) VALUES (?, ?, ?, ?, ?)').run(pizza, kidId, 12, potId, now.toISOString());
+      db.prepare('INSERT INTO reward_contributions (rewardId, userId, amount, redemptionId, createdAt) VALUES (?, ?, ?, ?, ?)').run(pizza, admin.user.id, 18, potId, now.toISOString());
+      db.prepare('INSERT INTO mascot_purchases (userId, itemId, price, createdAt) VALUES (?, ?, ?, ?)').run(kidId, 'hat', 4, now.toISOString());
+      db.prepare("INSERT INTO streak_shield_events (userId, kind, coins, createdAt) VALUES (?, 'bought', 6, ?)").run(kidId, now.toISOString());
+      db.prepare("INSERT INTO streak_shield_events (userId, kind, coins, createdAt) VALUES (?, 'earned', 0, ?)").run(kidId, now.toISOString());
+      db.prepare('INSERT INTO user_goals (userId, title, goalCoins, startAt, repeatWeekly) VALUES (?, ?, ?, ?, 1)').run(kidId, 'Weekly', 100, startOfLocalWeek().toISOString());
+      // Last week's copy (its repeat flag moved on) and a long savings goal, which isn't weekly
+      const lastMonday = thisWeek(-7, 0);
+      db.prepare('INSERT INTO user_goals (userId, title, goalCoins, startAt, endAt) VALUES (?, ?, ?, ?, ?)')
+        .run(kidId, 'Weekly', 90, lastMonday.toISOString(), new Date(startOfLocalWeek().getTime() - 1).toISOString());
+      db.prepare('INSERT INTO user_goals (userId, title, goalCoins, startAt, endAt) VALUES (?, ?, ?, ?, ?)')
+        .run(kidId, 'Bike', 500, thisWeek(-14, 0).toISOString(), thisWeek(30, 0).toISOString());
+
+      const res = await agent.get('/api/insights/coins').set(auth(admin.token)).expect(200);
+      expect(res.body.weeks).toBe(8);
+      expect(res.body.starts).toHaveLength(8);
+      const mine = Object.fromEntries(res.body.flows.filter((f: unknown[]) => f[1] === kidId).map((f: unknown[]) => [f[2], [f[0], f[3]]]));
+      expect(mine).toEqual({
+        chores: [7, 10], bonus: [7, 7], adjust: [7, 3], rewards: [7, 20], chipins: [7, 12], mascot: [7, 4], shields: [7, 6],
+      });
+      expect(res.body.goals).toEqual([[7, kidId, 100], [6, kidId, 90]]);
+      expect(res.body.bought).toEqual(expect.arrayContaining([[movie, kidId, movieId, 20], [pizza, kidId, potId, 12], [pizza, admin.user.id, potId, 18]]));
+      expect(res.body.bought).toHaveLength(3);
+      expect(res.body.rewards.map((r: { title: string }) => r.title)).toContain('Never wanted');
+      expect(res.body.people.find((p: { id: number }) => p.id === kidId)).toHaveProperty('balance');
+
+      const long = await agent.get('/api/insights/coins?weeks=26').set(auth(admin.token)).expect(200);
+      expect(long.body.starts).toHaveLength(26);
+      await agent.get('/api/insights/coins').set(auth(kid.token)).expect(403);
+    });
+  });
 });

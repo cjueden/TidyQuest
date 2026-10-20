@@ -286,9 +286,10 @@ export const GUIDE_NL: GuideSection[] = [
         'Drukke en rustige momenten: de weekdagen per tijd van de dag, gemiddeld over de laatste 4 of 12 weken. In de sterkste kleuren wordt het meest gedaan; vage vakjes zijn slechte momenten om klusjes te vragen. Cijfers tonen zet de gemiddelden in de vakjes.',
         'Wie doet hoeveel: ieders deel van de periode en het verschil met de periode ervoor (bij een lopende periode tot hetzelfde moment, zoals vorige week tot nu).',
         'Overgeslagen en te laat (per klusje, of samengevat per kamer): klusjes die vaak na hun dag gedaan worden en hoeveel dagen te laat; klusjes die aan het eind van een dag nog te laat waren (elke nacht bijgehouden sinds deze versie is geïnstalleerd); en Wie-het-eerst-komt-klusjes die niemand pakte, met hoe lang ze wachtten en welke nu nog wachten.',
+        'Munten erin en eruit (laatste 8 of 26 weken): munten erin boven de lijn (klusjes, bonussen) en eruit eronder (beloningen, bijdragen, Mascottewinkel, reeksschilden, afgetrokken munten), het saldo aan het eind van elke week, en het weekdoel als streepje over de staaf (het telt alleen munten van klusjes). Kies een persoon om het doel te zien; bij Iedereen toont een tabel ieders totalen. Daaronder: de vaakst gekochte beloningen, en de nooit gekochte.',
         'Het menu Iedereen beperkt de staven en vakjes tot één persoon. De klusjes van ouders tellen mee.',
       ] },
-      { tip: 'Met de spelfuncties uit werken de Inzichten nog steeds; alleen de maat Munten verdwijnt.' },
+      { tip: 'Met de spelfuncties uit werken de Inzichten nog steeds; alleen de maat Munten en ‘Munten erin en eruit’ verdwijnen.' },
     ],
   },
   {

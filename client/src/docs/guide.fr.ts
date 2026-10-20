@@ -286,9 +286,10 @@ export const GUIDE_FR: GuideSection[] = [
         'Moments chargés et calmes : les jours de la semaine par moment de la journée, en moyenne sur les 4 ou 12 dernières semaines. Les couleurs les plus fortes montrent quand on en fait le plus ; les cases pâles sont de mauvais moments pour insister. Afficher les chiffres met les moyennes dans les cases.',
         'Qui fait combien : la part de chacun sur la période, et l’écart avec la période d’avant (pour une période en cours, jusqu’au même moment, comme la semaine dernière à ce stade).',
         'Oubliées et en retard (par tâche, ou regroupées par pièce) : les tâches souvent faites après leur jour prévu et de combien de jours ; les tâches restées en retard à la fin d’une journée (enregistrées chaque nuit depuis l’installation de cette version) ; et les tâches Premier arrivé, premier servi que personne n’a prises, avec leur temps d’attente et celles qui attendent encore.',
+        'Pièces gagnées et dépensées (8 ou 26 dernières semaines) : les pièces gagnées au-dessus de la ligne (tâches, bonus) et dépensées en dessous (récompenses, participations, Boutique de la mascotte, boucliers de série, pièces retirées), le solde à la fin de chaque semaine, et l’objectif de la semaine en trait sur la barre (il ne compte que les pièces des tâches). Choisissez une personne pour voir son objectif ; avec Tout le monde, un tableau montre les totaux de chacun. En dessous : les récompenses les plus achetées, et celles jamais achetées.',
         'Le menu Tout le monde limite les barres et les cases à une seule personne. Les tâches des parents sont incluses.',
       ] },
-      { tip: 'Avec les fonctions de jeu désactivées, les Statistiques marchent toujours ; seule la mesure Pièces est masquée.' },
+      { tip: 'Avec les fonctions de jeu désactivées, les Statistiques marchent toujours ; seules la mesure Pièces et la carte Pièces gagnées et dépensées sont masquées.' },
     ],
   },
   {

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { api, type InsightsBars, type InsightsHeatmap, type InsightsPeriod, type InsightsSkipped } from '../../hooks/useApi';
+import { api, type InsightsBars, type InsightsCoins, type InsightsHeatmap, type InsightsPeriod, type InsightsSkipped } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { bucketLabels, formatValue, heatGrid, periodLabel, shares, skippedLists, stackBars, type ListBy, type Measure, type StackBy } from '../insights/insightsData';
 import { SkippedLists } from '../insights/SkippedLists';
+import { Segmented } from '../insights/Segmented';
+import { CoinsCard } from '../insights/CoinsCard';
 import { localeFor } from '../../utils/locale';
 import { LegendRow, PeriodBars } from '../insights/PeriodBars';
 import { HeatScale, WeekHeatmap, type HeatCell } from '../insights/WeekHeatmap';
@@ -11,25 +13,6 @@ import { weekdayName, WEEK_ORDER } from '../../utils/schedule';
 interface Props {
   language: string;
   gamificationEnabled: boolean;
-}
-
-function Segmented<T extends string>({ value, options, onChange, label }: {
-  value: T; options: Array<{ value: T; label: string }>; onChange: (v: T) => void; label: string;
-}) {
-  return (
-    <div role="group" aria-label={label} style={{ display: 'flex', borderRadius: 99, overflow: 'hidden', border: '1.5px solid var(--warm-border)', minWidth: 0 }}>
-      {options.map((o) => (
-        <button key={o.value} type="button" onClick={() => onChange(o.value)} aria-pressed={value === o.value}
-          style={{
-            flex: 1, padding: '6px 10px', fontSize: 12, fontWeight: 700, fontFamily: 'Nunito', cursor: 'pointer', border: 'none',
-            whiteSpace: 'nowrap', background: value === o.value ? 'var(--warm-accent)' : 'var(--warm-bg-subtle)',
-            color: value === o.value ? '#fff' : 'var(--warm-text-light)',
-          }}>
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
 }
 
 const cardTitle = { fontSize: 16, fontWeight: 800, margin: 0, color: 'var(--warm-text)' } as const;
@@ -54,6 +37,8 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const [showNumbers, setShowNumbers] = useState(false);
   const [skipped, setSkipped] = useState<InsightsSkipped | null>(null);
   const [listBy, setListBy] = useState<ListBy>('chore');
+  const [coinRange, setCoinRange] = useState<8 | 26>(8);
+  const [coins, setCoins] = useState<InsightsCoins | null>(null);
 
   const measure: Measure = !gamificationEnabled && measureChoice === 'coins' ? 'chores' : measureChoice;
   const barsKey = `${period}:${offset}`;
@@ -74,6 +59,15 @@ export function Insights({ language, gamificationEnabled }: Props) {
       .catch(() => { if (live) setFailed(true); });
     return () => { live = false; };
   }, [period, offset]);
+
+  useEffect(() => {
+    if (!gamificationEnabled) return;
+    let live = true;
+    api.getInsightsCoins(coinRange)
+      .then((d) => { if (live) setCoins(d); })
+      .catch(() => { if (live) setFailed(true); });
+    return () => { live = false; };
+  }, [coinRange, gamificationEnabled]);
 
   useEffect(() => {
     let live = true;
@@ -302,6 +296,11 @@ export function Insights({ language, gamificationEnabled }: Props) {
           <SkippedLists lists={lists} language={language} t={t} undoneNote={undoneNote} />
         )}
       </section>
+
+      {/* Coins in and out (hidden with game features off) */}
+      {gamificationEnabled && (
+        <CoinsCard data={coins} weeks={coinRange} onWeeks={setCoinRange} personId={person} language={language} t={t} />
+      )}
     </div>
   );
 }
