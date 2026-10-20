@@ -197,3 +197,15 @@ export function RewardsIcon({ active }: NavIconProps) {
     </svg>
   );
 }
+
+export function InsightsIcon({ active }: NavIconProps) {
+  const ink = active ? "var(--warm-accent)" : "var(--warm-text-light)";
+  return (
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+      <path d="M4 22H22" stroke={ink} strokeWidth="2" strokeLinecap="round" />
+      <rect x="6" y="13" width="3.5" height="6" rx="1.2" fill={active ? ink : "none"} stroke={ink} strokeWidth="2" />
+      <rect x="11.25" y="6" width="3.5" height="13" rx="1.2" fill={active ? ink : "none"} stroke={ink} strokeWidth="2" />
+      <rect x="16.5" y="10" width="3.5" height="9" rx="1.2" fill={active ? ink : "none"} stroke={ink} strokeWidth="2" />
+    </svg>
+  );
+}

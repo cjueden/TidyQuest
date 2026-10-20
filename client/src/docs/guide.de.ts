@@ -273,6 +273,26 @@ export const GUIDE_DE: GuideSection[] = [
     ],
   },
   {
+    id: 'insights',
+    icon: '📊',
+    title: 'Auswertung für Eltern',
+    parents: true,
+    blocks: [
+      { where: 'Auswertung im Menü (nur Eltern)' },
+      { ul: [
+        'Erledigte Aufgaben: Balken für einen Tag (pro Stunde), eine Woche oder einen Monat (pro Tag) oder ein Jahr (pro Monat). Mit ◀ ▶ blätterst du zu früheren Zeiträumen. Tippe auf einen Balken für seine Zahlen, oder nimm Als Tabelle zeigen.',
+        'Messgröße: Aufgaben zählt, was erledigt wurde, Münzen, was wirklich ausgezahlt wurde (mit doppelten Münzen, der Rettungsmission und Teambonus), und Aufwand addiert die Aufwandsstufen der Aufgaben. Eine Aufgabe, die auf Freigabe wartet, zählt zu dem Zeitpunkt, an dem sie erledigt wurde; ihre Münzen zählen, sobald ein Elternteil sie freigibt.',
+        'Aufteilen nach Person (in der Farbe jeder Person), Raum oder Aufgabe. Ab mehr als 8 Räumen oder Aufgaben landet der Rest unter Andere.',
+        'Viel und wenig los: die Wochentage nach Tageszeit, im Durchschnitt der letzten 4 oder 12 Wochen. In den kräftigsten Feldern wird am meisten erledigt; blasse sind schlechte Zeiten, um Aufgaben zu verlangen. Zahlen zeigen schreibt die Durchschnitte in die Felder.',
+        'Wer macht wie viel: der Anteil jeder Person am Zeitraum und die Veränderung zum Zeitraum davor (bei einem laufenden Zeitraum bis zum gleichen Zeitpunkt, etwa letzte Woche bis jetzt).',
+        'Liegen geblieben und verspätet (pro Aufgabe oder pro Raum zusammengefasst): Aufgaben, die oft nach dem fälligen Tag erledigt werden, und um wie viele Tage; Aufgaben, die am Ende eines Tages noch überfällig waren (jede Nacht aufgezeichnet, seit diese Version installiert ist); und Erster-gewinnt-Aufgaben, die keiner nahm, mit ihrer Wartezeit und welche gerade warten.',
+        'Münzen rein und raus (letzte 8 oder 26 Wochen): eingenommene Münzen über der Linie (Aufgaben, Boni) und ausgegebene darunter (Belohnungen, Beiträge, Maskottchen-Laden, Serienschilde, abgezogene Münzen), der Kontostand am Ende jeder Woche und das Wochenziel als Strich über dem Balken (es zählt nur Münzen aus Aufgaben). Wähle eine Person, um ihr Ziel zu sehen; bei Alle zeigt eine Tabelle die Summen jeder Person. Darunter: die am häufigsten gekauften Belohnungen und die nie gekauften.',
+        'Das Menü Alle beschränkt Balken und Felder auf eine Person. Die Aufgaben der Eltern zählen mit.',
+      ] },
+      { tip: 'Auch mit ausgeschalteten Spielfunktionen funktioniert die Auswertung; nur die Messgröße Münzen und „Münzen rein und raus“ sind ausgeblendet.' },
+    ],
+  },
+  {
     id: 'data',
     icon: '💾',
     title: 'Backups, Tabellen und gelöschte Elemente',

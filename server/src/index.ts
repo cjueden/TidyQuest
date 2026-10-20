@@ -32,6 +32,8 @@ import trashRoutes from './routes/trash';
 import { proxyHint, trustProxySetting } from './utils/proxy';
 import { closeOldTeamups } from './utils/teamups';
 import { settleAllStreaks } from './utils/streaks';
+import { snapshotOverdueChores } from './utils/insights';
+import insightsRoutes from './routes/insights';
 
 export function createApp() {
   const app = express();
@@ -84,6 +86,7 @@ export function createApp() {
   app.use('/api/todos', todosRoutes);
   app.use('/api/rescue', rescueRoutes);
   app.use('/api/shields', shieldsRoutes);
+  app.use('/api/insights', insightsRoutes);
   app.use('/api/features', featuresRoutes);
   app.use('/api/cheers', cheersRoutes);
   app.use('/api/unlocks', unlocksRoutes);
@@ -118,12 +121,14 @@ if (require.main === module || !process.env.VITEST) {
     void runScheduledNotifications();
     closeOldTeamups();
     settleAllStreaks();
+    snapshotOverdueChores();
     setInterval(() => {
       void sendDueTaskNotificationsIfNeeded();
       void sendCoinBoostNotificationsIfNeeded();
       void runScheduledNotifications();
       closeOldTeamups();
       settleAllStreaks();
+      snapshotOverdueChores();
     }, 30000);
   });
 }

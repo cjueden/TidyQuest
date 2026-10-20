@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { HomeIcon, RoomsIcon, TasksIcon, TrophyIcon, CalendarIcon, ActivityIcon, AchievementsIcon, SettingsIcon, RewardsIcon } from '../icons/NavIcons';
+import { HomeIcon, RoomsIcon, TasksIcon, TrophyIcon, CalendarIcon, ActivityIcon, AchievementsIcon, SettingsIcon, RewardsIcon, InsightsIcon } from '../icons/NavIcons';
 import { FireIcon, CoinIcon, SparkleIcon } from '../icons/UIIcons';
 import { UserAvatar } from '../shared/UserAvatar';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -23,6 +23,7 @@ const navItems = [
   { to: '/leaderboard', label: 'Board', Icon: TrophyIcon },
   { to: '/calendar', label: 'Calendar', Icon: CalendarIcon },
   { to: '/activity', label: 'Activity', Icon: ActivityIcon },
+  { to: '/insights', label: 'Insights', Icon: InsightsIcon, adminOnly: true },
   { to: '/rewards', label: 'Rewards', Icon: RewardsIcon },
   { to: '/achievements', label: 'Achievements', Icon: AchievementsIcon },
   { to: '/settings', label: 'Settings', Icon: SettingsIcon },
@@ -160,7 +161,7 @@ export function Sidebar({ user, isMobileOpen = false, onClose, gamificationEnabl
         </div>
 
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, padding: effectiveCollapsed ? '0 8px' : '0 12px' }}>
-          {navItems.filter((item) => gamificationEnabled || !GAMIFICATION_ROUTES.has(item.to)).map((item) => (
+          {navItems.filter((item) => (gamificationEnabled || !GAMIFICATION_ROUTES.has(item.to)) && (!item.adminOnly || user.role === 'admin')).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

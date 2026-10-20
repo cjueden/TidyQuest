@@ -273,6 +273,26 @@ export const GUIDE_IT: GuideSection[] = [
     ],
   },
   {
+    id: 'insights',
+    icon: '📊',
+    title: 'Statistiche per i genitori',
+    parents: true,
+    blocks: [
+      { where: 'Statistiche nel menu (solo genitori)' },
+      { ul: [
+        'Faccende fatte: barre per un giorno (per ora), una settimana o un mese (per giorno), o un anno (per mese). ◀ ▶ torna ai periodi precedenti. Tocca una barra per vedere i suoi numeri, oppure usa Mostra come tabella.',
+        'Misura: Faccende conta ciò che è stato fatto, Monete ciò che è stato davvero pagato (con monete doppie, la Missione di salvataggio e i bonus di squadra), e Fatica somma i livelli di fatica delle faccende. Una faccenda in attesa di approvazione conta quando è stata fatta; le sue monete contano quando un genitore la approva.',
+        'Dividi per Persona (nel colore di ciascuno), Stanza o Faccenda. Oltre 8 stanze o faccende, il resto finisce in Altro.',
+        'Momenti pieni e tranquilli: i giorni della settimana per ora del giorno, in media sulle ultime 4 o 12 settimane. I colori più intensi sono quando si fa di più; i quadrati pallidi sono momenti sbagliati per insistere. Mostra i numeri scrive le medie nei quadrati.',
+        'Chi fa quanto: la quota di ciascuno nel periodo e la differenza rispetto al periodo prima (se il periodo è ancora in corso, fino allo stesso punto, come la settimana scorsa fin qui).',
+        'Saltate e in ritardo (per faccenda o raggruppate per stanza): le faccende spesso fatte dopo il giorno previsto e di quanti giorni; quelle rimaste in ritardo a fine giornata (registrate ogni notte da quando è installata questa versione); e le faccende Primo arrivato che nessuno ha preso, con quanto hanno aspettato e quali aspettano ancora.',
+        'Monete in entrata e in uscita (ultime 8 o 26 settimane): le monete in entrata sopra la linea (faccende, bonus) e quelle in uscita sotto (premi, contributi, Negozio della mascotte, scudi della serie, monete tolte), il saldo a fine settimana e l’obiettivo settimanale come segno sulla barra (conta solo le monete delle faccende). Scegli una persona per vedere il suo obiettivo; con Tutti, una tabella mostra i totali di ciascuno. Sotto: i premi comprati di più e quelli mai comprati.',
+        'Il menu Tutti limita barre e quadrati a una persona. Anche le faccende dei genitori contano.',
+      ] },
+      { tip: 'Con le funzioni di gioco disattivate le Statistiche funzionano lo stesso; si nascondono solo la misura Monete e «Monete in entrata e in uscita».' },
+    ],
+  },
+  {
     id: 'data',
     icon: '💾',
     title: 'Backup, fogli di calcolo ed elementi eliminati',
