@@ -281,6 +281,7 @@ export const GUIDE_NL: GuideSection[] = [
       { where: 'Inzichten in het menu (alleen ouders)' },
       { ul: [
         'Gedane klusjes: staven voor een dag (per uur), een week of een maand (per dag), of een jaar (per maand). Met ◀ ▶ ga je terug naar eerdere periodes. Tik op een staaf voor de cijfers, of kies Als tabel tonen.',
+        'Om verder terug te kijken, tik op de datum en kies een dag in de kalender, of neem Datums voor een periode Van–Tot; de staven gaan dan per uur, dag, week of maand. Drukke en rustige momenten en Munten erin en eruit eindigen ook op die datums. Terug naar vandaag brengt je weer naar nu.',
         'Maat: Klusjes telt wat er gedaan is, Munten wat er echt is uitbetaald (met dubbele munten, de Reddingsmissie en teambonussen), en Moeite telt de moeiteniveaus van de klusjes op. Een klusje dat op goedkeuring wacht, telt op het moment dat het gedaan is; de munten tellen zodra een ouder het goedkeurt.',
         'Verdelen per Persoon (in ieders eigen kleur), Kamer of Klusje. Boven de 8 kamers of klusjes komt de rest onder Overig.',
         'Drukke en rustige momenten: de weekdagen per tijd van de dag, gemiddeld over de laatste 4 of 12 weken. In de sterkste kleuren wordt het meest gedaan; vage vakjes zijn slechte momenten om klusjes te vragen. Cijfers tonen zet de gemiddelden in de vakjes.',

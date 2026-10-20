@@ -1555,3 +1555,8 @@ html[data-theme='night'], html[data-theme='ocean'], html[data-theme='galaxy'], h
   --viz-heat-4: #5598e7; --viz-heat-5: #86b6ef; --viz-heat-6: #b7d3f6;
   --viz-heat-ink-low: #f0efec; --viz-heat-ink-high: #0b0b0b;
 }
+/* Dark themes: the browser's own date picker and its calendar icon in dark too */
+html[data-theme='night'] input[type='date'], html[data-theme='ocean'] input[type='date'], html[data-theme='galaxy'] input[type='date'],
+html[data-theme='lava'] input[type='date'], html[data-season-dark] input[type='date'] {
+  color-scheme: dark;
+}

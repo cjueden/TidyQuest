@@ -1825,7 +1825,16 @@
       "cat_chipins": "Bijdragen",
       "cat_mascot": "Mascottewinkel",
       "cat_shields": "Reeksschilden",
-      "cat_adjust": "Afgetrokken"
+      "cat_adjust": "Afgetrokken",
+      "custom": "Datums",
+      "from": "Van",
+      "to": "Tot",
+      "pickDate": "Kies een datum",
+      "today": "Terug naar vandaag",
+      "nDays": "{n} dagen",
+      "prev_custom": "de {n} dagen ervoor",
+      "sofar_custom": "de {n} dagen ervoor, tot nu",
+      "weeksTo": "{n} weken tot {date}."
     }
   }
 }

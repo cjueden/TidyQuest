@@ -9,11 +9,28 @@ import { getGlobalVacation } from './adminHelpers';
 
 export type InsightsPeriod = 'day' | 'week' | 'month' | 'year';
 export const INSIGHTS_PERIODS: InsightsPeriod[] = ['day', 'week', 'month', 'year'];
+/** What one bar covers */
+export type Grain = 'hour' | 'day' | 'week' | 'month';
+export interface InsightsWindow { start: Date; end: Date; grain: Grain; buckets: string[] }
 
 const DAY_MS = 86400000;
 
-/** The period `offset` steps back (0 = the current one): [start, end) in local time and its bucket starts. */
-export function periodWindow(period: InsightsPeriod, offset: number, now: Date = new Date()) {
+/** Bar starts from `start` to `end`: whole hours, days, Mondays or 1sts of the month (the first starts at `start`). */
+function bucketStarts(start: Date, end: Date, grain: Grain): string[] {
+  const out: string[] = [];
+  const b = new Date(start);
+  while (b < end) {
+    out.push(b.toISOString());
+    if (grain === 'hour') b.setHours(b.getHours() + 1, 0, 0, 0);
+    else if (grain === 'day') { b.setDate(b.getDate() + 1); b.setHours(0, 0, 0, 0); }
+    else if (grain === 'week') { const next = startOfLocalWeek(b); next.setDate(next.getDate() + 7); b.setTime(next.getTime()); }
+    else { b.setMonth(b.getMonth() + 1, 1); b.setHours(0, 0, 0, 0); }
+  }
+  return out;
+}
+
+/** The period `offset` steps from the one holding `now` (0 = that one), in local time. */
+export function periodWindow(period: InsightsPeriod, offset: number, now: Date = new Date()): InsightsWindow {
   let start: Date;
   if (period === 'day') {
     start = startOfLocalDay(now);
@@ -31,17 +48,45 @@ export function periodWindow(period: InsightsPeriod, offset: number, now: Date =
   else if (period === 'week') end.setDate(end.getDate() + 7);
   else if (period === 'month') end.setMonth(end.getMonth() + 1);
   else end.setFullYear(end.getFullYear() + 1);
+  const grain: Grain = period === 'day' ? 'hour' : period === 'year' ? 'month' : 'day';
+  return { start, end, grain, buckets: bucketStarts(start, end, grain) };
+}
 
-  const buckets: string[] = [];
-  const b = new Date(start);
-  while (b < end) {
-    buckets.push(b.toISOString());
-    if (period === 'day') b.setHours(b.getHours() + 1, 0, 0, 0);
-    else if (period === 'year') b.setMonth(b.getMonth() + 1);
-    else b.setDate(b.getDate() + 1);
-  }
-  // A DST day has 23 or 25 hours; keep one bar per wall-clock hour
-  return { start, end, buckets: period === 'day' ? buckets.slice(0, 24) : buckets };
+/** Bars sized to the range: hours up to 2 days, days up to 62, weeks up to a year, then months. */
+export function grainFor(days: number): Grain {
+  return days <= 2 ? 'hour' : days <= 62 ? 'day' : days <= 366 ? 'week' : 'month';
+}
+
+/** A From–To range in local days, both included, at most 3 years (the oldest part is cut). */
+export function customWindow(from: Date, to: Date): InsightsWindow {
+  const [a, b] = from <= to ? [from, to] : [to, from];
+  const end = startOfLocalDay(b);
+  end.setDate(end.getDate() + 1);
+  let start = startOfLocalDay(a);
+  const oldest = new Date(end);
+  oldest.setFullYear(oldest.getFullYear() - 3);
+  if (start < oldest) start = oldest;
+  const grain = grainFor(daysBetween(start, end));
+  return { start, end, grain, buckets: bucketStarts(start, end, grain) };
+}
+
+/** Whole local days from a to b (midnights). */
+export function daysBetween(a: Date, b: Date): number {
+  return Math.round((startOfLocalDay(b).getTime() - startOfLocalDay(a).getTime()) / DAY_MS);
+}
+
+/** Finds the bar a moment falls in: the last one starting at or before it. */
+export function bucketFinder(win: InsightsWindow): (at: Date) => number {
+  const starts = win.buckets.map((b) => new Date(b).getTime());
+  return (at: Date) => {
+    const t = at.getTime();
+    let lo = 0, hi = starts.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (starts[mid] <= t) lo = mid; else hi = mid - 1;
+    }
+    return lo;
+  };
 }
 
 /** The same moment one period earlier (this time yesterday, last week, last month or last year). */
@@ -56,14 +101,6 @@ export function samePointBefore(period: InsightsPeriod, now: Date = new Date()):
     d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
   } else d.setFullYear(d.getFullYear() - 1);
   return d;
-}
-
-/** Which bar of the period a moment falls in. */
-export function bucketIndex(period: InsightsPeriod, at: Date): number {
-  if (period === 'day') return at.getHours();
-  if (period === 'week') return (at.getDay() + 6) % 7;
-  if (period === 'month') return at.getDate() - 1;
-  return at.getMonth();
 }
 
 /** Heatmap columns: 6–9, 9–12, 12–3, 3–6, 6–9, and 9 pm to 6 am. */
@@ -297,12 +334,13 @@ export function coinLedger(start: Date, end: Date): LedgerEntry[] {
 }
 
 /**
- * Coins per person and week over the last `weeks` weeks (Monday first): flows [week, userId, category, coins],
- * weekly goals [week, userId, goal], everyone's balance now (end-of-week balances are worked back from it),
- * and rewards bought [rewardId, userId, redemptionId, coins] for "bought most or never".
+ * Coins per person and week over the `weeks` weeks ending with the one holding `at` (Monday first): flows
+ * [week, userId, category, coins], weekly goals [week, userId, goal], everyone's balance now with the net change
+ * since the last week ended [userId, net] (end-of-week balances are worked back from them), and rewards bought
+ * [rewardId, userId, redemptionId, coins] for "bought most or never".
  */
-export function coinsByWeek(weeks: number, now: Date = new Date()) {
-  const start = startOfLocalWeek(now);
+export function coinsByWeek(weeks: number, at: Date = new Date(), now: Date = new Date()) {
+  const start = startOfLocalWeek(at);
   start.setDate(start.getDate() - (weeks - 1) * 7);
   const starts: Date[] = [];
   for (let i = 0; i <= weeks; i++) { const d = new Date(start); d.setDate(d.getDate() + i * 7); starts.push(d); }
@@ -345,8 +383,17 @@ export function coinsByWeek(weeks: number, now: Date = new Date()) {
     else bought.push([r.rewardId, r.userId, r.id, r.costCoins]);
   }
 
+  const after = new Map<number, number>();
+  if (end < now) {
+    for (const e of coinLedger(end, now)) {
+      const sign = e.category === 'chores' || e.category === 'bonus' ? 1 : -1;
+      after.set(e.userId, (after.get(e.userId) ?? 0) + sign * e.coins);
+    }
+  }
+
   return {
     weeks, starts: starts.slice(0, weeks).map((d) => d.toISOString()), end: end.toISOString(),
+    afterNet: [...after.entries()],
     people: db.prepare('SELECT id, displayName AS name, avatarColor AS color, coins AS balance FROM users ORDER BY id').all(),
     flows: [...flows.values()],
     goals,

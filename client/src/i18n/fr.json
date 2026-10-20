@@ -1825,7 +1825,16 @@
       "cat_chipins": "Participations",
       "cat_mascot": "Boutique de la mascotte",
       "cat_shields": "Boucliers de série",
-      "cat_adjust": "Retirées"
+      "cat_adjust": "Retirées",
+      "custom": "Dates",
+      "from": "Du",
+      "to": "Au",
+      "pickDate": "Choisir une date",
+      "today": "Revenir à aujourd'hui",
+      "nDays": "{n} jours",
+      "prev_custom": "les {n} jours d'avant",
+      "sofar_custom": "les {n} jours d'avant, au même stade",
+      "weeksTo": "{n} semaines jusqu'au {date}."
     }
   }
 }

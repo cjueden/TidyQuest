@@ -1825,7 +1825,16 @@
       "cat_chipins": "Contributi",
       "cat_mascot": "Negozio della mascotte",
       "cat_shields": "Scudi della serie",
-      "cat_adjust": "Tolte"
+      "cat_adjust": "Tolte",
+      "custom": "Date",
+      "from": "Dal",
+      "to": "Al",
+      "pickDate": "Scegli una data",
+      "today": "Torna a oggi",
+      "nDays": "{n} giorni",
+      "prev_custom": "i {n} giorni prima",
+      "sofar_custom": "i {n} giorni prima, fin qui",
+      "weeksTo": "{n} settimane fino al {date}."
     }
   }
 }

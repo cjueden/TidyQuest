@@ -1,4 +1,4 @@
-import type { CoinCategory, InsightsBars, InsightsCoins, InsightsHeatmap, InsightsPeriod, InsightsSkipped } from '../../hooks/useApi';
+import type { CoinCategory, InsightsBars, InsightsCoins, InsightsGrain, InsightsHeatmap, InsightsPeriod, InsightsRange, InsightsSkipped } from '../../hooks/useApi';
 import { localeFor } from '../../utils/locale';
 
 export type Measure = 'chores' | 'coins' | 'effort';
@@ -89,40 +89,83 @@ export function heatGrid(data: InsightsHeatmap, measure: Measure, personId: numb
   return grid.map((row) => row.map((v) => v / data.weeks));
 }
 
-/** Labels for each bar: a short one for the axis and a full one for the readout. */
-export function bucketLabels(period: InsightsPeriod, buckets: string[], language: string, narrow: boolean) {
+/** Labels for each bar: a short one for the axis and a full one for the readout. weekOf: "Week of {date}". */
+export function bucketLabels(grain: InsightsGrain, buckets: string[], language: string, weekOf: string) {
   const locale = localeFor(language);
-  return buckets.map((iso) => {
-    const d = new Date(iso);
-    if (period === 'day') {
-      return {
-        axis: d.toLocaleTimeString(locale, { hour: 'numeric' }),
-        full: `${d.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}–${new Date(d.getTime() + 3600000).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}`,
-      };
+  const dates = buckets.map((b) => new Date(b));
+  const years = new Set(dates.map((d) => d.getFullYear()));
+  const yearNote = years.size > 1 || !years.has(new Date().getFullYear());
+  const months = new Set(dates.map((d) => `${d.getFullYear()}-${d.getMonth()}`));
+  const multiDay = dates.length > 0 && dates[0].toDateString() !== dates[dates.length - 1].toDateString();
+  const time = (d: Date) => d.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
+  const dayName = (d: Date) => d.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short', ...(yearNote ? { year: 'numeric' } : {}) });
+  return dates.map((d) => {
+    if (grain === 'hour') {
+      const range = `${time(d)}–${time(new Date(d.getTime() + 3600000))}`;
+      return { axis: d.toLocaleTimeString(locale, { hour: 'numeric' }), full: multiDay ? `${dayName(d)} · ${range}` : range };
     }
-    if (period === 'year') {
+    if (grain === 'month') {
       return {
-        axis: d.toLocaleDateString(locale, { month: narrow ? 'narrow' : 'short' }),
+        axis: d.toLocaleDateString(locale, years.size > 1 ? { month: 'short', year: '2-digit' } : { month: 'short' }),
         full: d.toLocaleDateString(locale, { month: 'long', year: 'numeric' }),
       };
     }
+    if (grain === 'week') {
+      return { axis: d.toLocaleDateString(locale, { day: 'numeric', month: 'short' }), full: weekOf.replace('{date}', dayName(d)) };
+    }
     return {
-      axis: period === 'week' ? d.toLocaleDateString(locale, { weekday: 'short' }) : String(d.getDate()),
-      full: d.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' }),
+      axis: dates.length <= 7 ? d.toLocaleDateString(locale, { weekday: 'short' })
+        : months.size === 1 ? String(d.getDate()) : d.toLocaleDateString(locale, { day: 'numeric', month: 'numeric' }),
+      full: dayName(d),
     };
   });
 }
 
-/** The period's name for the ◀ ▶ header. */
-export function periodLabel(period: InsightsPeriod, startIso: string, endIso: string, language: string): string {
+/** The window's name for the ◀ ▶ header (with the year when it isn't this year). */
+export function periodLabel(period: InsightsRange, startIso: string, endIso: string, language: string): string {
   const locale = localeFor(language);
   const start = new Date(startIso);
-  if (period === 'day') return start.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
+  const last = new Date(new Date(endIso).getTime() - 1);
+  const thisYear = new Date().getFullYear();
+  const withYear = start.getFullYear() !== thisYear || last.getFullYear() !== thisYear;
+  if (period === 'day') return start.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', ...(withYear ? { year: 'numeric' } : {}) });
   if (period === 'month') return start.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
   if (period === 'year') return String(start.getFullYear());
-  const last = new Date(new Date(endIso).getTime() - 1);
-  const fmt = (d: Date) => d.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-  return `${fmt(start)} – ${fmt(last)}`;
+  if (start.toDateString() === last.toDateString()) return start.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  const fmt = (d: Date, year: boolean) => d.toLocaleDateString(locale, { day: 'numeric', month: 'short', ...(year ? { year: 'numeric' } : {}) });
+  return `${fmt(start, start.getFullYear() !== last.getFullYear())} – ${fmt(last, withYear)}`;
+}
+
+const pad = (n: number) => String(n).padStart(2, '0');
+/** A local day as 'YYYY-MM-DD' */
+export const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+/** 'YYYY-MM-DD' at local noon (DST can't move it to another day) */
+export const fromYmd = (s: string) => new Date(`${s}T12:00:00`);
+export const addDays = (s: string, n: number) => { const d = fromYmd(s); d.setDate(d.getDate() + n); return ymd(d); };
+/** Days from `from` to `to`, both counted */
+export const daysIncl = (from: string, to: string) => Math.round((fromYmd(to).getTime() - fromYmd(from).getTime()) / 86400000) + 1;
+
+/** The picked day moved by whole periods (a month keeps its day where it can). */
+export function shiftDay(period: InsightsPeriod, day: string, steps: number): string {
+  const d = fromYmd(day);
+  if (period === 'day') d.setDate(d.getDate() + steps);
+  else if (period === 'week') d.setDate(d.getDate() + 7 * steps);
+  else if (period === 'month') {
+    const keep = d.getDate();
+    d.setDate(1);
+    d.setMonth(d.getMonth() + steps);
+    d.setDate(Math.min(keep, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
+  } else d.setFullYear(d.getFullYear() + steps);
+  return ymd(d);
+}
+
+/** The last day of the period holding `day` (Sunday, the month's last day, 31 Dec). */
+export function lastDayOf(period: InsightsPeriod, day: string): string {
+  const d = fromYmd(day);
+  if (period === 'week') d.setDate(d.getDate() + (7 - d.getDay()) % 7);
+  else if (period === 'month') d.setDate(new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
+  else if (period === 'year') { d.setMonth(11); d.setDate(31); }
+  return ymd(d);
 }
 
 /** Clean axis ticks from 0 up to at least `max`. */
@@ -248,7 +291,9 @@ export function coinWeeks(data: InsightsCoins, personId: number | null): CoinWee
   const goals: Array<number | null> = Array(n).fill(null);
   if (personId != null) for (const [w, u, g] of data.goals) if (u === personId) goals[w] = g;
   const balance = Array(n).fill(0) as number[];
-  let b = data.people.filter((p) => personId == null || p.id === personId).reduce((a, p) => a + p.balance, 0);
+  const who = (id: number) => personId == null || id === personId;
+  let b = data.people.filter((p) => who(p.id)).reduce((a, p) => a + p.balance, 0)
+    - data.afterNet.filter(([id]) => who(id)).reduce((a, [, net]) => a + net, 0);
   for (let w = n - 1; w >= 0; w--) {
     balance[w] = Math.max(0, b);
     b -= earned[w] - spent[w];
