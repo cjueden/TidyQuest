@@ -149,6 +149,12 @@ export const GUIDE_NL: GuideSection[] = [
         'Het levert de gewone munten van het klusje op, zonder dubbele munten of Reddingsmissie. Iedereen behalve ouders wacht op goedkeuring van een ouder, ook als Oudercontrole uit staat. Activiteit en de goedkeuringslijst markeren het met 🕘 Te laat ingevuld.',
         'Het kan niet op een dag waarop het klusje al gedaan was (bij Wie het eerst komt, wie het eerst maalt, door wie dan ook), vóór het klusje werd toegevoegd of vóór de startdatum, of op een dag waarop het nog niet hoefde.',
       ] },
+      { h: 'Een klusje pauzeren' },
+      { ul: [
+        'Even niet nodig (het zwembad in de winter, een kind op kamp)? Ouders tikken op ⋯ (Meer opties) bij het klusje in zijn kamer en dan op ⏸️ Pauzeren. Of ze openen Aanpassen, vinken ⏸️ Gepauzeerd aan en kiezen een dag bij Weer aan op (optioneel), zodat het vanzelf weer aan gaat.',
+        'Een gepauzeerd klusje verdwijnt van Home, de Taken-pagina, de kalender, herinneringen, de reddingsmissie, team-ups en de gezondheid van het huis. Ouders zien het nog grijs in zijn kamer, met ⏸️ Gepauzeerd; kinderen zien het helemaal niet.',
+        'Tik op ⋯ → ▶️ Weer aanzetten (of vink ⏸️ Gepauzeerd uit). Het komt terug alsof het net gedaan is, dus niet te laat. De geschiedenis, munten en wie het doet blijven hetzelfde.',
+      ] },
     ],
   },
   {
@@ -193,6 +199,11 @@ export const GUIDE_NL: GuideSection[] = [
         'Per ongeluk iets goedgekeurd? Bij Aangevraagde beloningen (onder de winkel) staat naast elke goedgekeurde beloning Terugbetalen: de munten gaan terug (bij een gedeelde pot naar iedereen die bijlegde) en de aanvraag staat als afgewezen.',
         'Regels per beloning: een limiet (per dag, week, maand of ooit; per persoon of voor iedereen), een datumvenster, Wisselend (er zijn er elke week maar een paar te zien), wie hem kan zien, een andere prijs per persoon en een categorie.',
         'Samen sparen: iedereen kan munten in een pot leggen; als hij vol is gaat hij naar een ouder. Het bijleggen-vak begint op 0 en elke bijdrage staat in Activiteit. Een volle pot kan niet geannuleerd worden vanuit Mijn aanvragen ("Gedeeld: een ouder beslist"): een ouder wijst hem af en iedereen krijgt zijn munten terug.',
+      ] },
+      { h: 'Een beloning verbergen' },
+      { ul: [
+        'Instellingen → Beloningen Winkel: tik op Verbergen naast een beloning. Kinderen zien hem niet meer; ouders zien hem grijs onderaan de lijst, met Verborgen. Tik op Tonen om hem terug te zetten.',
+        'Aanvragen die al gedaan zijn gaan gewoon door. Een gedeelde pot houdt zijn munten, maar neemt geen nieuwe bijdragen aan tot de beloning weer getoond wordt.',
       ] },
       { h: 'Doelen' },
       { ul: [
@@ -370,6 +381,11 @@ export const GUIDE_NL: GuideSection[] = [
           'Je Klusjesweergave staat misschien op "Mijn klusjes" (de schakelaar bovenaan), of een ouder heeft hem op "Alleen eigen" gezet.',
           'Eenmalige klusjes staan in de To-do-kaart en zijn weg zodra ze gedaan zijn.',
           'Misschien heb je het uitgesteld (💤 bij Misschien vergeten): het komt na 3 dagen terug, of tik meteen op Ongedaan maken in de melding "Uitgesteld".',
+        ] },
+        { q: 'Een klusje of beloning is verdwenen', a: [
+          'Misschien is het gepauzeerd: ouders zien het grijs in zijn kamer, met ⏸️ Gepauzeerd. Tik op ⋯ → ▶️ Weer aanzetten.',
+          'Een verborgen beloning staat als Verborgen in Instellingen → Beloningen Winkel: tik op Tonen.',
+          'Per ongeluk verwijderd? Instellingen → Onlangs verwijderd haalt het 30 dagen lang terug.',
         ] },
         { q: 'Een kind ziet een kamer of klusje niet', a: [
           'Instellingen → Algemeen → "Privékamers van anderen verbergen voor kinderen" verbergt kamers die van iemand anders zijn.',

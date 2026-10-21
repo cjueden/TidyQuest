@@ -290,6 +290,11 @@ const NEW_COLUMNS: string[] = [
   `ALTER TABLE users ADD COLUMN brokenStreak INTEGER`,
   `ALTER TABLE users ADD COLUMN brokenStreakAfter TEXT`,
   `ALTER TABLE users ADD COLUMN brokenStreakOn TEXT`,
+  // Pausing a chore (ENH-1, utils/pause.ts): when it was paused (NULL = active) and an optional local day
+  // 'YYYY-MM-DD' it switches back on by itself. Lists filter pausedAt IS NULL next to archivedAt; parents
+  // still see it greyed in its room.
+  `ALTER TABLE tasks ADD COLUMN pausedAt TEXT`,
+  `ALTER TABLE tasks ADD COLUMN pausedUntil TEXT`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

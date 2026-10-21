@@ -357,8 +357,11 @@ function AppContent() {
       setPointsLeaderboard([]);
     }
   };
+  // Parents get paused chores too (ENH-1), but only a room's own page shows them
+  const activeRooms: typeof rooms = rooms.map((r: { tasks?: Array<{ pausedAt?: string | null }> }) => (r.tasks || []).some((t) => t.pausedAt)
+    ? { ...r, tasks: (r.tasks || []).filter((t) => !t.pausedAt) } : r);
   // Build flat tasks list for calendar
-  const allTasks = rooms.flatMap((r: any) =>
+  const allTasks = activeRooms.flatMap((r: any) =>
     (r.tasks || []).map((t: any) => ({ ...t, roomName: r.name, roomType: r.roomType }))
   );
 
@@ -383,7 +386,7 @@ function AppContent() {
       {searchOpen && (
         <SearchOverlay
           onClose={() => setSearchOpen(false)}
-          rooms={rooms}
+          rooms={activeRooms}
           rewards={rewardsData.rewards}
           language={user.language}
           gamificationEnabled={gamificationEnabled}
@@ -467,7 +470,7 @@ function AppContent() {
               {dashboardData && !focusIsHome && (
                 <Dashboard
                   data={dashboardData}
-                  allRooms={rooms}
+                  allRooms={activeRooms}
                   seasonCostume={season?.costume}
                   family={family}
                   users={familySettings}
@@ -495,7 +498,7 @@ function AppContent() {
           <Route path="/rooms" element={
             <>
               <PageHeader title={t('nav.rooms')} subtitle={`${rooms.length} ${t('app.roomsConfigured')}`} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} shieldsOn={!!dashboardData?.shields} />
-              <RoomsList rooms={rooms} language={user.language} onSelectRoom={(id) => navigate(`/rooms/${id}`)}
+              <RoomsList rooms={activeRooms} language={user.language} onSelectRoom={(id) => navigate(`/rooms/${id}`)}
                 isAdmin={user.role === 'admin'}
                 users={familySettings}
                 onCreateRoom={async (data) => {
@@ -535,7 +538,7 @@ function AppContent() {
             <>
               <PageHeader title={t('nav.tasks')} subtitle={t('app.tasksSubtitle')} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} shieldsOn={!!dashboardData?.shields} />
               <TaskList
-                rooms={rooms}
+                rooms={activeRooms}
                 users={familySettings}
                 currentUserId={user.id}
                 coinsByEffort={coinsByEffort}

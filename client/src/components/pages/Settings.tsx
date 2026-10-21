@@ -306,7 +306,8 @@ export function Settings({
   const loadRewardsAdmin = async () => {
     if (!isAdmin) return;
     const data = await api.getRewardsAdmin();
-    setRewardsAdmin(data.rewards || []);
+    // isActive comes as 0/1; hidden rewards (ENH-1) must read as false
+    setRewardsAdmin((data.rewards || []).map((r) => ({ ...r, isActive: r.isActive === undefined ? true : !!r.isActive })));
     if (typeof data.rotatingPerWeek === 'number') setRotatingPerWeek(String(data.rotatingPerWeek));
     setRewardRequests(data.redemptions || []);
   };
@@ -482,6 +483,24 @@ export function Settings({
     setEditingRewardTitle('');
     setEditingRewardDesc('');
     setEditingRewardCost('');
+  };
+
+  // Hide or show a reward (ENH-1): kids stop seeing it; requests already made still go through
+  const toggleRewardHidden = async (r: { id: number; title: string; description?: string | null; costCoins: number; isActive?: boolean }) => {
+    const show = r.isActive === false;
+    const set = (isActive: boolean) => api.updateReward(r.id, { title: r.title, description: r.description || '', costCoins: r.costCoins, isActive });
+    try {
+      await set(show);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e));
+      return;
+    }
+    await loadRewardsAdmin();
+    // A hidden reward moves to the end of the list (often past "Show all"), so say where it went
+    setUndo({
+      message: t(show ? 'pause.rewardShown' : 'pause.rewardHidden').replace('{name}', rewardTitle(r)),
+      onUndo: async () => { await set(!show); await loadRewardsAdmin(); },
+    });
   };
 
   const saveRewardEdit = async (r: { id: number; isActive?: boolean; category?: string | null }) => {
@@ -1147,7 +1166,8 @@ export function Settings({
                   </>
                 ) : (
                   <>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)' }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text)', opacity: r.isActive === false ? 0.55 : 1 }}>
+                      {r.isActive === false && <span style={{ marginRight: 6, fontSize: 10, padding: '1px 6px', borderRadius: 6, border: '1px solid var(--warm-border)', color: 'var(--warm-text-secondary)' }}>{t('pause.hidden')}</span>}
                       {rewardTitle(r)}
                       {r.category && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-text-muted)' }}>🏷 {r.category}</div>}
                       {rulesSummary(r, family, t) && <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--warm-accent)' }}>{rulesSummary(r, family, t)}</div>}
@@ -1180,6 +1200,7 @@ export function Settings({
                     <button className="tq-btn" onClick={() => moveReward(r.id, -1)} disabled={index === 0} aria-label={t('rewardOrder.up')} title={t('rewardOrder.up')} style={{ padding: '4px 7px', fontSize: 10 }}>↑</button>
                     <button className="tq-btn" onClick={() => moveReward(r.id, 1)} disabled={index === orderedRewards.length - 1} aria-label={t('rewardOrder.down')} title={t('rewardOrder.down')} style={{ padding: '4px 7px', fontSize: 10 }}>↓</button>
                     <button className="tq-btn" onClick={() => setRulesOpenId(rulesOpenId === r.id ? null : r.id)} style={{ padding: '4px 8px', fontSize: 10 }}>{t('rewardRules.rules')}</button>
+                    <button className="tq-btn" onClick={() => toggleRewardHidden(r)} aria-pressed={r.isActive === false} style={{ padding: '4px 8px', fontSize: 10 }}>{r.isActive === false ? t('pause.show') : t('pause.hide')}</button>
                     <button className="tq-btn" onClick={() => startRewardEdit(r)} style={{ padding: '4px 8px', fontSize: 10 }}>{t('common.edit')}</button>
                     <button className="tq-btn" onClick={() => deleteReward(r)} style={{ padding: '4px 8px', fontSize: 10, backgroundColor: 'var(--warm-danger-bg)', color: 'var(--warm-danger)', border: '1.5px solid var(--warm-danger-border)' }}>{t('common.delete')}</button>
                   </div>

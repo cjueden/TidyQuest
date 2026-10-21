@@ -35,7 +35,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   const allTasks: any[] = [];
 
   // Fetch all tasks in one query and group by roomId to avoid N+1
-  const dbTasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL').all() as any[];
+  const dbTasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND pausedAt IS NULL').all() as any[];
   const tasksByRoom = new Map<number, any[]>();
   for (const t of dbTasks) {
     if (!tasksByRoom.has(t.roomId)) tasksByRoom.set(t.roomId, []);

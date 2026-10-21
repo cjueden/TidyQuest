@@ -173,6 +173,12 @@ export const GUIDE_EN: GuideSection[] = [
         'It pays the chore’s usual coins, without double coins or the Rescue Mission. Everyone but parents waits for a parent’s approval, even with Strict Mode off. Activity and the approval list mark it 🕘 Logged late.',
         'It can’t go on a day the chore was already done (with First come, first served, by anyone), before the chore was added or its start date, or on a day it wasn’t due yet.',
       ] },
+      { h: 'Pausing a chore' },
+      { ul: [
+        'Not needed for a while (the pool in winter, a kid away at camp)? Parents tap ⋯ (More options) on the chore in its room, then ⏸️ Pause. Or open Edit, tick ⏸️ Paused and pick a day under Back on (optional) so it switches back on by itself.',
+        'A paused chore leaves Home, the Tasks page, the Calendar, reminders, the Rescue Mission, team-ups and house health. Parents still see it greyed in its room, marked ⏸️ Paused; kids don’t see it at all.',
+        'Tap ⋯ → ▶️ Switch back on (or untick ⏸️ Paused). It comes back as if just done, so it isn’t overdue. Its history, coins and who it’s assigned to stay the same.',
+      ] },
     ],
   },
   {
@@ -217,6 +223,11 @@ export const GUIDE_EN: GuideSection[] = [
         'Approved one by mistake? Reward requests (under the catalog) has Refund next to each approved reward: the coins go back (a shared pot to everyone who chipped in) and it shows as rejected.',
         'Rules per reward: a limit (per day, week, month or ever; per person or for everyone), a date window, Rotating (only a few show each week), who can see it, a different price per person, and a category.',
         'Shared saving: anyone can chip coins into a pot; when it’s full it goes to a parent. The chip-in box starts at 0, and each chip-in shows in Activity. A full pot can’t be cancelled from My requests ("Shared: a parent decides"): a parent turns it down and everyone gets their coins back.',
+      ] },
+      { h: 'Hiding a reward' },
+      { ul: [
+        'Settings → Rewards Catalog: tap Hide next to a reward. Kids no longer see it; parents see it greyed at the end of the list, marked Hidden. Tap Show to bring it back.',
+        'Requests already made still go through. A shared pot keeps its coins but takes no new chip-ins until the reward is shown again.',
       ] },
       { h: 'Goals' },
       { ul: [
@@ -394,6 +405,11 @@ export const GUIDE_EN: GuideSection[] = [
           'Your Task view may be on "Mine" (the switch at the top), or a parent set it to "Only theirs".',
           'One-time chores are in the To-do card, and are gone once done.',
           'You may have snoozed it (💤 in Maybe you forgot): it comes back after 3 days, or tap Undo on the "Snoozed" message right away.',
+        ] },
+        { q: 'A chore or reward disappeared', a: [
+          'It may be paused: parents see it greyed in its room, marked ⏸️ Paused. Tap ⋯ → ▶️ Switch back on.',
+          'A hidden reward shows as Hidden in Settings → Rewards Catalog: tap Show.',
+          'Deleted by mistake? Settings → Recently deleted brings it back for 30 days.',
         ] },
         { q: 'A kid can’t see a room or chore', a: [
           'Settings → General → "Hide other people’s private rooms from kids" hides rooms that belong to someone else.',

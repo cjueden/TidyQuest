@@ -1854,6 +1854,20 @@
       "errBeforeStart": "La tarea aún no había empezado ese día.",
       "tag": "Apuntado tarde",
       "tagFor": "Apuntado tarde, para el {date}"
+    },
+    "pause": {
+      "pause": "⏸️ Pausar",
+      "resume": "▶️ Reactivar",
+      "paused": "⏸️ En pausa",
+      "pausedUntil": "⏸️ En pausa hasta el {date}",
+      "switch": "⏸️ En pausa",
+      "untilLabel": "Vuelve el (opcional)",
+      "hint": "Desaparece de las listas de todos hasta que se reactive, y vuelve como recién hecha. Su historial se conserva.",
+      "hidden": "Oculta",
+      "hide": "Ocultar",
+      "show": "Mostrar",
+      "rewardHidden": "«{name}» está oculta para los niños. Está al final de la lista.",
+      "rewardShown": "«{name}» vuelve a estar disponible para los niños."
     }
   }
 }

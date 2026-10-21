@@ -149,6 +149,12 @@ export const GUIDE_IT: GuideSection[] = [
         'Dà le solite monete della faccenda, senza monete doppie né Missione di salvataggio. Tutti tranne i genitori aspettano l’approvazione di un genitore, anche con la Modalità rigorosa spenta. Attività e l’elenco da approvare la segnano 🕘 Segnato in ritardo.',
         'Non si può mettere in un giorno in cui la faccenda era già fatta (con Primo arrivato, da chiunque), prima che la faccenda fosse aggiunta o della sua data di inizio, o in un giorno in cui non era ancora da fare.',
       ] },
+      { h: 'Mettere in pausa una faccenda' },
+      { ul: [
+        'Non serve per un po’ (la piscina d’inverno, un figlio al campo estivo)? I genitori toccano ⋯ (Altre opzioni) sulla faccenda nella sua stanza, poi ⏸️ Metti in pausa. Oppure aprono Modifica, spuntano ⏸️ In pausa e scelgono un giorno in Torna il (facoltativo), così si riattiva da sola.',
+        'Una faccenda in pausa sparisce dalla Home, dalla pagina Compiti, dal Calendario, dai promemoria, dalla Missione di salvataggio, dalle squadre e dalla salute della casa. I genitori la vedono ancora in grigio nella sua stanza, con ⏸️ In pausa; i figli non la vedono affatto.',
+        'Tocca ⋯ → ▶️ Riattiva (o togli la spunta a ⏸️ In pausa). Torna come appena fatta, quindi non è in ritardo. Cronologia, monete e assegnatari restano uguali.',
+      ] },
     ],
   },
   {
@@ -193,6 +199,11 @@ export const GUIDE_IT: GuideSection[] = [
         'Approvata per sbaglio? Richieste ricompensa (sotto il catalogo) ha Rimborsa accanto a ogni ricompensa approvata: le monete tornano indietro (in un salvadanaio condiviso, a tutti quelli che hanno contribuito) e risulta rifiutata.',
         'Regole per ricompensa: un limite (al giorno, alla settimana, al mese o in totale; per persona o per tutti), un intervallo di date, A rotazione (ogni settimana ne compaiono solo alcune), chi può vederla, un prezzo diverso per persona e una categoria.',
         'Risparmio condiviso: chiunque può versare monete in un salvadanaio; quando è pieno passa a un genitore. Il campo del contributo parte da 0 e ogni contributo compare in Attività. Un salvadanaio pieno non si può annullare dalle mie richieste ("Condiviso: decide un genitore"): un genitore lo rifiuta e tutti riavranno le loro monete.',
+      ] },
+      { h: 'Nascondere una ricompensa' },
+      { ul: [
+        'Impostazioni → Catalogo ricompense: tocca Nascondi accanto a una ricompensa. I figli non la vedono più; i genitori la vedono in grigio in fondo alla lista, con Nascosto. Tocca Mostra per riportarla.',
+        'Le richieste già fatte vanno avanti. Un salvadanaio comune tiene le sue monete ma non accetta nuovi contributi finché la ricompensa non è di nuovo visibile.',
       ] },
       { h: 'Obiettivi' },
       { ul: [
@@ -370,6 +381,11 @@ export const GUIDE_IT: GuideSection[] = [
           'La tua Vista compiti potrebbe essere su "I miei" (l’interruttore in alto), oppure un genitore l’ha impostata su "Solo i suoi".',
           'Le faccende una tantum sono nella scheda Da fare e spariscono una volta fatte.',
           'Potresti averla rimandata (💤 in Forse hai dimenticato queste): torna dopo 3 giorni, oppure tocca Annulla subito sul messaggio di rinvio.',
+        ] },
+        { q: 'Una faccenda o una ricompensa è sparita', a: [
+          'Forse è in pausa: i genitori la vedono in grigio nella sua stanza, con ⏸️ In pausa. Tocca ⋯ → ▶️ Riattiva.',
+          'Una ricompensa nascosta appare come Nascosto in Impostazioni → Catalogo ricompense: tocca Mostra.',
+          'Eliminata per errore? Impostazioni → Eliminati di recente la recupera per 30 giorni.',
         ] },
         { q: 'Un bambino non vede una stanza o una faccenda', a: [
           'Impostazioni → Generale → "Nascondi ai bambini le stanze private degli altri" nasconde le stanze che appartengono a qualcun altro.',

@@ -20,6 +20,7 @@ import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatL
 import { boostMultiplierFor } from '../utils/boosts';
 import { trashTask } from '../utils/trash';
 import { tr } from '../utils/i18n';
+import { pauseTask, readPausedUntil, resumeTask } from '../utils/pause';
 import { earnShieldAt, lateStreak, nextStreak, noteBrokenStreak, settleStreak } from '../utils/streaks';
 import { baseCoinsOf, endTeamupsFor, groupTeamPending, openTeamupFor, teamShares, teamUpInfo, type Teamup } from '../utils/teamups';
 
@@ -232,7 +233,10 @@ router.get('/tasks/icon-suggestion', (req: AuthRequest, res: Response) => {
 router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
   const vacation = getGlobalVacation();
   const room = db.prepare('SELECT assignedUserId FROM rooms WHERE id = ? AND deletedAt IS NULL').get(req.params.roomId) as any;
-  const tasks = db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL AND deletedAt IS NULL').all(req.params.roomId) as any[];
+  // Paused chores (ENH-1) only for parents (the room page and the plan sync, which must still match them)
+  const seesPaused = ensureAdmin(req.userId);
+  const tasks = (db.prepare('SELECT * FROM tasks WHERE roomId = ? AND archivedAt IS NULL AND deletedAt IS NULL').all(req.params.roomId) as any[])
+    .filter((t) => !t.pausedAt || seesPaused);
   const myPins = new Set(pinnedTaskIds(req.userId!));
   const now = new Date().toISOString();
 
@@ -410,6 +414,13 @@ export function updateTask(id: number | string, body: any): TaskWriteResult {
   if (!task) return { status: 404, body: { error: 'Task not found' } };
   const schedule = readScheduleInput(body);
   if ('error' in schedule) return { status: 400, body: { error: schedule.error } };
+  // Pause (ENH-1): only when the editor sends `paused` (the plan sync never does, so it can't switch it back on)
+  let pause: { until: string | null } | null | undefined;
+  if (body && 'paused' in body) {
+    const until = body.paused ? readPausedUntil(body.pausedUntil) : null;
+    if (until === 'invalid') return { status: 400, body: { error: 'invalid_paused_until' } };
+    pause = body.paused ? { until } : null;
+  }
 
   let lastCompletedAt: string | undefined;
   if (health !== undefined && health !== null) {
@@ -475,6 +486,8 @@ export function updateTask(id: number | string, body: any): TaskWriteResult {
     db.prepare(`UPDATE tasks SET ${setClauses.join(', ')} WHERE id = ?`).run(...params);
   }
   saveScheduleInput(Number(id), schedule.values, health);
+  if (pause) pauseTask(Number(id), pause.until);
+  else if (pause === null) resumeTask(Number(id));
 
   // Update task_assignees if provided
   if (assignedUserIds !== undefined) {
@@ -588,7 +601,7 @@ router.get('/tasks/overdue', (req: AuthRequest, res: Response) => {
            r.name as roomName
     FROM tasks t
     JOIN rooms r ON t.roomId = r.id
-    WHERE t.isSeasonal = 0 AND t.onDemand = 0 AND t.archivedAt IS NULL AND t.deletedAt IS NULL
+    WHERE t.isSeasonal = 0 AND t.onDemand = 0 AND t.archivedAt IS NULL AND t.deletedAt IS NULL AND t.pausedAt IS NULL
   `).all() as any[];
 
   const allUsers = db.prepare('SELECT id, displayName, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users').all() as any[];
@@ -773,6 +786,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
   if (!task) return res.status(404).json({ error: 'Task not found' });
   // A one-time chore is done once: archived after that, and only one completion can wait for approval
   if (task.archivedAt) return res.status(409).json({ error: 'already_done' });
+  if (task.pausedAt) return res.status(409).json({ error: 'paused' });
   if (task.oneTime && db.prepare("SELECT 1 FROM task_completions WHERE taskId = ? AND status = 'pending'").get(task.id)) {
     return res.status(409).json({ error: 'already_done_by_other' });
   }
@@ -1069,6 +1083,24 @@ router.delete('/tasks/:id/pin', (req: AuthRequest, res: Response) => {
 });
 
 // Home "Maybe you forgot": hide a chore from that list for a few days (for yourself)
+// Pause a chore (ENH-1, parents): it leaves every list until resumed; { until: 'YYYY-MM-DD' } resumes it that day
+router.post('/tasks/:id/pause', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ? AND deletedAt IS NULL AND archivedAt IS NULL').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
+  const until = readPausedUntil(req.body?.until);
+  if (until === 'invalid') return res.status(400).json({ error: 'invalid_paused_until' });
+  pauseTask(Number(req.params.id), until);
+  res.json(db.prepare('SELECT pausedAt, pausedUntil FROM tasks WHERE id = ?').get(req.params.id));
+});
+
+// Switch it back on; it comes back as if just done
+router.delete('/tasks/:id/pause', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  if (!db.prepare('SELECT 1 FROM tasks WHERE id = ? AND deletedAt IS NULL').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
+  resumeTask(Number(req.params.id));
+  res.json(db.prepare('SELECT pausedAt, pausedUntil, lastCompletedAt FROM tasks WHERE id = ?').get(req.params.id));
+});
+
 router.post('/tasks/:id/snooze', (req: AuthRequest, res: Response) => {
   if (!db.prepare('SELECT 1 FROM tasks WHERE id = ? AND deletedAt IS NULL').get(req.params.id)) return res.status(404).json({ error: 'Task not found' });
   const days = Math.min(30, Math.max(1, Math.round(Number(req.body?.days) || 3)));

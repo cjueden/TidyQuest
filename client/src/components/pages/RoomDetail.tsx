@@ -12,7 +12,7 @@ import { formatNextDue, isTaskForUser, taskNextDue } from '../../utils/tasks';
 import { TimerStartButton } from '../shared/ChoreTimer';
 import { useChoreTimer } from '../../hooks/useChoreTimer';
 import { DueOnPicker, ReminderPicker, RotationPeriodPicker, SeasonPicker, StartsOnPicker, StepsField, TimerPicker } from '../shared/ScheduleFields';
-import { EMPTY_SCHEDULE, monthlyLabel, schedulePayload, scheduleFromTask, seasonLabel, startsLater, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
+import { EMPTY_SCHEDULE, monthlyLabel, schedulePayload, scheduleFromTask, seasonLabel, startsLater, todayIso, weekdaysLabel, type ScheduledTaskFields, type ScheduleValue } from '../../utils/schedule';
 import { api } from '../../hooks/useApi';
 import { TakeBackButton } from '../shared/TakeBackButton';
 import { localeFor } from '../../utils/locale';
@@ -25,6 +25,8 @@ import { TeamUpButton, TeamUpDialog } from '../shared/TeamUp';
 import { claimedLabel } from '../../utils/teamups';
 import type { TeamUpInfo } from '../../hooks/useApi';
 import { DuplicateRoom } from '../shared/DuplicateRoom';
+
+const tomorrowIso = () => todayIso(new Date(Date.now() + 86400000));
 
 const FREQ_UNITS = [
   { label: 'hours', toDays: 1 / 24 },
@@ -73,6 +75,8 @@ interface CompletedTodayBy {
 }
 
 interface Task extends ScheduledTaskFields {
+  pausedAt?: string | null; // ENH-1: paused (parents only see it)
+  pausedUntil?: string | null;
   id: number; name: string; translationKey?: string; health: number; frequencyDays: number;
   effort: number; notes?: string | null; isSeasonal: boolean; onDemand?: boolean; showInDashboard?: boolean; lastCompletedAt: string | null; iconKey?: string;
   assignedToChildren?: boolean;
@@ -178,7 +182,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const timer = useChoreTimer();
   const [editingTask, setEditingTask] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ name: '', originalName: '', notes: '', freqValue: 7, freqUnit: 'days', effort: 1, health: 100, healthChanged: false, iconKey: 'sparkle', onDemand: false, showInDashboard: false, assignmentType: 'none' as 'none' | 'users', assignmentUserIds: [] as number[], assignmentMode: 'first' as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages: {} as Record<number, number>, customCoins: '' as string | number, allowEarlyCompletion: false, repeatLimit: '', repeatPeriod: 'week' as 'day' | 'week' });
+  const [editForm, setEditForm] = useState({ name: '', originalName: '', notes: '', freqValue: 7, freqUnit: 'days', effort: 1, health: 100, healthChanged: false, iconKey: 'sparkle', onDemand: false, showInDashboard: false, assignmentType: 'none' as 'none' | 'users', assignmentUserIds: [] as number[], assignmentMode: 'first' as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages: {} as Record<number, number>, customCoins: '' as string | number, allowEarlyCompletion: false, repeatLimit: '', repeatPeriod: 'week' as 'day' | 'week', paused: false, pausedUntil: '' });
   const [taskMenuOpen, setTaskMenuOpen] = useState<number | null>(null);
   const [moveMenuTaskId, setMoveMenuTaskId] = useState<number | null>(null);
   const [allRooms, setAllRooms] = useState<Array<{ id: number; name: string; roomType: string }>>([]);
@@ -264,7 +268,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       case 'assigned': cmp = (a.assignedUsers?.length ?? 0) - (b.assignedUsers?.length ?? 0); break;
       case 'dueDate': cmp = taskNextDue(a).getTime() - taskNextDue(b).getTime(); break;
     }
-    return sortAsc ? cmp : -cmp;
+    return !!a.pausedAt !== !!b.pausedAt ? (a.pausedAt ? 1 : -1) : sortAsc ? cmp : -cmp; // paused chores last
   });
 
   const handleSort = (key: SortKey) => {
@@ -319,7 +323,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     const displayedName = translateTask(task.name, task.translationKey);
     setEditingTask(task.id);
     setEditSchedule(scheduleFromTask(task));
-    setEditForm({ name: displayedName, originalName: displayedName, notes: task.notes || '', freqValue: value, freqUnit: unit, effort: task.effort, health: task.health, healthChanged: false, iconKey: task.iconKey || 'sparkle', onDemand: !!task.onDemand, showInDashboard: !!task.showInDashboard, assignmentType, assignmentUserIds, assignmentMode: (task.assignmentMode || 'first') as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages, customCoins: task.customCoins ?? '', allowEarlyCompletion: !!task.allowEarlyCompletion, repeatLimit: task.repeatLimit ? String(task.repeatLimit) : '', repeatPeriod: task.repeatPeriod === 'day' ? 'day' : 'week' });
+    setEditForm({ name: displayedName, originalName: displayedName, notes: task.notes || '', freqValue: value, freqUnit: unit, effort: task.effort, health: task.health, healthChanged: false, iconKey: task.iconKey || 'sparkle', onDemand: !!task.onDemand, showInDashboard: !!task.showInDashboard, assignmentType, assignmentUserIds, assignmentMode: (task.assignmentMode || 'first') as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages, customCoins: task.customCoins ?? '', allowEarlyCompletion: !!task.allowEarlyCompletion, repeatLimit: task.repeatLimit ? String(task.repeatLimit) : '', repeatPeriod: task.repeatPeriod === 'day' ? 'day' : 'week', paused: !!task.pausedAt, pausedUntil: task.pausedUntil || '' });
   };
 
   const saveEdit = async () => {
@@ -330,7 +334,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       { assignedToChildren: false, assignedUserIds: [] };
     const assignedUserPercentages = editForm.assignmentMode === 'custom' ? editForm.assignmentPercentages : undefined;
     const nameChanged = editForm.name.trim() !== editForm.originalName.trim();
-    await api.updateTask(editingTask, { ...(nameChanged ? { name: editForm.name } : {}), notes: editForm.notes, frequencyDays, effort: editForm.effort, ...(editForm.healthChanged ? { health: editForm.health } : {}), iconKey: editForm.iconKey, onDemand: editForm.onDemand, showInDashboard: editForm.showInDashboard, assignmentMode: editForm.assignmentMode, assignedUserPercentages, customCoins: editForm.customCoins !== '' ? Number(editForm.customCoins) : null, allowEarlyCompletion: editForm.allowEarlyCompletion, repeatLimit: editForm.onDemand && editForm.repeatLimit ? Number(editForm.repeatLimit) : null, repeatPeriod: editForm.repeatPeriod, ...schedulePayload(editSchedule, { onDemand: editForm.onDemand, rotating: editForm.assignmentMode === 'rotating' }), ...assignmentPayload });
+    await api.updateTask(editingTask, { ...(nameChanged ? { name: editForm.name } : {}), notes: editForm.notes, frequencyDays, effort: editForm.effort, ...(editForm.healthChanged ? { health: editForm.health } : {}), iconKey: editForm.iconKey, onDemand: editForm.onDemand, showInDashboard: editForm.showInDashboard, assignmentMode: editForm.assignmentMode, assignedUserPercentages, customCoins: editForm.customCoins !== '' ? Number(editForm.customCoins) : null, allowEarlyCompletion: editForm.allowEarlyCompletion, repeatLimit: editForm.onDemand && editForm.repeatLimit ? Number(editForm.repeatLimit) : null, repeatPeriod: editForm.repeatPeriod, ...schedulePayload(editSchedule, { onDemand: editForm.onDemand, rotating: editForm.assignmentMode === 'rotating' }), ...assignmentPayload, paused: editForm.paused, pausedUntil: editForm.paused && editForm.pausedUntil ? editForm.pausedUntil : null });
     const editedId = editingTask;
     setEditingTask(null);
     onRefresh?.();
@@ -439,6 +443,19 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       onRefresh?.();
     });
   };
+
+  const togglePause = async (task: Task) => {
+    setTaskMenuOpen(null);
+    setMoveMenuTaskId(null);
+    await attempt(async () => {
+      if (task.pausedAt) await api.resumeTask(task.id); else await api.pauseTask(task.id);
+      onRefresh?.();
+    });
+  };
+
+  const pausedLabel = (task: Task) => task.pausedUntil
+    ? t('pause.pausedUntil').replace('{date}', new Date(`${task.pausedUntil}T12:00:00`).toLocaleDateString(localeFor(language), { month: 'short', day: 'numeric' }))
+    : t('pause.paused');
 
   const handleDuplicateTask = async (taskId: number) => {
     setTaskMenuOpen(null);
@@ -796,6 +813,24 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       )}
                     </div>
                   )}
+                  <div className="task-edit-form" style={{ display: 'flex', alignItems: 'center', gap: '8px 16px', flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)', cursor: 'pointer' }}>
+                      {t('pause.switch')}
+                      <input type="checkbox" checked={editForm.paused}
+                        onChange={(e) => setEditForm(f => ({ ...f, paused: e.target.checked, pausedUntil: e.target.checked ? f.pausedUntil : '' }))}
+                        style={{ cursor: 'pointer', width: 16, height: 16, accentColor: 'var(--warm-accent)' }} />
+                    </label>
+                    {editForm.paused && (
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>
+                        {t('pause.untilLabel')}
+                        <input type="date" className="tq-input-compact" value={editForm.pausedUntil} min={tomorrowIso()}
+                          onChange={(e) => setEditForm(f => ({ ...f, pausedUntil: e.target.value }))} />
+                      </label>
+                    )}
+                    {editForm.paused && (
+                      <div style={{ flexBasis: '100%', fontSize: 11, fontWeight: 600, color: 'var(--warm-text-muted)' }}>{t('pause.hint')}</div>
+                    )}
+                  </div>
                   {(() => {
                     const editCustomTotal = editForm.assignmentMode === 'custom'
                       ? editForm.assignmentUserIds.reduce((s, id) => s + (editForm.assignmentPercentages[id] ?? 0), 0)
@@ -824,11 +859,11 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
               </div>,
               document.body
             )}
-              <div className="room-task-row" style={{
+              <div className={`room-task-row${task.pausedAt ? ' room-task-paused' : ''}`} style={{
                 display: 'grid', gridTemplateColumns: '1fr 150px 100px 85px 70px 110px 150px 220px',
                 gap: 12, padding: '16px 8px', alignItems: 'center',
                 borderBottom: '1px solid var(--warm-border-subtle)',
-                backgroundColor: animatedTask === task.id ? 'var(--health-green-bg)' : 'transparent',
+                backgroundColor: animatedTask === task.id ? 'var(--health-green-bg)' : task.pausedAt ? 'var(--warm-bg-subtle)' : 'transparent',
                 transition: 'all 0.3s ease', borderRadius: 12,
               }}>
                 <div className="room-task-main" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -873,7 +908,9 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                 <div className="room-task-coins" style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-accent)', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <CoinIcon />{taskCoins(task)}
                 </div>
-                {task.onDemand
+                {task.pausedAt
+                  ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text-secondary)' }}>{pausedLabel(task)}</div>
+                  : task.onDemand
                   ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>—</div>
                   : task.outOfSeason
                   ? <div className="room-task-due" style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('schedule.offSeason')}</div>
@@ -965,6 +1002,10 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                               </div>
                             )}
                             <button
+                              onClick={() => togglePause(task)}
+                              style={{ width: '100%', textAlign: 'left', padding: '10px 14px', fontSize: 12, fontWeight: 700, color: 'var(--warm-text)', background: 'none', border: 'none', borderTop: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}
+                            >{task.pausedAt ? t('pause.resume') : t('pause.pause')}</button>
+                            <button
                               onClick={() => { setTaskMenuOpen(null); setMoveMenuTaskId(null); }}
                               style={{ width: '100%', textAlign: 'center', padding: '8px 14px', fontSize: 11, fontWeight: 600, color: 'var(--warm-text-muted)', background: 'none', border: 'none', borderTop: '1px solid var(--warm-border-subtle)', cursor: 'pointer', fontFamily: 'Nunito' }}
                             >{t('common.cancel')}</button>
@@ -994,7 +1035,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     >↩️ {t('roomDetail.undoDone')}</button>
                   )}
                   </div>
-                  <div className="room-task-done" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  {!task.pausedAt && <div className="room-task-done" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   {(() => {
                     const btn = getDoneButtonState(task);
                     // Kids start the timer first; Done comes when it ends (NEW-1)
@@ -1028,7 +1069,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       </>
                     );
                   })()}
-                  </div>
+                  </div>}
                 </div>
               </div>
 

@@ -149,6 +149,12 @@ export const GUIDE_ES: GuideSection[] = [
         'Da las monedas de siempre de la tarea, sin monedas dobles ni Misión de rescate. Todos menos los padres esperan la aprobación de un padre, aunque el Modo estricto esté apagado. Actividad y la lista de aprobaciones la marcan 🕘 Apuntado tarde.',
         'No se puede poner en un día en que la tarea ya estaba hecha (con El primero gana, por cualquiera), antes de que se añadiera la tarea o de su fecha de inicio, ni en un día en que todavía no tocaba.',
       ] },
+      { h: 'Pausar una tarea' },
+      { ul: [
+        '¿No hace falta durante un tiempo (la piscina en invierno, un niño de campamento)? Los padres tocan ⋯ (Más opciones) en la tarea dentro de su sala y luego ⏸️ Pausar. O abren Editar, marcan ⏸️ En pausa y eligen un día en Vuelve el (opcional) para que se reactive sola.',
+        'Una tarea en pausa sale de Inicio, la página de Tareas, el Calendario, los recordatorios, la Misión de rescate, los equipos y la salud de la casa. Los padres la siguen viendo en gris en su sala, marcada ⏸️ En pausa; los niños no la ven.',
+        'Toca ⋯ → ▶️ Reactivar (o desmarca ⏸️ En pausa). Vuelve como recién hecha, así que no está atrasada. Su historial, sus monedas y a quién está asignada no cambian.',
+      ] },
     ],
   },
   {
@@ -193,6 +199,11 @@ export const GUIDE_ES: GuideSection[] = [
         '¿Aprobaste una por error? Solicitudes de recompensas (debajo del catálogo) tiene Reembolsar junto a cada recompensa aprobada: las monedas vuelven (en un bote compartido, a todos los que aportaron) y se muestra como rechazada.',
         'Reglas por recompensa: un límite (por día, semana, mes o total; por persona o para todos), una ventana de fechas, Rotativa (solo se muestran unas pocas cada semana), quién puede verla, un precio distinto por persona y una categoría.',
         'Ahorro compartido: cualquiera puede aportar monedas a un bote; cuando está lleno pasa a un padre o una madre. La casilla de aportar empieza en 0 y cada aportación aparece en Actividad. Un bote lleno no se puede cancelar desde Mi historial de canjes ("Compartida: decide un padre o una madre"): un padre o una madre lo rechaza y todos recuperan sus monedas.',
+      ] },
+      { h: 'Ocultar una recompensa' },
+      { ul: [
+        'Ajustes → Catálogo de recompensas: toca Ocultar junto a una recompensa. Los niños dejan de verla; los padres la ven en gris al final de la lista, marcada Oculta. Toca Mostrar para recuperarla.',
+        'Las solicitudes ya hechas siguen adelante. Un bote compartido conserva sus monedas, pero no acepta aportes nuevos hasta que la recompensa vuelva a mostrarse.',
       ] },
       { h: 'Objetivos' },
       { ul: [
@@ -370,6 +381,11 @@ export const GUIDE_ES: GuideSection[] = [
           'Tu Vista de tareas puede estar en "Mías" (el interruptor de arriba), o un padre o una madre la puso en "Solo las suyas".',
           'Las tareas únicas están en la tarjeta de Pendientes y desaparecen al hacerlas.',
           'Puede que la hayas pospuesto (💤 en Quizá olvidaste estas): vuelve después de 3 días, o pulsa Deshacer en el mensaje de "Pospuesta" enseguida.',
+        ] },
+        { q: 'Una tarea o recompensa desapareció', a: [
+          'Puede estar en pausa: los padres la ven en gris en su sala, marcada ⏸️ En pausa. Toca ⋯ → ▶️ Reactivar.',
+          'Una recompensa oculta aparece como Oculta en Ajustes → Catálogo de recompensas: toca Mostrar.',
+          '¿Borrada por error? Ajustes → Eliminados recientemente la recupera durante 30 días.',
         ] },
         { q: 'Un niño no puede ver una habitación o una tarea', a: [
           'Ajustes → General → "Ocultar a los niños las habitaciones privadas de otros" oculta las habitaciones que pertenecen a otra persona.',

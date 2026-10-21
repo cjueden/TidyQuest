@@ -243,7 +243,7 @@ export async function sendDueTaskNotificationsIfNeeded(now: Date = new Date()): 
 
   const today = toLocalIsoDay(now);
   const tasks = db.prepare(
-    `SELECT t.*, r.name AS roomName FROM tasks t LEFT JOIN rooms r ON r.id = t.roomId WHERE t.isSeasonal = 0 AND t.onDemand = 0 AND t.archivedAt IS NULL AND t.deletedAt IS NULL`
+    `SELECT t.*, r.name AS roomName FROM tasks t LEFT JOIN rooms r ON r.id = t.roomId WHERE t.isSeasonal = 0 AND t.onDemand = 0 AND t.archivedAt IS NULL AND t.deletedAt IS NULL AND t.pausedAt IS NULL`
   ).all() as any[];
   // Loaded lazily: notifyMessages imports this module
   const { notifyTaskDue } = await import('./notifyMessages');

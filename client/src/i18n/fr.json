@@ -1854,6 +1854,20 @@
       "errBeforeStart": "La tâche n'avait pas encore commencé ce jour-là.",
       "tag": "Noté en retard",
       "tagFor": "Noté en retard, pour le {date}"
+    },
+    "pause": {
+      "pause": "⏸️ Mettre en pause",
+      "resume": "▶️ Réactiver",
+      "paused": "⏸️ En pause",
+      "pausedUntil": "⏸️ En pause jusqu'au {date}",
+      "switch": "⏸️ En pause",
+      "untilLabel": "Reprend le (facultatif)",
+      "hint": "Elle disparaît des listes de tout le monde jusqu'à sa réactivation, puis revient comme si elle venait d'être faite. Son historique reste.",
+      "hidden": "Masquée",
+      "hide": "Masquer",
+      "show": "Afficher",
+      "rewardHidden": "« {name} » est masquée pour les enfants. Elle est en fin de liste.",
+      "rewardShown": "« {name} » est de retour pour les enfants."
     }
   }
 }
