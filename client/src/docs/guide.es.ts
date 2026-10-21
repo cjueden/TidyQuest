@@ -356,7 +356,7 @@ export const GUIDE_ES: GuideSection[] = [
         ] },
         { q: 'Falta una tarjeta en el inicio', a: [
           'Puede estar oculta: abre Personalizar (el botón al final del inicio) y pulsa su 🚫 para mostrarla otra vez, o usa Volver al orden por defecto.',
-          'Algunas tarjetas solo aparecen cuando tienen algo (Lo de siempre, Quizá olvidaste estas, Programadas, Completadas hoy, Esperando aprobación), y algunas son solo para padres.',
+          'Algunas tarjetas solo aparecen cuando tienen algo (Lo de siempre, Quizá olvidaste estas, Programadas, Completadas hoy), y algunas son solo para padres.',
         ] },
         { q: 'No aparece Una cosa cada vez, o falta una tarea', a: [
           'Para padres y miembros está desactivada salvo que se elija en Ajustes → Miembros de la familia. Los niños la tienen (un botón en el inicio) salvo que un padre la desactive ahí. También puede estar oculta en Inicio → Personalizar, o desactivada en Ajustes → Funciones.',

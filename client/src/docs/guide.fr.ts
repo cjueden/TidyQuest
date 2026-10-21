@@ -356,7 +356,7 @@ export const GUIDE_FR: GuideSection[] = [
         ] },
         { q: 'Une carte a disparu de l’accueil', a: [
           'Elle est peut-être masquée : ouvrez Personnaliser (le bouton en bas de l’accueil) et appuyez sur son 🚫 pour l’afficher à nouveau, ou utilisez Revenir à l’ordre par défaut.',
-          'Certaines cartes n’apparaissent que quand elles ont du contenu (Tes habitudes, Tu as peut-être oublié ceux-ci, Planifiées, Complétées aujourd’hui, En attente de validation), et certaines sont réservées aux parents.',
+          'Certaines cartes n’apparaissent que quand elles ont du contenu (Tes habitudes, Tu as peut-être oublié ceux-ci, Planifiées, Complétées aujourd’hui), et certaines sont réservées aux parents.',
         ] },
         { q: 'Une chose à la fois n’apparaît pas, ou une tâche n’y est pas', a: [
           'Pour les parents et les membres, elle est désactivée sauf si elle est réglée dans Paramètres → Membres de la famille. Les enfants l’ont (un bouton sur l’accueil) sauf si un parent l’a désactivée. Elle peut aussi être masquée dans Accueil → Personnaliser, ou désactivée dans Paramètres → Fonctionnalités.',

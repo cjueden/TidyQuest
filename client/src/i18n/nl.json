@@ -917,7 +917,8 @@
       "rejectedMany": "{n} klusjes afgewezen",
       "addReason": "Reden toevoegen",
       "reasonPlaceholder": "Wat ontbreekt er? (optioneel)",
-      "sendReason": "Versturen"
+      "sendReason": "Versturen",
+      "none": "Geen klusjes die op goedkeuring wachten."
     },
     "proof": {
       "addProof": "Notitie of foto toevoegen",

@@ -380,7 +380,7 @@ export const GUIDE_EN: GuideSection[] = [
         ] },
         { q: 'A card is missing from Home', a: [
           'It may be hidden: open Customise (the button at the bottom of Home) and tap its 🚫 to show it again, or use Reset to default.',
-          'Some cards only show when they have something in them (Your usual, Maybe you forgot, Scheduled, Completed today, Waiting for approval), and some are for parents only.',
+          'Some cards only show when they have something in them (Your usual, Maybe you forgot, Scheduled, Completed today), and some are for parents only.',
         ] },
         { q: 'One thing at a time is missing, or a chore isn’t in it', a: [
           'For parents and members it’s off unless it’s set in Settings → Family Members. Kids get it (a button on Home) unless a parent turned it off there. It can also be hidden in Home → Customise, or switched off in Settings → Features.',

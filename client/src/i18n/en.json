@@ -917,7 +917,8 @@
       "rejectedMany": "Rejected {n} chores",
       "addReason": "Add a reason",
       "reasonPlaceholder": "What's missing? (optional)",
-      "sendReason": "Send"
+      "sendReason": "Send",
+      "none": "No chores waiting for approval."
     },
     "proof": {
       "addProof": "Add a note or photo",
