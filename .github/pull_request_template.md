@@ -26,6 +26,12 @@ Fixes #
 -
 -
 
+## Changelog
+
+<!-- The lines this PR adds to CHANGELOG.md under "Unreleased", in plain language -->
+
+-
+
 ## Testing
 
 <!-- Describe how you tested your changes -->
@@ -41,6 +47,7 @@ Fixes #
 - [ ] I have performed a self-review of my code
 - [ ] I have commented my code where necessary
 - [ ] I have updated the documentation (README, API.md, etc.)
+- [ ] I have added my changes to CHANGELOG.md under Unreleased
 - [ ] My changes generate no new warnings or errors
 - [ ] I have checked for security vulnerabilities
 - [ ] I have not committed any secrets (.env, API keys, passwords)

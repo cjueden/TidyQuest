@@ -12,15 +12,18 @@ build from `main`. Without logging in: `curl http://<server>:<port>/api/version`
 
 ## Putting a new version on production
 
-1. Merge the work into `main` and try it on staging (`:main`).
+1. Merge the work into `main` and try it on staging (`:main`). Each pull request adds its lines to
+   [CHANGELOG.md](CHANGELOG.md) under **Unreleased** (Added, Changed or Fixed), in plain language.
 2. Release it from an up-to-date `main` checkout:
 
    ```sh
    ./scripts/release.sh 0.7.0
    ```
 
-   This bumps `package.json`, commits `chore: release v0.7.0`, tags `v0.7.0`, pushes both and publishes
-   the GitHub release (with `gh`; without it, publish the release for the tag on GitHub yourself).
+   This moves CHANGELOG.md's Unreleased lines under `## v0.7.0 (date)`, bumps `package.json`, commits
+   `chore: release v0.7.0`, tags `v0.7.0`, pushes both and publishes the GitHub release with that
+   changelog section as its notes, followed by GitHub's list of merged pull requests (with `gh`; without
+   it, publish the release for the tag on GitHub yourself). It stops if Unreleased is empty.
    Pick the number by what changed: `0.7.1` for fixes only, `0.8.0` for new features.
 3. Wait for the "Build and Push Docker Image" run to finish (GitHub → Actions).
 4. On the production server, pin the new version in `docker-compose.yml` and pull it:
