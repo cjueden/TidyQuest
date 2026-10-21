@@ -367,7 +367,7 @@ export const GUIDE_DE: GuideSection[] = [
         ] },
         { q: 'Eine Karte fehlt auf der Startseite', a: [
           'Sie ist vielleicht ausgeblendet: Öffne Anpassen (der Knopf unten auf der Startseite) und tippe auf ihr 🚫, um sie wieder zu zeigen, oder nutze Auf Standard zurücksetzen.',
-          'Manche Karten erscheinen nur, wenn etwas darin steht (Deine Klassiker, Vielleicht vergessen, Geplant, Heute erledigt, Wartet auf Freigabe), und manche sind nur für Eltern.',
+          'Manche Karten erscheinen nur, wenn etwas darin steht (Deine Klassiker, Vielleicht vergessen, Geplant, Heute erledigt), und manche sind nur für Eltern.',
         ] },
         { q: 'Eins nach dem anderen fehlt, oder eine Aufgabe ist nicht dabei', a: [
           'Für Eltern und Mitglieder ist es aus, außer es ist unter Einstellungen → Familienmitglieder eingestellt. Kinder haben es (ein Knopf auf der Startseite), außer ein Elternteil hat es dort ausgeschaltet. Es kann auch unter Startseite → Anpassen ausgeblendet oder unter Einstellungen → Funktionen ausgeschaltet sein.',

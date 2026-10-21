@@ -367,7 +367,7 @@ export const GUIDE_NL: GuideSection[] = [
         ] },
         { q: 'Er ontbreekt een kaart op Home', a: [
           'Hij is misschien verborgen: open Aanpassen (de knop onderaan Home) en tik op zijn 🚫 om hem weer te tonen, of gebruik Standaardvolgorde terugzetten.',
-          'Sommige kaarten verschijnen alleen als er iets in staat (Je vaste klusjes, Misschien vergeten, Ingepland, Vandaag gedaan, Wacht op goedkeuring), en sommige zijn alleen voor ouders.',
+          'Sommige kaarten verschijnen alleen als er iets in staat (Je vaste klusjes, Misschien vergeten, Ingepland, Vandaag gedaan), en sommige zijn alleen voor ouders.',
         ] },
         { q: 'Eén ding tegelijk ontbreekt, of een klusje staat er niet in', a: [
           'Voor ouders en leden staat het uit, tenzij het is ingesteld bij Instellingen → Gezinsleden. Kinderen hebben het (een knop op Home), tenzij een ouder het daar uitzette. Het kan ook verborgen zijn via Home → Aanpassen, of uitgezet bij Instellingen → Functies.',

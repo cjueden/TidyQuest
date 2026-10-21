@@ -917,7 +917,8 @@
       "rejectedMany": "{n} faccende rifiutate",
       "addReason": "Aggiungi un motivo",
       "reasonPlaceholder": "Cosa manca? (facoltativo)",
-      "sendReason": "Invia"
+      "sendReason": "Invia",
+      "none": "Nessuna faccenda in attesa di approvazione."
     },
     "proof": {
       "addProof": "Aggiungi una nota o una foto",

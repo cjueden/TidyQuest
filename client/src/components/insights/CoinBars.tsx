@@ -1,4 +1,5 @@
 import { useWidth } from './useWidth';
+import { barHit, useUnpinOutside } from './useBarPick';
 import { coinColor, formatValue, niceTicks, type CoinWeeks } from './insightsData';
 
 const AXIS_W = 34;
@@ -42,8 +43,12 @@ interface Props {
   labels: string[];
   weeks: CoinWeeks;
   language: string;
+  /** The pinned week (tap or click) */
   selected: number | null;
-  onSelect: (i: number) => void;
+  /** The week under the mouse, shown ahead of the pinned one */
+  hovered: number | null;
+  onSelect: (i: number | null) => void;
+  onHover: (i: number | null) => void;
   ariaLabel: string;
   /** Balance line color: the person's own, or muted ink for everyone */
   balanceColor: string;
@@ -51,8 +56,10 @@ interface Props {
 }
 
 /** Weekly coins in (above the line) and out (below), the weekly goal as a target mark, and the balance under it. */
-export function CoinBars({ labels, weeks, language, selected, onSelect, ariaLabel, balanceColor, balanceLabel }: Props) {
+export function CoinBars({ labels, weeks, language, selected, hovered, onSelect, onHover, ariaLabel, balanceColor, balanceLabel }: Props) {
   const [ref, width] = useWidth<HTMLDivElement>();
+  useUnpinOutside(ref, selected, onSelect);
+  const shown = hovered ?? selected;
   const n = labels.length;
   const plotW = Math.max(100, width - AXIS_W);
   const slot = plotW / Math.max(1, n);
@@ -86,12 +93,11 @@ export function CoinBars({ labels, weeks, language, selected, onSelect, ariaLabe
     <rect key={`hit${i}`} x={AXIS_W + slot * i} y={y} width={slot} height={h} fill="transparent"
       tabIndex={focusable ? 0 : -1} role={focusable ? 'button' : undefined} aria-pressed={focusable ? selected === i : undefined} aria-label={focusable ? label : undefined}
       style={{ cursor: 'pointer', outline: 'none' }}
-      onPointerEnter={(e) => { if (e.pointerType === 'mouse') onSelect(i); }}
-      onClick={() => onSelect(i)} onFocus={() => onSelect(i)} />
+      {...barHit(i, selected, onSelect, onHover)} />
   );
 
   return (
-    <div ref={ref} style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }} onPointerLeave={() => onHover(null)}>
       <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} role="group" aria-label={ariaLabel} style={{ display: 'block', overflow: 'visible' }}>
         {ticks.map((v) => {
           const y = zeroY - v * scale;
@@ -105,7 +111,7 @@ export function CoinBars({ labels, weeks, language, selected, onSelect, ariaLabe
         {weeks.up.map((vals, i) => {
           const x = AXIS_W + slot * i + (slot - barW) / 2;
           return (
-            <g key={i} opacity={selected != null && selected !== i ? 0.4 : 1} style={{ transition: 'opacity 0.15s' }}>
+            <g key={i} opacity={shown != null && shown !== i ? 0.4 : 1} style={{ transition: 'opacity 0.15s' }}>
               <Stack vals={vals} cats={weeks.inCats} x={x} w={barW} zeroY={zeroY} scale={scale} dir="up" />
               <Stack vals={weeks.down[i]} cats={weeks.outCats} x={x} w={barW} zeroY={zeroY} scale={scale} dir="down" />
             </g>
@@ -124,7 +130,7 @@ export function CoinBars({ labels, weeks, language, selected, onSelect, ariaLabe
         {labels.map((l, i) => (i % every === 0 || i === lastI ? (
           (i === lastI || lastI - i >= every) && (
             <text key={i} x={cx(i)} y={TOP + PLOT_H + 15} textAnchor="middle" fontSize={10}
-              fill={selected === i ? 'var(--warm-text)' : 'var(--warm-text-muted)'} fontWeight={selected === i ? 700 : 400}>{l}</text>
+              fill={shown === i ? 'var(--warm-text)' : 'var(--warm-text-muted)'} fontWeight={shown === i ? 700 : 400}>{l}</text>
           )
         ) : null))}
         {labels.map((l, i) => hit(i, 0, height, `${l}: +${fmt(weeks.earned[i])} −${fmt(weeks.spent[i])}`))}
@@ -137,7 +143,7 @@ export function CoinBars({ labels, weeks, language, selected, onSelect, ariaLabe
         <text x={AXIS_W - 6} y={by(0) + 3.5} textAnchor="end" fontSize={10} fill="var(--warm-text-muted)">0</text>
         <polygon points={`${cx(0)},${by(0)} ${points} ${cx(lastI)},${by(0)}`} fill={balanceColor} opacity={0.1} />
         <polyline points={points} fill="none" stroke={balanceColor} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-        {[...new Set([lastI, ...(selected != null ? [selected] : [])])].map((i) => (
+        {[...new Set([lastI, ...(shown != null ? [shown] : [])])].map((i) => (
           <circle key={i} cx={cx(i)} cy={by(weeks.balance[i])} r={4} fill={balanceColor} stroke="var(--warm-card)" strokeWidth={2} />
         ))}
         <text x={Math.min(width - 2, cx(lastI) + 2)} y={by(weeks.balance[lastI]) - 8} textAnchor="end" fontSize={11} fontWeight={700} fill="var(--warm-text)">

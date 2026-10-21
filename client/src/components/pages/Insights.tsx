@@ -11,6 +11,7 @@ import { Segmented } from '../insights/Segmented';
 import { CoinsCard } from '../insights/CoinsCard';
 import { localeFor } from '../../utils/locale';
 import { LegendRow, PeriodBars, ToggleChip } from '../insights/PeriodBars';
+import { useBarPick } from '../insights/useBarPick';
 import { HeatScale, WeekHeatmap, type HeatCell } from '../insights/WeekHeatmap';
 import { weekdayName, WEEK_ORDER } from '../../utils/schedule';
 
@@ -41,7 +42,6 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const [bars, setBars] = useState<InsightsBars | null>(null);
   const [heat, setHeat] = useState<InsightsHeatmap | null>(null);
   const [failed, setFailed] = useState(false);
-  const [picked, setPicked] = useState<{ key: string; index: number } | null>(null);
   const [cell, setCell] = useState<HeatCell | null>(null);
   const [showTable, setShowTable] = useState(false);
   const [showNumbers, setShowNumbers] = useState(false);
@@ -52,7 +52,8 @@ export function Insights({ language, gamificationEnabled }: Props) {
 
   const measure: Measure = !gamificationEnabled && measureChoice === 'coins' ? 'chores' : measureChoice;
   const query = period === 'custom' ? `period=custom&from=${range.from}&to=${range.to}` : `period=${period}&date=${day}`;
-  const selected = picked?.key === query ? picked.index : null;
+  const bar = useBarPick(query);
+  const selected = bar.shown; // the bar to read out: the hovered one, else the pinned one
   // The heatmap and coins card end where the picked dates end (never after today)
   const lastDay = (() => { const d = period === 'custom' ? range.to : lastDayOf(period, day); return d > today ? today : d; })();
 
@@ -258,7 +259,7 @@ export function Insights({ language, gamificationEnabled }: Props) {
             <LegendRow series={stacked.series} onToggle={toggleSeries} label={`${t('insights.whenTitle')}: ${t(`insights.by_${stack}`)}`} />
             {total === 0 ? <p style={muted}>{t('insights.noData')}</p> : <>
             <PeriodBars labels={labels} stacked={stacked} language={language} wideLabels={current?.grain === 'hour' || current?.grain === 'week'}
-              selected={selected} onSelect={(i) => setPicked(i == null ? null : { key: query, index: i })}
+              selected={bar.selected} hovered={bar.hovered} onSelect={bar.onSelect} onHover={bar.onHover}
               ariaLabel={`${measureName} · ${current ? periodLabel(current.period, current.start, current.end, language) : ''}`} />
             <div aria-live="polite" style={{ minHeight: 44, marginTop: 6 }}>
               {selected == null ? <p style={{ ...muted, margin: 0 }}>{t('insights.tapBar')}</p> : (

@@ -367,7 +367,7 @@ export const GUIDE_IT: GuideSection[] = [
         ] },
         { q: 'Manca una scheda nella Home', a: [
           'Forse è nascosta: apri Personalizza (il pulsante in fondo alla Home) e tocca il suo 🚫 per mostrarla di nuovo, oppure usa Ripristina l’ordine predefinito.',
-          'Alcune schede compaiono solo quando contengono qualcosa (I tuoi soliti, Forse hai dimenticato queste, Programmate, Completate oggi, In attesa di approvazione), e alcune sono solo per i genitori.',
+          'Alcune schede compaiono solo quando contengono qualcosa (I tuoi soliti, Forse hai dimenticato queste, Programmate, Completate oggi), e alcune sono solo per i genitori.',
         ] },
         { q: 'Una cosa alla volta non c’è, o manca una faccenda', a: [
           'Per genitori e membri è disattivata a meno che non sia scelta in Impostazioni → Membri della famiglia. I bambini ce l’hanno (un pulsante nella Home) a meno che un genitore non l’abbia disattivata lì. Può anche essere nascosta in Home → Personalizza, o disattivata in Impostazioni → Funzioni.',

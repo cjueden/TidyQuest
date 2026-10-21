@@ -639,8 +639,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
       ),
-    // Chores waiting for approval (parents, Strict Mode)
-    pendingApprovals: currentUser.role === 'admin' && isVisible('pendingApprovals') && pendingCompletions.length > 0 && (
+    // Chores waiting for approval (parents): always there while Strict Mode is on, even when empty
+    pendingApprovals: currentUser.role === 'admin' && isVisible('pendingApprovals') && (!!data.strictMode || pendingCompletions.length > 0) && (
         <div className="tq-card tq-card-padded" style={{ gridColumn: '1 / -1' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--warm-text)', margin: 0 }}>{t('approvals.title')}</h3>
@@ -648,6 +648,9 @@ const Dashboard: React.FC<DashboardProps> = ({
               {pendingCompletions.length}
             </span>
           </div>
+          {pendingCompletions.length === 0 && (
+            <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{t('approvals.none')}</div>
+          )}
           <PendingApprovals items={pendingCompletions} language={language} gamificationEnabled={gamificationEnabled} extras={data.features?.cheers !== false} onChanged={() => onRefresh?.()} />
         </div>
       ),

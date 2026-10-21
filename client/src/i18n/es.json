@@ -917,7 +917,8 @@
       "rejectedMany": "{n} tareas rechazadas",
       "addReason": "Añadir un motivo",
       "reasonPlaceholder": "¿Qué falta? (opcional)",
-      "sendReason": "Enviar"
+      "sendReason": "Enviar",
+      "none": "No hay tareas esperando aprobación."
     },
     "proof": {
       "addProof": "Añadir una nota o foto",

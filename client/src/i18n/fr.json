@@ -917,7 +917,8 @@
       "rejectedMany": "{n} tâches refusées",
       "addReason": "Ajouter une raison",
       "reasonPlaceholder": "Qu'est-ce qui manque ? (facultatif)",
-      "sendReason": "Envoyer"
+      "sendReason": "Envoyer",
+      "none": "Aucune tâche en attente de validation."
     },
     "proof": {
       "addProof": "Ajouter une note ou une photo",

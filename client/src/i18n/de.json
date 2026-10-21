@@ -917,7 +917,8 @@
       "rejectedMany": "{n} Aufgaben abgelehnt",
       "addReason": "Grund angeben",
       "reasonPlaceholder": "Was fehlt noch? (optional)",
-      "sendReason": "Senden"
+      "sendReason": "Senden",
+      "none": "Keine Aufgaben warten auf Freigabe."
     },
     "proof": {
       "addProof": "Notiz oder Foto hinzufügen",
