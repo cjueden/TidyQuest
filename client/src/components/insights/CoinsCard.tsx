@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { InsightsCoins } from '../../hooks/useApi';
 import { localeFor } from '../../utils/locale';
 import { CoinBars } from './CoinBars';
+import { useBarPick } from './useBarPick';
 import { coinColor, coinWeeks, formatValue, rewardStats, shows, soloOf, type People } from './insightsData';
 import { Segmented } from './Segmented';
 
@@ -25,14 +26,14 @@ interface Props {
 
 /** Coins in and out per week (NEW-7 part 3): earned vs spent, the weekly goal, the balance, and rewards bought. */
 export function CoinsCard({ data, weeks, onWeeks, people, language, t, rangeLabel }: Props) {
-  const [picked, setPicked] = useState<{ key: string; index: number } | null>(null);
   const [showTable, setShowTable] = useState(false);
   const [allNever, setAllNever] = useState(false);
   const fmt = (v: number) => formatValue(v, language);
   const signed = (v: number, sign: '+' | '−') => (v > 0 ? `${sign}${fmt(v)}` : '0');
   const locale = localeFor(language);
   const key = `${weeks}:${people ? [...people].join(',') : ''}:${data?.end ?? ''}`;
-  const selected = picked?.key === key ? picked.index : null;
+  const bar = useBarPick(key);
+  const selected = bar.shown; // the week to read out: the hovered one, else the pinned one
 
   const header = (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
@@ -78,8 +79,8 @@ export function CoinsCard({ data, weeks, onWeeks, people, language, t, rangeLabe
               </span>
             )}
           </div>
-          <CoinBars labels={labels} weeks={w} language={language} selected={selected}
-            onSelect={(i) => setPicked({ key, index: i })} ariaLabel={t('insights.coinsTitle')}
+          <CoinBars labels={labels} weeks={w} language={language}
+            selected={bar.selected} hovered={bar.hovered} onSelect={bar.onSelect} onHover={bar.onHover} ariaLabel={t('insights.coinsTitle')}
             balanceColor={person?.color ?? 'var(--warm-text-muted)'} balanceLabel={t('insights.balance')} />
 
           <div aria-live="polite" style={{ minHeight: 40, marginTop: 6 }}>

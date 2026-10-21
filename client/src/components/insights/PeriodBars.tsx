@@ -1,4 +1,5 @@
 import { useWidth } from './useWidth';
+import { barHit, useUnpinOutside } from './useBarPick';
 import { formatValue, niceTicks, type Stacked } from './insightsData';
 
 const AXIS_W = 30;
@@ -49,16 +50,22 @@ interface Props {
   labels: Array<{ axis: string; full: string }>;
   stacked: Stacked;
   language: string;
+  /** The pinned bar (tap or click) */
   selected: number | null;
+  /** The bar under the mouse, shown ahead of the pinned one */
+  hovered: number | null;
   onSelect: (i: number | null) => void;
+  onHover: (i: number | null) => void;
   ariaLabel: string;
   /** Wider axis labels (hours) */
   wideLabels?: boolean;
 }
 
-/** Stacked period bars: tap or hover a bar to pick it; the page shows its numbers. */
-export function PeriodBars({ labels, stacked, language, selected, onSelect, ariaLabel, wideLabels }: Props) {
+/** Stacked period bars: hover a bar to see it, tap or click to pin it; the page shows its numbers. */
+export function PeriodBars({ labels, stacked, language, selected, hovered, onSelect, onHover, ariaLabel, wideLabels }: Props) {
   const [ref, width] = useWidth<HTMLDivElement>();
+  useUnpinOutside(ref, selected, onSelect);
+  const shown = hovered ?? selected;
   const n = labels.length;
   const plotW = Math.max(100, width - AXIS_W);
   const slot = plotW / Math.max(1, n);
@@ -70,7 +77,7 @@ export function PeriodBars({ labels, stacked, language, selected, onSelect, aria
   const every = Math.max(1, Math.ceil(n / Math.floor(plotW / (wideLabels ? 46 : 30))));
 
   return (
-    <div ref={ref} style={{ width: '100%' }}>
+    <div ref={ref} style={{ width: '100%' }} onPointerLeave={() => onHover(null)}>
       {/* 100% wide with a viewBox in measured pixels, so the chart never props its container open */}
       <svg width="100%" height={base + X_BAND} viewBox={`0 0 ${width} ${base + X_BAND}`} role="group" aria-label={ariaLabel}
         style={{ display: 'block', overflow: 'visible' }}>
@@ -89,7 +96,7 @@ export function PeriodBars({ labels, stacked, language, selected, onSelect, aria
           const x = AXIS_W + slot * i + (slot - barW) / 2;
           const nonZero = vals.map((v, j) => [v, j] as const).filter(([v]) => v > 0);
           let cum = 0;
-          const dim = selected != null && selected !== i;
+          const dim = shown != null && shown !== i;
           return (
             <g key={i} opacity={dim ? 0.4 : 1} style={{ transition: 'opacity 0.15s' }}>
               {nonZero.map(([v, j], k) => {
@@ -110,7 +117,7 @@ export function PeriodBars({ labels, stacked, language, selected, onSelect, aria
 
         {labels.map((l, i) => (i % every === 0 ? (
           <text key={i} x={AXIS_W + slot * (i + 0.5)} y={base + 15} textAnchor="middle" fontSize={10}
-            fill={selected === i ? 'var(--warm-text)' : 'var(--warm-text-muted)'} fontWeight={selected === i ? 700 : 400}>{l.axis}</text>
+            fill={shown === i ? 'var(--warm-text)' : 'var(--warm-text-muted)'} fontWeight={shown === i ? 700 : 400}>{l.axis}</text>
         ) : null))}
 
         {/* Hit targets: the whole column, bigger than the bar */}
@@ -119,9 +126,7 @@ export function PeriodBars({ labels, stacked, language, selected, onSelect, aria
             tabIndex={0} role="button" aria-pressed={selected === i}
             aria-label={`${l.full}: ${formatValue(stacked.totals[i], language, 1)}`}
             style={{ cursor: 'pointer', outline: 'none' }}
-            onPointerEnter={(e) => { if (e.pointerType === 'mouse') onSelect(i); }}
-            onClick={() => onSelect(i)}
-            onFocus={() => onSelect(i)}
+            {...barHit(i, selected, onSelect, onHover)}
             onKeyDown={(e) => {
               if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
                 e.preventDefault();
