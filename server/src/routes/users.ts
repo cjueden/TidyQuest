@@ -11,9 +11,9 @@ import { DEFAULT_COINS_BY_EFFORT, normalizeCoinsByEffortConfig } from '../utils/
 import { notifyCoinsAdjusted } from '../utils/notifyMessages';
 import { NOTIFICATION_KINDS, NotificationTypeSettings, sendTelegramMessageDetailed, sendNtfyMessageDetailed } from '../utils/notifications';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, isHidePrivateRoomsEnabled, isStrictModeEnabled } from '../utils/adminHelpers';
-import { syncPrimaryGoal } from '../utils/goals';
+import { realignWeeklyGoals, syncPrimaryGoal } from '../utils/goals';
 import { UNLOCKABLE_THEMES, canUse } from '../utils/unlocks';
-import { currentLocalWeek } from '../utils/periods';
+import { currentLocalWeek, weekStartDay } from '../utils/periods';
 
 const router = Router();
 router.use(authMiddleware);
@@ -463,7 +463,7 @@ router.post('/:id/goals', (req: AuthRequest, res: Response) => {
   if (normStart && normEnd && new Date(normEnd).getTime() < new Date(normStart).getTime()) {
     return res.status(400).json({ error: 'endAt must be after startAt' });
   }
-  // A weekly goal needs a window to roll over from: without dates it covers this week (Mon–Sun)
+  // A weekly goal needs a window to roll over from: without dates it covers this calendar week
   if (repeatWeekly && !normEnd) ({ startAt: normStart, endAt: normEnd } = currentLocalWeek());
   const normRewardCoins = (rewardCoins !== undefined && rewardCoins !== null)
     ? Math.max(0, Math.round(Number(rewardCoins)) || 0) : 0;
@@ -788,6 +788,17 @@ router.put('/kids-config', (req: AuthRequest, res: Response) => {
   if (typeof hidePrivateRooms !== 'boolean') return res.status(400).json({ error: 'hidePrivateRooms must be a boolean' });
   db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('hidePrivateRooms', ?)").run(hidePrivateRooms ? '1' : '0');
   res.json({ hidePrivateRooms });
+});
+
+// The week's first day (Settings → General): 1 = Monday (the default), 0 = Sunday. Running weekly goals follow.
+router.put('/week-start', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const { weekStart } = req.body as { weekStart?: number };
+  if (weekStart !== 0 && weekStart !== 1) return res.status(400).json({ error: 'weekStart must be 0 (Sunday) or 1 (Monday)' });
+  const old = weekStartDay();
+  db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('weekStart', ?)").run(String(weekStart));
+  for (const userId of realignWeeklyGoals(old, weekStart)) syncPrimaryGoal(userId);
+  res.json({ weekStart });
 });
 
 router.get('/strict-mode-config', (req: AuthRequest, res: Response) => {

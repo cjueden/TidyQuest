@@ -6,6 +6,7 @@ import { isSeasonalNow, taskHealth } from './schedule';
 import { getGlobalVacation, getUserVacation, resolveVacation } from './adminHelpers';
 import { localDateStr } from './dateHelpers';
 import { boostCovers, toBoost } from './boosts';
+import { startOfLocalWeek, weekOfSql, weekStartDay } from './periods';
 
 /**
  * Everything the badges are measured on, for one person. Shared by the Achievements page and the
@@ -38,11 +39,10 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
     if (health >= 70) roomsClean++;
   }
 
-  // This week (Monday 00:00 local) and the most recent weekend (Sat + Sun)
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - (now.getDay() || 7) + 1);
-  monday.setHours(0, 0, 0, 0);
-  const weekly = (db.prepare("SELECT COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND completedAt >= ?").get(userId, monday.toISOString()) as { n: number }).n;
+  // This week (its first day 00:00 local) and the most recent weekend (Sat + Sun)
+  const first = weekStartDay();
+  const weekStart = startOfLocalWeek(now, first);
+  const weekly = (db.prepare("SELECT COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND completedAt >= ?").get(userId, weekStart.toISOString()) as { n: number }).n;
   const nowDay = now.getDay();
   const lastSat = new Date(now);
   lastSat.setDate(now.getDate() - (nowDay === 6 ? 0 : nowDay === 0 ? 1 : nowDay + 1));
@@ -53,16 +53,14 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
   const weekend = (db.prepare("SELECT COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND completedAt >= ? AND completedAt <= ?")
     .get(userId, lastSat.toISOString(), lastSun.toISOString()) as { n: number }).n;
 
-  // Perfect weeks: full past weeks (Mon–Sun) with at least one completion every day
+  // Perfect weeks: full past weeks with at least one completion every day
   const days = (db.prepare("SELECT date(completedAt, 'localtime') AS day FROM task_completions WHERE userId = ? AND status = 'approved' GROUP BY day ORDER BY day")
     .all(userId) as Array<{ day: string }>).map((r) => r.day);
   let perfectWeeks = 0;
   if (days.length > 0) {
     const daySet = new Set(days);
-    const mondayOf = (d: Date) => { const out = new Date(d); out.setDate(out.getDate() - (out.getDay() || 7) + 1); out.setHours(0, 0, 0, 0); return out; };
-    const check = mondayOf(new Date(`${days[0]}T00:00:00`));
-    const thisMonday = mondayOf(now);
-    while (check < thisMonday) {
+    const check = startOfLocalWeek(new Date(`${days[0]}T00:00:00`), first);
+    while (check < weekStart) {
       let all = true;
       for (let d = 0; d < 7 && all; d++) {
         const day = new Date(check);
@@ -98,7 +96,7 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
 
   // Weekly goals reached in a row (the longest run)
   const goalWeeks = longestWeekRun((db.prepare(
-    "SELECT date(startAt, 'localtime', 'weekday 0', '-6 days') AS week FROM user_goals WHERE userId = ? AND status = 'completed' AND startAt IS NOT NULL"
+    `SELECT ${weekOfSql('startAt', first)} AS week FROM user_goals WHERE userId = ? AND status = 'completed' AND startAt IS NOT NULL`
   ).all(userId) as Array<{ week: string }>).map((r) => r.week));
 
   // Secret ones: every scheduled chore of a room (3 or more) done in one day, chores before 8 am,

@@ -13,7 +13,8 @@ import { localeFor } from '../../utils/locale';
 import { LegendRow, PeriodBars, ToggleChip } from '../insights/PeriodBars';
 import { useBarPick } from '../insights/useBarPick';
 import { HeatScale, WeekHeatmap, type HeatCell } from '../insights/WeekHeatmap';
-import { weekdayName, WEEK_ORDER } from '../../utils/schedule';
+import { weekdayName } from '../../utils/schedule';
+import { useWeekStart, weekOrder } from '../../utils/week';
 
 interface Props {
   language: string;
@@ -27,6 +28,7 @@ const linkButton = { background: 'none', border: 'none', padding: 0, cursor: 'po
 /** Parents' Insights page (NEW-7): when chores get done, by whom, and in which rooms. Charts only. */
 export function Insights({ language, gamificationEnabled }: Props) {
   const { t, taskName, roomDisplayName } = useTranslation(language);
+  const weekStart = useWeekStart();
   const today = ymd(new Date());
   const [period, setPeriod] = useState<InsightsRange>('week');
   /** A day inside the period shown (Day/Week/Month/Year) */
@@ -55,7 +57,7 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const bar = useBarPick(query);
   const selected = bar.shown; // the bar to read out: the hovered one, else the pinned one
   // The heatmap and coins card end where the picked dates end (never after today)
-  const lastDay = (() => { const d = period === 'custom' ? range.to : lastDayOf(period, day); return d > today ? today : d; })();
+  const lastDay = (() => { const d = period === 'custom' ? range.to : lastDayOf(period, day, weekStart); return d > today ? today : d; })();
 
   useEffect(() => {
     let live = true;
@@ -170,7 +172,7 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const fmt = (v: number, d = 0) => formatValue(v, language, d);
   const prevName = current ? t(`insights.${current.previousSoFar ? 'sofar' : 'prev'}_${current.period}`).replace('{n}', String(rangeDays)) : '';
   const slotLabels = [0, 1, 2, 3, 4, 5].map((i) => t(`insights.slot${i}`));
-  const dayLabels = WEEK_ORDER.map((d) => weekdayName(d, language, 'short'));
+  const dayLabels = weekOrder(heat?.weekStart ?? weekStart).map((d) => weekdayName(d, language, 'short'));
 
   const measures: Array<{ value: Measure; label: string }> = [
     { value: 'chores', label: t('insights.chores') },

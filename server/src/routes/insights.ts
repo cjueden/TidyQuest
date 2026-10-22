@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
-import { startOfLocalDay } from '../utils/periods';
+import { startOfLocalDay, weekStartDay } from '../utils/periods';
 import {
   bucketFinder, choresDone, coinsByWeek, customWindow, daysBetween, heatSlot, INSIGHTS_PERIODS, parseDbTime, periodWindow,
   samePointBefore, skippedChores, snapshotSince, type InsightsPeriod, type InsightsWindow,
@@ -126,7 +126,7 @@ router.get('/coins', (req: AuthRequest, res: Response) => {
   res.json(coinsByWeek(Number(req.query.weeks) === 26 ? 26 : 8, endDay(req.query)));
 });
 
-// Weekday × time of day over the 4 or 12 weeks up to end= (default today): rows [weekday (0 = Mon), slot, userId,
+// Weekday × time of day over the 4 or 12 weeks up to end= (default today): rows [weekday (0 = the week's first day), slot, userId,
 // chores, coins, effort]
 router.get('/heatmap', (req: AuthRequest, res: Response) => {
   const weeks = Number(req.query.weeks) === 12 ? 12 : 4;
@@ -135,17 +135,18 @@ router.get('/heatmap', (req: AuthRequest, res: Response) => {
   const start = new Date(end);
   start.setDate(start.getDate() - weeks * 7);
 
+  const first = weekStartDay();
   const grouped = new Map<string, number[]>();
   for (const d of choresDone(start, end)) {
     if (d.late) continue; // a late log's time of day is unknown
-    const w = (d.at.getDay() + 6) % 7;
+    const w = (d.at.getDay() - first + 7) % 7; // row 0 is the week's first day
     const s = heatSlot(d.at);
     const key = `${w}:${s}:${d.userId}`;
     const row = grouped.get(key) ?? [w, s, d.userId, 0, 0, 0];
     row[3] += 1; row[4] += d.coins; row[5] += d.effort;
     grouped.set(key, row);
   }
-  res.json({ weeks, start: start.toISOString(), end: end.toISOString(), people: people(), rows: [...grouped.values()] });
+  res.json({ weeks, weekStart: first, start: start.toISOString(), end: end.toISOString(), people: people(), rows: [...grouped.values()] });
 });
 
 export default router;

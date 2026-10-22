@@ -292,7 +292,9 @@
       "showAllRewards": "Alle {n} beloningen tonen",
       "showFewerRewards": "Minder tonen",
       "refundReward": "Terugbetalen",
-      "refundRewardConfirm": "\"{reward}\" terugbetalen? De {coins} munten gaan terug naar wie betaalde, en het verzoek staat als afgewezen."
+      "refundRewardConfirm": "\"{reward}\" terugbetalen? De {coins} munten gaan terug naar wie betaalde, en het verzoek staat als afgewezen.",
+      "weekStart": "Week begint op",
+      "weekStartDesc": "Weekdoelen, het Scorebord, beloningslimieten en wekelijkse beurten beginnen op deze dag opnieuw."
     },
     "nav": {
       "home": "Home",
@@ -957,7 +959,7 @@
       "usedUp": "Op",
       "usedUp_ever": "Al gebruikt",
       "usedUp_day": "Vandaag gebruikt — morgen weer",
-      "usedUp_week": "Deze week gebruikt — maandag weer",
+      "usedUp_week": "Deze week gebruikt — {day} weer",
       "usedUp_month": "Deze maand gebruikt",
       "left_ever": "Nog {n}",
       "left_day": "Vandaag nog {n}",
@@ -1023,7 +1025,7 @@
       "offSeason": "Buiten seizoen",
       "turnChanges": "Beurt wisselt",
       "turnEachTime": "na elke keer",
-      "turnWeekly": "elke maandag",
+      "turnWeekly": "elke {day}",
       "reminder": "Herinner om",
       "reminderWhen": "Wanneer",
       "reminderSameDay": "op de dag zelf",
@@ -1299,7 +1301,8 @@
       "choreRejectedReason": "↩️ “{task}” is deze keer niet goedgekeurd. {parent} zegt: {reason}",
       "shieldSaved": "🛡️ Je schild heeft je reeks van {n} dagen gered!",
       "shieldsSaved": "🛡️ {count} schilden hebben je reeks van {n} dagen gered!",
-      "shieldGiven": "🛡️ {name} gaf je een reeksschild. Het redt je reeks als je een dag mist."
+      "shieldGiven": "🛡️ {name} gaf je een reeksschild. Het redt je reeks als je een dag mist.",
+      "recapLastWeek": "📊 Vorige week: {lines}"
     },
     "notifyAdmin": {
       "peopleTitle": "Wie krijgt wat",
@@ -1803,7 +1806,7 @@
       "coinsTitle": "Munten erin en eruit",
       "weeks8": "8 weken",
       "weeks26": "26 weken",
-      "coinsHint": "Elke staaf is een week, maandag tot zondag: munten erin boven de lijn, munten eruit eronder.",
+      "coinsHint": "Elke staaf is een week, {first} tot {last}: munten erin boven de lijn, munten eruit eronder.",
       "goalHint": "Het streepje over een staaf is het weekdoel, dat alleen munten van klusjes telt.",
       "coinsEmpty": "In deze weken kwamen er geen munten bij of af.",
       "weeklyGoal": "Weekdoel",

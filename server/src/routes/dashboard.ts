@@ -12,6 +12,7 @@ import { achievementsFor } from '../utils/achievementStats';
 import { forgottenTasks, usualTasks } from '../utils/homeSections';
 import { rescueCandidates, todaysMission } from '../utils/rescue';
 import { getFeatures, holidaysOff, isFeatureOn } from '../utils/features';
+import { weekStartDay } from '../utils/periods';
 import { MAX_SHIELDS, SHIELD_EVERY, shieldPrice, shieldsOn } from '../utils/streaks';
 import { cheersFor } from '../utils/cheers';
 import { cosmetics, unlocksFor } from '../utils/unlocks';
@@ -343,6 +344,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
     focus,
     features,
     holidaysOff: holidaysOff(),
+    // The week's first day, like Date.getDay(): 1 = Monday, 0 = Sunday (Settings → General)
+    weekStart: weekStartDay(),
     // Everyone's frame, title and celebration (avatars and names), and what your next level unlocks
     cosmetics: cosmetics(),
     // Today's team-ups you're on or could join

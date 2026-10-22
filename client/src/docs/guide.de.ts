@@ -45,10 +45,10 @@ export const GUIDE_DE: GuideSection[] = [
       ] },
       { h: 'Was von selbst passiert' },
       { ul: [
-        'Jeden Morgen: Die Rettungsmission von heute wird ausgewählt (die am häufigsten vergessene Aufgabe zahlt extra), und Kinder können eine Zusammenfassung der „Aufgaben von heute“ bekommen. Eltern bekommen sonntags einen Rückblick.',
+        'Jeden Morgen: Die Rettungsmission von heute wird ausgewählt (die am häufigsten vergessene Aufgabe zahlt extra), und Kinder können eine Zusammenfassung der „Aufgaben von heute“ bekommen. Eltern bekommen sonntags einen Rückblick (über die gerade beendete Woche, wenn eure Woche am Sonntag beginnt).',
         'Tagsüber: Erinnerungen für Aufgaben mit fester Uhrzeit, dann noch einmal 2 Stunden später, dann ein Hinweis an ein Elternteil.',
         'Abends: Hinweise darauf, was noch offen ist, auf eine Serie, die gleich reißt, oder ein Ziel, das nah ist.',
-        'Montag: Eine neue Woche beginnt (Wochen laufen von Montag bis Sonntag), und Wochenziele, die sich wiederholen, richten sich neu ein. Der Bonus eines Ziels wird in dem Moment ausgezahlt, in dem es erreicht ist.',
+        'Am ersten Tag der Woche (Montag oder Sonntag, wenn ein Elternteil das unter Einstellungen → Allgemein → Woche beginnt am wählt): Eine neue Woche beginnt, und Wochenziele, die sich wiederholen, richten sich neu ein. Der Bonus eines Ziels wird in dem Moment ausgezahlt, in dem es erreicht ist.',
         'Mitternacht: Teamwork-Einladungen enden, und „Heute erledigt“ beginnt von vorn.',
       ] },
     ],
@@ -406,8 +406,12 @@ export const GUIDE_DE: GuideSection[] = [
         { q: 'Tage, Mitternacht oder die Woche sind um ein paar Stunden verschoben', a: [
           'Setze die Umgebungsvariable TZ auf dem Server auf deine Zeitzone und starte ihn neu (siehe „Installieren und aktualisieren“).',
         ] },
+        { q: 'Die Woche beginnt am falschen Tag', a: [
+          'Ein Elternteil wählt Sonntag oder Montag unter Einstellungen → Allgemein → Woche beginnt am. Wochenziele, das Board, Belohnungslimits und wöchentliche Wechsel richten sich danach, und ein laufendes Wochenziel zieht in die neue Woche um.',
+          'Frühere Wochensieger auf dem Board werden mit den neuen Wochen neu gezählt und können sich daher etwas ändern.',
+        ] },
         { q: 'Eine Aufgabe mit Rotation scheint bei einer Person festzuhängen', a: [
-          'Prüfe ihre Rotation: „nach jeder Erledigung“ geht nach jeder Erledigung weiter (im Strengen Modus nach der Freigabe); „jeden Montag“ geht jeden Montag weiter.',
+          'Prüfe ihre Rotation: „nach jeder Erledigung“ geht nach jeder Erledigung weiter (im Strengen Modus nach der Freigabe); „jeden Montag“ (oder „jeden Sonntag“) geht zu Beginn jeder Woche weiter (Einstellungen → Allgemein → Woche beginnt am).',
           'Eltern und Mitglieder können sie immer für die Person machen, die gerade dran ist.',
         ] },
         { q: 'Es gibt keinen Knopf 🤝 Zusammen machen', a: [

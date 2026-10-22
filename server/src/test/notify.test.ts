@@ -141,6 +141,17 @@ describe('Timed notifications', () => {
     await runScheduledNotifications(at(18, 5, 18)); // Sunday Oct 18
     expect(sent.map((d) => d.message)).toEqual(['📊 This week: Kid 25 coins (1 chores)\n🏆 Winner: Kid']);
   });
+
+  it('recaps the week that just ended when weeks start on the recap day (Sunday)', async () => {
+    const { admin, kid, room } = await family();
+    channel('dad-topic', admin.user.id);
+    db.prepare('UPDATE users SET isParticipant = 0 WHERE id = ?').run(admin.user.id);
+    db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('weekStart', '0')").run();
+    const task = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name: 'Rake', effort: 1, frequencyDays: 1 })).body.id;
+    db.prepare("INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status) VALUES (?, ?, ?, 25, 'approved')").run(task, kid.user.id, at(10, 0, 17).toISOString());
+    await runScheduledNotifications(at(18, 5, 18)); // Sunday Oct 18: last week was Sun 11 – Sat 17
+    expect(sent.map((d) => d.message)).toEqual(['📊 Last week: Kid 25 coins (1 chores)\n🏆 Winner: Kid']);
+  });
 });
 
 describe('Notification settings API', () => {

@@ -27,6 +27,8 @@ import { api, type FocusModeSetting, type RewardRules } from '../../hooks/useApi
 import { CosmeticsContext } from '../../utils/unlocks';
 import { useNavigate } from 'react-router-dom';
 import { localeFor } from '../../utils/locale';
+import { weekdayName } from '../../utils/schedule';
+import { useWeekStart } from '../../utils/week';
 
 interface FamilyUser {
   id: number;
@@ -101,6 +103,8 @@ interface SettingsProps {
   /** Streak shields (null when off) and a parent giving one */
   shields?: { max: number } | null;
   onGiveShield?: (userId: number) => Promise<void>;
+  /** The family's first day of the week changed (FIX-11): save it and reload the dashboard */
+  onWeekStartChange?: (weekStart: 0 | 1) => Promise<void>;
 }
 
 const COLORS = ['#F97316', '#9B72CF', '#4AABDE', '#5CB85C', '#D4A017', '#E25A5A', '#38BDF8', '#EC4899'];
@@ -129,8 +133,12 @@ export function Settings({
   onDataChanged,
   shields = null,
   onGiveShield,
+  onWeekStartChange,
 }: SettingsProps) {
   const { t } = useTranslation(user.language);
+  const weekStart = useWeekStart();
+  /** The day being saved, shown until the dashboard brings the new week start back */
+  const [weekStartPick, setWeekStartPick] = useState<0 | 1 | null>(null);
   // Each person's level, so a parent sees which themes a kid has unlocked
   const cosmetics = useContext(CosmeticsContext);
   const navigate = useNavigate();
@@ -866,6 +874,26 @@ export function Settings({
                     });
                   }}
                 />
+              </div>
+            )}
+            {isAdmin && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <rect x="3" y="4" width="14" height="13" rx="2" stroke="var(--warm-text-light)" strokeWidth="1.5" />
+                  <path d="M3 8h14M7 2v4M13 2v4" stroke="var(--warm-text-light)" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--warm-text)' }}>{t('settings.weekStart')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('settings.weekStartDesc')}</div>
+                </div>
+                <select className="tq-input-compact" aria-label={t('settings.weekStart')} value={weekStartPick ?? weekStart} disabled={weekStartPick !== null}
+                  onChange={(e) => {
+                    const v = Number(e.target.value) === 0 ? 0 : 1;
+                    setWeekStartPick(v);
+                    (onWeekStartChange?.(v) ?? Promise.resolve()).catch(() => {}).finally(() => setWeekStartPick(null));
+                  }}>
+                  {[0, 1].map((d) => <option key={d} value={d}>{weekdayName(d, user.language, 'long')}</option>)}
+                </select>
               </div>
             )}
             {isAdmin && (

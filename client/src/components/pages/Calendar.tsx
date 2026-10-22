@@ -6,6 +6,7 @@ import { isTaskForUser, taskNextDue } from '../../utils/tasks';
 import { localeFor } from '../../utils/locale';
 import { useTaskView } from '../../hooks/useTaskView';
 import { AllMineToggle } from '../shared/AllMineToggle';
+import { useWeekStart, weekOrder } from '../../utils/week';
 
 interface CalendarTask {
   id: number;
@@ -48,11 +49,14 @@ interface CalendarProps {
   viewer?: { id: number; role?: string; taskView?: 'all' | 'mine' | 'mineOnly'; kidMode?: number | boolean };
 }
 
+/** calendar.* weekday labels by getDay() number */
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
 export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps) {
   const { taskName, t, roomDisplayName } = useTranslation(language);
   const locale = localeFor(language);
+  const weekStart = useWeekStart();
   const today = new Date();
   const [view, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const [selected, setSelected] = useState<number | null>(today.getDate());
@@ -114,9 +118,9 @@ export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps)
     return map;
   }, [upcoming]);
 
-  // Calendar grid padding
+  // Calendar grid padding: blank cells before the 1st, from the family's first day of the week
   const calDays: (number | null)[] = [];
-  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  const offset = (firstDay - weekStart + 7) % 7;
   for (let i = 0; i < offset; i++) calDays.push(null);
   for (let d = 1; d <= daysInMonth; d++) calDays.push(d);
 
@@ -164,15 +168,7 @@ export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps)
             <button style={navBtn} onClick={() => goMonth(1)} aria-label={t('calendar.nextMonth')}>›</button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, textAlign: 'center' }}>
-            {[
-              t('calendar.mon'),
-              t('calendar.tue'),
-              t('calendar.wed'),
-              t('calendar.thu'),
-              t('calendar.fri'),
-              t('calendar.sat'),
-              t('calendar.sun'),
-            ].map((d) => (
+            {weekOrder(weekStart).map((d) => t(`calendar.${DAY_KEYS[d]}`)).map((d) => (
               <div key={d} style={{ fontSize: 12, fontWeight: 800, color: 'var(--warm-text-light)', padding: 10 }}>{d}</div>
             ))}
             {calDays.map((d, i) => {

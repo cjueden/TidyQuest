@@ -292,7 +292,9 @@
       "showAllRewards": "Show all {n} rewards",
       "showFewerRewards": "Show fewer",
       "refundReward": "Refund",
-      "refundRewardConfirm": "Refund \"{reward}\"? The {coins} coins go back to whoever paid, and it shows as rejected."
+      "refundRewardConfirm": "Refund \"{reward}\"? The {coins} coins go back to whoever paid, and it shows as rejected.",
+      "weekStart": "Week starts on",
+      "weekStartDesc": "Weekly goals, the Board, reward limits and weekly turns start over on this day."
     },
     "nav": {
       "home": "Home",
@@ -957,7 +959,7 @@
       "usedUp": "Used up",
       "usedUp_ever": "Already used",
       "usedUp_day": "Used today — back tomorrow",
-      "usedUp_week": "Used this week — back Monday",
+      "usedUp_week": "Used this week — back {day}",
       "usedUp_month": "Used this month",
       "left_ever": "{n} left",
       "left_day": "{n} left today",
@@ -1023,7 +1025,7 @@
       "offSeason": "Off season",
       "turnChanges": "Turn changes",
       "turnEachTime": "after each completion",
-      "turnWeekly": "every Monday",
+      "turnWeekly": "every {day}",
       "reminder": "Remind at",
       "reminderWhen": "When",
       "reminderSameDay": "on the day",
@@ -1299,7 +1301,8 @@
       "choreRejectedReason": "↩️ “{task}” wasn't approved this time. {parent} says: {reason}",
       "shieldSaved": "🛡️ Your shield saved your {n}-day streak!",
       "shieldsSaved": "🛡️ {count} shields saved your {n}-day streak!",
-      "shieldGiven": "🛡️ {name} gave you a streak shield. It saves your streak if you miss a day."
+      "shieldGiven": "🛡️ {name} gave you a streak shield. It saves your streak if you miss a day.",
+      "recapLastWeek": "📊 Last week: {lines}"
     },
     "notifyAdmin": {
       "peopleTitle": "Who gets what",
@@ -1803,7 +1806,7 @@
       "coinsTitle": "Coins in and out",
       "weeks8": "8 weeks",
       "weeks26": "26 weeks",
-      "coinsHint": "Each bar is a week, Monday to Sunday: coins in above the line, coins out below.",
+      "coinsHint": "Each bar is a week, {first} to {last}: coins in above the line, coins out below.",
       "goalHint": "The mark across a bar is the weekly goal, which counts chore coins only.",
       "coinsEmpty": "No coins came in or went out in these weeks.",
       "weeklyGoal": "Weekly goal",

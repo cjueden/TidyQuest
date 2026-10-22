@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { createTestApp } from './setup';
 import {
   calendarDaysUntil, isInSeason, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput,
   rotationTurnFor, taskHealth, weekNumber,
@@ -105,6 +106,9 @@ describe('Set weekdays', () => {
 });
 
 describe('Weekly rotation', () => {
+  // Weeks follow the family's first day (app_settings 'weekStart'): a fresh app has Monday
+  beforeAll(() => { createTestApp(); });
+
   it('counts Monday-to-Sunday weeks, consecutively over the new year', () => {
     expect(weekNumber(local(1970, 1, 5))).toBe(1); // first Monday
     expect(weekNumber(local(1970, 1, 4, 23))).toBe(0); // the Sunday before

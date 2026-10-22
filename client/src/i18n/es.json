@@ -292,7 +292,9 @@
       "showAllRewards": "Ver las {n} recompensas",
       "showFewerRewards": "Ver menos",
       "refundReward": "Reembolsar",
-      "refundRewardConfirm": "¿Reembolsar «{reward}»? Las {coins} monedas vuelven a quien pagó y aparecerá como rechazada."
+      "refundRewardConfirm": "¿Reembolsar «{reward}»? Las {coins} monedas vuelven a quien pagó y aparecerá como rechazada.",
+      "weekStart": "La semana empieza el",
+      "weekStartDesc": "Los objetivos semanales, el Tablero, los límites de premios y los turnos semanales vuelven a empezar este día."
     },
     "nav": {
       "home": "Inicio",
@@ -957,7 +959,7 @@
       "usedUp": "Agotada",
       "usedUp_ever": "Ya usada",
       "usedUp_day": "Usada hoy — vuelve mañana",
-      "usedUp_week": "Usada esta semana — vuelve el lunes",
+      "usedUp_week": "Usada esta semana — vuelve el {day}",
       "usedUp_month": "Usada este mes",
       "left_ever": "Quedan {n}",
       "left_day": "Quedan {n} hoy",
@@ -1023,7 +1025,7 @@
       "offSeason": "Fuera de temporada",
       "turnChanges": "El turno cambia",
       "turnEachTime": "tras cada vez",
-      "turnWeekly": "cada lunes",
+      "turnWeekly": "cada {day}",
       "reminder": "Recordar a las",
       "reminderWhen": "Cuándo",
       "reminderSameDay": "ese mismo día",
@@ -1299,7 +1301,8 @@
       "choreRejectedReason": "↩️ «{task}» no se aprobó esta vez. {parent} dice: {reason}",
       "shieldSaved": "🛡️ ¡Tu escudo salvó tu racha de {n} días!",
       "shieldsSaved": "🛡️ ¡{count} escudos salvaron tu racha de {n} días!",
-      "shieldGiven": "🛡️ {name} te dio un escudo de racha. Salva tu racha si te saltas un día."
+      "shieldGiven": "🛡️ {name} te dio un escudo de racha. Salva tu racha si te saltas un día.",
+      "recapLastWeek": "📊 La semana pasada: {lines}"
     },
     "notifyAdmin": {
       "peopleTitle": "Quién recibe qué",
@@ -1803,7 +1806,7 @@
       "coinsTitle": "Monedas que entran y salen",
       "weeks8": "8 semanas",
       "weeks26": "26 semanas",
-      "coinsHint": "Cada barra es una semana, de lunes a domingo: las monedas que entran sobre la línea y las que salen debajo.",
+      "coinsHint": "Cada barra es una semana, de {first} a {last}: las monedas que entran sobre la línea y las que salen debajo.",
       "goalHint": "La marca sobre una barra es el objetivo semanal, que solo cuenta las monedas de las tareas.",
       "coinsEmpty": "No entraron ni salieron monedas en estas semanas.",
       "weeklyGoal": "Objetivo semanal",

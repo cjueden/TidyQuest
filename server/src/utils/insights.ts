@@ -15,7 +15,7 @@ export interface InsightsWindow { start: Date; end: Date; grain: Grain; buckets:
 
 const DAY_MS = 86400000;
 
-/** Bar starts from `start` to `end`: whole hours, days, Mondays or 1sts of the month (the first starts at `start`). */
+/** Bar starts from `start` to `end`: whole hours, days, week starts or 1sts of the month (the first starts at `start`). */
 function bucketStarts(start: Date, end: Date, grain: Grain): string[] {
   const out: string[] = [];
   const b = new Date(start);
@@ -335,7 +335,7 @@ export function coinLedger(start: Date, end: Date): LedgerEntry[] {
 }
 
 /**
- * Coins per person and week over the `weeks` weeks ending with the one holding `at` (Monday first): flows
+ * Coins per person and week over the `weeks` weeks ending with the one holding `at` (the family's weeks): flows
  * [week, userId, category, coins], weekly goals [week, userId, goal], everyone's balance now with the net change
  * since the last week ended [userId, net] (end-of-week balances are worked back from them), and rewards bought
  * [rewardId, userId, redemptionId, coins] for "bought most or never".

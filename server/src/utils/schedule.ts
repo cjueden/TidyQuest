@@ -1,6 +1,7 @@
 import db from '../database';
 import { readSteps } from './focus';
 import { calculateHealth } from './health';
+import { weekStartDay } from './periods';
 
 /**
  * When a task is due, in one place, so the room page, Home, the completion cooldown, house health
@@ -21,7 +22,8 @@ import { calculateHealth } from './health';
  * - Season (seasonStartMonth..seasonEndMonth, 1–12, may wrap over the new year, e.g. 11..2):
  *   outside it the task behaves exactly like isSeasonal (no due lists, no house health).
  * - Weekly rotation (rotationPeriod 'week'): whose turn is the assignees ordered by userId at
- *   index weekNumber % n, counting calendar weeks that start on Monday. Nothing is stored.
+ *   index weekNumber % n, counting calendar weeks that start on the family's first day (Monday or
+ *   Sunday; switching only moves Sunday into the next week's turn). Nothing is stored.
  *
  * All dates are local time, like the rest of the server.
  */
@@ -244,10 +246,11 @@ export function lastCompletedAtForHealth(task: ScheduledTask, targetHealth: numb
   return new Date(hi).toISOString();
 }
 
-/** Calendar weeks (Monday to Sunday, local) since an arbitrary fixed Monday; consecutive across years. */
-export function weekNumber(now: Date = new Date()): number {
+/** Calendar weeks (local, starting on `first` like Date.getDay()) since a fixed one; consecutive across years. */
+export function weekNumber(now: Date = new Date(), first: number = weekStartDay()): number {
   const dayIndex = Math.round(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / DAY_MS);
-  return Math.floor((dayIndex + 3) / 7); // day 0 (1970-01-01) was a Thursday
+  // Day 0 (1970-01-01) was a Thursday; Monday-first weeks start counting on day 4, Sunday-first on day 3
+  return Math.floor((dayIndex + 3 + (first === 0 ? 1 : 0)) / 7);
 }
 
 /** Whose turn it is on a rotating task, given its assignees. */

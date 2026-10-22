@@ -169,10 +169,10 @@ export function shiftDay(period: InsightsPeriod, day: string, steps: number): st
   return ymd(d);
 }
 
-/** The last day of the period holding `day` (Sunday, the month's last day, 31 Dec). */
-export function lastDayOf(period: InsightsPeriod, day: string): string {
+/** The last day of the period holding `day` (the week's last day, the month's last day, 31 Dec); weeks start on `weekStart` like getDay(). */
+export function lastDayOf(period: InsightsPeriod, day: string, weekStart = 1): string {
   const d = fromYmd(day);
-  if (period === 'week') d.setDate(d.getDate() + (7 - d.getDay()) % 7);
+  if (period === 'week') d.setDate(d.getDate() + (weekStart + 6 - d.getDay()) % 7);
   else if (period === 'month') d.setDate(new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
   else if (period === 'year') { d.setMonth(11); d.setDate(31); }
   return ymd(d);

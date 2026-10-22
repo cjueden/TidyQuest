@@ -45,10 +45,10 @@ export const GUIDE_FR: GuideSection[] = [
       ] },
       { h: 'Ce qui se passe tout seul' },
       { ul: [
-        'Chaque matin : la Mission sauvetage du jour est choisie (la tâche la plus oubliée rapporte plus), et les enfants peuvent recevoir un résumé des « tâches du jour ». Les parents reçoivent un bilan le dimanche.',
+        'Chaque matin : la Mission sauvetage du jour est choisie (la tâche la plus oubliée rapporte plus), et les enfants peuvent recevoir un résumé des « tâches du jour ». Les parents reçoivent un bilan le dimanche (sur la semaine qui vient de finir, si ta semaine commence le dimanche).',
         'Pendant la journée : des rappels pour les tâches avec une heure fixée, puis encore 2 heures plus tard, puis un message à un parent.',
         'Le soir : des rappels sur ce qui reste à faire, une série sur le point de se briser, ou un objectif tout proche.',
-        'Lundi : une nouvelle semaine commence (les semaines vont du lundi au dimanche) et les objectifs hebdomadaires qui se répètent se remettent en place. Le bonus d’un objectif est versé dès qu’il est atteint.',
+        'Le premier jour de la semaine (lundi, ou dimanche si un parent le choisit dans Paramètres → Général → La semaine commence le) : une nouvelle semaine commence et les objectifs hebdomadaires qui se répètent se remettent en place. Le bonus d’un objectif est versé dès qu’il est atteint.',
         'Minuit : les invitations d’équipe se terminent, et « Complétées aujourd’hui » repart de zéro.',
       ] },
     ],
@@ -406,8 +406,12 @@ export const GUIDE_FR: GuideSection[] = [
         { q: 'Les jours, minuit ou la semaine sont décalés de quelques heures', a: [
           'Définis la variable d’environnement TZ sur le serveur avec ton fuseau horaire et redémarre-le (voir « Installation et mises à jour »).',
         ] },
+        { q: 'La semaine commence le mauvais jour', a: [
+          'Un parent choisit dimanche ou lundi dans Paramètres → Général → La semaine commence le. Les objectifs hebdo, le Tableau, les limites de récompenses et les tours « chaque semaine » le suivent, et un objectif hebdo en cours passe à la nouvelle semaine.',
+          'Les anciens gagnants de la semaine sur le Tableau sont recomptés avec les nouvelles semaines, ils peuvent donc changer un peu.',
+        ] },
         { q: 'Une tâche en rotation semble bloquée sur une personne', a: [
-          'Vérifie sa rotation : « à chaque réalisation » passe à la suite après chaque réalisation (après validation avec le Mode strict) ; « chaque semaine » passe à la suite chaque lundi.',
+          'Vérifie sa rotation : « à chaque réalisation » passe à la suite après chaque réalisation (après validation avec le Mode strict) ; « chaque semaine » passe à la suite au début de chaque semaine (lundi ou dimanche : Paramètres → Général → La semaine commence le).',
           'Les parents et les membres peuvent toujours la faire pour celui dont c’est le tour.',
         ] },
         { q: 'Il n’y a pas de bouton 🤝 Faire équipe', a: [

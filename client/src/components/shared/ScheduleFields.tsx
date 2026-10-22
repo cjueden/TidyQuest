@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { monthName, WEEK_ORDER, weekdayName, type ScheduleValue } from '../../utils/schedule';
+import { monthName, weekdayName, type ScheduleValue } from '../../utils/schedule';
+import { useWeekStart, weekOrder } from '../../utils/week';
 
 // Form controls for a task's scheduling options; the helpers live in utils/schedule.ts.
 
@@ -21,6 +22,7 @@ export function DueOnPicker({ value, onChange, interval, t, language, allowOnce 
   language?: string;
 }) {
   const toggle = (day: number) => onChange({ ...value, weekdays: value.weekdays ^ (1 << day) });
+  const week = weekOrder(useWeekStart());
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
       <select className="tq-input-compact" value={value.mode} aria-label={t('schedule.dueMode')}
@@ -43,7 +45,7 @@ export function DueOnPicker({ value, onChange, interval, t, language, allowOnce 
         <MonthlyPicker value={value} onChange={onChange} t={t} language={language} />
       ) : (
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          {WEEK_ORDER.map((d) => (
+          {week.map((d) => (
             <button type="button" key={d} style={chip(!!(value.weekdays & (1 << d)))} onClick={() => toggle(d)} aria-pressed={!!(value.weekdays & (1 << d))}>
               {weekdayName(d, language)}
             </button>
@@ -62,6 +64,7 @@ function MonthlyPicker({ value, onChange, t, language }: {
   language?: string;
 }) {
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const week = weekOrder(useWeekStart());
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
       <select className="tq-input-compact" value={value.monthWeek} aria-label={t('schedule.monthWhich')}
@@ -78,7 +81,7 @@ function MonthlyPicker({ value, onChange, t, language }: {
       ) : (
         <select className="tq-input-compact" value={value.monthWeekday} aria-label={t('schedule.monthWhich')}
           onChange={(e) => onChange({ ...value, monthWeekday: Number(e.target.value) })}>
-          {WEEK_ORDER.map((d) => <option key={d} value={d}>{weekdayName(d, language)}</option>)}
+          {week.map((d) => <option key={d} value={d}>{weekdayName(d, language)}</option>)}
         </select>
       )}
       {value.monthWeek === 0 && value.monthDay >= 29 && value.monthDay < 31 && (
@@ -139,18 +142,20 @@ export function SeasonPicker({ value, onChange, t, language }: {
 }
 
 /** For rotating tasks: whose turn moves on after each completion, or every Monday. */
-export function RotationPeriodPicker({ value, onChange, t }: {
+export function RotationPeriodPicker({ value, onChange, t, language }: {
   value: ScheduleValue;
   onChange: (v: ScheduleValue) => void;
   t: (key: string) => string;
+  language?: string;
 }) {
+  const first = useWeekStart();
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
       <label style={labelStyle}>{t('schedule.turnChanges')}</label>
       <select className="tq-input-compact" value={value.rotationPeriod}
         onChange={(e) => onChange({ ...value, rotationPeriod: e.target.value as ScheduleValue['rotationPeriod'] })}>
         <option value="completion">{t('schedule.turnEachTime')}</option>
-        <option value="week">{t('schedule.turnWeekly')}</option>
+        <option value="week">{t('schedule.turnWeekly').replace('{day}', weekdayName(first, language, 'long'))}</option>
       </select>
     </div>
   );

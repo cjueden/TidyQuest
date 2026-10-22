@@ -292,7 +292,9 @@
       "showAllRewards": "Alle {n} Belohnungen zeigen",
       "showFewerRewards": "Weniger zeigen",
       "refundReward": "Erstatten",
-      "refundRewardConfirm": "„{reward}“ erstatten? Die {coins} Münzen gehen an alle zurück, die bezahlt haben, und die Anfrage gilt als abgelehnt."
+      "refundRewardConfirm": "„{reward}“ erstatten? Die {coins} Münzen gehen an alle zurück, die bezahlt haben, und die Anfrage gilt als abgelehnt.",
+      "weekStart": "Woche beginnt am",
+      "weekStartDesc": "Wochenziele, das Board, Belohnungslimits und wöchentliche Wechsel starten an diesem Tag neu."
     },
     "nav": {
       "home": "Startseite",
@@ -957,7 +959,7 @@
       "usedUp": "Aufgebraucht",
       "usedUp_ever": "Schon eingelöst",
       "usedUp_day": "Heute eingelöst — morgen wieder",
-      "usedUp_week": "Diese Woche eingelöst — ab Montag wieder",
+      "usedUp_week": "Diese Woche eingelöst — ab {day} wieder",
       "usedUp_month": "Diesen Monat eingelöst",
       "left_ever": "Noch {n}",
       "left_day": "Heute noch {n}",
@@ -1023,7 +1025,7 @@
       "offSeason": "Außerhalb der Saison",
       "turnChanges": "Wechsel",
       "turnEachTime": "nach jeder Erledigung",
-      "turnWeekly": "jeden Montag",
+      "turnWeekly": "jeden {day}",
       "reminder": "Erinnern um",
       "reminderWhen": "Wann",
       "reminderSameDay": "am Tag selbst",
@@ -1299,7 +1301,8 @@
       "choreRejectedReason": "↩️ „{task}“ wurde diesmal nicht bestätigt. {parent} sagt: {reason}",
       "shieldSaved": "🛡️ Dein Schild hat deine {n}-Tage-Serie gerettet!",
       "shieldsSaved": "🛡️ {count} Schilde haben deine {n}-Tage-Serie gerettet!",
-      "shieldGiven": "🛡️ {name} hat dir einen Serienschild geschenkt. Er rettet deine Serie, wenn du einen Tag verpasst."
+      "shieldGiven": "🛡️ {name} hat dir einen Serienschild geschenkt. Er rettet deine Serie, wenn du einen Tag verpasst.",
+      "recapLastWeek": "📊 Letzte Woche: {lines}"
     },
     "notifyAdmin": {
       "peopleTitle": "Wer bekommt was",
@@ -1803,7 +1806,7 @@
       "coinsTitle": "Münzen rein und raus",
       "weeks8": "8 Wochen",
       "weeks26": "26 Wochen",
-      "coinsHint": "Jeder Balken ist eine Woche, Montag bis Sonntag: eingenommene Münzen über der Linie, ausgegebene darunter.",
+      "coinsHint": "Jeder Balken ist eine Woche, {first} bis {last}: eingenommene Münzen über der Linie, ausgegebene darunter.",
       "goalHint": "Der Strich über einem Balken ist das Wochenziel, das nur Münzen aus Aufgaben zählt.",
       "coinsEmpty": "In diesen Wochen kamen keine Münzen rein oder raus.",
       "weeklyGoal": "Wochenziel",

@@ -45,10 +45,10 @@ export const GUIDE_ES: GuideSection[] = [
       ] },
       { h: 'Lo que pasa solo' },
       { ul: [
-        'Cada mañana: se elige la Misión de rescate de hoy (la tarea más olvidada paga extra) y los niños pueden recibir un resumen de "las tareas de hoy". Los padres reciben un resumen los domingos.',
+        'Cada mañana: se elige la Misión de rescate de hoy (la tarea más olvidada paga extra) y los niños pueden recibir un resumen de "las tareas de hoy". Los padres reciben un resumen los domingos (de la semana que acaba de terminar, si tu semana empieza el domingo).',
         'Durante el día: recordatorios de las tareas con hora fija, otra vez 2 horas después y luego un aviso a un padre o una madre.',
         'Por la tarde: avisos sobre lo que queda por hacer, una racha a punto de romperse o un objetivo que está cerca.',
-        'Lunes: empieza una semana nueva (las semanas van de lunes a domingo) y los objetivos semanales que se repiten se preparan de nuevo. El bonus de un objetivo se paga en el momento de alcanzarlo.',
+        'El primer día de la semana (lunes, o domingo si un padre o una madre lo elige en Ajustes → General → La semana empieza el): empieza una semana nueva y los objetivos semanales que se repiten se preparan de nuevo. El bonus de un objetivo se paga en el momento de alcanzarlo.',
         'Medianoche: terminan las invitaciones En equipo y "Completadas hoy" empieza de cero.',
       ] },
     ],
@@ -406,8 +406,12 @@ export const GUIDE_ES: GuideSection[] = [
         { q: 'Los días, la medianoche o la semana van desfasados unas horas', a: [
           'Pon la variable de entorno TZ del servidor con tu zona horaria y reinícialo (mira "Instalación y actualización").',
         ] },
+        { q: 'La semana empieza el día equivocado', a: [
+          'Un padre o una madre elige domingo o lunes en Ajustes → General → La semana empieza el. Los objetivos semanales, el Tablero, los límites de premios y los turnos "por semana" lo siguen, y un objetivo semanal en curso pasa a la nueva semana.',
+          'Los ganadores semanales anteriores del Tablero se vuelven a contar con las nuevas semanas, así que pueden cambiar un poco.',
+        ] },
         { q: 'Una tarea de rotación parece atascada en una persona', a: [
-          'Revisa su rotación: "por cada vez que se completa" pasa al siguiente tras cada vez (tras la aprobación con el Modo estricto); "por semana" pasa al siguiente cada lunes.',
+          'Revisa su rotación: "por cada vez que se completa" pasa al siguiente tras cada vez (tras la aprobación con el Modo estricto); "por semana" pasa al siguiente al empezar cada semana (lunes o domingo: Ajustes → General → La semana empieza el).',
           'Los padres y miembros siempre pueden hacerla por quien le toque.',
         ] },
         { q: 'No hay botón 🤝 Hacer equipo', a: [
