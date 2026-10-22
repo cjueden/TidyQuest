@@ -9,6 +9,16 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+### Added
+- **Pick the day the week starts.** Settings → General → Week starts on: Monday (as before) or Sunday. Weekly
+  goals, the Board (this week, last week, the team goal and past winners), weekly reward limits, rotating rewards,
+  "per week" chore turns, weekly badges, Insights, the Calendar and History's "This week" all follow it. A weekly
+  goal that's running moves to the new week when you switch.
+
+### Changed
+- The weekly recap covers the week that just ended when it goes out on the week's first day (for example, Sunday
+  evening for a family whose week starts on Sunday).
+
 ## v0.11.1 (2026-10-21)
 
 ### Added

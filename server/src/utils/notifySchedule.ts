@@ -5,6 +5,7 @@ import { taskAudience } from './notifyMessages';
 import { isSeasonalNow, nextDueAt } from './schedule';
 import { localDateStr } from './dateHelpers';
 import { buildBoard } from './board';
+import { weekStartDay } from './periods';
 import { todaysMission } from './rescue';
 
 /**
@@ -100,11 +101,13 @@ async function eveningNudges(now: Date) {
 
 async function weeklyRecap(now: Date) {
   if (!notificationsOn('summary') || String(now.getDay()) !== setting('recapDay') || !inWindow(now, setting('recapTime'))) return;
-  const board = buildBoard('week', 'coins', now);
+  // On the week's first day (Sunday by default for Sunday-first families) this week has barely begun: recap the one that ended
+  const lastWeek = now.getDay() === weekStartDay();
+  const board = buildBoard(lastWeek ? 'lastWeek' : 'week', 'coins', now);
   if (board.people.length === 0) return;
   const top = board.people.filter((p) => p.rank === 1 && p.points > 0).map((p) => p.displayName);
   await notifyPeople('parents', 'summary', (lang) => [
-    tr(lang, 'notify.recap', { lines: board.people.map((p) => tr(lang, 'notify.recapLine', { name: p.displayName, coins: p.points, chores: p.chores })).join('; ') }),
+    tr(lang, lastWeek ? 'notify.recapLastWeek' : 'notify.recap', { lines: board.people.map((p) => tr(lang, 'notify.recapLine', { name: p.displayName, coins: p.points, chores: p.chores })).join('; ') }),
     top.length ? tr(lang, 'notify.recapWinner', { name: top.join(' & ') }) : '',
   ].filter(Boolean).join('\n'), { now, dedupeKey: `recap:${localDateStr(now)}` });
 }

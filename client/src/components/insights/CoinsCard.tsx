@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { InsightsCoins } from '../../hooks/useApi';
 import { localeFor } from '../../utils/locale';
+import { weekdayName } from '../../utils/schedule';
+import { useWeekStart } from '../../utils/week';
 import { CoinBars } from './CoinBars';
 import { useBarPick } from './useBarPick';
 import { coinColor, coinWeeks, formatValue, rewardStats, shows, soloOf, type People } from './insightsData';
@@ -31,6 +33,7 @@ export function CoinsCard({ data, weeks, onWeeks, people, language, t, rangeLabe
   const fmt = (v: number) => formatValue(v, language);
   const signed = (v: number, sign: '+' | '−') => (v > 0 ? `${sign}${fmt(v)}` : '0');
   const locale = localeFor(language);
+  const first = useWeekStart();
   const key = `${weeks}:${people ? [...people].join(',') : ''}:${data?.end ?? ''}`;
   const bar = useBarPick(key);
   const selected = bar.shown; // the week to read out: the hovered one, else the pinned one
@@ -62,7 +65,7 @@ export function CoinsCard({ data, weeks, onWeeks, people, language, t, rangeLabe
     <section className="tq-card tq-card-padded" aria-labelledby="insights-coins">
       {header}
       <p style={{ ...muted, margin: '6px 0 8px' }}>
-        {t('insights.coinsHint')}{hasGoals ? ` ${t('insights.goalHint')}` : ''}{' '}
+        {t('insights.coinsHint').replace('{first}', weekdayName(first, language, 'long')).replace('{last}', weekdayName((first + 6) % 7, language, 'long'))}{hasGoals ? ` ${t('insights.goalHint')}` : ''}{' '}
         <strong style={{ color: 'var(--warm-text)', fontWeight: 700 }}>{rangeLabel}</strong>
       </p>
       {empty ? <p style={muted}>{t('insights.coinsEmpty')}</p> : (

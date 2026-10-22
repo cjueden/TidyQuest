@@ -292,7 +292,9 @@
       "showAllRewards": "Voir les {n} récompenses",
       "showFewerRewards": "Voir moins",
       "refundReward": "Rembourser",
-      "refundRewardConfirm": "Rembourser « {reward} » ? Les {coins} pièces reviennent à qui a payé, et la demande apparaît comme refusée."
+      "refundRewardConfirm": "Rembourser « {reward} » ? Les {coins} pièces reviennent à qui a payé, et la demande apparaît comme refusée.",
+      "weekStart": "La semaine commence le",
+      "weekStartDesc": "Les objectifs hebdo, le Tableau, les limites de récompenses et les tours de la semaine repartent ce jour-là."
     },
     "nav": {
       "home": "Accueil",
@@ -957,7 +959,7 @@
       "usedUp": "Épuisée",
       "usedUp_ever": "Déjà utilisée",
       "usedUp_day": "Utilisée aujourd'hui — de retour demain",
-      "usedUp_week": "Utilisée cette semaine — de retour lundi",
+      "usedUp_week": "Utilisée cette semaine — de retour {day}",
       "usedUp_month": "Utilisée ce mois-ci",
       "left_ever": "Encore {n}",
       "left_day": "Encore {n} aujourd'hui",
@@ -1023,7 +1025,7 @@
       "offSeason": "Hors saison",
       "turnChanges": "Le tour change",
       "turnEachTime": "après chaque réalisation",
-      "turnWeekly": "chaque lundi",
+      "turnWeekly": "chaque {day}",
       "reminder": "Rappeler à",
       "reminderWhen": "Quand",
       "reminderSameDay": "le jour même",
@@ -1299,7 +1301,8 @@
       "choreRejectedReason": "↩️ « {task} » n'a pas été validé cette fois. {parent} dit : {reason}",
       "shieldSaved": "🛡️ Ton bouclier a sauvé ta série de {n} jours !",
       "shieldsSaved": "🛡️ {count} boucliers ont sauvé ta série de {n} jours !",
-      "shieldGiven": "🛡️ {name} t'a donné un bouclier de série. Il protège ta série si tu manques un jour."
+      "shieldGiven": "🛡️ {name} t'a donné un bouclier de série. Il protège ta série si tu manques un jour.",
+      "recapLastWeek": "📊 La semaine dernière : {lines}"
     },
     "notifyAdmin": {
       "peopleTitle": "Qui reçoit quoi",
@@ -1803,7 +1806,7 @@
       "coinsTitle": "Pièces gagnées et dépensées",
       "weeks8": "8 semaines",
       "weeks26": "26 semaines",
-      "coinsHint": "Chaque barre est une semaine, du lundi au dimanche : les pièces gagnées au-dessus de la ligne, les dépensées en dessous.",
+      "coinsHint": "Chaque barre est une semaine, du {first} au {last} : les pièces gagnées au-dessus de la ligne, les dépensées en dessous.",
       "goalHint": "Le trait sur une barre est l'objectif de la semaine, qui ne compte que les pièces des tâches.",
       "coinsEmpty": "Aucune pièce gagnée ni dépensée ces semaines-là.",
       "weeklyGoal": "Objectif de la semaine",

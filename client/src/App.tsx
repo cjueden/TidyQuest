@@ -31,6 +31,7 @@ import { localeFor } from './utils/locale';
 import { isTheme, type Theme } from './utils/themes';
 import { activeSeason, useSeasonPreview } from './utils/seasons';
 import { CosmeticsContext, type Cosmetic } from './utils/unlocks';
+import { WeekStartContext } from './utils/week';
 
 const NO_COSMETICS: Record<number, Cosmetic> = {};
 import { SeasonGreeting, SeasonParticles, SeasonStrip } from './components/shared/SeasonalDecor';
@@ -378,6 +379,7 @@ function AppContent() {
   return (
     <SearchContext.Provider value={openSearch}>
     <CosmeticsContext.Provider value={dashboardData?.cosmetics ?? NO_COSMETICS}>
+    <WeekStartContext.Provider value={dashboardData?.weekStart ?? 1}>
     <ChoreTimerProvider key={user.id} userId={user.id} role={user.role} language={user.language} onComplete={(id) => handleCompleteTask(id)}>
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--warm-bg)' }}>
       <ConfettiEffect show={confetti} season={season} celebration={dashboardData?.cosmetics?.[user.id]?.celebration} />
@@ -621,6 +623,7 @@ function AppContent() {
                     vacationUpdatePending.current = false;
                   }
                 }}
+                onWeekStartChange={async (weekStart) => { await api.updateWeekStart(weekStart); await loadDashboard(); }}
                 shields={dashboardData?.shields ?? null}
                 onGiveShield={async (targetUserId) => {
                   await api.giveShield(targetUserId);
@@ -722,6 +725,7 @@ function AppContent() {
       </main>
     </div>
     </ChoreTimerProvider>
+    </WeekStartContext.Provider>
     </CosmeticsContext.Provider>
     </SearchContext.Provider>
   );

@@ -45,10 +45,10 @@ export const GUIDE_NL: GuideSection[] = [
       ] },
       { h: 'Wat vanzelf gebeurt' },
       { ul: [
-        '’s Ochtends: de Reddingsmissie van vandaag wordt gekozen (het meest vergeten klusje levert extra op) en kinderen kunnen een overzicht van "de klusjes van vandaag" krijgen. Ouders krijgen op zondag een terugblik.',
+        '’s Ochtends: de Reddingsmissie van vandaag wordt gekozen (het meest vergeten klusje levert extra op) en kinderen kunnen een overzicht van "de klusjes van vandaag" krijgen. Ouders krijgen op zondag een terugblik (over de week die net voorbij is, als jullie week op zondag begint).',
         'Overdag: herinneringen voor klusjes met een vast tijdstip, na 2 uur nog een keer, en daarna een bericht aan een ouder.',
         '’s Avonds: een duwtje over wat nog niet gedaan is, een streak die dreigt te breken of een doel dat dichtbij is.',
-        'Maandag: er begint een nieuwe week (weken lopen van maandag tot zondag) en weekdoelen die zich herhalen worden opnieuw ingesteld. De bonus van een doel wordt uitbetaald zodra het gehaald is.',
+        'Op de eerste dag van de week (maandag, of zondag als een ouder dat kiest in Instellingen → Algemeen → Week begint op): er begint een nieuwe week en weekdoelen die zich herhalen worden opnieuw ingesteld. De bonus van een doel wordt uitbetaald zodra het gehaald is.',
         'Middernacht: uitnodigingen voor Samen doen verlopen en "Vandaag gedaan" begint opnieuw.',
       ] },
     ],
@@ -406,8 +406,12 @@ export const GUIDE_NL: GuideSection[] = [
         { q: 'Dagen, middernacht of de week lopen een paar uur fout', a: [
           'Zet de omgevingsvariabele TZ op de server op je tijdzone en start hem opnieuw (zie "Installeren en updaten").',
         ] },
+        { q: 'De week begint op de verkeerde dag', a: [
+          'Een ouder kiest zondag of maandag in Instellingen → Algemeen → Week begint op. Weekdoelen, het Scorebord, beloningslimieten en "per week"-beurten volgen die keuze, en een lopend weekdoel schuift mee naar de nieuwe week.',
+          'Eerdere weekwinnaars op het Scorebord worden opnieuw geteld met de nieuwe weken, dus die kunnen een beetje veranderen.',
+        ] },
         { q: 'Een klusje dat om de beurt gaat lijkt bij één persoon vast te zitten', a: [
-          'Controleer de rotatie: "per voltooiing" gaat na elke voltooiing door (na goedkeuring bij Oudercontrole); "per week" gaat elke maandag door.',
+          'Controleer de rotatie: "per voltooiing" gaat na elke voltooiing door (na goedkeuring bij Oudercontrole); "per week" gaat aan het begin van elke week door (maandag of zondag: Instellingen → Algemeen → Week begint op).',
           'Ouders en leden kunnen het altijd doen voor wie aan de beurt is.',
         ] },
         { q: 'Er is geen knop 🤝 Samen doen', a: [

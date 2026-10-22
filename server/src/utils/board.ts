@@ -1,5 +1,5 @@
 import db from '../database';
-import { startOfLocalWeek } from './periods';
+import { startOfLocalWeek, weekOfSql } from './periods';
 import { isFeatureOn } from './features';
 
 /**
@@ -138,11 +138,11 @@ function awardsFor(range: Range, ids: Set<number>): Award[] {
 
 /** Past weekly winners (by coins): the last `limit` weeks for the shelf, and wins per person over all time. */
 function trophyShelf(ids: Set<number>, now: Date, limit = 8) {
-  const thisMonday = startOfLocalWeek(now).toISOString();
+  const thisWeek = startOfLocalWeek(now).toISOString();
   const rows = (db.prepare(
-    `SELECT date(completedAt, 'localtime', 'weekday 0', '-6 days') AS week, userId, SUM(coinsEarned) AS coins
+    `SELECT ${weekOfSql('completedAt')} AS week, userId, SUM(coinsEarned) AS coins
      FROM task_completions WHERE status = 'approved' AND completedAt < ? GROUP BY week, userId`
-  ).all(thisMonday) as Array<{ week: string; userId: number; coins: number }>).filter((r) => ids.has(r.userId));
+  ).all(thisWeek) as Array<{ week: string; userId: number; coins: number }>).filter((r) => ids.has(r.userId));
   const weeks = new Map<string, Array<{ userId: number; coins: number }>>();
   for (const r of rows) {
     if (!weeks.has(r.week)) weeks.set(r.week, []);

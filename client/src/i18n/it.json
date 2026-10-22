@@ -292,7 +292,9 @@
       "showAllRewards": "Mostra tutti i {n} premi",
       "showFewerRewards": "Mostra meno",
       "refundReward": "Rimborsa",
-      "refundRewardConfirm": "Rimborsare «{reward}»? Le {coins} monete tornano a chi ha pagato e la richiesta risulta rifiutata."
+      "refundRewardConfirm": "Rimborsare «{reward}»? Le {coins} monete tornano a chi ha pagato e la richiesta risulta rifiutata.",
+      "weekStart": "La settimana inizia di",
+      "weekStartDesc": "Gli obiettivi settimanali, la Classifica, i limiti dei premi e i turni settimanali ripartono in questo giorno."
     },
     "nav": {
       "home": "Home",
@@ -957,7 +959,7 @@
       "usedUp": "Esaurita",
       "usedUp_ever": "Già usata",
       "usedUp_day": "Usata oggi — torna domani",
-      "usedUp_week": "Usata questa settimana — torna lunedì",
+      "usedUp_week": "Usata questa settimana — torna {day}",
       "usedUp_month": "Usata questo mese",
       "left_ever": "Ancora {n}",
       "left_day": "Ancora {n} oggi",
@@ -1023,7 +1025,7 @@
       "offSeason": "Fuori stagione",
       "turnChanges": "Il turno cambia",
       "turnEachTime": "dopo ogni completamento",
-      "turnWeekly": "ogni lunedì",
+      "turnWeekly": "ogni {day}",
       "reminder": "Ricorda alle",
       "reminderWhen": "Quando",
       "reminderSameDay": "il giorno stesso",
@@ -1299,7 +1301,8 @@
       "choreRejectedReason": "↩️ «{task}» non è stato approvato questa volta. {parent} dice: {reason}",
       "shieldSaved": "🛡️ Il tuo scudo ha salvato la tua serie di {n} giorni!",
       "shieldsSaved": "🛡️ {count} scudi hanno salvato la tua serie di {n} giorni!",
-      "shieldGiven": "🛡️ {name} ti ha regalato uno scudo della serie. Salva la tua serie se salti un giorno."
+      "shieldGiven": "🛡️ {name} ti ha regalato uno scudo della serie. Salva la tua serie se salti un giorno.",
+      "recapLastWeek": "📊 La settimana scorsa: {lines}"
     },
     "notifyAdmin": {
       "peopleTitle": "Chi riceve cosa",
@@ -1803,7 +1806,7 @@
       "coinsTitle": "Monete in entrata e in uscita",
       "weeks8": "8 settimane",
       "weeks26": "26 settimane",
-      "coinsHint": "Ogni barra è una settimana, da lunedì a domenica: le monete in entrata sopra la linea, quelle in uscita sotto.",
+      "coinsHint": "Ogni barra è una settimana, da {first} a {last}: le monete in entrata sopra la linea, quelle in uscita sotto.",
       "goalHint": "Il segno su una barra è l'obiettivo settimanale, che conta solo le monete delle faccende.",
       "coinsEmpty": "Nessuna moneta è entrata o uscita in queste settimane.",
       "weeklyGoal": "Obiettivo settimanale",

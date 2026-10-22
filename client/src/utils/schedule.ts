@@ -1,5 +1,6 @@
 import { localeFor } from './locale';
 import { choreSteps } from './focus';
+import { weekOrder } from './week';
 
 /**
  * The scheduling options of a task (server: utils/schedule.ts): due on set weekdays instead of a
@@ -97,10 +98,7 @@ export function schedulePayload(v: ScheduleValue, opts: { onDemand: boolean; rot
   };
 }
 
-/** Weekdays in display order (Monday first), as getDay() numbers. */
-export const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
-
-export function weekdayName(day: number, language?: string, width: 'short' | 'narrow' = 'short'): string {
+export function weekdayName(day: number, language?: string, width: 'long' | 'short' | 'narrow' = 'short'): string {
   // 2023-01-01 was a Sunday
   return new Date(2023, 0, 1 + day).toLocaleDateString(localeFor(language), { weekday: width });
 }
@@ -109,9 +107,9 @@ export function monthName(month: number, language?: string): string {
   return new Date(2023, month - 1, 1).toLocaleDateString(localeFor(language), { month: 'short' });
 }
 
-/** "Mon, Thu" for a weekday mask. */
-export function weekdaysLabel(mask: number, language?: string): string {
-  return WEEK_ORDER.filter((d) => mask & (1 << d)).map((d) => weekdayName(d, language)).join(', ');
+/** "Mon, Thu" for a weekday mask, in week order from `first` (getDay() number, Monday by default). */
+export function weekdaysLabel(mask: number, language?: string, first = 1): string {
+  return weekOrder(first).filter((d) => mask & (1 << d)).map((d) => weekdayName(d, language)).join(', ');
 }
 
 /** "Monthly, day 15" / "Every first Sat" for a monthly chore; '' when it isn't one. */

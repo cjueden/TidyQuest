@@ -6,15 +6,16 @@ import { api } from '../../hooks/useApi';
 import { CheerBar } from '../shared/CheerBar';
 import { UserTitle } from '../shared/UserTitle';
 import { useTranslation } from '../../hooks/useTranslation';
+import { startOfWeek, useWeekStart } from '../../utils/week';
 
 type Range = '' | 'today' | 'week' | 'month';
 
-/** Local start of today / this week (Monday) / this month. */
-function rangeStart(range: Range): Date | null {
+/** Local start of today / this week (from the family's first day) / this month. */
+function rangeStart(range: Range, weekStart: number): Date | null {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   if (range === 'today') return today;
-  if (range === 'week') return new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
+  if (range === 'week') return startOfWeek(now, weekStart);
   if (range === 'month') return new Date(now.getFullYear(), now.getMonth(), 1);
   return null;
 }
@@ -32,6 +33,7 @@ interface HistoryProps {
 
 export function History({ language, isAdmin, users = [], rooms = [], userId, mascotName }: HistoryProps) {
   const { taskName, t, roomDisplayName, timeAgo } = useTranslation(language);
+  const weekStart = useWeekStart();
   const [history, setHistory] = useState<any[]>([]);
   // The viewer's own chores still waiting for a parent (Strict Mode)
   const [pending, setPending] = useState<Array<{ id: number; completedAt: string; coinsEarned: number; taskName: string; translationKey?: string; roomName: string; roomType?: string; note?: string | null; photoUrl?: string | null }>>([]);
@@ -53,7 +55,7 @@ export function History({ language, isAdmin, users = [], rooms = [], userId, mas
     api.history(limit, offset, {
       userId: person ? Number(person) : undefined,
       roomId: roomId ? Number(roomId) : undefined,
-      from: rangeStart(range)?.toISOString(),
+      from: rangeStart(range, weekStart)?.toISOString(),
       q: query || undefined,
     }).then((data) => {
       if (requestId !== latestRequest.current) return; // a newer filter change already won
@@ -65,7 +67,7 @@ export function History({ language, isAdmin, users = [], rooms = [], userId, mas
 
   useEffect(() => {
     loadHistory();
-  }, [offset, person, roomId, range, query]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [offset, person, roomId, range, query, weekStart]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Search the server once typing pauses
   useEffect(() => {

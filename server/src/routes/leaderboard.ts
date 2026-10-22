@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
+import { startOfLocalWeek } from '../utils/periods';
 import { BOARD_MODES, BOARD_PERIODS, buildBoard, familyGoal, type BoardMode, type BoardPeriod } from '../utils/board';
 
 const router = Router();
@@ -18,11 +19,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   let startDate: string;
 
   if (period === 'week') {
-    const dayOfWeek = now.getDay();
-    const monday = new Date(now);
-    monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-    monday.setHours(0, 0, 0, 0);
-    startDate = monday.toISOString();
+    startDate = startOfLocalWeek(now).toISOString();
   } else if (period === 'month') {
     const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     startDate = firstOfMonth.toISOString();

@@ -298,7 +298,7 @@ export function Rewards({ language, rewards, mine, userCoins, isAdmin, pendingRe
                 {(r.availability || r.availableUntil) && (
                   <div style={{ fontSize: 11, fontWeight: 700, color: usedUp ? 'var(--warm-danger)' : 'var(--warm-text-muted)', marginTop: 4 }}>
                     {r.availability && (usedUp
-                      ? t(`rewardRules.usedUp_${r.availability.period}`)
+                      ? t(`rewardRules.usedUp_${r.availability.period}`).replace('{day}', r.availability.resetsAt ? new Date(r.availability.resetsAt).toLocaleDateString(localeFor(language), { weekday: 'long' }) : '')
                       : t(`rewardRules.left_${r.availability.period}`).replace('{n}', String(r.availability.remaining)))}
                     {r.availability && r.availableUntil ? ' · ' : ''}
                     {r.availableUntil && t('rewardRules.untilDate').replace('{date}', new Date(`${r.availableUntil}T12:00:00`).toLocaleDateString(localeFor(language), { month: 'short', day: 'numeric' }))}

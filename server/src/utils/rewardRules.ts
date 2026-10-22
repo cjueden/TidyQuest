@@ -1,5 +1,6 @@
 import db from '../database';
 import { localDateStr } from './dateHelpers';
+import { startOfLocalWeek } from './periods';
 
 /**
  * Per-reward rules added by this fork: who can see a reward and what it costs them, how often it
@@ -48,11 +49,11 @@ function allRules(): Map<number, RewardRules> {
   return new Map(rows.map((r) => [r.id, r]));
 }
 
-/** Start of the current day / week (Monday) / month, local time; null for "ever". */
+/** Start of the current day / week (the family's first day) / month, local time; null for "ever". */
 export function periodStart(period: LimitPeriod, now = new Date()): Date | null {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   if (period === 'day') return today;
-  if (period === 'week') return new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
+  if (period === 'week') return startOfLocalWeek(now);
   if (period === 'month') return new Date(now.getFullYear(), now.getMonth(), 1);
   return null;
 }
@@ -128,9 +129,13 @@ export function getRotatingPerWeek(): number {
  * The rotating rewards on offer this calendar week: each active, in-window rotating reward gets a
  * score seeded by the ISO year+week and its id, and the lowest scores win. The same week always
  * gives the same picks (no cron needed), and adding a reward only reshuffles a week if it wins.
+ * The ISO week is the one holding the week's Wednesday, so a Sunday-first week keeps the picks of
+ * the Monday–Saturday it shares, and Monday-first weeks are exactly the ISO weeks.
  */
 export function rotatingThisWeek(now = new Date()): Set<number> {
-  const { year, week } = isoWeek(now);
+  const midweek = startOfLocalWeek(now);
+  midweek.setDate(midweek.getDate() + (3 - midweek.getDay() + 7) % 7);
+  const { year, week } = isoWeek(midweek);
   const today = localDateStr(now);
   const pool = (db.prepare(`SELECT ${RULE_COLUMNS} FROM rewards WHERE isActive = 1 AND isRotating = 1`).all() as RewardRules[])
     .filter((r) => inWindow(r, today))

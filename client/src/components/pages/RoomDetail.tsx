@@ -25,6 +25,7 @@ import { TeamUpButton, TeamUpDialog } from '../shared/TeamUp';
 import { claimedLabel } from '../../utils/teamups';
 import type { TeamUpInfo } from '../../hooks/useApi';
 import { DuplicateRoom } from '../shared/DuplicateRoom';
+import { useWeekStart } from '../../utils/week';
 
 const tomorrowIso = () => todayIso(new Date(Date.now() + 86400000));
 
@@ -181,6 +182,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const timer = useChoreTimer();
+  const weekStart = useWeekStart();
   const [editingTask, setEditingTask] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ name: '', originalName: '', notes: '', freqValue: 7, freqUnit: 'days', effort: 1, health: 100, healthChanged: false, iconKey: 'sparkle', onDemand: false, showInDashboard: false, assignmentType: 'none' as 'none' | 'users', assignmentUserIds: [] as number[], assignmentMode: 'first' as 'first' | 'shared' | 'custom' | 'rotating', assignmentPercentages: {} as Record<number, number>, customCoins: '' as string | number, allowEarlyCompletion: false, repeatLimit: '', repeatPeriod: 'week' as 'day' | 'week', paused: false, pausedUntil: '' });
   const [taskMenuOpen, setTaskMenuOpen] = useState<number | null>(null);
@@ -774,7 +776,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                               </div>
                               {editForm.assignmentMode === 'rotating' && (
                                 <div style={{ marginLeft: 70, marginTop: 4 }}>
-                                  <RotationPeriodPicker value={editSchedule} onChange={setEditSchedule} t={t} />
+                                  <RotationPeriodPicker value={editSchedule} onChange={setEditSchedule} t={t} language={language} />
                                 </div>
                               )}
                               {editForm.assignmentMode === 'custom' && (() => {
@@ -900,7 +902,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                     : monthlyLabel(task, t, language)
                       ? <>{monthlyLabel(task, t, language)}</>
                     : task.scheduleWeekdays
-                      ? <>{weekdaysLabel(task.scheduleWeekdays, language)}</>
+                      ? <>{weekdaysLabel(task.scheduleWeekdays, language, weekStart)}</>
                       : <>{t('roomDetail.every')} {formatFreq(task.frequencyDays, t)}</>
                   }
                 </div>
@@ -1238,7 +1240,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                           </div>
                           {newAssignmentMode === 'rotating' && (
                             <div style={{ marginLeft: 70, marginTop: 4 }}>
-                              <RotationPeriodPicker value={newSchedule} onChange={setNewSchedule} t={t} />
+                              <RotationPeriodPicker value={newSchedule} onChange={setNewSchedule} t={t} language={language} />
                             </div>
                           )}
                           {newAssignmentMode === 'custom' && (() => {

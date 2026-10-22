@@ -1,5 +1,6 @@
 import db from '../database';
 import type { AchievementStats } from './achievements';
+import { weekOfSql } from './periods';
 
 /**
  * Badges parents make (Settings → Badges), and levels.
@@ -100,7 +101,7 @@ export function saveCustomBadge(values: Omit<CustomBadge, 'id'>, id?: number, cr
   ).run(...Object.values(cols), createdBy ?? null).lastInsertRowid);
 }
 
-/** The longest run of consecutive weeks in a list of week starts ('YYYY-MM-DD', Mondays). */
+/** The longest run of consecutive weeks in a list of week starts ('YYYY-MM-DD', all the same weekday). */
 export function longestWeekRun(weekStarts: string[]): number {
   const days = [...new Set(weekStarts)].map((w) => Math.round(Date.UTC(+w.slice(0, 4), +w.slice(5, 7) - 1, +w.slice(8, 10)) / 86400000)).sort((a, b) => a - b);
   let best = 0;
@@ -111,8 +112,6 @@ export function longestWeekRun(weekStarts: string[]): number {
   });
   return best;
 }
-
-const WEEK_OF = "date(c.completedAt, 'localtime', 'weekday 0', '-6 days')";
 
 /** How far a person is on a parent-made badge. */
 export function customBadgeValue(badge: CustomBadge, userId: number, stats: AchievementStats): number {
@@ -125,7 +124,7 @@ export function customBadgeValue(badge: CustomBadge, userId: number, stats: Achi
       return (db.prepare("SELECT COUNT(*) AS n FROM task_completions c JOIN tasks t ON t.id = c.taskId WHERE c.userId = ? AND c.status = 'approved' AND t.roomId = ?")
         .get(userId, badge.roomId) as { n: number }).n;
     case 'task_weeks':
-      return longestWeekRun((db.prepare(`SELECT DISTINCT ${WEEK_OF} AS week FROM task_completions c WHERE c.userId = ? AND c.status = 'approved' AND c.taskId IN (${inList(badge.taskIds)})`)
+      return longestWeekRun((db.prepare(`SELECT DISTINCT ${weekOfSql('c.completedAt')} AS week FROM task_completions c WHERE c.userId = ? AND c.status = 'approved' AND c.taskId IN (${inList(badge.taskIds)})`)
         .all(userId, ...badge.taskIds) as Array<{ week: string }>).map((r) => r.week));
     case 'goal_weeks': return stats.goal_weeks;
     case 'completions': return stats.completions;

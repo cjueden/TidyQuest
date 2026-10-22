@@ -104,7 +104,8 @@ export interface InsightsCoins {
   bought: Array<[number, number, number, number]>;
 }
 /** rows are [weekday (0 = Mon), slot, userId, chores, coins, effort] */
-export interface InsightsHeatmap { weeks: 4 | 12; start: string; end: string; people: InsightsPerson[]; rows: Array<[number, number, number, number, number, number]> }
+/** rows: [weekday (0 = the week's first day, weekStart like getDay()), slot, userId, chores, coins, effort] */
+export interface InsightsHeatmap { weeks: 4 | 12; weekStart: number; start: string; end: string; people: InsightsPerson[]; rows: Array<[number, number, number, number, number, number]> }
 
 export interface TrashItem {
   id: number;
@@ -656,6 +657,9 @@ export const api = {
 
   updateUserView: (userId: number, data: { taskView?: 'all' | 'mine' | 'mineOnly'; kidMode?: boolean; focusMode?: FocusModeSetting }) =>
     apiFetch<{ id: number; taskView: 'all' | 'mine' | 'mineOnly'; kidMode: number }>(`/users/${userId}/view`, { method: 'PUT', body: JSON.stringify(data) }),
+  /** The week's first day for the whole family: 1 = Monday, 0 = Sunday (FIX-11) */
+  updateWeekStart: (weekStart: 0 | 1) =>
+    apiFetch<{ weekStart: number }>('/users/week-start', { method: 'PUT', body: JSON.stringify({ weekStart }) }),
   getKidsConfig: () => apiFetch<{ hidePrivateRooms: boolean }>('/users/kids-config'),
   updateKidsConfig: (data: { hidePrivateRooms: boolean }) =>
     apiFetch<{ hidePrivateRooms: boolean }>('/users/kids-config', { method: 'PUT', body: JSON.stringify(data) }),

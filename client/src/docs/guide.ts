@@ -69,10 +69,10 @@ export const GUIDE_EN: GuideSection[] = [
       ] },
       { h: 'What happens by itself' },
       { ul: [
-        'Each morning: today’s Rescue Mission is picked (the most-forgotten chore pays extra), and kids can get a "today’s chores" summary. Parents get a recap on Sundays.',
+        'Each morning: today’s Rescue Mission is picked (the most-forgotten chore pays extra), and kids can get a "today’s chores" summary. Parents get a recap on Sundays (about the week that just ended, if your week starts on Sunday).',
         'During the day: reminders for chores with a set time, then again 2 hours later, then a note to a parent.',
         'Evening: nudges about what’s still undone, a streak about to break, or a goal that’s close.',
-        'Monday: a new week starts (weeks run Monday to Sunday) and weekly goals that repeat set themselves up again. A goal’s bonus is paid the moment it’s reached.',
+        'The first day of the week (Monday, or Sunday if a parent picks it in Settings → General → Week starts on): a new week starts and weekly goals that repeat set themselves up again. A goal’s bonus is paid the moment it’s reached.',
         'Midnight: team-up invites end, and "Completed today" starts over.',
       ] },
     ],
@@ -430,8 +430,12 @@ export const GUIDE_EN: GuideSection[] = [
         { q: 'Days, midnight or the week are off by a few hours', a: [
           'Set the TZ environment variable on the server to your time zone and restart it (see "Installing and updating").',
         ] },
+        { q: 'The week starts on the wrong day', a: [
+          'A parent picks Sunday or Monday in Settings → General → Week starts on. Weekly goals, the Board, reward limits and "per week" turns all follow it, and a weekly goal that’s running moves to the new week.',
+          'Past weekly winners on the Board are counted again with the new weeks, so they can change a little.',
+        ] },
         { q: 'A rotating chore seems stuck on one person', a: [
-          'Check its rotation: "per completion" moves on after each completion (after approval under Strict Mode); "per week" moves on each Monday.',
+          'Check its rotation: "per completion" moves on after each completion (after approval under Strict Mode); "per week" moves on when a new week starts (Monday or Sunday: Settings → General → Week starts on).',
           'Parents and members can always do it for whoever’s turn it is.',
         ] },
         { q: 'There’s no 🤝 Team up button', a: [

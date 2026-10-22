@@ -45,10 +45,10 @@ export const GUIDE_IT: GuideSection[] = [
       ] },
       { h: 'Cosa succede da solo' },
       { ul: [
-        'Ogni mattina: viene scelta la Missione di salvataggio di oggi (la faccenda più dimenticata vale di più), e i bambini possono ricevere un riepilogo delle "faccende di oggi". I genitori ricevono un resoconto la domenica.',
+        'Ogni mattina: viene scelta la Missione di salvataggio di oggi (la faccenda più dimenticata vale di più), e i bambini possono ricevere un riepilogo delle "faccende di oggi". I genitori ricevono un resoconto la domenica (sulla settimana appena finita, se la tua settimana inizia di domenica).',
         'Durante il giorno: promemoria per le faccende con un orario, poi di nuovo 2 ore dopo, poi un avviso a un genitore.',
         'Sera: promemoria su cosa resta da fare, una serie che sta per spezzarsi o un obiettivo vicino.',
-        'Lunedì: inizia una nuova settimana (le settimane vanno da lunedì a domenica) e gli obiettivi settimanali che si ripetono si impostano di nuovo da soli. Il bonus di un obiettivo viene pagato nel momento in cui lo si raggiunge.',
+        'Il primo giorno della settimana (lunedì, o domenica se un genitore lo sceglie in Impostazioni → Generale → La settimana inizia di): inizia una nuova settimana e gli obiettivi settimanali che si ripetono si impostano di nuovo da soli. Il bonus di un obiettivo viene pagato nel momento in cui lo si raggiunge.',
         'Mezzanotte: gli inviti a fare squadra finiscono e "Completate oggi" riparte da zero.',
       ] },
     ],
@@ -406,8 +406,12 @@ export const GUIDE_IT: GuideSection[] = [
         { q: 'I giorni, la mezzanotte o la settimana sono sfasati di qualche ora', a: [
           'Imposta la variabile d’ambiente TZ sul server con il tuo fuso orario e riavvialo (vedi "Installazione e aggiornamenti").',
         ] },
+        { q: 'La settimana inizia nel giorno sbagliato', a: [
+          'Un genitore sceglie domenica o lunedì in Impostazioni → Generale → La settimana inizia di. Gli obiettivi settimanali, la Classifica, i limiti dei premi e i turni "per settimana" lo seguono, e un obiettivo settimanale in corso passa alla nuova settimana.',
+          'I vincitori settimanali passati nella Classifica vengono ricontati con le nuove settimane, quindi possono cambiare un po’.',
+        ] },
         { q: 'Una faccenda a rotazione sembra bloccata su una persona', a: [
-          'Controlla la sua rotazione: "per completamento" passa al successivo dopo ogni completamento (dopo l’approvazione con la Modalità rigorosa); "per settimana" passa al successivo ogni lunedì.',
+          'Controlla la sua rotazione: "per completamento" passa al successivo dopo ogni completamento (dopo l’approvazione con la Modalità rigorosa); "per settimana" passa al successivo all’inizio di ogni settimana (lunedì o domenica: Impostazioni → Generale → La settimana inizia di).',
           'Genitori e membri possono sempre farla per chi ha il turno.',
         ] },
         { q: 'Manca il pulsante 🤝 Fai squadra', a: [
