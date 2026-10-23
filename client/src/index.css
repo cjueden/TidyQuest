@@ -1187,6 +1187,20 @@ html[data-theme='lava'] option {
     gap: 8px 16px !important;
   }
 
+  /* The tools sit on the left here, so the ⋯ menu opens rightward from their left edge and stays on the card */
+  .room-task-tools {
+    position: relative;
+  }
+
+  .room-task-more {
+    position: static !important;
+  }
+
+  .room-task-menu {
+    left: 0;
+    right: auto !important;
+  }
+
   .room-task-tools > button,
   .room-task-more-btn,
   .room-task-done > button,

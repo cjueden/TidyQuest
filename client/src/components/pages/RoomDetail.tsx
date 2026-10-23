@@ -617,7 +617,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       style={{ flex: 1, resize: 'vertical' }}
                     />
                   </div>
-                  <div className="task-edit-form" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                  <div className="task-edit-form" style={{ display: 'flex', alignItems: 'center', gap: '12px 20px', flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.onDemand')}</label>
                       <input type="checkbox" checked={editForm.onDemand}
@@ -979,7 +979,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                           <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" fill="currentColor"><circle cx="4" cy="10" r="2" /><circle cx="10" cy="10" r="2" /><circle cx="16" cy="10" r="2" /></svg>
                         </button>
                         {taskMenuOpen === task.id && (
-                          <div
+                          <div className="room-task-menu"
                             style={{ position: 'absolute', right: 0, top: '100%', zIndex: 100, background: 'var(--warm-card)', border: '1.5px solid var(--warm-border)', borderRadius: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.14)', minWidth: 180, overflow: 'hidden' }}
                           >
                             <button
@@ -1105,7 +1105,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                   className="tq-input"
                   style={{ flex: 1, resize: 'vertical' }} />
               </div>
-              <div className="task-add-form" style={{ display: 'flex', alignItems: 'center', gap: 20, minHeight: 30 }}>
+              <div className="task-add-form" style={{ display: 'flex', alignItems: 'center', gap: '12px 20px', flexWrap: 'wrap', minHeight: 30 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('roomDetail.onDemand')}</label>
                   <input type="checkbox" checked={newTaskOnDemand}

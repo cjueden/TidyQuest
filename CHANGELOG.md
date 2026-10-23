@@ -19,6 +19,11 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 - The weekly recap covers the week that just ended when it goes out on the week's first day (for example, Sunday
   evening for a family whose week starts on Sunday).
 
+### Fixed
+- On a computer, the chore editor's options (Timer, Steps, Effort, Allow early completion) no longer run off the
+  right side of the card: that row wraps now, in Add Task too.
+- On phones, a chore's ⋯ menu no longer hangs off the left edge of its card.
+
 ## v0.11.1 (2026-10-21)
 
 ### Added
