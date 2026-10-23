@@ -23,6 +23,12 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 - On a computer, the chore editor's options (Timer, Steps, Effort, Allow early completion) no longer run off the
   right side of the card: that row wraps now, in Add Task too.
 - On phones, a chore's ⋯ menu no longer hangs off the left edge of its card.
+- A room's page no longer scrolls sideways on laptops. On a wide screen the chore table's columns share the space,
+  so names and descriptions get room to breathe. On a narrower one each chore shows its name on top, its details on
+  a line below and its buttons at the right; the column names stay above as sort buttons.
+- Page titles no longer push the Search, coins and streak badges off the side on narrow computer windows; the
+  badges move under the title instead.
+- In kid mode, the room table's column names line up with the chores again.
 
 ## v0.11.1 (2026-10-21)
 

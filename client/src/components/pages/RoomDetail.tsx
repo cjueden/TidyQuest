@@ -29,6 +29,11 @@ import { useWeekStart } from '../../utils/week';
 
 const tomorrowIso = () => todayIso(new Date(Date.now() + 86400000));
 
+// Task table columns: each shrinks to a fixed minimum, so every row lines up (the buttons' 190px fits German's
+// "☆ Bearbeiten ⋯"). When the card is narrower than the minimums add up to (954px with gaps), computers switch to the
+// wrapped layout in index.css (BUG-11).
+const TASK_COLUMNS = 'minmax(240px, 3fr) minmax(80px, 1.4fr) minmax(70px, 1fr) 80px minmax(44px, 0.6fr) minmax(70px, 1fr) minmax(80px, 1.4fr) minmax(190px, 2fr)';
+
 const FREQ_UNITS = [
   { label: 'hours', toDays: 1 / 24 },
   { label: 'days', toDays: 1 },
@@ -573,7 +578,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
         <div className="room-table-scroll room-detail-scroll">
         {/* Column Headers (sortable) */}
         <div className="room-table-header" style={{
-          display: 'grid', gridTemplateColumns: '1fr 150px 100px 85px 70px 110px 150px 220px',
+          display: 'grid', gridTemplateColumns: TASK_COLUMNS,
           gap: 12, padding: '0 8px 14px', borderBottom: '1.5px solid var(--warm-border)',
           fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1,
         }}>
@@ -862,7 +867,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
               document.body
             )}
               <div className={`room-task-row${task.pausedAt ? ' room-task-paused' : ''}`} style={{
-                display: 'grid', gridTemplateColumns: '1fr 150px 100px 85px 70px 110px 150px 220px',
+                display: 'grid', gridTemplateColumns: TASK_COLUMNS,
                 gap: 12, padding: '16px 8px', alignItems: 'center',
                 borderBottom: '1px solid var(--warm-border-subtle)',
                 backgroundColor: animatedTask === task.id ? 'var(--health-green-bg)' : task.pausedAt ? 'var(--warm-bg-subtle)' : 'transparent',
