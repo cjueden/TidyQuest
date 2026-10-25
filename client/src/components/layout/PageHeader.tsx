@@ -26,7 +26,7 @@ export function PageHeader({ title, subtitle, user, rightContent, onCoinsClick, 
   const openSearch = useContext(SearchContext);
   const { t } = useTranslation(user.language);
   return (
-    <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+    <div className="page-header" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 16px', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
       <div>
         <h1 style={{ fontSize: 26, fontWeight: 900, color: 'var(--warm-text)', margin: 0, letterSpacing: -0.5 }}>
           {title}
@@ -35,7 +35,7 @@ export function PageHeader({ title, subtitle, user, rightContent, onCoinsClick, 
           {subtitle}
         </p>
       </div>
-      <div className="page-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div className="page-header-actions" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 16 }}>
         {openSearch && (
           <button
             onClick={openSearch}

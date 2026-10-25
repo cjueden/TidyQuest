@@ -1187,6 +1187,20 @@ html[data-theme='lava'] option {
     gap: 8px 16px !important;
   }
 
+  /* The tools sit on the left here, so the ⋯ menu opens rightward from their left edge and stays on the card */
+  .room-task-tools {
+    position: relative;
+  }
+
+  .room-task-more {
+    position: static !important;
+  }
+
+  .room-task-menu {
+    left: 0;
+    right: auto !important;
+  }
+
   .room-task-tools > button,
   .room-task-more-btn,
   .room-task-done > button,
@@ -1498,6 +1512,10 @@ html[data-theme='lava'] option {
 .kid-mode [data-task-id] > div:nth-child(2) > div:first-child {
   font-size: 16px !important;
 }
+/* Same inset as the padded chores, so the room table's header lines up with them */
+.kid-mode .room-table-header {
+  margin: 0 16px;
+}
 
 /* Achievement pop-up: centred on phones, top-right on wider screens */
 @media (min-width: 769px) {
@@ -1564,4 +1582,49 @@ html[data-theme='lava'] input[type='date'], html[data-season-dark] input[type='d
 /* A paused chore (ENH-1): greyed in its room; its buttons (Edit, ⋯ to switch it back on) stay clear */
 .room-task-paused > :not(.room-task-actions) {
   opacity: 0.5;
+}
+
+/* Room task table on a computer narrower than its columns' minimums (TASK_COLUMNS in RoomDetail.tsx, BUG-11): each
+   chore wraps instead, name on top, then health through assigned with the buttons at the right. The header stays as
+   a row of sort links. Phones keep their own layout above. */
+.room-table-scroll {
+  container: room-table / inline-size;
+}
+
+@media (min-width: 769px) {
+  /* Extra buttons (📎, 📅, timer, team-up) wrap above Done instead of spilling out of the column */
+  .room-task-done {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  @container room-table (max-width: 953px) {
+    .room-table-header {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 6px 20px !important;
+    }
+
+    .room-table-header > :last-child {
+      display: none;
+    }
+
+    .room-task-row {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 10px 20px !important;
+    }
+
+    .room-task-main {
+      flex: 1 1 100%;
+    }
+
+    .room-task-health {
+      flex: 0 1 150px;
+    }
+
+    .room-task-actions {
+      margin-left: auto;
+    }
+  }
 }
