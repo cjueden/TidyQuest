@@ -9,6 +9,8 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+## v0.12.0 (2026-10-24)
+
 ### Added
 - **Pick the day the week starts.** Settings → General → Week starts on: Monday (as before) or Sunday. Weekly
   goals, the Board (this week, last week, the team goal and past winners), weekly reward limits, rotating rewards,
