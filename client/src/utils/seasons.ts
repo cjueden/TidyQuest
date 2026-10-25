@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { wall } from './clock';
 
 /**
  * Seasonal styling: the whole app dresses up for the holidays. One entry per holiday; to add one, add it here,
@@ -107,17 +108,18 @@ export const useSeasonPreview = () => useSyncExternalStore(
   () => preview,
 );
 
-/** The holiday showing now: a preview wins; otherwise the device's date, if the family has it on. */
+/** The holiday showing now: a preview wins; otherwise the family's date, if the family has it on. */
 export function activeSeason(opts: { enabled: boolean; off: string[]; preview: string | null; now?: Date }): Season | null {
   const previewed = seasonById(opts.preview);
   if (previewed) return previewed;
   if (!opts.enabled) return null;
-  const month = (opts.now ?? new Date()).getMonth() + 1;
+  const month = wall(opts.now ?? new Date()).month + 1;
   return SEASONS.find((s) => s.months.includes(month) && !opts.off.includes(s.id)) ?? null;
 }
 
 /** Whole days from today until the season's day (0 = today, negative = it's passed). */
 export function daysUntil(season: Season, now = new Date()): number {
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  return Math.round((season.day(now.getFullYear()).getTime() - today.getTime()) / 86400000);
+  const w = wall(now);
+  const today = new Date(w.year, w.month, w.date); // a calendar day, like season.day()
+  return Math.round((season.day(w.year).getTime() - today.getTime()) / 86400000);
 }

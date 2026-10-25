@@ -50,6 +50,7 @@ export const GUIDE_DE: GuideSection[] = [
         'Abends: Hinweise darauf, was noch offen ist, auf eine Serie, die gleich reißt, oder ein Ziel, das nah ist.',
         'Am ersten Tag der Woche (Montag oder Sonntag, wenn ein Elternteil das unter Einstellungen → Allgemein → Woche beginnt am wählt): Eine neue Woche beginnt, und Wochenziele, die sich wiederholen, richten sich neu ein. Der Bonus eines Ziels wird in dem Moment ausgezahlt, in dem es erreicht ist.',
         'Mitternacht: Teamwork-Einladungen enden, und „Heute erledigt“ beginnt von vorn.',
+        'All das folgt der Uhr der Familie: Mitternacht und der erste Tag der Woche dort, wo die Familie wohnt (Einstellungen → Allgemein → Zeitzone). Ein Elternteil auf Reisen sieht weiter die Tage von zu Hause.',
       ] },
     ],
   },
@@ -335,7 +336,7 @@ export const GUIDE_DE: GuideSection[] = [
     blocks: [
       { ul: [
         'TidyQuest läuft als ein Docker-Container mit einem Datenordner (die Datenbank, Avatare und Beweisfotos). Sichere diesen Ordner.',
-        'Setze JWT_SECRET auf eine lange Zufallszeichenfolge und TZ auf deine Zeitzone (zum Beispiel Europe/Berlin). Ohne TZ nutzt der Server UTC, und „heute“, Mitternacht und die Woche wären um Stunden verschoben.',
+        'Setze JWT_SECRET auf eine lange Zufallszeichenfolge. Die Zeitzone der Familie wählt ihr in der App (Einstellungen → Allgemein → Zeitzone); eine neue Installation übernimmt sie vom Gerät des ersten Elternteils. TZ auf dem Server gilt nur, bis eine gewählt ist.',
         'Releases sind getaggt (zum Beispiel 0.9.0). Lege diese Nummer in docker-compose.yml fest und führe dann „docker compose pull && docker compose up -d“ aus. Das Image „:main“ ist der neueste Code, zum vorherigen Ausprobieren.',
         'Einstellungen → Allgemein zeigt die laufende Version. Um zurückzugehen, trage die vorherige Versionsnummer wieder ein und starte es erneut (mach vorher ein Backup: Die Datenbank geht nur vorwärts).',
         'Handy-Benachrichtigungen aus der App selbst und das Installieren als App brauchen eine sichere Adresse (https://); bis dahin nutze ntfy oder Telegram.',
@@ -403,8 +404,9 @@ export const GUIDE_DE: GuideSection[] = [
           'Ruhezeiten und Schulzeiten halten Nachrichten zurück, bis sie enden.',
           'Das Benachrichtigungsprotokoll zeigt jede Nachricht und jeden Fehler.',
         ] },
-        { q: 'Tage, Mitternacht oder die Woche sind um ein paar Stunden verschoben', a: [
-          'Setze die Umgebungsvariable TZ auf dem Server auf deine Zeitzone und starte ihn neu (siehe „Installieren und aktualisieren“).',
+        { q: 'Aufgaben starten zur falschen Uhrzeit neu, oder Tage und Wochen sind um ein paar Stunden verschoben', a: [
+          'Prüfe Einstellungen → Allgemein → Zeitzone (Eltern): Dort beginnen die Tage für die ganze Familie um Mitternacht. Steht dort „Noch nicht gewählt“, tippe auf Übernehmen, um die Zeitzone dieses Geräts zu nehmen, oder tippe auf Ändern und suche deine.',
+          'Eine Änderung verschiebt ab dann, wann jeder Tag beginnt. Erledigte Aufgaben bleiben an dem Tag, an dem sie erledigt wurden.',
         ] },
         { q: 'Die Woche beginnt am falschen Tag', a: [
           'Ein Elternteil wählt Sonntag oder Montag unter Einstellungen → Allgemein → Woche beginnt am. Wochenziele, das Board, Belohnungslimits und wöchentliche Wechsel richten sich danach, und ein laufendes Wochenziel zieht in die neue Woche um.',

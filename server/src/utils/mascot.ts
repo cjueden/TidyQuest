@@ -1,4 +1,5 @@
 import db from '../database';
+import { dateStr } from './clock';
 import { familyGoal } from './board';
 import { isFeatureOn } from './features';
 
@@ -111,7 +112,7 @@ export function mascotFor(opts: { houseHealth: number; rooms: Array<{ id: number
   const mood = moodFor(opts.houseHealth);
   const messiest = [...opts.rooms].sort((a, b) => a.health - b.health)[0];
   // Birthdays are stored 'MM-DD'
-  const today = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const today = dateStr(now).slice(5);
   const birthday = (db.prepare('SELECT displayName FROM users WHERE birthday = ?').get(today) as { displayName: string } | undefined)?.displayName ?? null;
   const goalWon = !!familyGoal(now)?.reached;
   return {

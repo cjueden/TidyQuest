@@ -32,3 +32,12 @@ jobs:
       - name: Run tests
         working-directory: server
         run: npm test
+
+      # The family's time zone (Settings → Time zone) far from the server's: every "today" and "this week"
+      # must come from the family's clock, not the server's
+      - name: Run tests with the family in another time zone
+        working-directory: server
+        run: npm test
+        env:
+          TZ: UTC
+          TEST_TIME_ZONE: Pacific/Auckland

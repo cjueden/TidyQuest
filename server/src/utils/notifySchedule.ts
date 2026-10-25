@@ -4,6 +4,7 @@ import { flushNotificationQueue, notificationsOn, notifyPeople } from './notify'
 import { taskAudience } from './notifyMessages';
 import { isSeasonalNow, nextDueAt } from './schedule';
 import { localDateStr } from './dateHelpers';
+import { endOfDay, minuteOfDay, wall } from './clock';
 import { buildBoard } from './board';
 import { weekStartDay } from './periods';
 import { todaysMission } from './rescue';
@@ -21,13 +22,12 @@ export const SCHEDULE_DEFAULTS = { morningTime: '07:00', eveningTime: '19:00', r
 const setting = (key: keyof typeof SCHEDULE_DEFAULTS) =>
   (db.prepare('SELECT value FROM app_settings WHERE key = ?').get(key) as { value: string } | undefined)?.value || SCHEDULE_DEFAULTS[key];
 const minutes = (hm: string) => { const m = /^(\d\d):(\d\d)$/.exec(hm); return m ? Number(m[1]) * 60 + Number(m[2]) : -1; };
-const nowMinutes = (now: Date) => now.getHours() * 60 + now.getMinutes();
+const nowMinutes = (now: Date) => minuteOfDay(now);
 /** Within [time + offset, time + offset + window) today */
 const inWindow = (now: Date, hm: string, offset = 0, window = WINDOW_MIN) => {
   const start = minutes(hm) + offset;
   return start >= 0 && nowMinutes(now) >= start && nowMinutes(now) < start + window;
 };
-const endOfDay = (d: Date, plusDays = 0) => { const out = new Date(d); out.setDate(out.getDate() + plusDays); out.setHours(23, 59, 59, 999); return out; };
 
 interface TaskRow { id: number; name: string; roomId: number; onDemand: number; isSeasonal: number; frequencyDays: number; lastCompletedAt: string | null;
   scheduleWeekdays: number | null; seasonStartMonth: number | null; seasonEndMonth: number | null; assignmentMode: string | null;
@@ -100,9 +100,10 @@ async function eveningNudges(now: Date) {
 }
 
 async function weeklyRecap(now: Date) {
-  if (!notificationsOn('summary') || String(now.getDay()) !== setting('recapDay') || !inWindow(now, setting('recapTime'))) return;
+  const today = wall(now).weekday;
+  if (!notificationsOn('summary') || String(today) !== setting('recapDay') || !inWindow(now, setting('recapTime'))) return;
   // On the week's first day (Sunday by default for Sunday-first families) this week has barely begun: recap the one that ended
-  const lastWeek = now.getDay() === weekStartDay();
+  const lastWeek = today === weekStartDay();
   const board = buildBoard(lastWeek ? 'lastWeek' : 'week', 'coins', now);
   if (board.people.length === 0) return;
   const top = board.people.filter((p) => p.rank === 1 && p.points > 0).map((p) => p.displayName);

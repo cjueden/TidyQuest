@@ -5,6 +5,7 @@ import type Database from 'better-sqlite3';
 import { flushNotificationQueue, notifyPeople, setNotifyTransport, type Delivery } from '../utils/notify';
 import { notifyBadge, notifyChoreApproved } from '../utils/notifyMessages';
 import { runScheduledNotifications } from '../utils/notifySchedule';
+import { at as homeAt } from '../utils/clock';
 
 let agent: supertest.Agent;
 let db: InstanceType<typeof Database>;
@@ -20,7 +21,7 @@ afterEach(() => setNotifyTransport());
 const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
 const setting = (key: string, value: string) => db.prepare('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)').run(key, value);
 // Wednesday Oct 14 2026
-const at = (hour: number, minute = 0, day = 14) => new Date(2026, 9, day, hour, minute);
+const at = (hour: number, minute = 0, day = 14) => homeAt(2026, 9, day, hour, minute);
 
 async function family() {
   const admin = await createAdmin(agent);

@@ -1,6 +1,7 @@
 import db from '../database';
 import { isSeasonalNow, nextDueAt, taskHealth, type ScheduledTask } from './schedule';
 import { localDateStr } from './dateHelpers';
+import { dayAt, daySql } from './clock';
 import { getGlobalVacation, getUserVacation, resolveVacation } from './adminHelpers';
 import { isFeatureOn } from './features';
 import { notifyPeople } from './notify';
@@ -34,20 +35,18 @@ export function shieldsOn(): boolean {
   return (g ? g.value !== '0' : true) && isFeatureOn('shields');
 }
 
-const addDays = (day: string, n: number) => {
-  const d = new Date(`${day}T12:00:00`);
-  d.setDate(d.getDate() + n);
-  return localDateStr(d);
-};
+/** A 'YYYY-MM-DD' day n days later (pure calendar, so no zone or DST can shift it). */
+const addDays = (day: string, n: number) =>
+  new Date(Date.UTC(Number(day.slice(0, 4)), Number(day.slice(5, 7)) - 1, Number(day.slice(8, 10)) + n)).toISOString().slice(0, 10);
 
 export function hadDueTaskOnDate(dateIsoDay: string): boolean {
-  const endOfDay = new Date(`${dateIsoDay}T23:59:59.999Z`).getTime();
+  const endOfDay = dayAt(dateIsoDay, 23, 59, 59, 999).getTime();
   const tasks = db.prepare('SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND pausedAt IS NULL AND oneTime = 0').all() as Array<ScheduledTask & {
     id: number; isSeasonal: number;
   }>;
 
   for (const t of tasks) {
-    if (isSeasonalNow(t, new Date(`${dateIsoDay}T12:00:00`))) continue;
+    if (isSeasonalNow(t, dayAt(dateIsoDay, 12))) continue;
     const dueTs = nextDueAt(t)?.getTime() ?? 0;
     if (dueTs <= endOfDay && taskHealth(t) < 100) return true;
   }
@@ -61,7 +60,7 @@ export function hadDueTaskOnDate(dateIsoDay: string): boolean {
  */
 export function missedStreakDays(userId: number, lastDay: string, lastDayToCheck: string, limit = Infinity): string[] {
   const done = new Set((db.prepare(
-    `SELECT DISTINCT date(completedAt, 'localtime') AS d FROM task_completions
+    `SELECT DISTINCT ${daySql('completedAt')} AS d FROM task_completions
      WHERE userId = ? AND status IN ('approved', 'pending') AND completedAt >= ?`
   ).all(userId, addDays(lastDay, -1)) as { d: string }[]).map((r) => r.d));
   const missed: string[] = [];
@@ -107,9 +106,10 @@ export function lateStreak(userId: number, day: string): void {
   const { brokenStreak: old, brokenStreakAfter: after, brokenStreakOn: restarted } = u;
   if (!old || !after || !restarted || day <= after || day >= restarted) return;
   if (missedStreakDays(userId, after, addDays(restarted, -1), 1).length > 0) return;
+  const doneDay = daySql('completedAt');
   const filled = (db.prepare(
-    `SELECT COUNT(DISTINCT date(completedAt, 'localtime')) AS n FROM task_completions
-     WHERE userId = ? AND status = 'approved' AND date(completedAt, 'localtime') > ? AND date(completedAt, 'localtime') < ?`
+    `SELECT COUNT(DISTINCT ${doneDay}) AS n FROM task_completions
+     WHERE userId = ? AND status = 'approved' AND ${doneDay} > ? AND ${doneDay} < ?`
   ).get(userId, after, restarted) as { n: number }).n;
   const streak = old + filled + u.currentStreak;
   db.prepare('UPDATE users SET currentStreak = ?, brokenStreak = NULL, brokenStreakAfter = NULL, brokenStreakOn = NULL WHERE id = ?').run(streak, userId);

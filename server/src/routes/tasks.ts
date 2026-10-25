@@ -14,6 +14,7 @@ import { claimRescue, releaseRescue, setRescueCompletion, todaysMission } from '
 import { notifyChoreApproved, notifyChoreRejected, notifyChoreWaiting } from '../utils/notifyMessages';
 import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, getUserVacation, resolveVacation, isStrictModeEnabled } from '../utils/adminHelpers';
 import { localDateStr } from '../utils/dateHelpers';
+import { dayAt, daySql, endOfDay as endOfDayOf, startOfDay } from '../utils/clock';
 import { hasFixedSchedule, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, parseStored, readScheduleInput, rotationTurnUserId, saveScheduleInput, scheduleFields, taskHealth, type ScheduledTask } from '../utils/schedule';
 import { isNotificationTypeEnabled, sendNotification } from '../utils/notifications';
 import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatLimits';
@@ -77,7 +78,7 @@ function applyApprovedCompletion(
       const doneCount = db.prepare(
         `SELECT COUNT(*) as cnt
          FROM task_completions
-         WHERE taskId = ? AND status = 'approved' AND date(completedAt, 'localtime') = date(?, 'localtime')`
+         WHERE taskId = ? AND status = 'approved' AND ${daySql('completedAt')} = ${daySql('?')}`
       ).get(taskId, now) as { cnt: number };
       if (doneCount.cnt >= taskAssignees.length) setLastCompleted();
     } else {
@@ -251,7 +252,7 @@ router.get('/rooms/:roomId/tasks', (req: AuthRequest, res: Response) => {
         `SELECT tc.id as completionId, tc.taskId, tc.userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
          FROM task_completions tc
          JOIN users u ON tc.userId = u.id
-         WHERE tc.taskId IN (${taskIds.map(() => '?').join(',')}) AND tc.status = 'approved' AND date(tc.completedAt, 'localtime') = date(?, 'localtime')`
+         WHERE tc.taskId IN (${taskIds.map(() => '?').join(',')}) AND tc.status = 'approved' AND ${daySql('tc.completedAt')} = ${daySql('?')}`
       ).all(...taskIds, now) as any[]
     : [];
 
@@ -700,7 +701,7 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
 
   const now = new Date().toISOString();
   const completions = db.prepare(
-    "SELECT id, userId, coinsEarned, status FROM task_completions WHERE taskId = ? AND date(completedAt, 'localtime') = date(?, 'localtime')"
+    `SELECT id, userId, coinsEarned, status FROM task_completions WHERE taskId = ? AND ${daySql('completedAt')} = ${daySql('?')}`
   ).all(task.id, now) as Array<{ id: number; userId: number; coinsEarned: number; status: string }>;
 
   for (const completion of completions) {
@@ -711,7 +712,7 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
   }
 
   db.prepare(
-    "DELETE FROM task_completions WHERE taskId = ? AND date(completedAt, 'localtime') = date(?, 'localtime')"
+    `DELETE FROM task_completions WHERE taskId = ? AND ${daySql('completedAt')} = ${daySql('?')}`
   ).run(task.id, now);
 
   const effectiveFrequency = Math.max(1 / 24, Number(task.frequencyDays) || 7);
@@ -751,9 +752,7 @@ function readDoneOn(body: any): string | null | { error: string } {
   if (v == null || v === '') return null;
   if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return { error: 'invalid_done_on' };
   const today = localDateStr();
-  const earliest = new Date(`${today}T12:00:00`);
-  earliest.setDate(earliest.getDate() - LATE_DAYS);
-  if (v >= today || v < localDateStr(earliest)) return { error: 'invalid_done_on' };
+  if (v >= today || v < localDateStr(startOfDay(new Date(), -LATE_DAYS))) return { error: 'invalid_done_on' };
   return v;
 }
 
@@ -770,12 +769,11 @@ function dueOnDay(task: any, userId: number, when: string): boolean {
   const perPerson = task.assignmentMode === 'shared' || task.assignmentMode === 'custom';
   const prev = db.prepare(
     `SELECT completedAt FROM task_completions WHERE taskId = ? AND status IN ('approved', 'pending')
-     AND date(completedAt, 'localtime') < date(?, 'localtime')${perPerson ? ' AND userId = ?' : ''}
+     AND ${daySql('completedAt')} < ${daySql('?')}${perPerson ? ' AND userId = ?' : ''}
      ORDER BY completedAt DESC LIMIT 1`
   ).get(...(perPerson ? [task.id, when, userId] : [task.id, when])) as { completedAt: string } | undefined;
   if (!prev || task.allowEarlyCompletion) return true;
-  const endOfDay = new Date(when);
-  endOfDay.setHours(23, 59, 59, 999);
+  const endOfDay = endOfDayOf(when);
   const due = nextDueAt({ ...task, lastCompletedAt: prev.completedAt }, endOfDay);
   return !due || due.getTime() <= endOfDay.getTime();
 }
@@ -847,12 +845,12 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
 
   // Always use server timestamp — never trust client-supplied completedAt. A late log is stored at noon on its day.
   const now = new Date().toISOString();
-  const when = lateDay ? new Date(`${lateDay}T12:00:00`).toISOString() : now;
+  const when = lateDay ? dayAt(lateDay, 12).toISOString() : now;
 
   if (!task.onDemand) {
     // Block if effective user already completed this task today
     const alreadyDoneBySelf = db.prepare(
-      "SELECT id FROM task_completions WHERE taskId = ? AND userId = ? AND status IN ('approved', 'pending') AND date(completedAt, 'localtime') = date(?, 'localtime')"
+      `SELECT id FROM task_completions WHERE taskId = ? AND userId = ? AND status IN ('approved', 'pending') AND ${daySql('completedAt')} = ${daySql('?')}`
     ).get(task.id, effectiveUserId, when);
     if (alreadyDoneBySelf) {
       return res.status(409).json({ error: lateDay ? 'already_done_that_day' : 'already_done_today' });
@@ -861,7 +859,7 @@ router.post('/tasks/:id/complete', (req: AuthRequest, res: Response) => {
     if (task.assignmentMode !== 'shared' && task.assignmentMode !== 'custom') {
       // In 'first' mode: block if someone else already completed today
       const alreadyDoneByOther = db.prepare(
-        "SELECT id FROM task_completions WHERE taskId = ? AND userId != ? AND status IN ('approved', 'pending') AND date(completedAt, 'localtime') = date(?, 'localtime')"
+        `SELECT id FROM task_completions WHERE taskId = ? AND userId != ? AND status IN ('approved', 'pending') AND ${daySql('completedAt')} = ${daySql('?')}`
       ).get(task.id, effectiveUserId, when);
       if (alreadyDoneByOther) {
         return res.status(409).json({ error: 'already_done_by_other' });

@@ -294,7 +294,18 @@
       "refundReward": "Terugbetalen",
       "refundRewardConfirm": "\"{reward}\" terugbetalen? De {coins} munten gaan terug naar wie betaalde, en het verzoek staat als afgewezen.",
       "weekStart": "Week begint op",
-      "weekStartDesc": "Weekdoelen, het Scorebord, beloningslimieten en wekelijkse beurten beginnen op deze dag opnieuw."
+      "weekStartDesc": "Weekdoelen, het Scorebord, beloningslimieten en wekelijkse beurten beginnen op deze dag opnieuw.",
+      "timeZone": "Tijdzone",
+      "timeZoneDesc": "Voor het hele gezin beginnen de dagen hier om middernacht: klusjes, reeksen, doelen en herinneringen.",
+      "timeZoneServer": "Nog niet gekozen: de tijdzone van de server wordt gebruikt.",
+      "timeZoneOffer": "Dit apparaat staat op {zone}. Gebruiken voor het gezin?",
+      "timeZoneUseIt": "Gebruiken",
+      "timeZoneUseDevice": "Tijdzone van dit apparaat gebruiken",
+      "timeZoneChange": "Wijzigen",
+      "timeZoneSearch": "Zoeken: stad of regio",
+      "timeZoneNone": "Geen tijdzone gevonden.",
+      "timeZoneNote": "Wijzigen verschuift vanaf nu wanneer elke dag begint. Gedane klusjes blijven op de dag waarop ze gedaan zijn.",
+      "timeZoneNow": "Daar nu {time}"
     },
     "nav": {
       "home": "Home",

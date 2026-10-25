@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, type InsightsBars, type InsightsCoins, type InsightsHeatmap, type InsightsRange, type InsightsSkipped } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import {
-  addDays, bucketLabels, daysIncl, formatValue, fromYmd, heatGrid, lastDayOf, periodLabel, shares, shiftDay, skippedLists, stackBars, ymd,
+  addDays, bucketLabels, daysIncl, formatValue, fromYmd, heatGrid, lastDayOf, periodLabel, shares, shiftDay, skippedLists, stackBars,
   type ListBy, type Measure, type People, type StackBy,
 } from '../insights/insightsData';
 import { DatePick } from '../insights/DatePick';
@@ -15,6 +15,7 @@ import { useBarPick } from '../insights/useBarPick';
 import { HeatScale, WeekHeatmap, type HeatCell } from '../insights/WeekHeatmap';
 import { weekdayName } from '../../utils/schedule';
 import { useWeekStart, weekOrder } from '../../utils/week';
+import { dateStr } from '../../utils/clock';
 
 interface Props {
   language: string;
@@ -29,7 +30,7 @@ const linkButton = { background: 'none', border: 'none', padding: 0, cursor: 'po
 export function Insights({ language, gamificationEnabled }: Props) {
   const { t, taskName, roomDisplayName } = useTranslation(language);
   const weekStart = useWeekStart();
-  const today = ymd(new Date());
+  const today = dateStr();
   const [period, setPeriod] = useState<InsightsRange>('week');
   /** A day inside the period shown (Day/Week/Month/Year) */
   const [day, setDay] = useState(today);
@@ -145,7 +146,7 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const canGoBack = !!current?.earliest && new Date(current.earliest) < new Date(current.start);
   const running = !!current?.previousSoFar;
   const rangeDays = daysIncl(range.from, range.to);
-  const earliestDay = current?.earliest ? ymd(new Date(current.earliest)) : undefined;
+  const earliestDay = current?.earliest ? dateStr(current.earliest) : undefined;
   const shortDate = (s: string) => fromYmd(s).toLocaleDateString(localeFor(language), { day: 'numeric', month: 'short', ...(s.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}) });
   /** ◀ ▶: a period at a time, or a custom range by its own length (never past today) */
   const step = (dir: -1 | 1) => {
@@ -161,8 +162,8 @@ export function Insights({ language, gamificationEnabled }: Props) {
   const pickPeriod = (p: InsightsRange) => {
     if (p === 'custom' && period !== 'custom' && current) {
       // Start the range on what's showing
-      const last = ymd(new Date(new Date(current.end).getTime() - 1));
-      setRange({ from: ymd(new Date(current.start)), to: last > today ? today : last });
+      const last = dateStr(new Date(current.end).getTime() - 1);
+      setRange({ from: dateStr(current.start), to: last > today ? today : last });
     }
     if (p !== 'custom' && period === 'custom') setDay(range.to);
     setPeriod(p);

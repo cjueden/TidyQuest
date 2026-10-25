@@ -29,6 +29,8 @@ import { useNavigate } from 'react-router-dom';
 import { localeFor } from '../../utils/locale';
 import { weekdayName } from '../../utils/schedule';
 import { useWeekStart } from '../../utils/week';
+import { TimeZonePicker } from '../shared/TimeZonePicker';
+import { dateStr, endOfHomeDay } from '../../utils/clock';
 
 interface FamilyUser {
   id: number;
@@ -105,6 +107,9 @@ interface SettingsProps {
   onGiveShield?: (userId: number) => Promise<void>;
   /** The family's first day of the week changed (FIX-11): save it and reload the dashboard */
   onWeekStartChange?: (weekStart: 0 | 1) => Promise<void>;
+  /** The family's time zone (dashboard timeZone) and whether a parent picked it (timeZoneSet) */
+  timeZone?: { zone: string; set: boolean };
+  onTimeZoneChange?: (zone: string) => Promise<void>;
 }
 
 const COLORS = ['#F97316', '#9B72CF', '#4AABDE', '#5CB85C', '#D4A017', '#E25A5A', '#38BDF8', '#EC4899'];
@@ -134,6 +139,8 @@ export function Settings({
   shields = null,
   onGiveShield,
   onWeekStartChange,
+  timeZone,
+  onTimeZoneChange,
 }: SettingsProps) {
   const { t } = useTranslation(user.language);
   const weekStart = useWeekStart();
@@ -405,7 +412,7 @@ export function Settings({
       goalCoins,
       rewardCoins,
       startAt: null,
-      endAt: d.endAt ? `${d.endAt}T23:59:59.999Z` : null,
+      endAt: d.endAt ? endOfHomeDay(d.endAt) : null,
       repeatWeekly: !!goalRepeat[u.id],
     });
     setGoalRepeat((prev) => ({ ...prev, [u.id]: false }));
@@ -774,7 +781,7 @@ export function Settings({
                     type="date"
                     className="tq-input-compact"
                     value={vacationEndDate ? vacationEndDate.slice(0, 10) : ''}
-                    min={new Date().toISOString().slice(0, 10)}
+                    min={dateStr()}
                     onChange={async (e) => {
                       const val = e.target.value || null;
                       setVacationEndDate(val);
@@ -818,7 +825,7 @@ export function Settings({
                             type="date"
                             className="tq-input-compact"
                             value={u.vacationEndDate ? u.vacationEndDate.slice(0, 10) : ''}
-                            min={new Date().toISOString().slice(0, 10)}
+                            min={dateStr()}
                             onChange={async (e) => {
                               const val = e.target.value || null;
                               try {
@@ -895,6 +902,9 @@ export function Settings({
                   {[0, 1].map((d) => <option key={d} value={d}>{weekdayName(d, user.language, 'long')}</option>)}
                 </select>
               </div>
+            )}
+            {isAdmin && timeZone && onTimeZoneChange && (
+              <TimeZonePicker zone={timeZone.zone} zoneSet={timeZone.set} language={user.language} onChange={onTimeZoneChange} />
             )}
             {isAdmin && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: '1px solid var(--warm-border)' }}>

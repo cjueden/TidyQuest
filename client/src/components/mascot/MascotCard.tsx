@@ -6,6 +6,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { formatCoins } from '../../utils/format';
 import { localeFor } from '../../utils/locale';
 import { ACCESSORY_SLOTS, Bed, CREATURES, DustBunnies, Egg, OVERLAYS, type AccessoryId, type CreatureId, type MascotMood, type OverlayId } from './MascotArt';
+import { wall } from '../../utils/clock';
 
 type Slot = 'head' | 'face' | 'neck' | 'back';
 export type Outfit = Partial<Record<Slot, { id: string; by: number; byName: string; at: string }>>;
@@ -40,15 +41,17 @@ const TAP_LINES = 8;
 const HUNGRY_BELOW = 25;
 
 const minutes = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
-/** Asleep between bedtimeFrom and bedtimeTo by this device's clock (the window can cross midnight) */
+/** Asleep between bedtimeFrom and bedtimeTo by the clock at home (the window can cross midnight) */
 function isAsleep(from: string, to: string, now = new Date()): boolean {
-  const n = now.getHours() * 60 + now.getMinutes();
+  const { hours, minutes: mins } = wall(now);
+  const n = hours * 60 + mins;
   const a = minutes(from), b = minutes(to);
   return a <= b ? n >= a && n < b : n >= a || n < b;
 }
 /** The first 3 hours after it wakes up */
 const isMorning = (to: string, now = new Date()) => {
-  const n = now.getHours() * 60 + now.getMinutes(), w = minutes(to);
+  const { hours, minutes: mins } = wall(now);
+  const n = hours * 60 + mins, w = minutes(to);
   return n >= w && n < w + 180;
 };
 

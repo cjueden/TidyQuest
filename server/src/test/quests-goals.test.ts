@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, homeToday } from './setup';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { sendCoinBoostNotificationsIfNeeded } from '../utils/boosts';
@@ -47,7 +47,7 @@ describe('Repeat limits on anytime quests', () => {
       .send({ name: 'Made the bus', effort: 1, onDemand: true, repeatLimit: 1, repeatPeriod: 'day' })).body.id as number;
     // Yesterday's completion doesn't count today
     db.prepare("INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status) VALUES (?, ?, ?, 1, 'approved')")
-      .run(task, kid.user.id, new Date(new Date().setHours(0, 0, 0, 0) - HOUR).toISOString());
+      .run(task, kid.user.id, new Date(homeToday().getTime() - HOUR).toISOString());
     expect((await agent.post(`/api/tasks/${task}/complete`).set(auth(kid.token))).status).toBe(200);
     expect((await agent.post(`/api/tasks/${task}/complete`).set(auth(kid.token))).status).toBe(409);
 

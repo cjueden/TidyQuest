@@ -50,6 +50,7 @@ export const GUIDE_ES: GuideSection[] = [
         'Por la tarde: avisos sobre lo que queda por hacer, una racha a punto de romperse o un objetivo que está cerca.',
         'El primer día de la semana (lunes, o domingo si un padre o una madre lo elige en Ajustes → General → La semana empieza el): empieza una semana nueva y los objetivos semanales que se repiten se preparan de nuevo. El bonus de un objetivo se paga en el momento de alcanzarlo.',
         'Medianoche: terminan las invitaciones En equipo y "Completadas hoy" empieza de cero.',
+        'Todo esto sigue el reloj de la familia: la medianoche y el primer día de la semana donde vive la familia (Ajustes → General → Zona horaria). Quien esté de viaje sigue viendo los días de casa.',
       ] },
     ],
   },
@@ -335,7 +336,7 @@ export const GUIDE_ES: GuideSection[] = [
     blocks: [
       { ul: [
         'TidyQuest funciona como un único contenedor de Docker con una carpeta de datos (la base de datos, los avatares y las fotos de prueba). Haz copia de seguridad de esa carpeta.',
-        'Pon JWT_SECRET con una cadena larga y aleatoria, y TZ con tu zona horaria (por ejemplo America/New_York). Sin TZ el servidor usa UTC, y "hoy", la medianoche y la semana se desfasarían unas horas.',
+        'Pon JWT_SECRET con una cadena larga y aleatoria. La zona horaria de la familia se elige en la app (Ajustes → General → Zona horaria); una instalación nueva la toma del dispositivo del primer padre o madre. TZ en el servidor solo se usa hasta que se elige una.',
         'Las versiones llevan etiqueta (por ejemplo 0.9.0). Fija ese número en docker-compose.yml y ejecuta "docker compose pull && docker compose up -d". La imagen ":main" es el código más reciente, para probar cosas antes.',
         'Ajustes → General muestra la versión en uso. Para volver atrás, vuelve a poner el número de la versión anterior y arráncalo de nuevo (haz antes una copia de seguridad: la base de datos solo avanza).',
         'Las notificaciones al móvil desde la propia app y su instalación como app necesitan una dirección segura (https://); hasta entonces usa ntfy o Telegram.',
@@ -403,8 +404,9 @@ export const GUIDE_ES: GuideSection[] = [
           'Las horas de silencio y el horario escolar retienen los mensajes hasta que terminan.',
           'El Registro de notificaciones muestra cada mensaje y cualquier error.',
         ] },
-        { q: 'Los días, la medianoche o la semana van desfasados unas horas', a: [
-          'Pon la variable de entorno TZ del servidor con tu zona horaria y reinícialo (mira "Instalación y actualización").',
+        { q: 'Las tareas se reinician a una hora equivocada, o los días y la semana van desfasados unas horas', a: [
+          'Mira Ajustes → General → Zona horaria (padres): ahí los días empiezan a medianoche para toda la familia. Si pone "Aún sin elegir", toca Usarla para tomar la zona de este dispositivo, o toca Cambiar y busca la tuya.',
+          'Cambiarla mueve cuándo empieza cada día a partir de entonces. Las tareas ya hechas se quedan en el día en que se hicieron.',
         ] },
         { q: 'La semana empieza el día equivocado', a: [
           'Un padre o una madre elige domingo o lunes en Ajustes → General → La semana empieza el. Los objetivos semanales, el Tablero, los límites de premios y los turnos "por semana" lo siguen, y un objetivo semanal en curso pasa a la nueva semana.',

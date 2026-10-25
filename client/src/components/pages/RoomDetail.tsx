@@ -26,6 +26,7 @@ import { claimedLabel } from '../../utils/teamups';
 import type { TeamUpInfo } from '../../hooks/useApi';
 import { DuplicateRoom } from '../shared/DuplicateRoom';
 import { useWeekStart } from '../../utils/week';
+import { dateStr } from '../../utils/clock';
 
 const tomorrowIso = () => todayIso(new Date(Date.now() + 86400000));
 
@@ -397,11 +398,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
     if (task.health > 0 && task.lastCompletedAt) {
       // Allow early completion if the toggle is on AND last completion was on a previous calendar day
       if (task.allowEarlyCompletion) {
-        const last = new Date(task.lastCompletedAt);
-        const today = new Date();
-        const lastStr = `${last.getFullYear()}-${String(last.getMonth()).padStart(2,'0')}-${String(last.getDate()).padStart(2,'0')}`;
-        const todayStr = `${today.getFullYear()}-${String(today.getMonth()).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-        if (lastStr < todayStr) {
+        if (dateStr(task.lastCompletedAt) < dateStr()) {
           // Different calendar day — allow despite health > 0
         } else {
           return { disabled: true, label: t('roomDetail.done') };

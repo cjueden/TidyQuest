@@ -1,6 +1,7 @@
 import db from '../database';
 import { localDateStr } from './dateHelpers';
 import { startOfLocalWeek } from './periods';
+import { at, startOfDay, wall } from './clock';
 
 /**
  * Per-reward rules added by this fork: who can see a reward and what it costs them, how often it
@@ -49,21 +50,21 @@ function allRules(): Map<number, RewardRules> {
   return new Map(rows.map((r) => [r.id, r]));
 }
 
-/** Start of the current day / week (the family's first day) / month, local time; null for "ever". */
+/** Start of the current day / week (the family's first day) / month, the family's time; null for "ever". */
 export function periodStart(period: LimitPeriod, now = new Date()): Date | null {
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (period === 'day') return today;
+  if (period === 'day') return startOfDay(now);
   if (period === 'week') return startOfLocalWeek(now);
-  if (period === 'month') return new Date(now.getFullYear(), now.getMonth(), 1);
+  if (period === 'month') { const w = wall(now); return at(w.year, w.month, 1); }
   return null;
 }
 
 function periodEnd(period: LimitPeriod, now = new Date()): Date | null {
   const start = periodStart(period, now);
   if (!start) return null;
-  if (period === 'day') return new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
-  if (period === 'week') return new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7);
-  return new Date(start.getFullYear(), start.getMonth() + 1, 1);
+  if (period === 'day') return startOfDay(start, 1);
+  if (period === 'week') return startOfDay(start, 7);
+  const w = wall(start);
+  return at(w.year, w.month + 1, 1);
 }
 
 /** Requested and approved redemptions count toward a limit; cancelled and rejected ones don't. */
@@ -98,9 +99,10 @@ export function inWindow(rule: Pick<RewardRules, 'availableFrom' | 'availableUnt
   return true;
 }
 
-/** ISO 8601 week-numbering year and week of a local date. */
+/** ISO 8601 week-numbering year and week of the family's day holding a moment. */
 export function isoWeek(now = new Date()): { year: number; week: number } {
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const w = wall(now);
+  const d = new Date(Date.UTC(w.year, w.month, w.date));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
   return { year: d.getUTCFullYear(), week: Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7) };
@@ -133,8 +135,8 @@ export function getRotatingPerWeek(): number {
  * the Monday–Saturday it shares, and Monday-first weeks are exactly the ISO weeks.
  */
 export function rotatingThisWeek(now = new Date()): Set<number> {
-  const midweek = startOfLocalWeek(now);
-  midweek.setDate(midweek.getDate() + (3 - midweek.getDay() + 7) % 7);
+  const weekStart = startOfLocalWeek(now);
+  const midweek = startOfDay(weekStart, (3 - wall(weekStart).weekday + 7) % 7);
   const { year, week } = isoWeek(midweek);
   const today = localDateStr(now);
   const pool = (db.prepare(`SELECT ${RULE_COLUMNS} FROM rewards WHERE isActive = 1 AND isRotating = 1`).all() as RewardRules[])

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp } from './setup';
+import { createTestApp, homeToday } from './setup';
+import { at as homeAt, wall } from '../utils/clock';
 import { generateToken } from '../middleware/auth';
 import { isoWeek, rotatingThisWeek } from '../utils/rewardRules';
 import { localDateStr } from '../utils/dateHelpers';
@@ -45,7 +46,7 @@ async function reward(adminToken: string, title: string, costCoins: number, rule
 const catalog = async (token: string) => (await agent.get('/api/rewards').set(auth(token))).body.rewards as any[];
 const inCatalog = async (token: string, id: number) => (await catalog(token)).find((r) => r.id === id);
 const redeem = (token: string, id: number) => agent.post(`/api/rewards/${id}/redeem`).set(auth(token));
-const dayOffset = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return localDateStr(d); };
+const dayOffset = (days: number) => localDateStr(homeToday(days, 12));
 const hoursAgoSql = (h: number) => new Date(Date.now() - h * 3600000).toISOString().slice(0, 19).replace('T', ' ');
 
 describe('Who can see a reward', () => {
@@ -115,7 +116,8 @@ describe('Reward limits', () => {
 
     // Still listed (it comes back next week), with when it resets: next Monday
     const listed = await inCatalog(cecil.token, screen);
-    const monday = new Date(); monday.setHours(0, 0, 0, 0); monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7) + 7);
+    const w = wall();
+    const monday = homeAt(w.year, w.month, w.date - ((w.weekday + 6) % 7) + 7);
     expect(listed.availability).toMatchObject({ used: 2, remaining: 0, resetsAt: monday.toISOString() });
     // Per person: Cylis has her own two
     expect((await inCatalog(cylis.token, screen)).availability.remaining).toBe(2);
@@ -218,14 +220,14 @@ describe('Scheduled and rotating rewards', () => {
     const insert = db.prepare('INSERT INTO rewards (title, costCoins, isRotating) VALUES (?, 100, 1)');
     for (let i = 0; i < 10; i++) insert.run(`Dream ${i}`);
 
-    expect(isoWeek(new Date(2026, 0, 1))).toEqual({ year: 2026, week: 1 });
-    expect(isoWeek(new Date(2027, 0, 1))).toEqual({ year: 2026, week: 53 });
-    expect(isoWeek(new Date(2026, 9, 15))).toEqual({ year: 2026, week: 42 });
+    expect(isoWeek(homeAt(2026, 0, 1))).toEqual({ year: 2026, week: 1 });
+    expect(isoWeek(homeAt(2027, 0, 1))).toEqual({ year: 2026, week: 53 });
+    expect(isoWeek(homeAt(2026, 9, 15))).toEqual({ year: 2026, week: 42 });
 
     const ids = (d: Date) => [...rotatingThisWeek(d)].sort().join(',');
     // Monday and Sunday of one week match; the weeks around it differ at least once
-    expect(ids(new Date(2026, 9, 12, 0, 30))).toBe(ids(new Date(2026, 9, 18, 23, 30)));
-    const weeks = new Set([0, 7, 14, 21, 28].map((d) => ids(new Date(2026, 9, 12 + d))));
+    expect(ids(homeAt(2026, 9, 12, 0, 30))).toBe(ids(homeAt(2026, 9, 18, 23, 30)));
+    const weeks = new Set([0, 7, 14, 21, 28].map((d) => ids(homeAt(2026, 9, 12 + d))));
     expect(weeks.size).toBeGreaterThan(1);
   });
 });

@@ -1,17 +1,12 @@
 import { localeFor } from './locale';
+import { dateStr, startOfDay } from './clock';
 
 /** "Done earlier…" (ENH-7): how many days back a chore can be logged late (the server checks the same) */
 export const LATE_DAYS = 7;
 
-const pad = (n: number) => String(n).padStart(2, '0');
-const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-
-/** The days a chore can be logged for, yesterday first ('YYYY-MM-DD', local). */
+/** The days a chore can be logged for, yesterday first ('YYYY-MM-DD', the family's). */
 export function lateDays(now: Date = new Date()): string[] {
-  return Array.from({ length: LATE_DAYS }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (i + 1), 12);
-    return ymd(d);
-  });
+  return Array.from({ length: LATE_DAYS }, (_, i) => dateStr(startOfDay(now, -(i + 1))));
 }
 
 /** "Sat, Oct 17" for a 'YYYY-MM-DD' day or a stored timestamp. */

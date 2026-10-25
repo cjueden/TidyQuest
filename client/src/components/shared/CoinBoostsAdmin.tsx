@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 import { api, type CoinBoost } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { localeFor } from '../../utils/locale';
+import { familyZone, toHomeInput, fromHomeInput } from '../../utils/clock';
 
 /** "2026-10-17T18:00" for a datetime-local input, in local time. */
-const toLocalInput = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+// The start and end are typed and shown on the clock at home (Settings → Time zone)
+const toLocalInput = (d: Date) => toHomeInput(d);
+const fromLocalInput = (v: string) => (fromHomeInput(v) ?? new Date(v)).toISOString();
 
 /** Parents: double (or triple) coins for a while, e.g. getting the house ready for a party. */
 type BoostRoom = { id: number; name: string; tasks?: Array<{ id: number; name: string }> };
@@ -31,7 +34,7 @@ export function CoinBoostsAdmin({ rooms, language }: { rooms: BoostRoom[]; langu
     try {
       await api.createBoost({
         title: title.trim(), multiplier: Number(multiplier),
-        startAt: new Date(startAt).toISOString(), endAt: new Date(endAt).toISOString(),
+        startAt: fromLocalInput(startAt), endAt: fromLocalInput(endAt),
         roomIds: roomIds.length ? roomIds : null,
         taskIds: taskIds.length ? taskIds : null,
       });
@@ -42,7 +45,7 @@ export function CoinBoostsAdmin({ rooms, language }: { rooms: BoostRoom[]; langu
     }
   };
 
-  const when = (iso: string) => new Date(iso).toLocaleString(locale, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const when = (iso: string) => new Date(iso).toLocaleString(locale, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: familyZone() });
   // Chores to aim the event at, on top of whole rooms
   const chores = rooms.flatMap((r) => (r.tasks ?? []).map((c) => ({ id: c.id, name: c.name, room: r.name })));
   const choreName = (id: number) => chores.find((c) => c.id === id)?.name ?? '?';

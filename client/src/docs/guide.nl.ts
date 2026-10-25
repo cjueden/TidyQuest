@@ -50,6 +50,7 @@ export const GUIDE_NL: GuideSection[] = [
         '’s Avonds: een duwtje over wat nog niet gedaan is, een streak die dreigt te breken of een doel dat dichtbij is.',
         'Op de eerste dag van de week (maandag, of zondag als een ouder dat kiest in Instellingen → Algemeen → Week begint op): er begint een nieuwe week en weekdoelen die zich herhalen worden opnieuw ingesteld. De bonus van een doel wordt uitbetaald zodra het gehaald is.',
         'Middernacht: uitnodigingen voor Samen doen verlopen en "Vandaag gedaan" begint opnieuw.',
+        'Dit alles volgt de klok van het gezin: middernacht en de eerste dag van de week waar het gezin woont (Instellingen → Algemeen → Tijdzone). Een ouder op reis ziet nog steeds de dagen van thuis.',
       ] },
     ],
   },
@@ -335,7 +336,7 @@ export const GUIDE_NL: GuideSection[] = [
     blocks: [
       { ul: [
         'TidyQuest draait als één Docker-container met een gegevensmap (de database, avatars en bewijsfoto’s). Maak een back-up van die map.',
-        'Zet JWT_SECRET op een lange willekeurige tekst en TZ op je tijdzone (bijvoorbeeld Europe/Amsterdam). Zonder TZ gebruikt de server UTC en lopen "vandaag", middernacht en de week uren fout.',
+        'Zet JWT_SECRET op een lange willekeurige tekst. De tijdzone van het gezin kies je in de app (Instellingen → Algemeen → Tijdzone); een nieuwe installatie neemt die over van het apparaat van de eerste ouder. TZ op de server geldt alleen tot er een gekozen is.',
         'Releases krijgen een tag (bijvoorbeeld 0.9.0). Zet dat nummer vast in docker-compose.yml en voer dan "docker compose pull && docker compose up -d" uit. De ":main"-image is de nieuwste code, om dingen eerst uit te proberen.',
         'Instellingen → Algemeen toont de versie die draait. Om terug te gaan zet je het vorige versienummer terug en start je opnieuw (maak eerst een back-up: de database gaat alleen vooruit).',
         'Telefoonmeldingen vanuit de app zelf en de app installeren vereisen een beveiligd adres (https://); gebruik tot die tijd ntfy of Telegram.',
@@ -403,8 +404,9 @@ export const GUIDE_NL: GuideSection[] = [
           'Stille uren en schooltijden houden berichten vast tot ze afgelopen zijn.',
           'Het Meldingenlogboek toont elk bericht en eventuele fouten.',
         ] },
-        { q: 'Dagen, middernacht of de week lopen een paar uur fout', a: [
-          'Zet de omgevingsvariabele TZ op de server op je tijdzone en start hem opnieuw (zie "Installeren en updaten").',
+        { q: 'Klusjes beginnen op het verkeerde uur opnieuw, of dagen en de week lopen een paar uur fout', a: [
+          'Kijk bij Instellingen → Algemeen → Tijdzone (ouders): daar beginnen de dagen om middernacht voor het hele gezin. Staat er "Nog niet gekozen", tik dan op Gebruiken om de tijdzone van dit apparaat te nemen, of tik op Wijzigen en zoek de jouwe.',
+          'Wijzigen verschuift vanaf dan wanneer elke dag begint. Gedane klusjes blijven op de dag waarop ze gedaan zijn.',
         ] },
         { q: 'De week begint op de verkeerde dag', a: [
           'Een ouder kiest zondag of maandag in Instellingen → Algemeen → Week begint op. Weekdoelen, het Scorebord, beloningslimieten en "per week"-beurten volgen die keuze, en een lopend weekdoel schuift mee naar de nieuwe week.',

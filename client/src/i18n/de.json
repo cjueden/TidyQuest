@@ -294,7 +294,18 @@
       "refundReward": "Erstatten",
       "refundRewardConfirm": "„{reward}“ erstatten? Die {coins} Münzen gehen an alle zurück, die bezahlt haben, und die Anfrage gilt als abgelehnt.",
       "weekStart": "Woche beginnt am",
-      "weekStartDesc": "Wochenziele, das Board, Belohnungslimits und wöchentliche Wechsel starten an diesem Tag neu."
+      "weekStartDesc": "Wochenziele, das Board, Belohnungslimits und wöchentliche Wechsel starten an diesem Tag neu.",
+      "timeZone": "Zeitzone",
+      "timeZoneDesc": "Für die ganze Familie beginnen die Tage hier um Mitternacht: Aufgaben, Serien, Ziele und Erinnerungen.",
+      "timeZoneServer": "Noch nicht gewählt: Die Zeitzone des Servers wird verwendet.",
+      "timeZoneOffer": "Dieses Gerät ist auf {zone} eingestellt. Für die Familie übernehmen?",
+      "timeZoneUseIt": "Übernehmen",
+      "timeZoneUseDevice": "Zeitzone dieses Geräts verwenden",
+      "timeZoneChange": "Ändern",
+      "timeZoneSearch": "Suchen: Stadt oder Region",
+      "timeZoneNone": "Keine Zeitzone passt.",
+      "timeZoneNote": "Eine Änderung verschiebt ab jetzt, wann jeder Tag beginnt. Erledigte Aufgaben bleiben an dem Tag, an dem sie erledigt wurden.",
+      "timeZoneNow": "Dort jetzt {time}"
     },
     "nav": {
       "home": "Startseite",

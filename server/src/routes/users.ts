@@ -14,6 +14,7 @@ import { ensureAdmin, getCoinsByEffortConfig, getGlobalVacation, isHidePrivateRo
 import { realignWeeklyGoals, syncPrimaryGoal } from '../utils/goals';
 import { UNLOCKABLE_THEMES, canUse } from '../utils/unlocks';
 import { currentLocalWeek, weekStartDay } from '../utils/periods';
+import { canonicalZone, familyZone } from '../utils/clock';
 
 const router = Router();
 router.use(authMiddleware);
@@ -799,6 +800,21 @@ router.put('/week-start', (req: AuthRequest, res: Response) => {
   db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('weekStart', ?)").run(String(weekStart));
   for (const userId of realignWeeklyGoals(old, weekStart)) syncPrimaryGoal(userId);
   res.json({ weekStart });
+});
+
+// The family's time zone (Settings → General), e.g. "America/Los_Angeles"; null goes back to the server's
+// own (TZ). Days start at midnight there from now on; running weekly goals move to the new zone's weeks.
+router.put('/time-zone', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const { timeZone } = req.body as { timeZone?: unknown };
+  const zone = timeZone === null ? null : canonicalZone(timeZone);
+  if (timeZone !== null && !zone) return res.status(400).json({ error: 'invalid_time_zone' });
+  const old = familyZone();
+  if (zone) db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('timeZone', ?)").run(zone);
+  else db.prepare("DELETE FROM app_settings WHERE key = 'timeZone'").run();
+  const first = weekStartDay();
+  for (const userId of realignWeeklyGoals(first, first, new Date(), old, familyZone())) syncPrimaryGoal(userId);
+  res.json({ timeZone: familyZone(), timeZoneSet: zone !== null });
 });
 
 router.get('/strict-mode-config', (req: AuthRequest, res: Response) => {

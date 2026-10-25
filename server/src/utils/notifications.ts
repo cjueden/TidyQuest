@@ -1,5 +1,6 @@
 import db from '../database';
 import { isSeasonalNow, nextDueAt, type ScheduledTask } from './schedule';
+import { dateStr, wall } from './clock';
 
 interface TelegramSettings {
   enabled: boolean;
@@ -82,10 +83,7 @@ function normalizeNotificationTime(value: string): string {
 }
 
 function toLocalIsoDay(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return dateStr(date);
 }
 
 function getDueIsoDay(task: ScheduledTask, now: Date): string {
@@ -233,11 +231,12 @@ export async function sendDueTaskNotificationsIfNeeded(now: Date = new Date()): 
   if (getSetting('notificationsEnabled') !== '1') return;
   if (!isNotificationTypeEnabled('taskDue')) return;
 
-  const currentMinute = `${toLocalIsoDay(now)} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const w = wall(now);
+  const nowHm = `${String(w.hours).padStart(2, '0')}:${String(w.minutes).padStart(2, '0')}`;
+  const currentMinute = `${toLocalIsoDay(now)} ${nowHm}`;
   if (currentMinute === lastCheckedMinute) return;
   lastCheckedMinute = currentMinute;
 
-  const nowHm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   const notificationTime = normalizeNotificationTime(getSetting('notificationTime') || getSetting('telegramNotificationTime'));
   if (nowHm !== notificationTime) return;
 

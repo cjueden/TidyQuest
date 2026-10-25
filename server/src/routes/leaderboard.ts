@@ -3,6 +3,7 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { startOfLocalWeek } from '../utils/periods';
+import { at, wall } from '../utils/clock';
 import { BOARD_MODES, BOARD_PERIODS, buildBoard, familyGoal, type BoardMode, type BoardPeriod } from '../utils/board';
 
 const router = Router();
@@ -16,19 +17,20 @@ router.get('/', (req: AuthRequest, res: Response) => {
 
   // Calculate date range
   const now = new Date();
+  const w = wall(now);
   let startDate: string;
 
   if (period === 'week') {
     startDate = startOfLocalWeek(now).toISOString();
   } else if (period === 'month') {
-    const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstOfMonth = at(w.year, w.month, 1);
     startDate = firstOfMonth.toISOString();
   } else if (period === 'quarter') {
-    const quarterStartMonth = Math.floor(now.getMonth() / 3) * 3;
-    const firstOfQuarter = new Date(now.getFullYear(), quarterStartMonth, 1);
+    const quarterStartMonth = Math.floor(w.month / 3) * 3;
+    const firstOfQuarter = at(w.year, quarterStartMonth, 1);
     startDate = firstOfQuarter.toISOString();
   } else {
-    const firstOfYear = new Date(now.getFullYear(), 0, 1);
+    const firstOfYear = at(w.year, 0, 1);
     startDate = firstOfYear.toISOString();
   }
 

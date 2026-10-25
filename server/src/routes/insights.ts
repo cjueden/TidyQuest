@@ -3,6 +3,7 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { startOfLocalDay, weekStartDay } from '../utils/periods';
+import { dayAt, familyZone, startOfDay, wall } from '../utils/clock';
 import {
   bucketFinder, choresDone, coinsByWeek, customWindow, daysBetween, heatSlot, INSIGHTS_PERIODS, parseDbTime, periodWindow,
   samePointBefore, skippedChores, snapshotSince, type InsightsPeriod, type InsightsWindow,
@@ -25,9 +26,9 @@ function earliestDone(): string | null {
   return row.first ? parseDbTime(row.first).toISOString() : null;
 }
 
-/** A local day from 'YYYY-MM-DD' (noon, so DST never moves it), or null. */
+/** The family's day from 'YYYY-MM-DD' (noon, so DST never moves it), or null. */
 function dayParam(v: unknown): Date | null {
-  return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)) ? new Date(`${v}T12:00:00`) : null;
+  return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v)) ? dayAt(v, 12) : null;
 }
 
 /**
@@ -47,9 +48,7 @@ function windowFrom(q: Record<string, unknown>, now: Date = new Date()) {
     const from = dayParam(q.from) ?? new Date(to.getTime() - 6 * 86400000);
     win = customWindow(clamp(from), to);
     const days = daysBetween(win.start, win.end);
-    const prevStart = new Date(win.start);
-    prevStart.setDate(prevStart.getDate() - days);
-    prev = { start: prevStart, end: win.start };
+    prev = { start: startOfDay(win.start, -days), end: win.start };
   } else {
     const date = dayParam(q.date);
     const anchor = date && date < now ? date : now;
@@ -130,17 +129,16 @@ router.get('/coins', (req: AuthRequest, res: Response) => {
 // chores, coins, effort]
 router.get('/heatmap', (req: AuthRequest, res: Response) => {
   const weeks = Number(req.query.weeks) === 12 ? 12 : 4;
-  const end = startOfLocalDay(endDay(req.query));
-  end.setDate(end.getDate() + 1);
-  const start = new Date(end);
-  start.setDate(start.getDate() - weeks * 7);
+  const end = startOfDay(endDay(req.query), 1);
+  const start = startOfDay(end, -weeks * 7);
 
   const first = weekStartDay();
+  const tz = familyZone();
   const grouped = new Map<string, number[]>();
   for (const d of choresDone(start, end)) {
     if (d.late) continue; // a late log's time of day is unknown
-    const w = (d.at.getDay() - first + 7) % 7; // row 0 is the week's first day
-    const s = heatSlot(d.at);
+    const w = (wall(d.at, tz).weekday - first + 7) % 7; // row 0 is the week's first day
+    const s = heatSlot(d.at, tz);
     const key = `${w}:${s}:${d.userId}`;
     const row = grouped.get(key) ?? [w, s, d.userId, 0, 0, 0];
     row[3] += 1; row[4] += d.coins; row[5] += d.effort;

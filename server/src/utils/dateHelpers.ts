@@ -1,4 +1,6 @@
-/** Returns YYYY-MM-DD in local timezone (respects TZ env var) */
+import { dateStr } from './clock';
+
+/** Returns YYYY-MM-DD of the family's day (Settings → Time zone, else the server's TZ) */
 export function localDateStr(d: Date = new Date()): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return dateStr(d);
 }

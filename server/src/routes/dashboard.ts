@@ -13,6 +13,7 @@ import { forgottenTasks, usualTasks } from '../utils/homeSections';
 import { rescueCandidates, todaysMission } from '../utils/rescue';
 import { getFeatures, holidaysOff, isFeatureOn } from '../utils/features';
 import { weekStartDay } from '../utils/periods';
+import { daySql, familyZone, savedZone } from '../utils/clock';
 import { MAX_SHIELDS, SHIELD_EVERY, shieldPrice, shieldsOn } from '../utils/streaks';
 import { cheersFor } from '../utils/cheers';
 import { cosmetics, unlocksFor } from '../utils/unlocks';
@@ -49,7 +50,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     `SELECT tc.taskId, tc.userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
      FROM task_completions tc
      JOIN users u ON tc.userId = u.id
-     WHERE tc.status = 'approved' AND date(tc.completedAt, 'localtime') = date(?, 'localtime')`
+     WHERE tc.status = 'approved' AND ${daySql('tc.completedAt')} = ${daySql('?')}`
   ).all(nowIso) as any[];
   const completedTodayByTask = new Map(todayCompletions.map((c: any) => [c.taskId, {
     userId: c.userId, displayName: c.displayName, avatarColor: c.avatarColor,
@@ -218,9 +219,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
     JOIN rooms r ON t.roomId = r.id
     JOIN users u ON tc.userId = u.id
     WHERE tc.status = 'approved'
-      AND date(tc.completedAt, 'localtime') = date('now', 'localtime')
+      AND ${daySql('tc.completedAt')} = ${daySql('?')}
     ORDER BY tc.completedAt DESC
-  `).all() as any[];
+  `).all(new Date().toISOString()) as any[];
   // Cheers on today's chores
   if (isFeatureOn('cheers')) {
     const cheers = cheersFor(completedToday.map((c) => c.completionId), req.userId!);
@@ -346,6 +347,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
     holidaysOff: holidaysOff(),
     // The week's first day, like Date.getDay(): 1 = Monday, 0 = Sunday (Settings → General)
     weekStart: weekStartDay(),
+    // The family's time zone (Settings → General); timeZoneSet is false while the server's own (TZ) is used
+    timeZone: familyZone(),
+    timeZoneSet: savedZone() !== null,
     // Everyone's frame, title and celebration (avatars and names), and what your next level unlocks
     cosmetics: cosmetics(),
     // Today's team-ups you're on or could join

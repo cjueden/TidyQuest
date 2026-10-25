@@ -22,5 +22,5 @@
   <Config Name="WebUI Port" Target="3000" Default="3020" Mode="tcp" Description="Port to access the TidyQuest web interface." Type="Port" Display="always" Required="true" Mask="false">3020</Config>
   <Config Name="Data" Target="/app/data" Default="/mnt/user/appdata/tidyquest" Description="Path to store the database and uploaded avatars." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/tidyquest</Config>
   <Config Name="JWT_SECRET" Target="JWT_SECRET" Default="" Description="Secret key used to sign user sessions. Generate a secure value with: openssl rand -base64 32" Type="Variable" Display="always" Required="true" Mask="true"/>
-  <Config Name="TZ" Target="TZ" Default="Europe/Paris" Description="Your timezone (e.g. Europe/Paris, America/New_York). Used for correct task due-date calculations." Type="Variable" Display="always" Required="false" Mask="false">Europe/Paris</Config>
+  <Config Name="TZ" Target="TZ" Default="" Description="Optional. The family's time zone is picked in the app (Settings, General, Time zone) and a new install takes it from the first parent's browser. This is only used until one is picked (e.g. Europe/Paris, America/New_York)." Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
 </Container>

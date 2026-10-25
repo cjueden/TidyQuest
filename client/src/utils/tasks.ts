@@ -1,5 +1,6 @@
 // Shared task helpers used by the room page, the task list and search.
 import { localeFor } from './locale';
+import { startOfDay, familyZone } from './clock';
 
 export function getNextDueDate(lastCompletedAt: string | null, frequencyDays: number): Date {
   if (!lastCompletedAt) return new Date();
@@ -37,12 +38,12 @@ export function formatNextDue(lastCompletedAt: string | null, frequencyDays: num
   }
 
   // Day-based display for tasks due further out
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const dueStart = new Date(nextDue.getFullYear(), nextDue.getMonth(), nextDue.getDate());
+  const todayStart = startOfDay(now);
+  const dueStart = startOfDay(nextDue);
   const diffDays = Math.round((dueStart.getTime() - todayStart.getTime()) / (24 * 60 * 60 * 1000));
   if (diffDays <= 1) return { text: t('roomDetail.tomorrow'), color: 'var(--health-yellow)' };
   const locale = localeFor(language);
-  const text = nextDue.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short' });
+  const text = nextDue.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short', timeZone: familyZone() });
   return { text, color: diffDays <= 7 ? 'var(--health-yellow)' : 'var(--health-green)' };
 }
 

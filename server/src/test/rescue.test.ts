@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, homeToday } from './setup';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { setNotifyTransport, type Delivery } from '../utils/notify';
@@ -101,7 +101,7 @@ describe('Rescue Mission', () => {
     await mk('Wipe counters', { frequencyDays: 1 }, 5);
     for (const [k, v] of [['notificationsEnabled', '1']]) db.prepare('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)').run(k, v);
     db.prepare("UPDATE users SET ntfyTopic = 'kid-topic' WHERE id = ?").run(kid.user.id);
-    const morning = new Date(); morning.setHours(7, 5, 0, 0);
+    const morning = homeToday(0, 7, 5);
     await runScheduledNotifications(morning);
     expect(sent.filter((d) => d.target === 'kid-topic').map((d) => d.message))
       .toContain('⚡ Rescue Mission: “Wipe counters” pays 2× coins today. First one to do it wins!');

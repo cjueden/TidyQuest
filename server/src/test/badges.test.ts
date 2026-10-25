@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, homeToday } from './setup';
+import { dateStr, wall } from '../utils/clock';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { levelFor, longestWeekRun } from '../utils/badges';
@@ -46,7 +47,7 @@ describe('New built-in badges', () => {
 
   it('Goal Getter for weekly goals reached 4 weeks in a row', async () => {
     const { kid } = await family();
-    const monday = (weeksAgo: number) => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7) - 7 * weeksAgo); return d.toISOString(); };
+    const monday = (weeksAgo: number) => homeToday(-((wall().weekday + 6) % 7) - 7 * weeksAgo, 12).toISOString();
     for (const w of [6, 4, 3, 2, 1]) {
       db.prepare("INSERT INTO user_goals (userId, title, goalCoins, startAt, endAt, status) VALUES (?, 'Weekly Win', 10, ?, ?, 'completed')").run(kid.user.id, monday(w), monday(w - 1));
     }
@@ -63,8 +64,7 @@ describe('Secret badges', () => {
     const before = ((await badgesOf(kid.token)).achievements as any[]).find((a) => a.id === 'clean_sweep');
     expect(before).toMatchObject({ secret: true, titleKey: null, descKey: null, icon: '❓', unlocked: false });
 
-    const today = new Date();
-    const mmdd = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const mmdd = dateStr().slice(5);
     expect((await agent.put(`/api/users/${kid.user.id}/profile`).set(auth(admin.token)).send({ birthday: '13-40' })).status).toBe(400);
     await agent.put(`/api/users/${kid.user.id}/profile`).set(auth(admin.token)).send({ birthday: mmdd }).expect(200);
 

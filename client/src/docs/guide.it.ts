@@ -50,6 +50,7 @@ export const GUIDE_IT: GuideSection[] = [
         'Sera: promemoria su cosa resta da fare, una serie che sta per spezzarsi o un obiettivo vicino.',
         'Il primo giorno della settimana (lunedì, o domenica se un genitore lo sceglie in Impostazioni → Generale → La settimana inizia di): inizia una nuova settimana e gli obiettivi settimanali che si ripetono si impostano di nuovo da soli. Il bonus di un obiettivo viene pagato nel momento in cui lo si raggiunge.',
         'Mezzanotte: gli inviti a fare squadra finiscono e "Completate oggi" riparte da zero.',
+        'Tutto questo segue l’orologio della famiglia: la mezzanotte e il primo giorno della settimana dove vive la famiglia (Impostazioni → Generale → Fuso orario). Un genitore in viaggio vede comunque i giorni di casa.',
       ] },
     ],
   },
@@ -335,7 +336,7 @@ export const GUIDE_IT: GuideSection[] = [
     blocks: [
       { ul: [
         'TidyQuest gira come un unico container Docker con una cartella dati (il database, gli avatar e le foto di prova). Fai il backup di quella cartella.',
-        'Imposta JWT_SECRET su una lunga stringa casuale e TZ sul tuo fuso orario (per esempio Europe/Rome). Senza TZ il server usa UTC, e "oggi", la mezzanotte e la settimana sarebbero sfasati di ore.',
+        'Imposta JWT_SECRET su una lunga stringa casuale. Il fuso orario della famiglia si sceglie nell’app (Impostazioni → Generale → Fuso orario); una nuova installazione lo prende dal dispositivo del primo genitore. TZ sul server si usa solo finché non ne viene scelto uno.',
         'Le versioni sono etichettate (per esempio 0.9.0). Fissa quel numero in docker-compose.yml, poi esegui "docker compose pull && docker compose up -d". L’immagine ":main" è il codice più recente, per provare le novità prima.',
         'Impostazioni → Generale mostra la versione in uso. Per tornare indietro, rimetti il numero della versione precedente e riavvia (fai prima un backup: il database va solo avanti).',
         'Le notifiche sul telefono dall’app stessa e l’installazione come app richiedono un indirizzo sicuro (https://); fino ad allora usa ntfy o Telegram.',
@@ -403,8 +404,9 @@ export const GUIDE_IT: GuideSection[] = [
           'Le ore di silenzio e l’orario scolastico trattengono i messaggi fino alla fine.',
           'Il Registro notifiche mostra ogni messaggio ed eventuali errori.',
         ] },
-        { q: 'I giorni, la mezzanotte o la settimana sono sfasati di qualche ora', a: [
-          'Imposta la variabile d’ambiente TZ sul server con il tuo fuso orario e riavvialo (vedi "Installazione e aggiornamenti").',
+        { q: 'Le faccende ripartono all’ora sbagliata, o i giorni e la settimana sono sfasati di qualche ora', a: [
+          'Controlla Impostazioni → Generale → Fuso orario (genitori): lì i giorni iniziano a mezzanotte per tutta la famiglia. Se c’è scritto "Non ancora scelto", tocca Usalo per prendere il fuso di questo dispositivo, oppure tocca Cambia e cerca il tuo.',
+          'Cambiarlo sposta l’inizio di ogni giorno da quel momento in poi. Le faccende già fatte restano nel giorno in cui sono state fatte.',
         ] },
         { q: 'La settimana inizia nel giorno sbagliato', a: [
           'Un genitore sceglie domenica o lunedì in Impostazioni → Generale → La settimana inizia di. Gli obiettivi settimanali, la Classifica, i limiti dei premi e i turni "per settimana" lo seguono, e un obiettivo settimanale in corso passa alla nuova settimana.',

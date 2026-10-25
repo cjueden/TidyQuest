@@ -1,7 +1,8 @@
 import db from '../database';
+import { addDays, at, familyZone, startOfDay, wall, zoneSql } from './clock';
 
 /**
- * Local-time calendar helpers (respect the TZ env var, like localDateStr). Weeks start on the
+ * Calendar helpers in the family's time zone (utils/clock). Weeks start on the
  * family's chosen day (Settings → General → Week starts on): Monday unless app_settings
  * 'weekStart' says '0' (Sunday). Every "this week" on the server goes through these.
  */
@@ -12,34 +13,28 @@ export function weekStartDay(): number {
   return v === '0' ? 0 : 1;
 }
 
-/** SQL for the first day ('YYYY-MM-DD', local) of the week holding a UTC timestamp column. */
-export function weekOfSql(column: string, first: number = weekStartDay()): string {
-  return `date(${column}, 'localtime', 'weekday ${(first + 6) % 7}', '-6 days')`;
+/** SQL for the first day ('YYYY-MM-DD', the family's) of the week holding a UTC timestamp column. */
+export function weekOfSql(column: string, first: number = weekStartDay(), tz: string = familyZone()): string {
+  return `tz_week(${column}, ${zoneSql(tz)}, ${first === 0 ? 0 : 1})`;
 }
 
-export function startOfLocalDay(now: Date = new Date()): Date {
-  const d = new Date(now);
-  d.setHours(0, 0, 0, 0);
-  return d;
+export function startOfLocalDay(now: Date = new Date(), tz: string = familyZone()): Date {
+  return startOfDay(now, 0, tz);
 }
 
-export function startOfLocalWeek(now: Date = new Date(), first: number = weekStartDay()): Date {
-  const d = startOfLocalDay(now);
-  d.setDate(d.getDate() - ((d.getDay() - first + 7) % 7));
-  return d;
+export function startOfLocalWeek(now: Date = new Date(), first: number = weekStartDay(), tz: string = familyZone()): Date {
+  const w = wall(now, tz);
+  return at(w.year, w.month, w.date - ((w.weekday - first + 7) % 7), 0, 0, 0, 0, tz);
 }
 
-/** Shift a moment by whole calendar days, keeping its local wall-clock time across DST changes. */
-export function addLocalDays(iso: string, days: number): string {
-  const d = new Date(iso);
-  d.setDate(d.getDate() + days);
-  return d.toISOString();
+/** Shift a moment by whole calendar days, keeping its wall-clock time at home across DST changes. */
+export function addLocalDays(iso: string, days: number, tz: string = familyZone()): string {
+  return addDays(iso, days, tz).toISOString();
 }
 
-/** This week's window: its first day 00:00 to its last day 23:59:59.999, local time. */
-export function currentLocalWeek(now: Date = new Date(), first: number = weekStartDay()): { startAt: string; endAt: string } {
-  const start = startOfLocalWeek(now, first);
-  const nextStart = new Date(start);
-  nextStart.setDate(nextStart.getDate() + 7);
+/** This week's window: its first day 00:00 to its last day 23:59:59.999, the family's time. */
+export function currentLocalWeek(now: Date = new Date(), first: number = weekStartDay(), tz: string = familyZone()): { startAt: string; endAt: string } {
+  const start = startOfLocalWeek(now, first, tz);
+  const nextStart = startOfDay(start, 7, tz);
   return { startAt: start.toISOString(), endAt: new Date(nextStart.getTime() - 1).toISOString() };
 }

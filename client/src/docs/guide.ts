@@ -74,6 +74,7 @@ export const GUIDE_EN: GuideSection[] = [
         'Evening: nudges about what’s still undone, a streak about to break, or a goal that’s close.',
         'The first day of the week (Monday, or Sunday if a parent picks it in Settings → General → Week starts on): a new week starts and weekly goals that repeat set themselves up again. A goal’s bonus is paid the moment it’s reached.',
         'Midnight: team-up invites end, and "Completed today" starts over.',
+        'All of this follows the family’s clock: midnight and the first day of the week where you live (Settings → General → Time zone). A parent on a trip still sees home days.',
       ] },
     ],
   },
@@ -359,7 +360,7 @@ export const GUIDE_EN: GuideSection[] = [
     blocks: [
       { ul: [
         'TidyQuest runs as one Docker container with a data folder (the database, avatars and proof photos). Back up that folder.',
-        'Set JWT_SECRET to a long random string, and TZ to your time zone (for example America/New_York). Without TZ the server uses UTC, and "today", midnight and the week would be off by hours.',
+        'Set JWT_SECRET to a long random string. The family’s time zone is picked in the app (Settings → General → Time zone); a new install takes it from the first parent’s device. TZ on the server is only used until one is picked.',
         'Releases are tagged (for example 0.9.0). Pin that number in docker-compose.yml, then run "docker compose pull && docker compose up -d". The ":main" image is the newest code, for trying things out first.',
         'Settings → General shows the version running. To roll back, put the previous version number back and start it again (take a backup first: the database only moves forward).',
         'Phone notifications from the app itself and installing it as an app need a secure (https://) address; until then use ntfy or Telegram.',
@@ -427,8 +428,9 @@ export const GUIDE_EN: GuideSection[] = [
           'Quiet hours and school hours hold messages until they end.',
           'The Notification log shows each message and any error.',
         ] },
-        { q: 'Days, midnight or the week are off by a few hours', a: [
-          'Set the TZ environment variable on the server to your time zone and restart it (see "Installing and updating").',
+        { q: 'Chores reset at the wrong time of day, or days and weeks are off by a few hours', a: [
+          'Check Settings → General → Time zone (parents): days start at midnight there for the whole family. If it says "Not picked yet", tap Use it to take this device’s zone, or tap Change and search for yours.',
+          'Changing it moves when each day starts from then on. Chores already done stay on the day they were done.',
         ] },
         { q: 'The week starts on the wrong day', a: [
           'A parent picks Sunday or Monday in Settings → General → Week starts on. Weekly goals, the Board, reward limits and "per week" turns all follow it, and a weekly goal that’s running moves to the new week.',

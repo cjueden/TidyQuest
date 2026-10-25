@@ -4,6 +4,7 @@ import fs from 'fs';
 import bcrypt from 'bcryptjs';
 import { suggestTaskIcon } from './utils/taskIcons';
 import { applyForkSchema } from './forkSchema';
+import { registerClockFunctions } from './utils/clock';
 
 const DB_PATH = path.join(__dirname, '..', '..', 'data', 'tidyquest.db');
 
@@ -15,13 +16,20 @@ export function createDatabase(dbPath: string = DB_PATH): InstanceType<typeof Da
   const instance = new Database(dbPath);
   instance.pragma('journal_mode = WAL');
   instance.pragma('foreign_keys = ON');
+  registerClockFunctions(instance);
   return instance;
 }
 
 let _db: InstanceType<typeof Database> | null = process.env.VITEST ? null : createDatabase();
 
 export function setDatabase(instance: InstanceType<typeof Database>) {
+  registerClockFunctions(instance);
   _db = instance;
+}
+
+/** The database in use right now (null before one is set up), for caches that belong to one database. */
+export function currentDatabase(): InstanceType<typeof Database> | null {
+  return _db;
 }
 
 // Proxy so that route files importing `db` always reach the current _db instance.

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createTestApp, createAdmin, createUser } from './setup';
+import { dayAt } from '../utils/clock';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { localDateStr } from '../utils/dateHelpers';
@@ -78,7 +79,7 @@ describe('Pausing a chore (ENH-1)', () => {
     await agent.post(`/api/tasks/${skim}/pause`).set(auth(admin.token)).send({ until }).expect(200);
     expect(resumeDuePauses()).toBe(0);
     expect(resumeDuePauses(new Date(Date.now() + 4 * 86400000))).toBe(0);
-    expect(resumeDuePauses(new Date(`${until}T00:05:00`))).toBe(1);
+    expect(resumeDuePauses(dayAt(until, 0, 5))).toBe(1);
     expect(db.prepare('SELECT pausedAt, pausedUntil FROM tasks WHERE id = ?').get(skim)).toEqual({ pausedAt: null, pausedUntil: null });
   });
 

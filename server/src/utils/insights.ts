@@ -1,11 +1,12 @@
 import db from '../database';
 import { localDateStr } from './dateHelpers';
 import { startOfLocalDay, startOfLocalWeek } from './periods';
+import { addDays, at as atTime, dayAt, familyZone, startOfDay, wall } from './clock';
 import { beforeStart, isSeasonalNow, nextDueAt, type ScheduledTask } from './schedule';
 import { getGlobalVacation } from './adminHelpers';
 
 // Insights for parents (NEW-7): chores done per period, a weekday × time-of-day heatmap, and a nightly
-// record of chores left overdue. Everything is grouped by completedAt in the server's local time (TZ).
+// record of chores left overdue. Everything is grouped by completedAt in the family's time zone (utils/clock).
 
 export type InsightsPeriod = 'day' | 'week' | 'month' | 'year';
 export const INSIGHTS_PERIODS: InsightsPeriod[] = ['day', 'week', 'month', 'year'];
@@ -18,36 +19,31 @@ const DAY_MS = 86400000;
 /** Bar starts from `start` to `end`: whole hours, days, week starts or 1sts of the month (the first starts at `start`). */
 function bucketStarts(start: Date, end: Date, grain: Grain): string[] {
   const out: string[] = [];
-  const b = new Date(start);
+  const tz = familyZone();
+  let b = new Date(start);
   while (b < end) {
     out.push(b.toISOString());
-    if (grain === 'hour') b.setHours(b.getHours() + 1, 0, 0, 0);
-    else if (grain === 'day') { b.setDate(b.getDate() + 1); b.setHours(0, 0, 0, 0); }
-    else if (grain === 'week') { const next = startOfLocalWeek(b); next.setDate(next.getDate() + 7); b.setTime(next.getTime()); }
-    else { b.setMonth(b.getMonth() + 1, 1); b.setHours(0, 0, 0, 0); }
+    const w = wall(b, tz);
+    if (grain === 'hour') b = atTime(w.year, w.month, w.date, w.hours + 1, 0, 0, 0, tz);
+    else if (grain === 'day') b = startOfDay(b, 1, tz);
+    else if (grain === 'week') b = startOfDay(startOfLocalWeek(b, undefined, tz), 7, tz);
+    else b = atTime(w.year, w.month + 1, 1, 0, 0, 0, 0, tz);
   }
   return out;
 }
 
-/** The period `offset` steps from the one holding `now` (0 = that one), in local time. */
+/** The period `offset` steps from the one holding `now` (0 = that one), in the family's time. */
 export function periodWindow(period: InsightsPeriod, offset: number, now: Date = new Date()): InsightsWindow {
-  let start: Date;
-  if (period === 'day') {
-    start = startOfLocalDay(now);
-    start.setDate(start.getDate() + offset);
-  } else if (period === 'week') {
-    start = startOfLocalWeek(now);
-    start.setDate(start.getDate() + offset * 7);
-  } else if (period === 'month') {
-    start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-  } else {
-    start = new Date(now.getFullYear() + offset, 0, 1);
-  }
-  const end = new Date(start);
-  if (period === 'day') end.setDate(end.getDate() + 1);
-  else if (period === 'week') end.setDate(end.getDate() + 7);
-  else if (period === 'month') end.setMonth(end.getMonth() + 1);
-  else end.setFullYear(end.getFullYear() + 1);
+  const w = wall(now);
+  const start = period === 'day' ? startOfDay(now, offset)
+    : period === 'week' ? startOfDay(startOfLocalWeek(now), offset * 7)
+    : period === 'month' ? atTime(w.year, w.month + offset, 1)
+    : atTime(w.year + offset, 0, 1);
+  const s = wall(start);
+  const end = period === 'day' ? startOfDay(start, 1)
+    : period === 'week' ? startOfDay(start, 7)
+    : period === 'month' ? atTime(s.year, s.month + 1, 1)
+    : atTime(s.year + 1, 0, 1);
   const grain: Grain = period === 'day' ? 'hour' : period === 'year' ? 'month' : 'day';
   return { start, end, grain, buckets: bucketStarts(start, end, grain) };
 }
@@ -57,20 +53,19 @@ export function grainFor(days: number): Grain {
   return days <= 2 ? 'hour' : days <= 62 ? 'day' : days <= 366 ? 'week' : 'month';
 }
 
-/** A From–To range in local days, both included, at most 3 years (the oldest part is cut). */
+/** A From–To range in the family's days, both included, at most 3 years (the oldest part is cut). */
 export function customWindow(from: Date, to: Date): InsightsWindow {
   const [a, b] = from <= to ? [from, to] : [to, from];
-  const end = startOfLocalDay(b);
-  end.setDate(end.getDate() + 1);
+  const end = startOfDay(b, 1);
   let start = startOfLocalDay(a);
-  const oldest = new Date(end);
-  oldest.setFullYear(oldest.getFullYear() - 3);
+  const e = wall(end);
+  const oldest = atTime(e.year - 3, e.month, e.date);
   if (start < oldest) start = oldest;
   const grain = grainFor(daysBetween(start, end));
   return { start, end, grain, buckets: bucketStarts(start, end, grain) };
 }
 
-/** Whole local days from a to b (midnights). */
+/** Whole days (the family's) from a to b (midnights). */
 export function daysBetween(a: Date, b: Date): number {
   return Math.round((startOfLocalDay(b).getTime() - startOfLocalDay(a).getTime()) / DAY_MS);
 }
@@ -91,22 +86,20 @@ export function bucketFinder(win: InsightsWindow): (at: Date) => number {
 
 /** The same moment one period earlier (this time yesterday, last week, last month or last year). */
 export function samePointBefore(period: InsightsPeriod, now: Date = new Date()): Date {
-  const d = new Date(now);
-  if (period === 'day') d.setDate(d.getDate() - 1);
-  else if (period === 'week') d.setDate(d.getDate() - 7);
-  else if (period === 'month') {
-    const day = d.getDate();
-    d.setDate(1);
-    d.setMonth(d.getMonth() - 1);
-    d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
-  } else d.setFullYear(d.getFullYear() - 1);
-  return d;
+  if (period === 'day') return addDays(now, -1);
+  if (period === 'week') return addDays(now, -7);
+  const w = wall(now);
+  if (period === 'month') {
+    const daysIn = new Date(Date.UTC(w.year, w.month, 0)).getUTCDate(); // last month's length
+    return atTime(w.year, w.month - 1, Math.min(w.date, daysIn), w.hours, w.minutes, w.seconds, w.ms);
+  }
+  return atTime(w.year - 1, w.month, w.date, w.hours, w.minutes, w.seconds, w.ms);
 }
 
 /** Heatmap columns: 6–9, 9–12, 12–3, 3–6, 6–9, and 9 pm to 6 am. */
 export const HEAT_SLOTS = [6, 9, 12, 15, 18, 21];
-export function heatSlot(at: Date): number {
-  const h = at.getHours();
+export function heatSlot(at: Date, tz: string = familyZone()): number {
+  const h = wall(at, tz).hours;
   if (h < 6) return 5;
   return Math.min(5, Math.floor((h - 6) / 3));
 }
@@ -148,8 +141,7 @@ const SNAPSHOT_SINCE_KEY = 'overdueSnapshotSince';
  */
 export function snapshotOverdueChores(now: Date = new Date()): number {
   const at = startOfLocalDay(now);
-  const yesterday = new Date(at);
-  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterday = startOfDay(at, -1);
   const day = localDateStr(yesterday);
   const last = (db.prepare('SELECT value FROM app_settings WHERE key = ?').get(SNAPSHOT_KEY) as { value: string } | undefined)?.value;
   if (last && last >= day) return 0;
@@ -163,8 +155,7 @@ export function snapshotOverdueChores(now: Date = new Date()): number {
       `SELECT * FROM tasks WHERE archivedAt IS NULL AND deletedAt IS NULL AND pausedAt IS NULL AND onDemand = 0 AND (oneTime = 0 OR doBy IS NOT NULL)`
     ).all() as Array<ScheduledTask & { id: number; roomId: number; createdAt?: string | null }>;
     const insert = db.prepare('INSERT OR IGNORE INTO chore_overdue_days (day, taskId, roomId, dueAt, daysOverdue) VALUES (?, ?, ?, ?, ?)');
-    const noon = new Date(yesterday);
-    noon.setHours(12);
+    const noon = dayAt(day, 12);
     for (const t of tasks) {
       if (!t.oneTime && isSeasonalNow(t, noon)) continue;
       if (beforeStart(t, at)) continue;
@@ -187,7 +178,7 @@ type ChoreRow = ScheduledTask & {
   assignmentMode: string | null; createdAt?: string | null; archivedAt?: string | null; deletedAt?: string | null; pausedAt?: string | null;
 };
 
-/** Whole local calendar days from the due day to the day it was done (0 = on time). */
+/** Whole calendar days (the family's) from the due day to the day it was done (0 = on time). */
 export function lateDays(due: Date, done: Date): number {
   return Math.round((startOfLocalDay(done).getTime() - startOfLocalDay(due).getTime()) / DAY_MS);
 }
@@ -195,7 +186,7 @@ export function lateDays(due: Date, done: Date): number {
 /** When the chore was due again after `prev` (the completion before); null when there's nothing to be late for. */
 export function dueAfter(task: ChoreRow, prev: Date | null): Date | null {
   if (task.onDemand) return null;
-  if (task.oneTime) return task.doBy && /^\d{4}-\d{2}-\d{2}$/.test(task.doBy) ? new Date(`${task.doBy}T00:00:00`) : null;
+  if (task.oneTime) return task.doBy && /^\d{4}-\d{2}-\d{2}$/.test(task.doBy) ? dayAt(task.doBy) : null;
   if (!prev) return null;
   const due = nextDueAt({ ...task, lastCompletedAt: prev.toISOString() }, prev);
   return due && !isSeasonalNow(task, due) ? due : null;
@@ -341,10 +332,9 @@ export function coinLedger(start: Date, end: Date): LedgerEntry[] {
  * [rewardId, userId, redemptionId, coins] for "bought most or never".
  */
 export function coinsByWeek(weeks: number, at: Date = new Date(), now: Date = new Date()) {
-  const start = startOfLocalWeek(at);
-  start.setDate(start.getDate() - (weeks - 1) * 7);
+  const start = startOfDay(startOfLocalWeek(at), -(weeks - 1) * 7);
   const starts: Date[] = [];
-  for (let i = 0; i <= weeks; i++) { const d = new Date(start); d.setDate(d.getDate() + i * 7); starts.push(d); }
+  for (let i = 0; i <= weeks; i++) starts.push(startOfDay(start, i * 7));
   const end = starts[weeks];
   const weekOf = (at: Date) => { let w = 0; while (w < weeks - 1 && at >= starts[w + 1]) w++; return w; };
 

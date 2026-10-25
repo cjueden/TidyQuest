@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { createTestApp } from './setup';
+import { at, wall } from '../utils/clock';
 import {
   calendarDaysUntil, isInSeason, isSeasonalNow, lastCompletedAtForHealth, nextDueAt, readScheduleInput,
   rotationTurnFor, taskHealth, weekNumber,
@@ -7,7 +8,7 @@ import {
 import { calculateHealth } from '../utils/health';
 
 // Pure helper tests (no app). All dates are built in local time, like the server.
-const local = (y: number, m: number, d: number, h = 0, min = 0) => new Date(y, m - 1, d, h, min);
+const local = (y: number, m: number, d: number, h = 0, min = 0) => at(y, m - 1, d, h, min);
 const iso = (d: Date) => d.toISOString();
 const THU = 1 << 4;
 const MON_WED_FRI = (1 << 1) | (1 << 3) | (1 << 5);
@@ -68,7 +69,7 @@ describe('Set weekdays', () => {
     const t = { ...base, scheduleWeekdays: MON_WED_FRI, lastCompletedAt: iso(local(2026, 10, 30, 18)) }; // Fri
     const due = nextDueAt(t, local(2026, 10, 31))!;
     expect(due.getTime()).toBe(local(2026, 11, 2).getTime()); // Monday after the switch
-    expect([due.getHours(), due.getMinutes()]).toEqual([0, 0]);
+    expect([wall(due).hours, wall(due).minutes]).toEqual([0, 0]);
     expect(calendarDaysUntil(due, local(2026, 10, 31, 23))).toBe(2);
     // And the spring switch (Mar 8 2026): done Fri Mar 6 -> Mon Mar 9 00:00
     const spring = { ...t, lastCompletedAt: iso(local(2026, 3, 6, 18)) };

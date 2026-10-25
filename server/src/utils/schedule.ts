@@ -2,6 +2,7 @@ import db from '../database';
 import { readSteps } from './focus';
 import { calculateHealth } from './health';
 import { weekStartDay } from './periods';
+import { at, dayAt, startOfDay, wall } from './clock';
 
 /**
  * When a task is due, in one place, so the room page, Home, the completion cooldown, house health
@@ -87,9 +88,9 @@ export function hasFixedSchedule(task: ScheduledTask): boolean {
   return fixedRule(task) !== null;
 }
 
-/** Midnight (local) of a repeating chore's start date, or null. */
+/** Midnight (the family's) of a repeating chore's start date, or null. */
 function startDay(task: ScheduledTask): Date | null {
-  return !task.oneTime && task.startsOn && ISO_DAY.test(task.startsOn) ? new Date(`${task.startsOn}T00:00:00`) : null;
+  return !task.oneTime && task.startsOn && ISO_DAY.test(task.startsOn) ? dayAt(task.startsOn) : null;
 }
 
 /** Hasn't been done on or after its start date (or never done). */
@@ -109,7 +110,7 @@ export function isInSeason(task: ScheduledTask, now: Date = new Date()): boolean
   const start = Number(task.seasonStartMonth);
   const end = Number(task.seasonEndMonth);
   if (!(start >= 1 && start <= 12 && end >= 1 && end <= 12)) return true;
-  const month = now.getMonth() + 1;
+  const month = wall(now).month + 1;
   return start <= end ? month >= start && month <= end : month >= start || month <= end;
 }
 
@@ -118,20 +119,20 @@ export function isSeasonalNow(task: ScheduledTask, now: Date = new Date()): bool
   return !!task.isSeasonal || !isInSeason(task, now);
 }
 
-/** Midnight (local) of the day `days` after d's day. Built from the calendar, so DST can't shift it. */
+/** Midnight (the family's) of the day `days` after d's day. Built from the calendar, so DST can't shift it. */
 function localDay(d: Date, days = 0): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days);
+  return startOfDay(d, days);
 }
 
-/** The monthly rule's day in a month (month may be out of 0–11; the Date constructor rolls it over). */
+/** The monthly rule's day in a month (month may be out of 0–11; Date.UTC rolls it over). */
 function monthlyDayIn(rule: MonthlyRule, year: number, month: number): Date {
-  const first = new Date(year, month, 1);
-  const y = first.getFullYear();
-  const m = first.getMonth();
-  const daysIn = new Date(y, m + 1, 0).getDate();
-  if ('day' in rule) return new Date(y, m, Math.min(rule.day, daysIn));
-  if (rule.week > 0) return new Date(y, m, 1 + ((rule.weekday - first.getDay() + 7) % 7) + (rule.week - 1) * 7);
-  return new Date(y, m, daysIn - ((new Date(y, m, daysIn).getDay() - rule.weekday + 7) % 7));
+  const first = new Date(Date.UTC(year, month, 1));
+  const y = first.getUTCFullYear();
+  const m = first.getUTCMonth();
+  const daysIn = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  if ('day' in rule) return at(y, m, Math.min(rule.day, daysIn));
+  if (rule.week > 0) return at(y, m, 1 + ((rule.weekday - first.getUTCDay() + 7) % 7) + (rule.week - 1) * 7);
+  return at(y, m, daysIn - ((new Date(Date.UTC(y, m, daysIn)).getUTCDay() - rule.weekday + 7) % 7));
 }
 
 /** First scheduled day on or after (inclusive) / strictly after `from`'s day. */
@@ -140,12 +141,13 @@ function nextScheduledDay(rule: FixedRule, from: Date, inclusive: boolean): Date
   if ('mask' in rule) {
     for (let i = 0; i < 7; i++) {
       const day = localDay(first, i);
-      if (rule.mask & (1 << day.getDay())) return day;
+      if (rule.mask & (1 << wall(day).weekday)) return day;
     }
     return localDay(first, 7); // unreachable with a non-empty mask
   }
+  const w = wall(first);
   for (let i = 0; ; i++) {
-    const day = monthlyDayIn(rule, first.getFullYear(), first.getMonth() + i);
+    const day = monthlyDayIn(rule, w.year, w.month + i);
     if (day.getTime() >= first.getTime()) return day;
   }
 }
@@ -155,13 +157,14 @@ function previousScheduledDay(rule: FixedRule, before: Date): Date {
   if ('mask' in rule) {
     for (let i = 1; i <= 7; i++) {
       const day = localDay(before, -i);
-      if (rule.mask & (1 << day.getDay())) return day;
+      if (rule.mask & (1 << wall(day).weekday)) return day;
     }
     return localDay(before, -7);
   }
   const limit = localDay(before);
+  const w = wall(limit);
   for (let i = 0; ; i++) {
-    const day = monthlyDayIn(rule, limit.getFullYear(), limit.getMonth() - i);
+    const day = monthlyDayIn(rule, w.year, w.month - i);
     if (day.getTime() < limit.getTime()) return day;
   }
 }
@@ -174,7 +177,7 @@ export const parseStored = (v: string) => new Date(v.includes('T') ? v : `${v.re
  * ends (without a date: a week after it was added).
  */
 export function oneTimeDeadline(task: ScheduledTask, now: Date = new Date()): Date {
-  if (task.doBy && /^\d{4}-\d{2}-\d{2}$/.test(task.doBy)) return new Date(`${task.doBy}T23:59:59.999`);
+  if (task.doBy && /^\d{4}-\d{2}-\d{2}$/.test(task.doBy)) return dayAt(task.doBy, 23, 59, 59, 999);
   const added = task.createdAt ? parseStored(task.createdAt) : now;
   return new Date(added.getTime() + 7 * DAY_MS);
 }
@@ -187,7 +190,7 @@ export function countsForHealth(task: ScheduledTask, now: Date = new Date()): bo
 /** When the task is next due; null for a rolling task that was never done (due now). */
 export function nextDueAt(task: ScheduledTask, now: Date = new Date()): Date | null {
   if (task.oneTime) {
-    if (task.doBy && /^\d{4}-\d{2}-\d{2}$/.test(task.doBy)) return new Date(`${task.doBy}T00:00:00`);
+    if (task.doBy && /^\d{4}-\d{2}-\d{2}$/.test(task.doBy)) return dayAt(task.doBy);
     return task.createdAt ? parseStored(task.createdAt) : null;
   }
   const rule = fixedRule(task);
@@ -246,9 +249,10 @@ export function lastCompletedAtForHealth(task: ScheduledTask, targetHealth: numb
   return new Date(hi).toISOString();
 }
 
-/** Calendar weeks (local, starting on `first` like Date.getDay()) since a fixed one; consecutive across years. */
+/** Calendar weeks (the family's, starting on `first` like Date.getDay()) since a fixed one; consecutive across years. */
 export function weekNumber(now: Date = new Date(), first: number = weekStartDay()): number {
-  const dayIndex = Math.round(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / DAY_MS);
+  const w = wall(now);
+  const dayIndex = Math.round(Date.UTC(w.year, w.month, w.date) / DAY_MS);
   // Day 0 (1970-01-01) was a Thursday; Monday-first weeks start counting on day 4, Sunday-first on day 3
   return Math.floor((dayIndex + 3 + (first === 0 ? 1 : 0)) / 7);
 }

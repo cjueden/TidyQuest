@@ -1,5 +1,6 @@
 import db from '../database';
 import { startOfLocalWeek, weekOfSql } from './periods';
+import { addDays, at, familyZone, wall } from './clock';
 import { isFeatureOn } from './features';
 
 /**
@@ -15,7 +16,7 @@ export type BoardMode = typeof BOARD_MODES[number];
 
 interface Range { start: Date; end: Date }
 
-const addMonths = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth() + n, 1);
+const addMonths = (d: Date, n: number) => { const w = wall(d); return at(w.year, w.month + n, 1); };
 
 /**
  * The period, the same stretch of the period before it (this week so far vs. last week up to the
@@ -23,7 +24,7 @@ const addMonths = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth()
  */
 export function boardRanges(period: BoardPeriod, now: Date = new Date()): { current: Range; compare: Range; previous: Range } {
   const week = startOfLocalWeek(now);
-  const daysBefore = (d: Date, n: number) => { const out = new Date(d); out.setDate(out.getDate() - n); return out; };
+  const daysBefore = (d: Date, n: number) => addDays(d, -n);
   if (period === 'week' || period === 'lastWeek') {
     const start = period === 'week' ? week : daysBefore(week, 7);
     const end = period === 'week' ? now : week;
@@ -34,9 +35,10 @@ export function boardRanges(period: BoardPeriod, now: Date = new Date()): { curr
     };
   }
   const months = period === 'month' ? 1 : period === 'quarter' ? 3 : 12;
-  const first = period === 'month' ? new Date(now.getFullYear(), now.getMonth(), 1)
-    : period === 'quarter' ? new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1)
-    : new Date(now.getFullYear(), 0, 1);
+  const w = wall(now);
+  const first = period === 'month' ? at(w.year, w.month, 1)
+    : period === 'quarter' ? at(w.year, Math.floor(w.month / 3) * 3, 1)
+    : at(w.year, 0, 1);
   const prevStart = addMonths(first, -months);
   const elapsed = now.getTime() - first.getTime();
   return {
@@ -107,7 +109,8 @@ function awardsFor(range: Range, ids: Set<number>): Award[] {
     return m;
   };
   const awards: Award[] = [];
-  const early = best(tally((r) => new Date(r.completedAt).getHours() < 8), 2);
+  const tz = familyZone();
+  const early = best(tally((r) => wall(r.completedAt, tz).hours < 8), 2);
   if (early) awards.push({ key: 'earlyBird', ...early });
   const bounty = best(tally((r) => !!r.onDemand), 2);
   if (bounty) awards.push({ key: 'bountyHunter', ...bounty });

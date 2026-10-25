@@ -9,6 +9,26 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+### Added
+- **A Time zone setting.** Settings → General → Time zone (parents): days start at midnight there for the whole
+  family, so chores, streaks, weekly goals, the Board, reward limits, reminders, quiet hours and Insights all count
+  home days. Search the list or tap "Use this device's zone". A new install takes the zone from the first parent's
+  browser. An existing install keeps using the server's `TZ` until a parent picks a zone, and Settings offers this
+  device's zone when it's different. Changing it moves when each day starts from then on: chores already done stay
+  on their days, and a weekly goal that's running moves to the new zone's week. The server no longer needs `TZ`.
+
+### Changed
+- A phone or computer in another time zone (a parent on a trip) still counts home days: today's chores, due dates,
+  the Calendar, History, Insights and "Done earlier…" follow the family's zone. Coin boost start and end times are
+  typed and shown in home time.
+
+### Fixed
+- A goal's end date now ends at midnight at home. It used to end at midnight UTC, which is late afternoon in the
+  Americas.
+- Home's "streak done today" and the earliest vacation end date no longer use the UTC date, which is already
+  tomorrow on an American evening.
+- The streak check for a missed day looks at the end of the family's day, not the end of the UTC day.
+
 ## v0.12.0 (2026-10-24)
 
 ### Added

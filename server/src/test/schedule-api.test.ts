@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createTestApp, createAdmin, createUser } from './setup';
+import { wall } from '../utils/clock';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { weekNumber } from '../utils/schedule';
@@ -27,14 +28,14 @@ const taskIn = async (token: string, id: number) =>
 describe('Set weekdays', () => {
   it('stores the weekdays, reports the next due day, and blocks a repeat before it', async () => {
     const { admin, kidA, room } = await family();
-    const inTwoDays = new Date(Date.now() + 2 * DAY).getDay();
+    const inTwoDays = wall(Date.now() + 2 * DAY).weekday;
     const task = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token))
       .send({ name: 'Bins to the curb', effort: 1, frequencyDays: 7, scheduleWeekdays: [inTwoDays] })).body.id as number;
     db.prepare('UPDATE tasks SET lastCompletedAt = ? WHERE id = ?').run(new Date().toISOString(), task);
 
     const t = await taskIn(kidA.token, task);
     expect(t.scheduleWeekdays).toBe(1 << inTwoDays);
-    expect(new Date(t.nextDueAt).getDay()).toBe(inTwoDays);
+    expect(wall(t.nextDueAt).weekday).toBe(inTwoDays);
     expect(t.health).toBeGreaterThan(90);
     const again = await agent.post(`/api/tasks/${task}/complete`).set(auth(kidA.token));
     expect([again.status, again.body.error]).toEqual([409, 'not_yet_due']);
@@ -52,7 +53,7 @@ describe('Set weekdays', () => {
 describe('Seasons', () => {
   it("keeps an out-of-season chore off Home's due list, and puts it back in season", async () => {
     const { admin, room } = await family();
-    const month = new Date().getMonth() + 1;
+    const month = wall().month + 1;
     const other = ((month + 5) % 12) + 1; // a month that isn't this one
     const task = (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token))
       .send({ name: 'Skim the pool', effort: 1, frequencyDays: 1, seasonStartMonth: other, seasonEndMonth: other })).body.id as number;

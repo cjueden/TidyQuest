@@ -1,6 +1,7 @@
 import { localeFor } from './locale';
 import { choreSteps } from './focus';
 import { weekOrder } from './week';
+import { wall, dateStr } from './clock';
 
 /**
  * The scheduling options of a task (server: utils/schedule.ts): due on set weekdays instead of a
@@ -63,8 +64,8 @@ export function scheduleFromTask(task: ScheduledTaskFields): ScheduleValue {
     doBy: task.doBy ?? '',
     weekdays,
     monthWeek,
-    monthDay: task.scheduleMonthDay ? Number(task.scheduleMonthDay) : new Date().getDate(),
-    monthWeekday: monthWeek ? Number(task.scheduleMonthWeekday) : new Date().getDay(),
+    monthDay: task.scheduleMonthDay ? Number(task.scheduleMonthDay) : wall().date,
+    monthWeekday: monthWeek ? Number(task.scheduleMonthWeekday) : wall().weekday,
     startsOn: task.startsOn ?? '',
     seasonOn,
     seasonStart: seasonOn ? Number(task.seasonStartMonth) : EMPTY_SCHEDULE.seasonStart,
@@ -121,9 +122,9 @@ export function monthlyLabel(task: ScheduledTaskFields, t: (k: string) => string
   return t('schedule.monthlyNth').replace('{nth}', nth).replace('{weekday}', weekdayName(v.monthWeekday, language));
 }
 
-/** Today as 'YYYY-MM-DD' (local). */
+/** Today as 'YYYY-MM-DD' (the family's). */
 export function todayIso(now: Date = new Date()): string {
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return dateStr(now);
 }
 
 /** A repeating chore whose start date hasn't come yet. */

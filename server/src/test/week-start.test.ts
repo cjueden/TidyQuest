@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, homeToday } from './setup';
+import { at, wall } from '../utils/clock';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { currentLocalWeek, startOfLocalWeek, weekOfSql, weekStartDay } from '../utils/periods';
@@ -19,9 +20,9 @@ beforeEach(() => {
 });
 
 const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
-const local = (y: number, m: number, d: number, h = 0, min = 0) => new Date(y, m - 1, d, h, min);
+const local = (y: number, m: number, d: number, h = 0, min = 0) => at(y, m - 1, d, h, min);
 const sundayFirst = () => db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('weekStart', '0')").run();
-const WED = local(2026, 10, 21, 15); // Wednesday Oct 21 2026
+const WED = () => local(2026, 10, 21, 15); // Wednesday Oct 21 2026 (on the family's clock, once the database is set up)
 
 async function family() {
   const admin = await createAdmin(agent);
@@ -38,13 +39,13 @@ const done = (taskId: number, userId: number, at: Date, coins: number) =>
 describe('Week start helpers', () => {
   it('starts weeks on Monday by default and on Sunday when chosen', () => {
     expect(weekStartDay()).toBe(1);
-    expect(startOfLocalWeek(WED)).toEqual(local(2026, 10, 19));
+    expect(startOfLocalWeek(WED())).toEqual(local(2026, 10, 19));
     sundayFirst();
     expect(weekStartDay()).toBe(0);
-    expect(startOfLocalWeek(WED)).toEqual(local(2026, 10, 18));
+    expect(startOfLocalWeek(WED())).toEqual(local(2026, 10, 18));
     expect(startOfLocalWeek(local(2026, 10, 18, 0, 5))).toEqual(local(2026, 10, 18)); // Sunday itself
     expect(startOfLocalWeek(local(2026, 10, 24, 23, 55))).toEqual(local(2026, 10, 18)); // Saturday night
-    expect(currentLocalWeek(WED)).toEqual({ startAt: local(2026, 10, 18).toISOString(), endAt: new Date(local(2026, 10, 25).getTime() - 1).toISOString() });
+    expect(currentLocalWeek(WED())).toEqual({ startAt: local(2026, 10, 18).toISOString(), endAt: new Date(local(2026, 10, 25).getTime() - 1).toISOString() });
   });
 
   it('puts days in the same weeks in SQL as in JavaScript, over a daylight saving change', () => {
@@ -80,18 +81,18 @@ describe('Weekly turns', () => {
 describe('Board, reward limits and rotating rewards', () => {
   it('use Sunday-to-Saturday weeks', () => {
     sundayFirst();
-    expect(boardRanges('week', WED).current).toEqual({ start: local(2026, 10, 18), end: WED });
-    expect(boardRanges('lastWeek', WED).current).toEqual({ start: local(2026, 10, 11), end: local(2026, 10, 18) });
-    expect(periodStart('week', WED)).toEqual(local(2026, 10, 18));
+    expect(boardRanges('week', WED()).current).toEqual({ start: local(2026, 10, 18), end: WED() });
+    expect(boardRanges('lastWeek', WED()).current).toEqual({ start: local(2026, 10, 11), end: local(2026, 10, 18) });
+    expect(periodStart('week', WED())).toEqual(local(2026, 10, 18));
   });
 
   it('groups past winners by Sunday weeks', async () => {
     const { kidId, task } = await family();
     done(task, kidId, local(2026, 10, 11, 12), 5); // Sunday
     done(task, kidId, local(2026, 10, 17, 12), 7); // the Saturday after
-    expect(buildBoard('week', 'coins', WED).trophies.weeks.map((w) => w.weekStart)).toEqual(['2026-10-12', '2026-10-05']);
+    expect(buildBoard('week', 'coins', WED()).trophies.weeks.map((w) => w.weekStart)).toEqual(['2026-10-12', '2026-10-05']);
     sundayFirst();
-    expect(buildBoard('week', 'coins', WED).trophies.weeks).toEqual([{ weekStart: '2026-10-11', userIds: [kidId], coins: 12 }]);
+    expect(buildBoard('week', 'coins', WED()).trophies.weeks).toEqual([{ weekStart: '2026-10-11', userIds: [kidId], coins: 12 }]);
   });
 
   it('keeps the rotating picks through a Sunday-first week, and Monday-first weeks as before', () => {
@@ -114,15 +115,15 @@ describe('Weekly goals', () => {
 
   it('moves a running weekly goal to the week sharing six of its days; goals with their own dates stay', async () => {
     const { kidId } = await family();
-    const week = currentLocalWeek(WED, 1);
+    const week = currentLocalWeek(WED(), 1);
     const chain = insertGoal(kidId, 'Weekly Win · week of Oct 19', week.startAt, week.endAt);
     const dated = insertGoal(kidId, 'Big push', local(2026, 10, 20).toISOString(), '2026-10-27T23:59:59.999Z');
 
-    expect(realignWeeklyGoals(1, 0, WED)).toEqual([kidId]);
-    expect(goal(chain)).toEqual({ title: 'Weekly Win · week of Oct 18', ...currentLocalWeek(WED, 0) });
+    expect(realignWeeklyGoals(1, 0, WED())).toEqual([kidId]);
+    expect(goal(chain)).toEqual({ title: 'Weekly Win · week of Oct 18', ...currentLocalWeek(WED(), 0) });
     expect(goal(dated)).toMatchObject({ startAt: local(2026, 10, 20).toISOString(), endAt: '2026-10-27T23:59:59.999Z' });
 
-    expect(realignWeeklyGoals(0, 1, WED)).toEqual([kidId]);
+    expect(realignWeeklyGoals(0, 1, WED())).toEqual([kidId]);
     expect(goal(chain)).toEqual({ title: 'Weekly Win · week of Oct 19', ...week });
   });
 
@@ -151,11 +152,11 @@ describe('Week start setting', () => {
 
   it("starts Insights' heatmap rows on the week's first day", async () => {
     const { admin, kidId, task } = await family();
-    const at = new Date(); at.setDate(at.getDate() - 3); at.setHours(16, 30, 0, 0);
-    done(task, kidId, at, 5);
+    const when = homeToday(-3, 16, 30);
+    done(task, kidId, when, 5);
     sundayFirst();
     const body = (await agent.get('/api/insights/heatmap').set(auth(admin.token)).expect(200)).body;
     expect(body.weekStart).toBe(0);
-    expect(body.rows).toEqual([[at.getDay(), 3, kidId, 1, 5, 3]]);
+    expect(body.rows).toEqual([[wall(when).weekday, 3, kidId, 1, 5, 3]]);
   });
 });
