@@ -1,5 +1,6 @@
 import type { CoinCategory, InsightsBars, InsightsCoins, InsightsGrain, InsightsHeatmap, InsightsPeriod, InsightsRange, InsightsSkipped } from '../../hooks/useApi';
 import { localeFor } from '../../utils/locale';
+import { wall, homeDate } from '../../utils/clock';
 
 export type Measure = 'chores' | 'coins' | 'effort';
 export type StackBy = 'person' | 'room' | 'chore';
@@ -102,9 +103,10 @@ export function heatGrid(data: InsightsHeatmap, measure: Measure, people: People
 /** Labels for each bar: a short one for the axis and a full one for the readout. weekOf: "Week of {date}". */
 export function bucketLabels(grain: InsightsGrain, buckets: string[], language: string, weekOf: string) {
   const locale = localeFor(language);
-  const dates = buckets.map((b) => new Date(b));
+  // Bars start at the family's midnights (or hours): label them on the clock at home
+  const dates = buckets.map((b) => homeDate(b));
   const years = new Set(dates.map((d) => d.getFullYear()));
-  const yearNote = years.size > 1 || !years.has(new Date().getFullYear());
+  const yearNote = years.size > 1 || !years.has(wall().year);
   const months = new Set(dates.map((d) => `${d.getFullYear()}-${d.getMonth()}`));
   const multiDay = dates.length > 0 && dates[0].toDateString() !== dates[dates.length - 1].toDateString();
   const time = (d: Date) => d.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
@@ -134,9 +136,9 @@ export function bucketLabels(grain: InsightsGrain, buckets: string[], language: 
 /** The window's name for the ◀ ▶ header (with the year when it isn't this year). */
 export function periodLabel(period: InsightsRange, startIso: string, endIso: string, language: string): string {
   const locale = localeFor(language);
-  const start = new Date(startIso);
-  const last = new Date(new Date(endIso).getTime() - 1);
-  const thisYear = new Date().getFullYear();
+  const start = homeDate(startIso);
+  const last = homeDate(new Date(endIso).getTime() - 1);
+  const thisYear = wall().year;
   const withYear = start.getFullYear() !== thisYear || last.getFullYear() !== thisYear;
   if (period === 'day') return start.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', ...(withYear ? { year: 'numeric' } : {}) });
   if (period === 'month') return start.toLocaleDateString(locale, { month: 'long', year: 'numeric' });

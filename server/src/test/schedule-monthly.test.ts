@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { beforeStart, hasFixedSchedule, lastCompletedAtForHealth, nextDueAt, readScheduleInput, taskHealth } from '../utils/schedule';
 import { createTestApp, createAdmin } from './setup';
+import { at, wall } from '../utils/clock';
 import type supertest from 'supertest';
 
 // Monthly chores and the "Starts on" date (ENH-5). All dates are built in local time, like the server.
-const local = (y: number, m: number, d: number, h = 0, min = 0) => new Date(y, m - 1, d, h, min);
+const local = (y: number, m: number, d: number, h = 0, min = 0) => at(y, m - 1, d, h, min);
 const iso = (d: Date) => d.toISOString();
 const base = { frequencyDays: 30, lastCompletedAt: null as string | null };
 const SAT = 6;
@@ -146,15 +147,16 @@ describe('Through the API', () => {
     const admin = await createAdmin(agent);
     const room = (await agent.post('/api/rooms').set(auth(admin.token)).send({ name: 'Room', roomType: 'other' })).body.id as number;
     const start = new Date(Date.now() + 40 * 86400000);
-    const startsOn = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`;
+    const s = wall(start);
+    const startsOn = `${s.year}-${String(s.month + 1).padStart(2, '0')}-${String(s.date).padStart(2, '0')}`;
     const created = await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token))
       .send({ name: 'Change the water filter', effort: 1, frequencyDays: 30, health: 20, scheduleMonthDay: 31, startsOn });
     expect(created.status).toBe(201);
     const t = ((await agent.get('/api/rooms').set(auth(admin.token))).body as any[]).flatMap((r) => r.tasks).find((x: any) => x.id === created.body.id);
     expect([t.scheduleMonthDay, t.startsOn, t.health]).toEqual([31, startsOn, 100]);
     // The last day of the start date's month
-    const due = new Date(t.nextDueAt);
-    expect([due.getMonth(), due.getDate()]).toEqual([start.getMonth(), new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate()]);
+    const due = wall(t.nextDueAt);
+    expect([due.month, due.date]).toEqual([s.month, new Date(Date.UTC(s.year, s.month + 1, 0)).getUTCDate()]);
 
     const bad = await agent.put(`/api/tasks/${created.body.id}`).set(auth(admin.token)).send({ scheduleMonthWeek: 1 });
     expect([bad.status, bad.body.error]).toEqual([400, 'invalid_month_day']);

@@ -3,6 +3,7 @@ import { parseHomeLayout } from '../utils/homeLayout';
 import bcrypt from 'bcryptjs';
 import db from '../database';
 import { AuthRequest, authMiddleware, generateToken } from '../middleware/auth';
+import { canonicalZone } from '../utils/clock';
 
 // In-memory limits for auth endpoints (they reset on restart). The address is req.ip: the connection's own,
 // or the visitor's when TRUST_PROXY names the reverse proxy in front (utils/proxy.ts).
@@ -58,7 +59,7 @@ router.post('/register', (req: AuthRequest, res: Response) => {
     return res.status(429).json({ error: 'Too many registration attempts. Please try again later.' });
   }
 
-  const { username, password, displayName, avatarColor, language } = req.body;
+  const { username, password, displayName, avatarColor, language, timeZone } = req.body;
 
   if (!username || !password || !displayName) {
     return res.status(400).json({ error: 'username, password, and displayName are required' });
@@ -85,6 +86,9 @@ router.post('/register', (req: AuthRequest, res: Response) => {
   const result = db.prepare(
     'INSERT INTO users (username, displayName, passwordHash, role, avatarColor, language) VALUES (?, ?, ?, ?, ?, ?)'
   ).run(username, displayName, passwordHash, role, avatarColor || '#F97316', language || 'en');
+  // A new install takes the first parent's time zone from their browser (Settings → General changes it)
+  const zone = canonicalZone(timeZone);
+  if (role === 'admin' && zone) db.prepare("INSERT OR IGNORE INTO app_settings (key, value) VALUES ('timeZone', ?)").run(zone);
 
   const token = generateToken(result.lastInsertRowid as number);
   const user = db.prepare('SELECT id, username, displayName, role, avatarColor, avatarType, avatarPreset, avatarPhotoUrl, coins, currentStreak, streakShields, goalCoins, goalStartAt, goalEndAt, language FROM users WHERE id = ?')

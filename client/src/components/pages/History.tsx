@@ -7,16 +7,16 @@ import { CheerBar } from '../shared/CheerBar';
 import { UserTitle } from '../shared/UserTitle';
 import { useTranslation } from '../../hooks/useTranslation';
 import { startOfWeek, useWeekStart } from '../../utils/week';
+import { at, wall, startOfDay } from '../../utils/clock';
 
 type Range = '' | 'today' | 'week' | 'month';
 
-/** Local start of today / this week (from the family's first day) / this month. */
+/** The start (at home) of today / this week (from the family's first day) / this month. */
 function rangeStart(range: Range, weekStart: number): Date | null {
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (range === 'today') return today;
+  if (range === 'today') return startOfDay(now);
   if (range === 'week') return startOfWeek(now, weekStart);
-  if (range === 'month') return new Date(now.getFullYear(), now.getMonth(), 1);
+  if (range === 'month') { const w = wall(now); return at(w.year, w.month, 1); }
   return null;
 }
 

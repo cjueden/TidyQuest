@@ -1,5 +1,6 @@
 import db from '../database';
 import { addLocalDays, currentLocalWeek } from './periods';
+import { familyZone } from './clock';
 
 export interface PrimaryGoal {
   id: number;
@@ -22,7 +23,7 @@ export function goalTitleBase(title: string): string {
 
 function weekTitle(previous: string, startAt: string): string {
   if (goalTitleBase(previous) === previous) return previous;
-  const day = new Date(startAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const day = new Date(startAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: familyZone() });
   return `${goalTitleBase(previous)} · week of ${day}`;
 }
 
@@ -66,21 +67,22 @@ export function rollOverRepeatingGoals(userId: number, now: Date = new Date()): 
 }
 
 /**
- * The family changed the week's first day (Settings → General): each "repeat weekly" goal still
- * running that covers a whole old calendar week moves to the new week sharing six of its days (the
- * one holding its Thursday or Wednesday), so the chain follows the new weeks from then on. Goals a
- * parent gave their own dates stay as they are. Returns the people whose goal moved.
+ * The family changed the week's first day or the time zone (Settings → General): each "repeat
+ * weekly" goal still running that covers a whole old calendar week moves to the new week sharing
+ * most of its days (the one holding its Thursday or Wednesday), so the chain follows the new weeks
+ * from then on. Goals a parent gave their own dates stay as they are. Returns the people whose goal moved.
  */
-export function realignWeeklyGoals(oldFirst: number, newFirst: number, now: Date = new Date()): number[] {
-  if (oldFirst === newFirst) return [];
+export function realignWeeklyGoals(oldFirst: number, newFirst: number, now: Date = new Date(), oldZone = familyZone(), newZone = oldZone): number[] {
+  if (oldFirst === newFirst && oldZone === newZone) return [];
   const heads = db.prepare(
     'SELECT id, userId, title, startAt, endAt FROM user_goals WHERE repeatWeekly = 1 AND startAt IS NOT NULL AND endAt IS NOT NULL AND endAt >= ?'
   ).all(now.toISOString()) as { id: number; userId: number; title: string; startAt: string; endAt: string }[];
   const moved = new Set<number>();
   for (const g of heads) {
-    const old = currentLocalWeek(new Date(g.startAt), oldFirst);
+    const old = currentLocalWeek(new Date(g.startAt), oldFirst, oldZone);
     if (Date.parse(old.startAt) !== Date.parse(g.startAt) || Date.parse(old.endAt) !== Date.parse(g.endAt)) continue;
-    const { startAt, endAt } = currentLocalWeek(new Date(addLocalDays(g.startAt, 3)), newFirst);
+    const { startAt, endAt } = currentLocalWeek(new Date(addLocalDays(g.startAt, 3, oldZone)), newFirst, newZone);
+    if (Date.parse(startAt) === Date.parse(g.startAt) && Date.parse(endAt) === Date.parse(g.endAt)) continue;
     db.prepare('UPDATE user_goals SET startAt = ?, endAt = ?, title = ? WHERE id = ?').run(startAt, endAt, weekTitle(g.title, startAt), g.id);
     moved.add(g.userId);
   }

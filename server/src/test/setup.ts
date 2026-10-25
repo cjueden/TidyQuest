@@ -10,6 +10,17 @@ import { setDatabase } from '../database';
 import { applyForkSchema } from '../forkSchema';
 import { createApp } from '../index';
 import { resetLoginLimits } from '../routes/auth';
+import { at, wall } from '../utils/clock';
+
+/**
+ * Today on the family's clock, `days` later (or earlier), at a wall-clock time. Tests build "home"
+ * times with this and utils/clock's at() and wall(), so the suite also passes with the family in
+ * another zone than the server (TZ=UTC TEST_TIME_ZONE=Pacific/Auckland npm test).
+ */
+export function homeToday(days = 0, hours = 0, minutes = 0, seconds = 0, ms = 0): Date {
+  const w = wall();
+  return at(w.year, w.month, w.date + days, hours, minutes, seconds, ms);
+}
 
 export function createTestApp() {
   // Fresh in-memory DB for each test suite
@@ -22,6 +33,8 @@ export function createTestApp() {
   applyForkSchema(db);
   // The Rescue Mission doubles the coins of a long-overdue chore; tests about it turn it on themselves
   db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('features', ?)").run(JSON.stringify({ rescue: false }));
+  // TEST_TIME_ZONE=Pacific/Auckland runs the suite with the family in another zone than the server's TZ
+  if (process.env.TEST_TIME_ZONE) db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('timeZone', ?)").run(process.env.TEST_TIME_ZONE);
 
   // Swap the global singleton so all routes use this DB
   setDatabase(db);

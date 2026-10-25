@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, homeToday } from './setup';
+import { at as homeAt, wall } from '../utils/clock';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { startOfLocalWeek } from '../utils/periods';
@@ -29,10 +30,8 @@ const done = (taskId: number, userId: number, at: Date, coins: number, status = 
 
 /** Local time `days` after this week's Monday at `hour`:`minute`. */
 const thisWeek = (days: number, hour: number, minute = 0) => {
-  const d = startOfLocalWeek();
-  d.setDate(d.getDate() + days);
-  d.setHours(hour, minute, 0, 0);
-  return d;
+  const w = wall(startOfLocalWeek());
+  return homeAt(w.year, w.month, w.date + days, hour, minute);
 };
 
 describe('insights', () => {
@@ -77,13 +76,13 @@ describe('insights', () => {
   });
 
   it('builds day, month and year windows', () => {
-    const now = new Date(2026, 2, 15, 12); // 15 March 2026
+    const now = homeAt(2026, 2, 15, 12); // 15 March 2026
     expect(periodWindow('day', 0, now).buckets).toHaveLength(24);
     const feb = periodWindow('month', -1, now);
     expect(feb.buckets).toHaveLength(28);
-    expect(feb.start.getMonth()).toBe(1);
+    expect(wall(feb.start).month).toBe(1);
     const dec = periodWindow('month', -3, now);
-    expect([dec.start.getFullYear(), dec.start.getMonth()]).toEqual([2025, 11]);
+    expect([wall(dec.start).year, wall(dec.start).month]).toEqual([2025, 11]);
     expect(periodWindow('year', 0, now).buckets).toHaveLength(12);
     expect(periodWindow('year', 0, now).grain).toBe('month');
   });
@@ -91,24 +90,24 @@ describe('insights', () => {
   it('sizes custom ranges: hours, days, weeks (from Mondays) or months, at most 3 years', () => {
     expect([grainFor(2), grainFor(3), grainFor(62), grainFor(63), grainFor(366), grainFor(367)])
       .toEqual(['hour', 'day', 'day', 'week', 'week', 'month']);
-    const two = customWindow(new Date(2026, 2, 10, 12), new Date(2026, 2, 11, 12));
+    const two = customWindow(homeAt(2026, 2, 10, 12), homeAt(2026, 2, 11, 12));
     expect([two.grain, two.buckets.length]).toEqual(['hour', 48]);
-    const tenDays = customWindow(new Date(2026, 2, 20, 12), new Date(2026, 2, 11, 12)); // either order
+    const tenDays = customWindow(homeAt(2026, 2, 20, 12), homeAt(2026, 2, 11, 12)); // either order
     expect([tenDays.grain, tenDays.buckets.length]).toEqual(['day', 10]);
     // Wed 1 Apr to Sun 28 Jun 2026: a part week, then 12 Mondays
-    const spring = customWindow(new Date(2026, 3, 1, 12), new Date(2026, 5, 28, 12));
+    const spring = customWindow(homeAt(2026, 3, 1, 12), homeAt(2026, 5, 28, 12));
     expect(spring.grain).toBe('week');
     expect(spring.buckets).toHaveLength(13);
-    expect(new Date(spring.buckets[1]).getDay()).toBe(1);
-    const long = customWindow(new Date(2018, 0, 1, 12), new Date(2026, 0, 1, 12));
+    expect(wall(spring.buckets[1]).weekday).toBe(1);
+    const long = customWindow(homeAt(2018, 0, 1, 12), homeAt(2026, 0, 1, 12));
     expect(long.grain).toBe('month');
-    expect(long.start.getFullYear()).toBe(2023);
+    expect(wall(long.start).year).toBe(2023);
   });
 
   it('takes a custom From–To range and compares it with the same number of days before', async () => {
     const { admin, kid, task } = await family();
     const kidId = kid.user.id as number;
-    const day = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); d.setHours(10, 0, 0, 0); return d; };
+    const day = (n: number) => homeToday(-n, 10);
     done(task, kidId, day(12), 3);
     done(task, kidId, day(25), 3); // in the 14 days before
     const res = await agent.get(`/api/insights/bars?period=custom&from=${localDateStr(day(13))}&to=${localDateStr(day(0))}`).set(auth(admin.token)).expect(200);
@@ -125,15 +124,15 @@ describe('insights', () => {
   it('puts the heatmap into weekday × time-of-day slots over 4 or 12 weeks', async () => {
     const { admin, kid, task } = await family();
     const kidId = kid.user.id as number;
-    const at = (daysAgo: number, hour: number) => { const d = new Date(); d.setDate(d.getDate() - daysAgo); d.setHours(hour, 30, 0, 0); return d; };
+    const at = (daysAgo: number, hour: number) => homeToday(-daysAgo, hour, 30);
     const afternoon = at(3, 16);
     done(task, kidId, afternoon, 5);
     done(task, kidId, at(3, 2), 5); // 2:30 am lands in the night slot
     done(task, kidId, at(40, 8), 5); // only in the 12-week window
 
-    expect(heatSlot(new Date(2026, 0, 1, 23))).toBe(5);
-    expect(heatSlot(new Date(2026, 0, 1, 6))).toBe(0);
-    const weekday = (afternoon.getDay() + 6) % 7;
+    expect(heatSlot(homeAt(2026, 0, 1, 23))).toBe(5);
+    expect(heatSlot(homeAt(2026, 0, 1, 6))).toBe(0);
+    const weekday = (wall(afternoon).weekday + 6) % 7;
     const four = await agent.get('/api/insights/heatmap').set(auth(admin.token)).expect(200);
     expect(four.body.weeks).toBe(4);
     expect(four.body.rows).toEqual(expect.arrayContaining([[weekday, 3, kidId, 1, 5, 3], [weekday, 5, kidId, 1, 5, 3]]));
@@ -142,7 +141,7 @@ describe('insights', () => {
     expect(twelve.body.rows).toHaveLength(3);
     // Ending a month ago: only the old one
     const older = await agent.get(`/api/insights/heatmap?end=${localDateStr(at(30, 12))}`).set(auth(admin.token)).expect(200);
-    expect(older.body.rows).toEqual([[(at(40, 8).getDay() + 6) % 7, 0, kidId, 1, 5, 3]]);
+    expect(older.body.rows).toEqual([[(wall(at(40, 8)).weekday + 6) % 7, 0, kidId, 1, 5, 3]]);
   });
 
   it('records chores left overdue once a day', async () => {

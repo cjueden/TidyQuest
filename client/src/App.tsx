@@ -32,6 +32,7 @@ import { isTheme, type Theme } from './utils/themes';
 import { activeSeason, useSeasonPreview } from './utils/seasons';
 import { CosmeticsContext, type Cosmetic } from './utils/unlocks';
 import { WeekStartContext } from './utils/week';
+import { setFamilyZone } from './utils/clock';
 
 const NO_COSMETICS: Record<number, Cosmetic> = {};
 import { SeasonGreeting, SeasonParticles, SeasonStrip } from './components/shared/SeasonalDecor';
@@ -119,6 +120,8 @@ function AppContent() {
           api.achievements(),
           api.getRooms(),
         ]);
+        // The family's clock first, so everything drawn from this dashboard counts days at home
+        setFamilyZone(dash.timeZone);
         setDashboardData(dash);
         if (dash.vacation && !vacationUpdatePending.current) setVacationConfig(dash.vacation);
         setRooms(roomsData);
@@ -624,6 +627,8 @@ function AppContent() {
                   }
                 }}
                 onWeekStartChange={async (weekStart) => { await api.updateWeekStart(weekStart); await loadDashboard(); }}
+                timeZone={dashboardData?.timeZone ? { zone: dashboardData.timeZone, set: !!dashboardData.timeZoneSet } : undefined}
+                onTimeZoneChange={async (timeZone) => { await api.updateTimeZone(timeZone); await loadDashboard(); }}
                 shields={dashboardData?.shields ?? null}
                 onGiveShield={async (targetUserId) => {
                   await api.giveShield(targetUserId);

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createTestApp, createAdmin, createUser } from './setup';
+import { dateStr } from '../utils/clock';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { mascotFor, moodFor, tummy } from '../utils/mascot';
@@ -29,8 +30,7 @@ describe('House mascot', () => {
     expect(await mascot()).toMatchObject({ creature: 'axolotl', name: 'Bubbles', stage: 'kid', familyCoins: 2100, nextStage: { stage: 'grown', at: 5000 } });
 
     // A birthday today is the event of the day
-    const d = new Date();
-    db.prepare('UPDATE users SET birthday = ? WHERE id = ?').run(`${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, kid.user.id);
+    db.prepare('UPDATE users SET birthday = ? WHERE id = ?').run(dateStr().slice(5), kid.user.id);
     expect(await mascot()).toMatchObject({ event: 'birthday', birthdayName: 'Kid' });
 
     await agent.put('/api/features').set(auth(admin.token)).send({ features: { mascot: false } }).expect(200);

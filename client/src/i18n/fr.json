@@ -294,7 +294,18 @@
       "refundReward": "Rembourser",
       "refundRewardConfirm": "Rembourser « {reward} » ? Les {coins} pièces reviennent à qui a payé, et la demande apparaît comme refusée.",
       "weekStart": "La semaine commence le",
-      "weekStartDesc": "Les objectifs hebdo, le Tableau, les limites de récompenses et les tours de la semaine repartent ce jour-là."
+      "weekStartDesc": "Les objectifs hebdo, le Tableau, les limites de récompenses et les tours de la semaine repartent ce jour-là.",
+      "timeZone": "Fuseau horaire",
+      "timeZoneDesc": "Les journées commencent à minuit ici pour toute la famille : tâches, séries, objectifs et rappels.",
+      "timeZoneServer": "Pas encore choisi : le fuseau du serveur est utilisé.",
+      "timeZoneOffer": "Cet appareil est sur {zone}. L'utiliser pour la famille ?",
+      "timeZoneUseIt": "L'utiliser",
+      "timeZoneUseDevice": "Utiliser le fuseau de cet appareil",
+      "timeZoneChange": "Changer",
+      "timeZoneSearch": "Rechercher : ville ou région",
+      "timeZoneNone": "Aucun fuseau ne correspond.",
+      "timeZoneNote": "Le changer déplace le début de chaque journée à partir de maintenant. Les tâches déjà faites restent le jour où elles ont été faites.",
+      "timeZoneNow": "{time} là-bas"
     },
     "nav": {
       "home": "Accueil",

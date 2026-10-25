@@ -5,6 +5,7 @@ import { tr } from './i18n';
 import { isSeasonalNow, taskHealth } from './schedule';
 import { getGlobalVacation, getUserVacation, resolveVacation } from './adminHelpers';
 import { localDateStr } from './dateHelpers';
+import { dayAt, daySql, endOfDay, hourSql, startOfDay, wall } from './clock';
 import { boostCovers, toBoost } from './boosts';
 import { startOfLocalWeek, weekOfSql, weekStartDay } from './periods';
 
@@ -43,32 +44,24 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
   const first = weekStartDay();
   const weekStart = startOfLocalWeek(now, first);
   const weekly = (db.prepare("SELECT COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND completedAt >= ?").get(userId, weekStart.toISOString()) as { n: number }).n;
-  const nowDay = now.getDay();
-  const lastSat = new Date(now);
-  lastSat.setDate(now.getDate() - (nowDay === 6 ? 0 : nowDay === 0 ? 1 : nowDay + 1));
-  lastSat.setHours(0, 0, 0, 0);
-  const lastSun = new Date(lastSat);
-  lastSun.setDate(lastSat.getDate() + 1);
-  lastSun.setHours(23, 59, 59, 999);
+  const nowDay = wall(now).weekday;
+  const lastSat = startOfDay(now, -(nowDay === 6 ? 0 : nowDay === 0 ? 1 : nowDay + 1));
+  const lastSun = endOfDay(lastSat, 1);
   const weekend = (db.prepare("SELECT COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND completedAt >= ? AND completedAt <= ?")
     .get(userId, lastSat.toISOString(), lastSun.toISOString()) as { n: number }).n;
 
   // Perfect weeks: full past weeks with at least one completion every day
-  const days = (db.prepare("SELECT date(completedAt, 'localtime') AS day FROM task_completions WHERE userId = ? AND status = 'approved' GROUP BY day ORDER BY day")
+  const days = (db.prepare(`SELECT ${daySql('completedAt')} AS day FROM task_completions WHERE userId = ? AND status = 'approved' GROUP BY day ORDER BY day`)
     .all(userId) as Array<{ day: string }>).map((r) => r.day);
   let perfectWeeks = 0;
   if (days.length > 0) {
     const daySet = new Set(days);
-    const check = startOfLocalWeek(new Date(`${days[0]}T00:00:00`), first);
+    let check = startOfLocalWeek(dayAt(days[0]), first);
     while (check < weekStart) {
       let all = true;
-      for (let d = 0; d < 7 && all; d++) {
-        const day = new Date(check);
-        day.setDate(check.getDate() + d);
-        all = daySet.has(localDateStr(day));
-      }
+      for (let d = 0; d < 7 && all; d++) all = daySet.has(localDateStr(startOfDay(check, d)));
       if (all) perfectWeeks++;
-      check.setDate(check.getDate() + 7);
+      check = startOfDay(check, 7);
     }
   }
 
@@ -104,11 +97,11 @@ export function getAchievementStats(userId: number, now: Date = new Date()): Ach
   const roomSizes = new Map((db.prepare('SELECT roomId, COUNT(*) AS n FROM tasks WHERE onDemand = 0 AND oneTime = 0 AND archivedAt IS NULL AND deletedAt IS NULL AND pausedAt IS NULL GROUP BY roomId').all() as Array<{ roomId: number; n: number }>).map((r) => [r.roomId, r.n]));
   const roomSweeps = (db.prepare(
     `SELECT t.roomId, COUNT(DISTINCT c.taskId) AS n FROM task_completions c JOIN tasks t ON t.id = c.taskId
-     WHERE c.userId = ? AND c.status = 'approved' AND t.onDemand = 0 GROUP BY date(c.completedAt, 'localtime'), t.roomId`
+     WHERE c.userId = ? AND c.status = 'approved' AND t.onDemand = 0 GROUP BY ${daySql('c.completedAt')}, t.roomId`
   ).all(userId) as Array<{ roomId: number; n: number }>).filter((r) => (roomSizes.get(r.roomId) ?? 0) >= 3 && r.n >= roomSizes.get(r.roomId)!).length;
-  const earlyChores = count("SELECT COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND strftime('%H', completedAt, 'localtime') < '08'");
+  const earlyChores = count(`SELECT COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND ${hourSql('completedAt')} < 8`);
   const birthdayChores = user.birthday
-    ? count("SELECT COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND strftime('%m-%d', completedAt, 'localtime') = ?", user.birthday)
+    ? count(`SELECT COUNT(*) AS n FROM task_completions WHERE userId = ? AND status = 'approved' AND substr(${daySql('completedAt')}, 6) = ?`, user.birthday)
     : 0;
 
   return {

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createTestApp, createAdmin, createUser } from './setup';
+import { at as homeAt } from '../utils/clock';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { boardRanges, buildBoard } from '../utils/board';
@@ -13,8 +14,8 @@ beforeEach(() => {
 
 const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
 // Wednesday Oct 14 2026, noon local: this week started Mon Oct 12, last week Mon Oct 5
-const NOW = new Date(2026, 9, 14, 12);
-const at = (day: number, hour = 12) => new Date(2026, 9, day, hour).toISOString();
+const NOW = () => homeAt(2026, 9, 14, 12); // on the family's clock, once the database is set up
+const at = (day: number, hour = 12) => homeAt(2026, 9, day, hour).toISOString();
 
 async function family() {
   const admin = await createAdmin(agent);
@@ -35,10 +36,10 @@ async function family() {
 
 describe('Board periods', () => {
   it('compares this week so far with last week up to the same moment', () => {
-    const r = boardRanges('week', NOW);
+    const r = boardRanges('week', NOW());
     expect([r.current.start, r.compare.start, r.compare.end, r.previous.end].map((d) => d.toISOString()))
       .toEqual([at(12, 0), at(5, 0), at(7), at(12, 0)]);
-    expect(boardRanges('lastWeek', NOW).current).toEqual({ start: new Date(at(5, 0)), end: new Date(at(12, 0)) });
+    expect(boardRanges('lastWeek', NOW()).current).toEqual({ start: new Date(at(5, 0)), end: new Date(at(12, 0)) });
   });
 });
 
@@ -53,11 +54,11 @@ describe('Board ranking', () => {
     db.prepare('INSERT INTO user_goals (userId, title, goalCoins, startAt, endAt) VALUES (?, ?, ?, ?, ?)').run(f.cecil, 'Weekly Win', 120, week.start, week.end);
     db.prepare('INSERT INTO user_goals (userId, title, goalCoins, startAt, endAt) VALUES (?, ?, ?, ?, ?)').run(f.cylis, 'Weekly Win', 50, week.start, week.end);
 
-    const coins = buildBoard('week', 'coins', NOW);
+    const coins = buildBoard('week', 'coins', NOW());
     expect(coins.people.map((p) => [p.displayName, p.points, p.rank])).toEqual([['Cecil', 60, 1], ['Cylis', 40, 2]]);
-    const goal = buildBoard('week', 'goal', NOW);
+    const goal = buildBoard('week', 'goal', NOW());
     expect(goal.people.map((p) => [p.displayName, p.goalPct, p.rank])).toEqual([['Cylis', 80, 1], ['Cecil', 50, 2]]);
-    const improved = buildBoard('week', 'improved', NOW);
+    const improved = buildBoard('week', 'improved', NOW());
     expect(improved.people.map((p) => [p.displayName, p.improvement])).toEqual([['Cylis', 35], ['Cecil', 10]]);
     // Last week Cecil won, so Cylis moved up one in goal mode and Cecil down one
     expect(goal.people.map((p) => p.movement)).toEqual([1, -1]);
@@ -67,7 +68,7 @@ describe('Board ranking', () => {
     const f = await family();
     f.done(f.cylis, f.tasks.feed, at(9), 30);
     f.done(f.cecil, f.tasks.feed, at(13), 99);
-    expect(buildBoard('lastWeek', 'coins', NOW).people.map((p) => [p.displayName, p.points])).toEqual([['Cylis', 30], ['Cecil', 0]]);
+    expect(buildBoard('lastWeek', 'coins', NOW()).people.map((p) => [p.displayName, p.points])).toEqual([['Cylis', 30], ['Cecil', 0]]);
   });
 });
 
@@ -81,23 +82,23 @@ describe('Awards and trophies', () => {
     f.done(f.cylis, f.tasks.bounty, at(13, 11), 5);
     f.done(f.cylis, f.tasks.feed, at(13, 15), 5);
     f.done(f.cylis, f.tasks.feed, at(14, 10), 5);
-    const awards = buildBoard('week', 'coins', NOW).awards;
+    const awards = buildBoard('week', 'coins', NOW()).awards;
     expect(awards.find((a) => a.key === 'earlyBird')).toMatchObject({ userIds: [f.cecil], value: 2 });
     expect(awards.find((a) => a.key === 'bountyHunter')).toMatchObject({ userIds: [f.cylis], value: 2 });
     expect(awards.find((a) => a.key === 'allRounder')).toMatchObject({ userIds: [f.cecil], value: 3 });
     expect(awards.filter((a) => a.key === 'room').map((a) => [a.roomName, a.userIds])).toEqual([['Kitchen', [f.cylis]], ['Pets', [f.cylis]]]);
     // A room that belongs to someone has no champion
     db.prepare('UPDATE rooms SET assignedUserId = ? WHERE id = ?').run(f.cylis, f.pets);
-    expect(buildBoard('week', 'coins', NOW).awards.filter((a) => a.key === 'room').map((a) => a.roomName)).toEqual(['Kitchen']);
+    expect(buildBoard('week', 'coins', NOW()).awards.filter((a) => a.key === 'room').map((a) => a.roomName)).toEqual(['Kitchen']);
   });
 
   it('keeps past weekly winners and counts wins', async () => {
     const f = await family();
     f.done(f.cecil, f.tasks.dishes, at(6), 30);
     f.done(f.cylis, f.tasks.dishes, at(7), 20);
-    f.done(f.cylis, f.tasks.dishes, new Date(2026, 8, 29, 12).toISOString(), 25);
+    f.done(f.cylis, f.tasks.dishes, homeAt(2026, 8, 29, 12).toISOString(), 25);
     f.done(f.cecil, f.tasks.dishes, at(13), 500); // this week doesn't count yet
-    const shelf = buildBoard('week', 'coins', NOW).trophies;
+    const shelf = buildBoard('week', 'coins', NOW()).trophies;
     expect(shelf.weeks).toEqual([
       { weekStart: '2026-10-05', userIds: [f.cecil], coins: 30 },
       { weekStart: '2026-09-28', userIds: [f.cylis], coins: 25 },

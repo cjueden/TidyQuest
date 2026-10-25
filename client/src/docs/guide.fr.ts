@@ -50,6 +50,7 @@ export const GUIDE_FR: GuideSection[] = [
         'Le soir : des rappels sur ce qui reste à faire, une série sur le point de se briser, ou un objectif tout proche.',
         'Le premier jour de la semaine (lundi, ou dimanche si un parent le choisit dans Paramètres → Général → La semaine commence le) : une nouvelle semaine commence et les objectifs hebdomadaires qui se répètent se remettent en place. Le bonus d’un objectif est versé dès qu’il est atteint.',
         'Minuit : les invitations d’équipe se terminent, et « Complétées aujourd’hui » repart de zéro.',
+        'Tout cela suit l’horloge de la famille : minuit et le premier jour de la semaine là où vit la famille (Paramètres → Général → Fuseau horaire). Un parent en voyage voit toujours les journées de la maison.',
       ] },
     ],
   },
@@ -335,7 +336,7 @@ export const GUIDE_FR: GuideSection[] = [
     blocks: [
       { ul: [
         'TidyQuest fonctionne dans un seul conteneur Docker avec un dossier de données (la base de données, les avatars et les photos de preuve). Sauvegarde ce dossier.',
-        'Définis JWT_SECRET avec une longue chaîne aléatoire, et TZ avec ton fuseau horaire (par exemple America/New_York). Sans TZ, le serveur utilise UTC, et « aujourd’hui », minuit et la semaine seraient décalés de plusieurs heures.',
+        'Définis JWT_SECRET avec une longue chaîne aléatoire. Le fuseau horaire de la famille se choisit dans l’app (Paramètres → Général → Fuseau horaire) ; une nouvelle installation le prend sur l’appareil du premier parent. TZ sur le serveur ne sert que tant qu’aucun n’est choisi.',
         'Les versions sont étiquetées (par exemple 0.9.0). Fixe ce numéro dans docker-compose.yml, puis lance "docker compose pull && docker compose up -d". L’image ":main" est le code le plus récent, pour essayer d’abord.',
         'Paramètres → Général montre la version en cours. Pour revenir en arrière, remets le numéro de la version précédente et redémarre (fais d’abord une sauvegarde : la base de données ne va que vers l’avant).',
         'Les notifications du téléphone par l’appli elle-même et son installation comme appli demandent une adresse sécurisée (https://) ; en attendant, utilise ntfy ou Telegram.',
@@ -403,8 +404,9 @@ export const GUIDE_FR: GuideSection[] = [
           'Les heures calmes et les heures d’école retiennent les messages jusqu’à leur fin.',
           'Le Journal des notifications montre chaque message et toute erreur.',
         ] },
-        { q: 'Les jours, minuit ou la semaine sont décalés de quelques heures', a: [
-          'Définis la variable d’environnement TZ sur le serveur avec ton fuseau horaire et redémarre-le (voir « Installation et mises à jour »).',
+        { q: 'Les tâches repartent à la mauvaise heure, ou les jours et la semaine sont décalés de quelques heures', a: [
+          'Vérifie Paramètres → Général → Fuseau horaire (parents) : les journées y commencent à minuit pour toute la famille. S’il est écrit « Pas encore choisi », touche « L\'utiliser » pour prendre le fuseau de cet appareil, ou touche Changer et cherche le tien.',
+          'Le changer déplace le début de chaque journée à partir de ce moment. Les tâches déjà faites restent le jour où elles ont été faites.',
         ] },
         { q: 'La semaine commence le mauvais jour', a: [
           'Un parent choisit dimanche ou lundi dans Paramètres → Général → La semaine commence le. Les objectifs hebdo, le Tableau, les limites de récompenses et les tours « chaque semaine » le suivent, et un objectif hebdo en cours passe à la nouvelle semaine.',

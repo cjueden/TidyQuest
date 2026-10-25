@@ -1,4 +1,5 @@
 import db from '../database';
+import { at, minuteOfDay, wall } from './clock';
 import { getNotificationTypeSettings, getNtfySettings, getTelegramSettings, sendNtfyMessageDetailed, sendTelegramMessageDetailed, type NotificationTypeSettings } from './notifications';
 
 /**
@@ -115,20 +116,20 @@ const minutesOf = (hm: string) => { const m = /^(\d\d):(\d\d)$/.exec(hm); return
 function windowEnd(now: Date, start: string, end: string): Date | null {
   const s = minutesOf(start); const e = minutesOf(end);
   if (s === null || e === null || s === e) return null;
-  const cur = now.getHours() * 60 + now.getMinutes();
+  const cur = minuteOfDay(now);
   const inside = s < e ? cur >= s && cur < e : cur >= s || cur < e;
   if (!inside) return null;
-  const out = new Date(now);
-  out.setHours(Math.floor(e / 60), e % 60, 0, 0);
-  if (out <= now) out.setDate(out.getDate() + 1);
-  return out;
+  const w = wall(now);
+  const out = at(w.year, w.month, w.date, Math.floor(e / 60), e % 60);
+  return out > now ? out : at(w.year, w.month, w.date + 1, Math.floor(e / 60), e % 60);
 }
 
 /** When a message to this person (null = family channel) may go out, if it has to wait. */
 export function holdUntil(person: Person | null, now: Date = new Date()): Date | null {
   const quiet = windowEnd(now, getSetting('quietStart'), getSetting('quietEnd'));
   if (quiet) return quiet;
-  const weekday = now.getDay() >= 1 && now.getDay() <= 5;
+  const day = wall(now).weekday;
+  const weekday = day >= 1 && day <= 5;
   if (person?.role === 'child' && weekday && getSetting('schoolHoursEnabled') === '1') {
     return windowEnd(now, getSetting('schoolStart') || '08:00', getSetting('schoolEnd') || '15:00');
   }

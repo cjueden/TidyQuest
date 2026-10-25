@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from './useApi';
+import { deviceZone } from '../utils/clock';
 
 export interface User {
   id: number;
@@ -58,7 +59,8 @@ export function useAuth() {
   };
 
   const register = async (data: { username: string; password: string; displayName: string; avatarColor?: string; language?: string }) => {
-    const { token, user: userData } = await api.register(data);
+    // A new install's first parent sets the family's time zone from this device (Settings → General changes it)
+    const { token, user: userData } = await api.register({ ...data, timeZone: deviceZone() });
     localStorage.setItem('tidyquest_token', token);
     setUser(userData);
   };

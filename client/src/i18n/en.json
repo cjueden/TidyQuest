@@ -294,7 +294,18 @@
       "refundReward": "Refund",
       "refundRewardConfirm": "Refund \"{reward}\"? The {coins} coins go back to whoever paid, and it shows as rejected.",
       "weekStart": "Week starts on",
-      "weekStartDesc": "Weekly goals, the Board, reward limits and weekly turns start over on this day."
+      "weekStartDesc": "Weekly goals, the Board, reward limits and weekly turns start over on this day.",
+      "timeZone": "Time zone",
+      "timeZoneDesc": "Days start at midnight here for the whole family: chores, streaks, goals and reminders.",
+      "timeZoneServer": "Not picked yet: using the server's zone.",
+      "timeZoneOffer": "This device is in {zone}. Use it for the family?",
+      "timeZoneUseIt": "Use it",
+      "timeZoneUseDevice": "Use this device's zone",
+      "timeZoneChange": "Change",
+      "timeZoneSearch": "Search: city or region",
+      "timeZoneNone": "No zone matches.",
+      "timeZoneNote": "Changing it moves when each day starts from now on. Chores already done stay on the day they were done.",
+      "timeZoneNow": "{time} there now"
     },
     "nav": {
       "home": "Home",

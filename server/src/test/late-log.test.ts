@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, homeToday } from './setup';
+import { wall } from '../utils/clock';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { localDateStr } from '../utils/dateHelpers';
@@ -14,7 +15,7 @@ beforeEach(() => {
 });
 
 const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
-const daysAgo = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); return localDateStr(d); };
+const daysAgo = (n: number) => localDateStr(homeToday(-n, 12));
 const user = (id: number) => db.prepare('SELECT coins, currentStreak, lastActiveDate FROM users WHERE id = ?').get(id) as
   { coins: number; currentStreak: number; lastActiveDate: string | null };
 
@@ -47,7 +48,7 @@ describe('Logging a chore late', () => {
     const c = completion(res.body.completionId);
     expect(c.status).toBe('pending');
     expect(localDateStr(new Date(c.completedAt))).toBe(daysAgo(1));
-    expect(new Date(c.completedAt).getHours()).toBe(12);
+    expect(wall(c.completedAt).hours).toBe(12);
     expect(c.loggedAt).toBeTruthy();
     expect(user(kid.user.id).coins).toBe(0);
 

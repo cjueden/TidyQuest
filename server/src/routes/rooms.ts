@@ -7,6 +7,7 @@ import { suggestTaskIcon } from '../utils/taskIcons';
 import { ensureAdmin, getGlobalVacation, getUserVacation, hiddenRoomIdsFor, resolveVacation } from '../utils/adminHelpers';
 import { repeatCountsFor } from '../utils/repeatLimits';
 import { softDeleteTasks } from '../utils/trash';
+import { daySql } from '../utils/clock';
 
 const router = Router();
 
@@ -156,7 +157,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
     `SELECT tc.id as completionId, tc.taskId, tc.userId, tc.coinsEarned, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
      FROM task_completions tc
      JOIN users u ON tc.userId = u.id
-     WHERE tc.status = 'approved' AND date(tc.completedAt, 'localtime') = date(?, 'localtime')`
+     WHERE tc.status = 'approved' AND ${daySql('tc.completedAt')} = ${daySql('?')}`
   ).all(nowIso) as any[];
   const completedTodayByTask = new Map(todayCompletions.map((c: any) => [c.taskId, {
     completionId: c.completionId, userId: c.userId, coinsEarned: c.coinsEarned, displayName: c.displayName, avatarColor: c.avatarColor,

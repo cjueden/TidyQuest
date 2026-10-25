@@ -7,6 +7,7 @@ import { localeFor } from '../../utils/locale';
 import { useTaskView } from '../../hooks/useTaskView';
 import { AllMineToggle } from '../shared/AllMineToggle';
 import { useWeekStart, weekOrder } from '../../utils/week';
+import { at, wall, startOfDay, familyZone } from '../../utils/clock';
 
 interface CalendarTask {
   id: number;
@@ -51,13 +52,18 @@ interface CalendarProps {
 
 /** calendar.* weekday labels by getDay() number */
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+/** A grid cell's key (cells are calendar days, made with new Date(year, month, day)) */
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+/** The same key for a moment: the family's day it falls on (Settings → Time zone) */
+const homeKey = (d: Date) => { const w = wall(d); return `${w.year}-${w.month}-${w.date}`; };
 
 export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps) {
   const { taskName, t, roomDisplayName } = useTranslation(language);
   const locale = localeFor(language);
   const weekStart = useWeekStart();
-  const today = new Date();
+  // Today at home, as a calendar day like the grid's cells
+  const home = wall();
+  const today = new Date(home.year, home.month, home.date);
   const [view, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const [selected, setSelected] = useState<number | null>(today.getDate());
   const [completions, setCompletions] = useState<Completion[]>([]);
@@ -69,12 +75,13 @@ export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps)
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const monthName = new Date(year, month, 1).toLocaleString(locale, { month: 'long', year: 'numeric' });
   const isThisMonth = year === today.getFullYear() && month === today.getMonth();
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const todayStart = today.getTime();
+  const homeMidnight = startOfDay().getTime();
 
   // Load the shown month's completions (the app only keeps the latest few)
   useEffect(() => {
     const id = ++latest.current;
-    api.history(2000, 0, { from: new Date(year, month, 1).toISOString(), to: new Date(year, month + 1, 1).toISOString() })
+    api.history(2000, 0, { from: at(year, month, 1).toISOString(), to: at(year, month + 1, 1).toISOString() })
       // Only chores: coin adjustments, chip-ins, purchases and shields are in the history too
       .then((data) => { if (id === latest.current) setCompletions((data.history || []).filter((h: { type?: string }) => !h.type || h.type === 'completion')); })
       .catch(() => { if (id === latest.current) setCompletions([]); });
@@ -90,7 +97,7 @@ export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps)
     const map = new Map<string, Completion[]>();
     for (const c of completions) {
       if (mine && c.userId !== viewer!.id && !c.participants?.some((p) => p.id === viewer!.id)) continue;
-      const k = dayKey(new Date(c.completedAt));
+      const k = homeKey(new Date(c.completedAt));
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(c);
     }
@@ -102,16 +109,16 @@ export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps)
     .filter((task) => !task.onDemand && !task.isSeasonal && (!mine || isTaskForUser(task, viewer!.id, viewer!.role)))
     .map((task) => {
       const due = taskNextDue(task);
-      const dueDate = new Date(Math.max(due.getTime(), todayStart));
-      const dueInDays = Math.max(0, Math.round((new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate()).getTime() - todayStart) / 86400000));
+      const dueDate = new Date(Math.max(due.getTime(), homeMidnight));
+      const dueInDays = Math.max(0, Math.round((startOfDay(dueDate).getTime() - homeMidnight) / 86400000));
       return { ...task, dueDate, dueInDays };
     })
-    .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()), [tasks, todayStart, mine, viewer]);
+    .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime()), [tasks, homeMidnight, mine, viewer]);
 
   const dueByDay = useMemo(() => {
     const map = new Map<string, typeof upcoming>();
     for (const task of upcoming) {
-      const k = dayKey(task.dueDate);
+      const k = homeKey(task.dueDate);
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(task);
     }
@@ -227,7 +234,7 @@ export function Calendar({ tasks, language, onOpenTask, viewer }: CalendarProps)
                 <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--health-green)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 12 }}>{t('calendar.choresDone')}</div>
                 {selectedDone.map((c) => {
                   const who = c.participants && c.participants.length > 1 ? c.participants.map((p) => p.displayName).join(' & ') : c.displayName;
-                  const time = new Date(c.completedAt).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
+                  const time = new Date(c.completedAt).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', timeZone: familyZone() });
                   return itemRow(`c${c.id}`, tasks.find((tk) => tk.id === c.taskId)?.iconKey, taskName(c.taskName, c.translationKey),
                     `${roomDisplayName(c.roomName, c.roomType || '')} · ${t('history.by')} ${who} · ${time}`,
                     onOpenTask ? () => onOpenTask(c.roomId, c.taskId) : undefined);

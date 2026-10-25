@@ -1,4 +1,5 @@
 import db from '../database';
+import { dateStr, daySql, endOfDay } from './clock';
 
 /**
  * "One thing at a time" (NEW-2): today's line of chores for one person, shown one at a time.
@@ -50,8 +51,6 @@ interface LineTask {
   teamUp?: { claimedBy: string[] | null } | null;
 }
 
-const localDay = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
 /**
  * The line for userId from the dashboard's tasks (with health, due date and today's completions).
  * Returns the chores still to do, in order, and how many in the line were already done today.
@@ -59,10 +58,10 @@ const localDay = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).pad
 export function focusLine<T extends LineTask>(tasks: T[], userId: number, missionTaskId: number | null, now = new Date()) {
   const doneToday = new Set((db.prepare(
     `SELECT DISTINCT taskId FROM task_completions
-     WHERE userId = ? AND status IN ('approved', 'pending') AND date(completedAt, 'localtime') = date(?, 'localtime')`
-  ).all(userId, now.toISOString()) as { taskId: number }[]).map((r) => r.taskId));
-  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).getTime();
-  const today = localDay(now);
+     WHERE userId = ? AND status IN ('approved', 'pending') AND ${daySql('completedAt')} = ?`
+  ).all(userId, dateStr(now)) as { taskId: number }[]).map((r) => r.taskId));
+  const endOfToday = endOfDay(now).getTime();
+  const today = dateStr(now);
 
   const mine = (t: T) => t.effectiveAssignedUserIds.includes(userId);
   const open = (t: T) => t.effectiveAssignedUserIds.length === 0;

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { monthName, weekdayName, type ScheduleValue } from '../../utils/schedule';
 import { useWeekStart, weekOrder } from '../../utils/week';
+import { wall } from '../../utils/clock';
 
 // Form controls for a task's scheduling options; the helpers live in utils/schedule.ts.
 
@@ -29,7 +30,7 @@ export function DueOnPicker({ value, onChange, interval, t, language, allowOnce 
         onChange={(e) => {
           const mode = e.target.value as ScheduleValue['mode'];
           // Switching to set days with none picked yet: start from today's weekday
-          onChange({ ...value, mode, weekdays: mode === 'weekdays' && !value.weekdays ? 1 << new Date().getDay() : value.weekdays });
+          onChange({ ...value, mode, weekdays: mode === 'weekdays' && !value.weekdays ? 1 << wall().weekday : value.weekdays });
         }}>
         <option value="interval">{t('roomDetail.every')}</option>
         <option value="weekdays">{t('schedule.onDays')}</option>

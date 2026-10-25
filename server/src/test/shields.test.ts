@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, homeToday } from './setup';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { localDateStr } from '../utils/dateHelpers';
@@ -18,7 +18,7 @@ beforeEach(() => {
 afterEach(() => setNotifyTransport());
 
 const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
-const daysAgo = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); return localDateStr(d); };
+const daysAgo = (n: number) => localDateStr(homeToday(-n, 12));
 const kidRow = (id: number) => db.prepare('SELECT coins, currentStreak, lastActiveDate, streakShields FROM users WHERE id = ?').get(id) as
   { coins: number; currentStreak: number; lastActiveDate: string; streakShields: number };
 const setKid = (id: number, f: { streak?: number; last?: string; shields?: number; coins?: number }) =>
@@ -97,7 +97,7 @@ describe('Streak shields', () => {
   it('counts a chore waiting for approval as done that day', async () => {
     const { kid, quest } = await family();
     setKid(kid.user.id, { streak: 12, last: daysAgo(2), shields: 1 });
-    const yesterdayNoon = new Date(`${daysAgo(1)}T12:00:00`).toISOString();
+    const yesterdayNoon = homeToday(-1, 12).toISOString();
     db.prepare("INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status) VALUES (?, ?, ?, 5, 'pending')").run(quest, kid.user.id, yesterdayNoon);
     expect(settleStreak(kid.user.id)).toBe(0);
     expect(nextStreak(kid.user.id, 12, daysAgo(2), daysAgo(0))).toBe(13);

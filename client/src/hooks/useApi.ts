@@ -324,7 +324,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
 
 export const api = {
   // Auth
-  register: (data: { username: string; password: string; displayName: string; avatarColor?: string; language?: string }) =>
+  register: (data: { username: string; password: string; displayName: string; avatarColor?: string; language?: string; timeZone?: string }) =>
     apiFetch<{ token: string; user: any }>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
   login: (data: { username: string; password: string }) =>
     apiFetch<{ token: string; user: any }>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
@@ -660,6 +660,8 @@ export const api = {
   /** The week's first day for the whole family: 1 = Monday, 0 = Sunday (FIX-11) */
   updateWeekStart: (weekStart: 0 | 1) =>
     apiFetch<{ weekStart: number }>('/users/week-start', { method: 'PUT', body: JSON.stringify({ weekStart }) }),
+  updateTimeZone: (timeZone: string) =>
+    apiFetch<{ timeZone: string; timeZoneSet: boolean }>('/users/time-zone', { method: 'PUT', body: JSON.stringify({ timeZone }) }),
   getKidsConfig: () => apiFetch<{ hidePrivateRooms: boolean }>('/users/kids-config'),
   updateKidsConfig: (data: { hidePrivateRooms: boolean }) =>
     apiFetch<{ hidePrivateRooms: boolean }>('/users/kids-config', { method: 'PUT', body: JSON.stringify(data) }),

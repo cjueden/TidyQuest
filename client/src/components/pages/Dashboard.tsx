@@ -34,6 +34,7 @@ import { KID_CARDS, LEGACY_HIDDEN_KEY, legacyHidden, moveCard, placeCard, resolv
 import { TimerStartButton } from '../shared/ChoreTimer';
 import { useChoreTimer } from '../../hooks/useChoreTimer';
 import type { ListRoom } from './TaskList';
+import { dateStr } from '../../utils/clock';
 
 /* ── Types ── */
 
@@ -532,7 +533,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const totalCritical = rooms.reduce((s, r) => s + r.criticalCount, 0);
   const sortedFamily = [...family].sort((a, b) => b.points - a.points);
   const coinsSortedFamily = [...family].sort((a, b) => b.coins - a.coins);
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = dateStr();
   const streakDoneToday = currentUser.lastActiveDate === todayIso;
 
   const healthMessage =
