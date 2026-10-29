@@ -583,7 +583,10 @@
       "rewardRequestEmpty": "Keine ausstehenden Anfragen.",
       "coinsStatusTitle": "Münzstand",
       "approve": "Freigeben",
-      "reject": "Ablehnen"
+      "reject": "Ablehnen",
+      "openRooms": "Räume: {n}. Seite Räume öffnen",
+      "openTasks": "Aufgaben: {n}. Aufgabenliste öffnen",
+      "openCritical": "Kritische Aufgaben (Zustand unter 30 %): {n}. In der Aufgabenliste zeigen"
     },
     "rooms": {
       "addRoom": "Raum hinzufügen",
@@ -928,7 +931,8 @@
       "countOne": "1 Aufgabe",
       "clear": "Filter zurücksetzen",
       "noMatches": "Keine Aufgaben passen zu diesen Filtern.",
-      "oneTime": "Einmalig"
+      "oneTime": "Einmalig",
+      "critical": "Kritisch"
     },
     "approvals": {
       "title": "Wartet auf Freigabe",

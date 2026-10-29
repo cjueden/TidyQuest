@@ -171,7 +171,8 @@ export const GUIDE_FR: GuideSection[] = [
     blocks: [
       { ul: [
         'Accueil : le message de fête, ton niveau, la mascotte, les équipes, la Mission sauvetage, Tes habitudes, Tu as peut-être oublié ceux-ci, Quêtes du jour, À faire, Complétées aujourd’hui et plus encore. « Personnaliser » choisit les cartes que tu vois.',
-        'Pièces : chaque pièce et ses tâches. Tâches : toutes les tâches dans une seule liste où chercher.',
+        'Pièces : chaque pièce et ses tâches ; touche une tâche pour ouvrir sa pièce directement sur elle. Tâches : toutes les tâches dans une seule liste où chercher.',
+        'Santé de la maison sur Accueil : touche Pièces ou Tâches pour ouvrir cette page, ou Critiques pour voir les tâches sous 30 % de santé dans la liste des tâches.',
         'Calendrier : ce qui est à faire et quand, et ce qui a été fait.',
         'Activité : tout ce qui s’est passé (tâches, changements de pièces, contributions), avec des filtres et des encouragements.',
         'Tableau : classements par pièces, % de l’objectif ou plus grands progrès, récompenses comme Lève-tôt et champions de pièces, l’étagère à trophées et l’objectif familial.',
@@ -326,7 +327,7 @@ export const GUIDE_FR: GuideSection[] = [
     blocks: [
       { ul: [
         'Paramètres → Données et confidentialité → Exporter : une sauvegarde JSON complète. Garde-en une avant les gros changements.',
-        'Importer restaure une sauvegarde et REMPLACE tout. Tout le monde sauf le parent qui fait l’import reçoit un nouveau mot de passe aléatoire, alors définis de nouveaux mots de passe dans Membres de la famille ensuite.',
+        'Importer restaure une sauvegarde et REMPLACE tout. Les personnes qui ont déjà un compte sur ce serveur (même nom d’utilisateur) gardent leur mot de passe actuel. Les personnes nouvelles sur ce serveur en reçoivent un aléatoire, alors définis leur mot de passe dans Membres de la famille ensuite.',
         'Paramètres → Tableurs : télécharge les tâches ou les récompenses, modifie-les dans n’importe quelle appli de tableur, et recharge-les. Tu vois d’abord un aperçu et rien n’est supprimé.',
         'Pour supprimer une tâche, ouvre-la avec Modifier ; Supprimer la tâche est en bas du formulaire. Elle va dans Paramètres → Supprimés récemment pendant 30 jours et peut y être restaurée. Les récompenses fonctionnent de la même façon.',
         'Supprimer ne retire jamais de pièces et n’efface pas ce qui a été fait : les réalisations passées restent visibles dans Activité, le Tableau et les objectifs sous le nom de la tâche, même après qu’elle a quitté Supprimés récemment.',
@@ -465,7 +466,7 @@ export const GUIDE_FR: GuideSection[] = [
         { q: 'Quelqu’un ne peut pas se connecter', a: [
           'Trop de mots de passe erronés bloquent les connexions jusqu’à 15 minutes : 10 pour un compte, ou 20 depuis un appareil. Attends et réessaie ; un bon mot de passe remet à zéro le compteur du compte.',
           'Un parent peut définir un nouveau mot de passe dans Paramètres → Membres de la famille.',
-          'Après l’import d’une sauvegarde, tout le monde sauf le parent qui l’a importée a besoin d’un nouveau mot de passe.',
+          'Après l’import d’une sauvegarde, les personnes qui avaient déjà un compte sur ce serveur gardent leur mot de passe. Les personnes nouvelles sur ce serveur ont besoin qu’un parent leur en définisse un dans Membres de la famille.',
         ] },
         { q: 'J’ai été déconnecté de tous mes appareils', a: [
           'Un parent a changé ton mot de passe ou utilisé Déconnecter de tous les appareils, ou tu as changé ton mot de passe ou utilisé Se déconnecter partout ailleurs sur un autre appareil. Reconnecte-toi avec ton mot de passe actuel.',

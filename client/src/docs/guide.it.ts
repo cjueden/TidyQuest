@@ -171,7 +171,8 @@ export const GUIDE_IT: GuideSection[] = [
     blocks: [
       { ul: [
         'Home: il saluto delle feste, il tuo livello, la mascotte, le squadre, la Missione di salvataggio, I tuoi soliti, Forse hai dimenticato queste, Missioni di oggi, Da fare, Completate oggi e altro. "Personalizza" sceglie quali schede vedi.',
-        'Stanze: ogni stanza e le sue faccende. Compiti: tutte le faccende in un’unica lista con ricerca.',
+        'Stanze: ogni stanza e le sue faccende; tocca una faccenda per aprire la sua stanza proprio lì. Compiti: tutte le faccende in un’unica lista con ricerca.',
+        'Stato della casa in Home: tocca Stanze o Attività per aprire quella pagina, o Critiche per vedere le faccende sotto il 30% di salute nell’elenco dei compiti.',
         'Calendario: cosa scade quando, e cosa è stato fatto.',
         'Attività: tutto quello che è successo (faccende, cambi di monete, contributi), con filtri e tifo.',
         'Classifica: graduatorie per monete, % dell’obiettivo o maggior miglioramento, premi come Mattiniero e i campioni delle stanze, la bacheca dei trofei e l’obiettivo di famiglia.',
@@ -326,7 +327,7 @@ export const GUIDE_IT: GuideSection[] = [
     blocks: [
       { ul: [
         'Impostazioni → Dati e privacy → Esporta: un backup JSON completo. Tienine uno prima dei grandi cambiamenti.',
-        'Importa ripristina un backup e SOSTITUISCE tutto. Tutti tranne il genitore che importa ricevono una nuova password casuale, quindi imposta nuove password in Membri della famiglia dopo.',
+        'Importa ripristina un backup e SOSTITUISCE tutto. Chi ha già un account su questo server (stesso nome utente) mantiene la password attuale. Chi è nuovo su questo server ne riceve una casuale, quindi imposta le loro password in Membri della famiglia dopo.',
         'Impostazioni → Fogli di calcolo: scarica faccende o ricompense, modificale in qualsiasi app di fogli di calcolo e ricaricale. Prima vedi un’anteprima e non viene eliminato nulla.',
         'Per eliminare una faccenda, aprila con Modifica; Elimina attività è in fondo al modulo. Va in Impostazioni → Eliminati di recente per 30 giorni e da lì si può ripristinare. Le ricompense funzionano allo stesso modo.',
         'Eliminare non toglie mai monete né cancella quanto fatto: i completamenti passati continuano a comparire in Attività, nella Classifica e negli obiettivi con il nome della faccenda, anche dopo che esce da Eliminati di recente.',
@@ -465,7 +466,7 @@ export const GUIDE_IT: GuideSection[] = [
         { q: 'Qualcuno non riesce ad accedere', a: [
           'Troppe password sbagliate bloccano gli accessi fino a 15 minuti: 10 per un account, o 20 da un dispositivo. Aspetta e riprova; una password corretta azzera il conteggio dell’account.',
           'Un genitore può impostare una nuova password in Impostazioni → Membri della famiglia.',
-          'Dopo aver importato un backup, tutti tranne il genitore che l’ha importato hanno bisogno di una nuova password.',
+          'Dopo aver importato un backup, chi aveva già un account su questo server mantiene la sua password. Chi è nuovo su questo server ha bisogno che un genitore gliene imposti una in Membri della famiglia.',
         ] },
         { q: 'Sono stato disconnesso da tutti i dispositivi', a: [
           'Un genitore ha cambiato la tua password o ha usato Esci da tutti i dispositivi, oppure hai cambiato la tua password o usato Esci da tutti gli altri dispositivi su un altro dispositivo. Accedi di nuovo con la tua password attuale.',

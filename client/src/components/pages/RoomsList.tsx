@@ -84,6 +84,8 @@ interface RoomsListProps {
   isAdmin: boolean;
   users?: Array<{ id: number; displayName: string; role: string; avatarColor: string; avatarType?: string; avatarPreset?: string; avatarPhotoUrl?: string }>;
   onSelectRoom: (roomId: number) => void;
+  /** Open a room scrolled to one of its chores (tapping a chore chip) */
+  onOpenTask?: (roomId: number, taskId: number) => void;
   onCreateRoom: (data: { name: string; roomType: string; color: string; accentColor: string; tasks: any[]; assignedUserId?: number | null }) => Promise<void>;
   onDeleteRoom: (roomId: number) => Promise<void>;
   onAssignRoom?: (roomId: number, assignedUserId: number | null, force?: boolean) => Promise<void>;
@@ -94,7 +96,7 @@ interface RoomsListProps {
   viewer?: { id: number; role?: string; taskView?: 'all' | 'mine' | 'mineOnly'; kidMode?: number | boolean };
 }
 
-export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCreateRoom, onDeleteRoom, onAssignRoom, onRenameRoom, onRoomsChanged, viewer }: RoomsListProps) {
+export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onOpenTask, onCreateRoom, onDeleteRoom, onAssignRoom, onRenameRoom, onRoomsChanged, viewer }: RoomsListProps) {
   const { taskName, t, roomName: translateRoomName, roomDisplayName } = useTranslation(language);
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
@@ -130,6 +132,10 @@ export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCre
   const { filter: roomFilter, setFilter: setRoomFilter, locked: roomFilterLocked } = useTaskView(viewer, 'tq-rooms-filter');
   const isMyRoom = (room: RoomsListProps['rooms'][number]) => !viewer || room.assignedUserId === viewer.id
     || room.tasks.some((task) => isTaskForUser(task, viewer.id, viewer.role));
+  // A room page locked to Mine lists only the viewer's chores, so other chips just open the room
+  const onlyMine = !!viewer && (viewer.taskView === 'mineOnly' || !!viewer.kidMode);
+  const canOpenTask = (task: RoomsListProps['rooms'][number]['tasks'][number]) => !!onOpenTask
+    && (!onlyMine || isTaskForUser(task, viewer!.id, viewer!.role));
   const sortedRooms = [...rooms].filter((room) => roomFilter === 'all' || isMyRoom(room)).sort(
     (a, b) => getRoomHealth(a.tasks as any) - getRoomHealth(b.tasks as any)
   );
@@ -447,13 +453,22 @@ export function RoomsList({ rooms, language, isAdmin, users, onSelectRoom, onCre
                 <div style={{ display: 'flex', gap: 6, marginTop: 14, flexWrap: 'wrap' }}>
                   {room.tasks.map((tk) => {
                     const badge = taskBadgeStyle(tk.health);
-                    return (
-                      <div key={tk.id} style={{ fontSize: 11, fontWeight: 700, padding: '4px 10px 4px 6px', borderRadius: 10, backgroundColor: badge.bg, color: badge.text, border: `1px solid ${badge.border}`, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    const chipStyle = { fontSize: 11, fontWeight: 700, padding: '4px 10px 4px 6px', borderRadius: 10, backgroundColor: badge.bg, color: badge.text, border: `1px solid ${badge.border}`, display: 'inline-flex', alignItems: 'center', gap: 8 };
+                    const chip = (
+                      <>
                         <span style={{ width: 30, height: 30, borderRadius: 10, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.6)', flexShrink: 0, marginLeft: -5 }}>
                           <TaskIcon iconKey={tk.iconKey} size={21} />
                         </span>
                         <span>{taskName(tk.name, tk.translationKey)}</span>
-                      </div>
+                      </>
+                    );
+                    return canOpenTask(tk) ? (
+                      <button key={tk.id} type="button" onClick={(e) => { e.stopPropagation(); onOpenTask!(room.id, tk.id); }}
+                        style={{ ...chipStyle, fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer' }}>
+                        {chip}
+                      </button>
+                    ) : (
+                      <div key={tk.id} style={chipStyle}>{chip}</div>
                     );
                   })}
                 </div>

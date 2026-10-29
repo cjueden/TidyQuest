@@ -195,7 +195,8 @@ export const GUIDE_EN: GuideSection[] = [
     blocks: [
       { ul: [
         'Home: the holiday greeting, your level, the mascot, team-ups, Rescue Mission, Your usual, Maybe you forgot, Today’s Quests, To-do, Completed today and more. "Customise" chooses which cards you see.',
-        'Rooms: every room and its chores. Tasks: every chore in one searchable list.',
+        'Rooms: every room and its chores; tap a chore to open its room right at it. Tasks: every chore in one searchable list.',
+        'House Health on Home: tap Rooms or Tasks to open that page, or Critical to see the chores under 30% health in the task list.',
         'Calendar: what’s due when, and what was done.',
         'Activity: everything that happened (chores, coin changes, chip-ins), with filters and cheers.',
         'Board: rankings by coins, goal % or most improved, awards like Early Bird and room champions, the trophy shelf and the family goal.',
@@ -350,7 +351,7 @@ export const GUIDE_EN: GuideSection[] = [
     blocks: [
       { ul: [
         'Settings → Data & Privacy → Export: a full JSON backup. Keep one before big changes.',
-        'Import restores a backup and REPLACES everything. Everyone except the parent doing the import gets a new random password, so set new passwords in Family Members afterwards.',
+        'Import restores a backup and REPLACES everything. Everyone who already has an account on this server (same username) keeps their current password. People who are new to this server get a random one, so set their passwords in Family Members afterwards.',
         'Settings → Spreadsheets: download chores or rewards, edit them in any spreadsheet app, and load them back. You see a preview first and nothing is deleted.',
         'To delete a chore, open it with Edit; Delete task is at the bottom of the form. It goes to Settings → Recently deleted for 30 days and can be restored from there. Rewards work the same way.',
         'Deleting never takes coins away or erases what was done: past completions keep showing in Activity, the Board and goals under the chore’s name, even after it leaves Recently deleted.',
@@ -489,7 +490,7 @@ export const GUIDE_EN: GuideSection[] = [
         { q: 'Someone can’t log in', a: [
           'Too many wrong passwords block logins for up to 15 minutes: 10 for one account, or 20 from one device. Wait and try again; a correct password clears the account’s count.',
           'A parent can set a new password in Settings → Family Members.',
-          'After importing a backup, everyone except the parent who imported it needs a new password.',
+          'After importing a backup, people who already had an account on this server keep their passwords. People who are new to this server need a parent to set one in Family Members.',
         ] },
         { q: 'I was signed out on every device', a: [
           'A parent changed your password or used Log out of all devices, or you changed your password or used Log out everywhere else on another device. Log in again with your current password.',

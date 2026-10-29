@@ -171,7 +171,8 @@ export const GUIDE_NL: GuideSection[] = [
     blocks: [
       { ul: [
         'Home: de feestdagengroet, je level, de mascotte, Samen doen, Reddingsmissie, Je vaste klusjes, Misschien vergeten, Je Missies voor Vandaag, To-do, Vandaag gedaan en meer. Met "Aanpassen" kies je welke kaarten je ziet.',
-        'Kamers: elke kamer en de klusjes daarin. Klusjes: alle klusjes in één doorzoekbare lijst.',
+        'Kamers: elke kamer en de klusjes daarin; tik op een klusje om de kamer meteen bij dat klusje te openen. Klusjes: alle klusjes in één doorzoekbare lijst.',
+        'Huis Gezondheid op Home: tik op Kamers of Klusjes om die pagina te openen, of op Dringend! om de klusjes onder 30% gezondheid in de klusjeslijst te zien.',
         'Kalender: wat wanneer aan de beurt is en wat er gedaan is.',
         'Activiteit: alles wat er gebeurd is (klusjes, muntwijzigingen, bijleggen), met filters en aanmoedigingen.',
         'Scorebord: ranglijsten op munten, doel-% of meest verbeterd, prijzen zoals Vroege vogel en kamerkampioenen, de prijzenkast en het gezinsdoel.',
@@ -326,7 +327,7 @@ export const GUIDE_NL: GuideSection[] = [
     blocks: [
       { ul: [
         'Instellingen → Privacy & Gegevens → Exporteren: een volledige JSON-back-up. Bewaar er een voor je grote wijzigingen doet.',
-        'Importeren zet een back-up terug en VERVANGT alles. Iedereen behalve de ouder die importeert krijgt een nieuw willekeurig wachtwoord, dus stel daarna nieuwe wachtwoorden in bij Gezinsleden.',
+        'Importeren zet een back-up terug en VERVANGT alles. Wie al een account op deze server heeft (zelfde gebruikersnaam), houdt het huidige wachtwoord. Wie nieuw is op deze server krijgt een willekeurig wachtwoord, dus stel daarna hun wachtwoorden in bij Gezinsleden.',
         'Instellingen → Spreadsheets: download klusjes of beloningen, bewerk ze in een spreadsheetprogramma en laad ze weer terug. Je ziet eerst een voorbeeld en er wordt niets verwijderd.',
         'Om een klusje te verwijderen open je het met Bewerken; Klusje verwijderen staat onderaan het formulier. Het gaat 30 dagen naar Instellingen → Onlangs verwijderd en kan daar worden teruggezet. Beloningen werken hetzelfde.',
         'Verwijderen haalt nooit munten weg en wist niet wat gedaan is: eerdere voltooiingen blijven onder de naam van het klusje zichtbaar in Activiteit, het Scorebord en de doelen, ook nadat het uit Onlangs verwijderd is.',
@@ -465,7 +466,7 @@ export const GUIDE_NL: GuideSection[] = [
         { q: 'Iemand kan niet inloggen', a: [
           'Te veel foute wachtwoorden blokkeren inloggen tot 15 minuten: 10 voor één account of 20 vanaf één apparaat. Wacht en probeer opnieuw; een juist wachtwoord zet de teller van het account terug.',
           'Een ouder kan een nieuw wachtwoord instellen in Instellingen → Gezinsleden.',
-          'Na het importeren van een back-up heeft iedereen behalve de ouder die importeerde een nieuw wachtwoord nodig.',
+          'Na het importeren van een back-up houdt iedereen die al een account op deze server had het eigen wachtwoord. Wie nieuw is op deze server heeft een wachtwoord nodig dat een ouder instelt bij Gezinsleden.',
         ] },
         { q: 'Ik ben op elk apparaat uitgelogd', a: [
           'Een ouder heeft je wachtwoord veranderd of Uitloggen op alle apparaten gebruikt, of je hebt zelf je wachtwoord veranderd of Overal anders uitloggen gebruikt op een ander apparaat. Log opnieuw in met je huidige wachtwoord.',

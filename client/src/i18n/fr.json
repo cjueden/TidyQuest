@@ -583,7 +583,10 @@
       "rewardRequestEmpty": "Aucune demande en attente.",
       "coinsStatusTitle": "État des pièces",
       "approve": "Approuver",
-      "reject": "Refuser"
+      "reject": "Refuser",
+      "openRooms": "Pièces : {n}. Ouvrir la page Pièces",
+      "openTasks": "Tâches : {n}. Ouvrir la liste des tâches",
+      "openCritical": "Tâches critiques (santé sous 30 %) : {n}. Les voir dans la liste des tâches"
     },
     "rooms": {
       "addRoom": "Ajouter une pièce",
@@ -928,7 +931,8 @@
       "countOne": "1 tâche",
       "clear": "Effacer les filtres",
       "noMatches": "Aucune tâche ne correspond à ces filtres.",
-      "oneTime": "Une seule fois"
+      "oneTime": "Une seule fois",
+      "critical": "Critiques"
     },
     "approvals": {
       "title": "En attente de validation",
