@@ -9,6 +9,8 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+## v0.13.0 (2026-10-29)
+
 ### Added
 - **A Time zone setting.** Settings → General → Time zone (parents): days start at midnight there for the whole
   family, so chores, streaks, weekly goals, the Board, reward limits, reminders, quiet hours and Insights all count
