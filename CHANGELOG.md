@@ -19,6 +19,9 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 - **Log out everywhere.** Profile → "Log out everywhere else" signs you out on every other phone, tablet and
   computer and keeps you signed in on this one. Parents can sign one person out on all their devices (Settings →
   Family Members → Manage member → "Log out of all devices"), e.g. for a lost tablet.
+- **"Forgot password?" on the login screen.** It opens a short note: ask a parent to set a new password in
+  Settings → Family Members, and if no parent can log in, whoever runs the server can reset the first parent's
+  password (with a link to the README's steps). No email needed.
 
 ### Changed
 - A new password signs that person out on every device. Changing your own keeps you signed in where you changed it;

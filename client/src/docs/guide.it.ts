@@ -466,6 +466,7 @@ export const GUIDE_IT: GuideSection[] = [
         { q: 'Qualcuno non riesce ad accedere', a: [
           'Troppe password sbagliate bloccano gli accessi fino a 15 minuti: 10 per un account, o 20 da un dispositivo. Aspetta e riprova; una password corretta azzera il conteggio dell’account.',
           'Un genitore può impostare una nuova password in Impostazioni → Membri della famiglia.',
+          'Nessun genitore riesce ad accedere? Chi gestisce il server può reimpostare la password del primo genitore con ADMIN_RESET_PASSWORD (README, "Admin Password Recovery"). "Password dimenticata?" nella schermata di accesso dice lo stesso.',
           'Dopo aver importato un backup, chi aveva già un account su questo server mantiene la sua password. Chi è nuovo su questo server ha bisogno che un genitore gliene imposti una in Membri della famiglia.',
         ] },
         { q: 'Sono stato disconnesso da tutti i dispositivi', a: [

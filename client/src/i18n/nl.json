@@ -704,7 +704,11 @@
       "registrationFailed": "Account maken mislukt",
       "selectUser": "Wie ben jij?",
       "orTypeUsername": "Of typ je gebruikersnaam",
-      "switchUser": "Wisselen van poppetje"
+      "switchUser": "Wisselen van poppetje",
+      "forgotPassword": "Wachtwoord vergeten?",
+      "forgotAskParent": "Vraag een ouder om een nieuw wachtwoord in te stellen in Instellingen → Gezinsleden.",
+      "forgotNoParent": "Kan geen enkele ouder inloggen? Wie de server beheert, kan het wachtwoord van de eerste ouder resetten.",
+      "forgotHowTo": "Zo reset je het"
     },
     "achievements": {
       "familyProgress": "Gezinsvoortgang",

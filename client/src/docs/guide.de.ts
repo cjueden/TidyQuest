@@ -466,6 +466,7 @@ export const GUIDE_DE: GuideSection[] = [
         { q: 'Jemand kann sich nicht anmelden', a: [
           'Zu viele falsche Passwörter sperren Anmeldungen für bis zu 15 Minuten: 10 bei einem Konto oder 20 von einem Gerät. Warte und versuche es erneut; ein richtiges Passwort setzt den Zähler des Kontos zurück.',
           'Ein Elternteil kann in Einstellungen → Familienmitglieder ein neues Passwort festlegen.',
+          'Kein Elternteil kann sich anmelden? Wer den Server betreibt, kann das Passwort des ersten Elternteils mit ADMIN_RESET_PASSWORD zurücksetzen (README, „Admin Password Recovery“). „Passwort vergessen?“ auf der Anmeldeseite sagt dasselbe.',
           'Nach dem Import eines Backups behalten alle, die auf diesem Server schon ein Konto hatten, ihr Passwort. Wer neu auf diesem Server ist, braucht ein Passwort, das ein Elternteil unter Familienmitglieder festlegt.',
         ] },
         { q: 'Ich wurde auf allen Geräten abgemeldet', a: [

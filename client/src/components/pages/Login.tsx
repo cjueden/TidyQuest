@@ -4,6 +4,9 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { api } from '../../hooks/useApi';
 import UserAvatar from '../shared/UserAvatar';
 
+// The README's steps for resetting the first parent's password (ADMIN_RESET_PASSWORD)
+const RECOVERY_URL = 'https://github.com/cjueden/TidyQuest#admin-password-recovery';
+
 interface LoginUser {
   username: string;
   displayName: string;
@@ -30,6 +33,7 @@ export function Login({ onLogin, onSwitchToRegister }: LoginProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showForgot, setShowForgot] = useState(false);
   const [loading, setLoading] = useState(false);
   const [registrationEnabled, setRegistrationEnabled] = useState(true);
   const [avatarUsers, setAvatarUsers] = useState<LoginUser[]>([]);
@@ -214,6 +218,31 @@ export function Login({ onLogin, onSwitchToRegister }: LoginProps) {
                 className="tq-input" style={{ backgroundColor: 'var(--warm-bg-subtle)' }}
                 placeholder={t('auth.passwordPlaceholder')}
               />
+              <div style={{ textAlign: 'right', marginTop: 4 }}>
+                <button type="button" onClick={() => setShowForgot((v) => !v)}
+                  aria-expanded={showForgot} aria-controls="forgot-password-help"
+                  style={{
+                    background: 'none', border: 'none', color: 'var(--warm-accent)', fontSize: 13,
+                    fontWeight: 700, cursor: 'pointer', fontFamily: 'Nunito', padding: '6px 2px',
+                  }}>
+                  {t('auth.forgotPassword')}
+                </button>
+              </div>
+              {showForgot && (
+                <div id="forgot-password-help" style={{
+                  marginTop: 4, padding: '10px 12px', borderRadius: 12, backgroundColor: 'var(--warm-bg-subtle)',
+                  border: '1.5px solid var(--warm-border)', fontSize: 12, fontWeight: 600,
+                  color: 'var(--warm-text-secondary)', lineHeight: 1.5,
+                }}>
+                  <p style={{ margin: 0 }}>{t('auth.forgotAskParent')}</p>
+                  <p style={{ margin: '6px 0 0' }}>
+                    {t('auth.forgotNoParent')}{' '}
+                    <a href={RECOVERY_URL} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--warm-accent)', fontWeight: 700 }}>
+                      {t('auth.forgotHowTo')}
+                    </a>
+                  </p>
+                </div>
+              )}
             </div>
 
             {error && <div style={{ fontSize: 12, color: 'var(--warm-badge-text)', fontWeight: 700, marginBottom: 14, textAlign: 'center' }}>{error}</div>}

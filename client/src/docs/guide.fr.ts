@@ -466,6 +466,7 @@ export const GUIDE_FR: GuideSection[] = [
         { q: 'Quelqu’un ne peut pas se connecter', a: [
           'Trop de mots de passe erronés bloquent les connexions jusqu’à 15 minutes : 10 pour un compte, ou 20 depuis un appareil. Attends et réessaie ; un bon mot de passe remet à zéro le compteur du compte.',
           'Un parent peut définir un nouveau mot de passe dans Paramètres → Membres de la famille.',
+          'Aucun parent ne peut se connecter ? La personne qui gère le serveur peut réinitialiser le mot de passe du premier parent avec ADMIN_RESET_PASSWORD (README, « Admin Password Recovery »). « Mot de passe oublié ? » sur l’écran de connexion dit la même chose.',
           'Après l’import d’une sauvegarde, les personnes qui avaient déjà un compte sur ce serveur gardent leur mot de passe. Les personnes nouvelles sur ce serveur ont besoin qu’un parent leur en définisse un dans Membres de la famille.',
         ] },
         { q: 'J’ai été déconnecté de tous mes appareils', a: [

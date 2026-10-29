@@ -704,7 +704,11 @@
       "registrationFailed": "Error en el registro",
       "selectUser": "¿Quién eres?",
       "orTypeUsername": "O escribe tu nombre de usuario",
-      "switchUser": "Cambiar de usuario"
+      "switchUser": "Cambiar de usuario",
+      "forgotPassword": "¿Olvidaste la contraseña?",
+      "forgotAskParent": "Pide a un padre o una madre que te ponga una nueva en Ajustes → Miembros de la familia.",
+      "forgotNoParent": "¿Ningún padre ni madre puede iniciar sesión? Quien gestiona el servidor puede restablecer la contraseña del primer padre o madre.",
+      "forgotHowTo": "Cómo restablecerla"
     },
     "achievements": {
       "familyProgress": "Progreso familiar",

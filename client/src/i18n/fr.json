@@ -704,7 +704,11 @@
       "registrationFailed": "Échec de l'inscription",
       "selectUser": "Qui es-tu ?",
       "orTypeUsername": "Ou tapez votre nom d'utilisateur",
-      "switchUser": "Changer d'utilisateur"
+      "switchUser": "Changer d'utilisateur",
+      "forgotPassword": "Mot de passe oublié ?",
+      "forgotAskParent": "Demande à un parent d’en définir un nouveau dans Paramètres → Membres de la famille.",
+      "forgotNoParent": "Aucun parent ne peut se connecter ? La personne qui gère le serveur peut réinitialiser le mot de passe du premier parent.",
+      "forgotHowTo": "Comment le réinitialiser"
     },
     "achievements": {
       "familyProgress": "Progression famille",
