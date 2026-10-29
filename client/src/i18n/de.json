@@ -704,7 +704,11 @@
       "registrationFailed": "Registrierung fehlgeschlagen",
       "selectUser": "Wer bist du?",
       "orTypeUsername": "Oder Benutzernamen eingeben",
-      "switchUser": "Benutzer wechseln"
+      "switchUser": "Benutzer wechseln",
+      "forgotPassword": "Passwort vergessen?",
+      "forgotAskParent": "Bitte ein Elternteil, in Einstellungen → Familienmitglieder ein neues festzulegen.",
+      "forgotNoParent": "Kein Elternteil kann sich anmelden? Wer den Server betreibt, kann das Passwort des ersten Elternteils zurücksetzen.",
+      "forgotHowTo": "So wird es zurückgesetzt"
     },
     "achievements": {
       "familyProgress": "Fortschritt der Familie",

@@ -490,6 +490,7 @@ export const GUIDE_EN: GuideSection[] = [
         { q: 'Someone can’t log in', a: [
           'Too many wrong passwords block logins for up to 15 minutes: 10 for one account, or 20 from one device. Wait and try again; a correct password clears the account’s count.',
           'A parent can set a new password in Settings → Family Members.',
+          'No parent can log in? Whoever runs the server can reset the first parent’s password with ADMIN_RESET_PASSWORD (README, "Admin Password Recovery"). "Forgot password?" on the login screen says the same.',
           'After importing a backup, people who already had an account on this server keep their passwords. People who are new to this server need a parent to set one in Family Members.',
         ] },
         { q: 'I was signed out on every device', a: [

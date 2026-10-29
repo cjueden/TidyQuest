@@ -466,6 +466,7 @@ export const GUIDE_NL: GuideSection[] = [
         { q: 'Iemand kan niet inloggen', a: [
           'Te veel foute wachtwoorden blokkeren inloggen tot 15 minuten: 10 voor één account of 20 vanaf één apparaat. Wacht en probeer opnieuw; een juist wachtwoord zet de teller van het account terug.',
           'Een ouder kan een nieuw wachtwoord instellen in Instellingen → Gezinsleden.',
+          'Kan geen enkele ouder inloggen? Wie de server beheert, kan het wachtwoord van de eerste ouder resetten met ADMIN_RESET_PASSWORD (README, "Admin Password Recovery"). "Wachtwoord vergeten?" op het inlogscherm zegt hetzelfde.',
           'Na het importeren van een back-up houdt iedereen die al een account op deze server had het eigen wachtwoord. Wie nieuw is op deze server heeft een wachtwoord nodig dat een ouder instelt bij Gezinsleden.',
         ] },
         { q: 'Ik ben op elk apparaat uitgelogd', a: [

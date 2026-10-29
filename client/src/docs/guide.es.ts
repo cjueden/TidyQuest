@@ -466,6 +466,7 @@ export const GUIDE_ES: GuideSection[] = [
         { q: 'Alguien no puede iniciar sesión', a: [
           'Demasiadas contraseñas incorrectas bloquean los inicios de sesión hasta 15 minutos: 10 en una cuenta o 20 desde un dispositivo. Espera e inténtalo de nuevo; una contraseña correcta borra el recuento de la cuenta.',
           'Un padre o una madre puede poner una contraseña nueva en Ajustes → Miembros de la familia.',
+          '¿Ningún padre ni madre puede iniciar sesión? Quien gestiona el servidor puede restablecer la contraseña del primer padre o madre con ADMIN_RESET_PASSWORD (README, "Admin Password Recovery"). "¿Olvidaste la contraseña?" en la pantalla de inicio de sesión dice lo mismo.',
           'Tras importar una copia de seguridad, quien ya tenía una cuenta en este servidor conserva su contraseña. Quien es nuevo en este servidor necesita que un padre o una madre le ponga una en Miembros de la familia.',
         ] },
         { q: 'Se cerró mi sesión en todos los dispositivos', a: [

@@ -704,7 +704,11 @@
       "registrationFailed": "Registrazione non riuscita",
       "selectUser": "Chi sei?",
       "orTypeUsername": "Oppure digita il tuo nome utente",
-      "switchUser": "Cambia utente"
+      "switchUser": "Cambia utente",
+      "forgotPassword": "Password dimenticata?",
+      "forgotAskParent": "Chiedi a un genitore di impostarne una nuova in Impostazioni → Membri della famiglia.",
+      "forgotNoParent": "Nessun genitore riesce ad accedere? Chi gestisce il server può reimpostare la password del primo genitore.",
+      "forgotHowTo": "Come reimpostarla"
     },
     "achievements": {
       "familyProgress": "Progresso famiglia",

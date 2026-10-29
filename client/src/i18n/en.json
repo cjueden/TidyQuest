@@ -704,7 +704,11 @@
       "registrationFailed": "Registration failed",
       "selectUser": "Who are you?",
       "orTypeUsername": "Or type your username",
-      "switchUser": "Switch user"
+      "switchUser": "Switch user",
+      "forgotPassword": "Forgot password?",
+      "forgotAskParent": "Ask a parent to set a new one in Settings → Family Members.",
+      "forgotNoParent": "No parent can log in? Whoever runs the server can reset the first parent’s password.",
+      "forgotHowTo": "How to reset it"
     },
     "achievements": {
       "familyProgress": "Family Progress",
