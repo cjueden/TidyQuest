@@ -220,6 +220,9 @@ interface DashboardProps {
   coinsByEffort?: Record<number, number>;
   onNavigateToActivity: () => void;
   onNavigateToRewards?: () => void;
+  onNavigateToRooms?: () => void;
+  /** The task list for the whole family; criticalOnly shows only chores under 30% health */
+  onNavigateToTasks?: (criticalOnly?: boolean) => void;
   onOpenFocus?: () => void;
   onRewardRequestAction: (id: number, status: 'approved' | 'rejected') => void | Promise<void>;
   gamificationEnabled?: boolean;
@@ -244,6 +247,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   coinsByEffort,
   onNavigateToActivity,
   onNavigateToRewards,
+  onNavigateToRooms,
+  onNavigateToTasks,
   onOpenFocus,
   onRewardRequestAction,
   gamificationEnabled = true,
@@ -613,19 +618,27 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {[
-              { label: t('dashboard.roomsCount'), value: rooms.length, color: 'var(--warm-accent)' },
-              { label: t('dashboard.tasksCount'), value: totalTasks, color: '#4AABDE' },
-              { label: t('dashboard.criticalCount'), value: totalCritical, color: 'var(--warm-badge-text)' },
+              { label: t('dashboard.roomsCount'), value: rooms.length, color: 'var(--warm-accent)', aria: t('dashboard.openRooms').replace('{n}', String(rooms.length)), open: onNavigateToRooms },
+              { label: t('dashboard.tasksCount'), value: totalTasks, color: '#4AABDE', aria: t('dashboard.openTasks').replace('{n}', String(totalTasks)), open: onNavigateToTasks && (() => onNavigateToTasks()) },
+              { label: t('dashboard.criticalCount'), value: totalCritical, color: 'var(--warm-badge-text)', aria: t('dashboard.openCritical').replace('{n}', String(totalCritical)), open: onNavigateToTasks && (() => onNavigateToTasks(true)) },
             ].map((s) => (
-              <div
+              <button
                 key={s.label}
+                type="button"
+                onClick={s.open}
+                disabled={!s.open}
+                aria-label={s.aria}
+                className="tq-card-hover"
                 style={{
                   flex: 1,
+                  minWidth: 0,
                   backgroundColor: 'var(--warm-card)',
                   borderRadius: 14,
                   padding: '10px 8px',
                   textAlign: 'center',
                   border: '1.5px solid var(--warm-border)',
+                  font: 'inherit',
+                  cursor: s.open ? 'pointer' : undefined,
                 }}
               >
                 <div style={{ fontSize: 22, fontWeight: 900, color: s.color }}>
@@ -634,7 +647,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <div style={{ fontSize: 10, color: 'var(--warm-text-light)', fontWeight: 700 }}>
                   {s.label}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>

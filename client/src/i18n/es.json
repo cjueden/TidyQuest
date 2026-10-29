@@ -583,7 +583,10 @@
       "rewardRequestEmpty": "No hay solicitudes pendientes.",
       "coinsStatusTitle": "Estado de monedas",
       "approve": "Aprobar",
-      "reject": "Rechazar"
+      "reject": "Rechazar",
+      "openRooms": "Habitaciones: {n}. Abrir la página Habitaciones",
+      "openTasks": "Tareas: {n}. Abrir la lista de tareas",
+      "openCritical": "Tareas críticas (salud por debajo del 30 %): {n}. Verlas en la lista de tareas"
     },
     "rooms": {
       "addRoom": "Añadir habitación",
@@ -928,7 +931,8 @@
       "countOne": "1 tarea",
       "clear": "Borrar filtros",
       "noMatches": "Ninguna tarea coincide con estos filtros.",
-      "oneTime": "Una vez"
+      "oneTime": "Una vez",
+      "critical": "Críticas"
     },
     "approvals": {
       "title": "Esperando aprobación",

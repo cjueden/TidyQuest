@@ -171,7 +171,8 @@ export const GUIDE_DE: GuideSection[] = [
     blocks: [
       { ul: [
         'Startseite: der Feiertagsgruß, dein Level, das Maskottchen, Teamwork, Rettungsmission, Deine Klassiker, Vielleicht vergessen, Heutige Aufgaben, To-do, Heute erledigt und mehr. Mit „Anpassen“ wählst du, welche Karten du siehst.',
-        'Räume: jeder Raum mit seinen Aufgaben. Aufgaben: alle Aufgaben in einer durchsuchbaren Liste.',
+        'Räume: jeder Raum mit seinen Aufgaben; tippe auf eine Aufgabe, um ihren Raum direkt bei ihr zu öffnen. Aufgaben: alle Aufgaben in einer durchsuchbaren Liste.',
+        'Hauszustand auf der Startseite: Tippe auf Räume oder Aufgaben, um diese Seite zu öffnen, oder auf Kritisch, um die Aufgaben unter 30 % Zustand in der Aufgabenliste zu sehen.',
         'Kalender: was wann fällig ist und was erledigt wurde.',
         'Aktivität: alles, was passiert ist (Aufgaben, Münzänderungen, Einzahlungen), mit Filtern und Anfeuern.',
         'Board: Ranglisten nach Münzen, Ziel-% oder größter Verbesserung, Auszeichnungen wie Frühaufsteher und Raumchampions, das Trophäenregal und das Familienziel.',
@@ -326,7 +327,7 @@ export const GUIDE_DE: GuideSection[] = [
     blocks: [
       { ul: [
         'Einstellungen → Daten & Datenschutz → Exportieren: ein vollständiges JSON-Backup. Hebe vor großen Änderungen eins auf.',
-        'Importieren stellt ein Backup wieder her und ERSETZT alles. Alle außer dem Elternteil, das importiert, bekommen ein neues zufälliges Passwort; lege danach unter Familienmitglieder neue Passwörter fest.',
+        'Importieren stellt ein Backup wieder her und ERSETZT alles. Wer auf diesem Server schon ein Konto hat (gleicher Benutzername), behält das aktuelle Passwort. Wer neu auf diesem Server ist, bekommt ein zufälliges; lege deren Passwörter danach unter Familienmitglieder fest.',
         'Einstellungen → Tabellen: Lade Aufgaben oder Belohnungen herunter, bearbeite sie in einer beliebigen Tabellenkalkulation und lade sie wieder hoch. Du siehst vorher eine Vorschau, und nichts wird gelöscht.',
         'Um eine Aufgabe zu löschen, öffne sie mit Bearbeiten; Aufgabe löschen steht unten im Formular. Sie landet 30 Tage lang unter Einstellungen → Zuletzt gelöscht und kann von dort wiederhergestellt werden. Belohnungen funktionieren genauso.',
         'Löschen nimmt nie Münzen weg und löscht nicht, was erledigt wurde: Frühere Erledigungen erscheinen weiter unter Aktivität, auf dem Board und in Zielen unter dem Namen der Aufgabe, auch nachdem sie aus Zuletzt gelöscht verschwunden ist.',
@@ -465,7 +466,7 @@ export const GUIDE_DE: GuideSection[] = [
         { q: 'Jemand kann sich nicht anmelden', a: [
           'Zu viele falsche Passwörter sperren Anmeldungen für bis zu 15 Minuten: 10 bei einem Konto oder 20 von einem Gerät. Warte und versuche es erneut; ein richtiges Passwort setzt den Zähler des Kontos zurück.',
           'Ein Elternteil kann in Einstellungen → Familienmitglieder ein neues Passwort festlegen.',
-          'Nach dem Import eines Backups braucht jeder außer dem Elternteil, das importiert hat, ein neues Passwort.',
+          'Nach dem Import eines Backups behalten alle, die auf diesem Server schon ein Konto hatten, ihr Passwort. Wer neu auf diesem Server ist, braucht ein Passwort, das ein Elternteil unter Familienmitglieder festlegt.',
         ] },
         { q: 'Ich wurde auf allen Geräten abgemeldet', a: [
           'Ein Elternteil hat dein Passwort geändert oder Auf allen Geräten abmelden benutzt, oder du hast dein Passwort geändert oder Überall sonst abmelden auf einem anderen Gerät benutzt. Melde dich mit deinem aktuellen Passwort wieder an.',

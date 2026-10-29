@@ -490,6 +490,8 @@ function AppContent() {
                   coinsByEffort={coinsByEffort}
                   onNavigateToActivity={() => navigate('/activity')}
                   onNavigateToRewards={() => navigate('/rewards')}
+                  onNavigateToRooms={() => navigate('/rooms')}
+                  onNavigateToTasks={(criticalOnly) => navigate(`/tasks?person=all${criticalOnly ? '&status=critical' : ''}`)}
                   onOpenFocus={() => navigate('/focus')}
                   onRewardRequestAction={async (id, status) => {
                     await api.updateRedemptionStatus(id, status);
@@ -504,6 +506,7 @@ function AppContent() {
             <>
               <PageHeader title={t('nav.rooms')} subtitle={`${rooms.length} ${t('app.roomsConfigured')}`} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} onPointsClick={handlePointsClick} userPoints={myPoints} pointsPeriodLabel={pointsPeriodLabel} gamificationEnabled={gamificationEnabled} shieldsOn={!!dashboardData?.shields} />
               <RoomsList rooms={activeRooms} language={user.language} onSelectRoom={(id) => navigate(`/rooms/${id}`)}
+                onOpenTask={(roomId, taskId) => navigate(`/rooms/${roomId}?task=${taskId}`)}
                 isAdmin={user.role === 'admin'}
                 users={familySettings}
                 onCreateRoom={async (data) => {

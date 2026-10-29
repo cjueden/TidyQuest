@@ -583,7 +583,10 @@
       "rewardRequestEmpty": "No pending reward requests.",
       "coinsStatusTitle": "Coins Status",
       "approve": "Approve",
-      "reject": "Reject"
+      "reject": "Reject",
+      "openRooms": "Rooms: {n}. Open the Rooms page",
+      "openTasks": "Tasks: {n}. Open the task list",
+      "openCritical": "Critical chores (under 30% health): {n}. Show them in the task list"
     },
     "rooms": {
       "addRoom": "Add Room",
@@ -928,7 +931,8 @@
       "countOne": "1 task",
       "clear": "Clear filters",
       "noMatches": "No tasks match these filters.",
-      "oneTime": "One-time"
+      "oneTime": "One-time",
+      "critical": "Critical"
     },
     "approvals": {
       "title": "Waiting for approval",

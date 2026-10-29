@@ -64,7 +64,7 @@ interface TaskListProps {
   onOpenTask: (roomId: number, taskId: number) => void;
 }
 
-type Status = '' | 'due' | 'upcoming' | 'ondemand' | 'onetime' | 'timer';
+type Status = '' | 'due' | 'upcoming' | 'critical' | 'ondemand' | 'onetime' | 'timer';
 type Sort = 'due' | 'name' | 'room' | 'coins';
 
 const isFor = isTaskForUser;
@@ -124,6 +124,8 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
       }
       if (status === 'due' && !isTaskDue(task)) return false;
       if (status === 'upcoming' && (task.onDemand || task.isSeasonal || isTaskDue(task))) return false;
+      // Same as Home's House Health "Critical" box (server dashboard.ts)
+      if (status === 'critical' && !(task.health < 30)) return false;
       if (status === 'ondemand' && !task.onDemand) return false;
       if (status === 'onetime' && !task.oneTime) return false;
       if (status === 'timer' && !task.timerMinutes) return false;
@@ -191,6 +193,7 @@ export function TaskList({ rooms, users, currentUserId, coinsByEffort, language,
             <option value="">{t('taskList.statusAll')}</option>
             <option value="due">{t('taskList.dueNow')}</option>
             <option value="upcoming">{t('taskList.upcoming')}</option>
+            <option value="critical">{t('taskList.critical')}</option>
             <option value="ondemand">{t('roomDetail.onDemand')}</option>
             <option value="onetime">{t('taskList.oneTime')}</option>
             <option value="timer">⏱️ {t('timer.filter')}</option>

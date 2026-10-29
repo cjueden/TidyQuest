@@ -583,7 +583,10 @@
       "rewardRequestEmpty": "Geen openstaande beloningsaanvragen.",
       "coinsStatusTitle": "Muntenstand",
       "approve": "Goedkeuren",
-      "reject": "Afkeuren"
+      "reject": "Afkeuren",
+      "openRooms": "Kamers: {n}. Open de pagina Kamers",
+      "openTasks": "Klusjes: {n}. Open de klusjeslijst",
+      "openCritical": "Dringende klusjes (gezondheid onder 30%): {n}. Toon ze in de klusjeslijst"
     },
     "rooms": {
       "addRoom": "Kamer toevoegen",
@@ -928,7 +931,8 @@
       "countOne": "1 klusje",
       "clear": "Filters wissen",
       "noMatches": "Geen klusjes voldoen aan deze filters.",
-      "oneTime": "Eenmalig"
+      "oneTime": "Eenmalig",
+      "critical": "Dringend"
     },
     "approvals": {
       "title": "Wacht op goedkeuring",

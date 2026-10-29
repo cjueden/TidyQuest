@@ -171,7 +171,8 @@ export const GUIDE_ES: GuideSection[] = [
     blocks: [
       { ul: [
         'Inicio: el saludo de fiesta, tu nivel, la mascota, En equipo, Misión de rescate, Lo de siempre, Quizá olvidaste estas, Misiones de hoy, Pendientes, Completadas hoy y más. "Personalizar" elige qué tarjetas ves.',
-        'Habitaciones: cada habitación y sus tareas. Tareas: todas las tareas en una sola lista con buscador.',
+        'Habitaciones: cada habitación y sus tareas; toca una tarea para abrir su habitación justo en ella. Tareas: todas las tareas en una sola lista con buscador.',
+        'Salud del hogar en Inicio: toca Habitaciones o Tareas para abrir esa página, o Críticas para ver las tareas por debajo del 30 % de salud en la lista de tareas.',
         'Calendario: qué toca cuándo y qué se hizo.',
         'Actividad: todo lo que ha pasado (tareas, cambios de monedas, aportaciones), con filtros y ánimos.',
         'Tablero: clasificaciones por monedas, % del objetivo o mayor mejora, premios como Madrugador y campeones de habitación, la estantería de trofeos y el objetivo familiar.',
@@ -326,7 +327,7 @@ export const GUIDE_ES: GuideSection[] = [
     blocks: [
       { ul: [
         'Ajustes → Datos y privacidad → Exportar: una copia de seguridad JSON completa. Guarda una antes de hacer cambios grandes.',
-        'Importar restaura una copia de seguridad y REEMPLAZA todo. Todos menos el padre o la madre que importa reciben una contraseña aleatoria nueva, así que después pon contraseñas nuevas en Miembros de la familia.',
+        'Importar restaura una copia de seguridad y REEMPLAZA todo. Quien ya tiene una cuenta en este servidor (mismo nombre de usuario) conserva su contraseña actual. Quien es nuevo en este servidor recibe una aleatoria, así que después pon sus contraseñas en Miembros de la familia.',
         'Ajustes → Hojas de cálculo: descarga tareas o recompensas, edítalas en cualquier aplicación de hojas de cálculo y vuelve a cargarlas. Primero ves una vista previa y no se elimina nada.',
         'Para eliminar una tarea, ábrela con Editar; Eliminar tarea está al final del formulario. Va a Ajustes → Eliminados recientemente durante 30 días y se puede restaurar desde ahí. Las recompensas funcionan igual.',
         'Eliminar nunca quita monedas ni borra lo que se hizo: las veces que se completó siguen apareciendo en Actividad, el Tablero y los objetivos con el nombre de la tarea, incluso cuando ya no está en Eliminados recientemente.',
@@ -465,7 +466,7 @@ export const GUIDE_ES: GuideSection[] = [
         { q: 'Alguien no puede iniciar sesión', a: [
           'Demasiadas contraseñas incorrectas bloquean los inicios de sesión hasta 15 minutos: 10 en una cuenta o 20 desde un dispositivo. Espera e inténtalo de nuevo; una contraseña correcta borra el recuento de la cuenta.',
           'Un padre o una madre puede poner una contraseña nueva en Ajustes → Miembros de la familia.',
-          'Tras importar una copia de seguridad, todos menos el padre o la madre que la importó necesitan una contraseña nueva.',
+          'Tras importar una copia de seguridad, quien ya tenía una cuenta en este servidor conserva su contraseña. Quien es nuevo en este servidor necesita que un padre o una madre le ponga una en Miembros de la familia.',
         ] },
         { q: 'Se cerró mi sesión en todos los dispositivos', a: [
           'Un padre o una madre cambió tu contraseña o usó Cerrar sesión en todos los dispositivos, o tú cambiaste tu contraseña o usaste Cerrar sesión en los demás dispositivos en otro dispositivo. Vuelve a iniciar sesión con tu contraseña actual.',

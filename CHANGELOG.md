@@ -35,6 +35,13 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
   tomorrow on an American evening.
 - The streak check for a missed day looks at the end of the family's day, not the end of the UTC day.
 - Typing the wrong current password when changing yours no longer signs you out.
+- Home's House Health card: tapping Rooms or Tasks opens that page, and tapping Critical opens the task list showing
+  only the chores under 30% health (a new "Critical" choice in the task list's status filter). They looked like
+  buttons but did nothing.
+- On the Rooms page, tapping a chore on a room's card opens the room scrolled to that chore and flashes it, instead of
+  opening the room at the top.
+- The guide now says the right thing about passwords after importing a backup: people who already have an account on
+  this server keep their passwords, and only people new to it need one from a parent.
 
 ## v0.12.0 (2026-10-24)
 

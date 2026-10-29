@@ -583,7 +583,10 @@
       "rewardRequestEmpty": "Nessuna richiesta ricompensa in attesa.",
       "coinsStatusTitle": "Stato monete",
       "approve": "Approva",
-      "reject": "Rifiuta"
+      "reject": "Rifiuta",
+      "openRooms": "Stanze: {n}. Apri la pagina Stanze",
+      "openTasks": "Attività: {n}. Apri l’elenco dei compiti",
+      "openCritical": "Compiti critici (salute sotto il 30%): {n}. Vedili nell’elenco dei compiti"
     },
     "rooms": {
       "addRoom": "Aggiungi stanza",
@@ -928,7 +931,8 @@
       "countOne": "1 compito",
       "clear": "Azzera filtri",
       "noMatches": "Nessun compito corrisponde a questi filtri.",
-      "oneTime": "Una volta"
+      "oneTime": "Una volta",
+      "critical": "Critiche"
     },
     "approvals": {
       "title": "In attesa di approvazione",
