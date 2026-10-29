@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, familyField } from './setup';
 import { trustProxySetting } from '../utils/proxy';
 import type supertest from 'supertest';
 import type { Express } from 'express';
@@ -12,7 +12,7 @@ beforeEach(() => {
 const login = (username: string, password: string, forwardedFor?: string) => {
   const req = agent.post('/api/auth/login');
   if (forwardedFor) req.set('X-Forwarded-For', forwardedFor);
-  return req.send({ username, password });
+  return req.send({ username, password, ...familyField() });
 };
 
 describe('Login limit', () => {

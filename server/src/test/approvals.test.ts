@@ -4,7 +4,7 @@ import path from 'path';
 import { createTestApp, createAdmin, createUser } from './setup';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
-import { proofsDir } from '../routes/tasks';
+import { uploadDir } from '../hosted/files';
 
 let agent: supertest.Agent;
 let db: InstanceType<typeof Database>;
@@ -39,8 +39,8 @@ describe('Proof with a completion', () => {
     expect((await agent.post(`/api/completions/${id}/photo`).set(auth(kidB.token)).attach('photo', PNG, { filename: 'a.png', contentType: 'image/png' })).status).toBe(403);
     const up = await agent.post(`/api/completions/${id}/photo`).set(auth(kidA.token)).attach('photo', PNG, { filename: 'card.png', contentType: 'image/png' });
     expect(up.status).toBe(200);
-    expect(up.body.photoUrl).toMatch(/^\/api\/proofs\/proof-[0-9a-f]{24}\.png$/);
-    const saved = path.join(proofsDir, path.basename(up.body.photoUrl));
+    expect(up.body.photoUrl).toMatch(/^\/api\/(proofs|files\/[a-z0-9]{16}\/proofs)\/proof-[0-9a-f]{24}\.png$/);
+    const saved = path.join(uploadDir('proofs'), path.basename(up.body.photoUrl));
     expect(fs.existsSync(saved)).toBe(true);
     expect((await agent.get(up.body.photoUrl)).status).toBe(200);
 

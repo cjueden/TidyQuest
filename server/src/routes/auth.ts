@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs';
 import db from '../database';
 import { AuthRequest, authMiddleware, generateToken, revokeTokens } from '../middleware/auth';
 import { canonicalZone } from '../utils/clock';
+import { isHosted } from '../hosted/context';
+import { familyFromRequest } from '../hosted/middleware';
 
 // In-memory limits for auth endpoints (they reset on restart). The address is req.ip: the connection's own,
 // or the visitor's when TRUST_PROXY names the reverse proxy in front (utils/proxy.ts).
@@ -55,6 +57,8 @@ setInterval(() => {
 const router = Router();
 
 router.post('/register', (req: AuthRequest, res: Response) => {
+  // Hosted families start on the sign-up page (NEW-10), and parents add everyone else
+  if (isHosted()) return res.status(404).json({ error: 'Registration is off on this server' });
   if (!checkRateLimit(clientIp(req))) {
     return res.status(429).json({ error: 'Too many registration attempts. Please try again later.' });
   }
@@ -98,20 +102,20 @@ router.post('/register', (req: AuthRequest, res: Response) => {
   res.status(201).json({ token, user });
 });
 
-router.get('/registration-status', (_req: AuthRequest, res: Response) => {
+router.get('/registration-status', familyFromRequest, (_req: AuthRequest, res: Response) => {
   const row = db.prepare("SELECT value FROM app_settings WHERE key = 'registrationEnabled'").get() as { value: string } | undefined;
   const registrationEnabled = row ? row.value !== '0' : true;
   res.json({ registrationEnabled });
 });
 
-router.get('/avatars', (_req: AuthRequest, res: Response) => {
+router.get('/avatars', familyFromRequest, (_req: AuthRequest, res: Response) => {
   const users = db.prepare(
     'SELECT username, displayName, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users ORDER BY displayName'
   ).all();
   res.json(users);
 });
 
-router.post('/login', (req: AuthRequest, res: Response) => {
+router.post('/login', familyFromRequest, (req: AuthRequest, res: Response) => {
   const { username, password } = req.body;
 
   if (!username || !password) {

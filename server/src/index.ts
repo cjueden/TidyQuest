@@ -35,10 +35,14 @@ import { settleAllStreaks } from './utils/streaks';
 import { snapshotOverdueChores } from './utils/insights';
 import { resumeDuePauses } from './utils/pause';
 import insightsRoutes from './routes/insights';
+import { countRequests, isHosted } from './hosted/context';
+import { startHosted } from './hosted/families';
+import { filesRouter } from './hosted/files';
 
 export function createApp() {
   const app = express();
   app.set('trust proxy', trustProxySetting());
+  if (isHosted()) app.use(countRequests);
   app.use(proxyHint);
 
   // CORS: allow only in dev or via explicit env var (in production, frontend is served from same origin)
@@ -59,14 +63,19 @@ export function createApp() {
     try {
       version = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'package.json'), 'utf-8')).version ?? null;
     } catch { /* not there in some setups */ }
-    res.json({ version, build: process.env.APP_BUILD || null });
+    res.json({ version, build: process.env.APP_BUILD || null, hosted: isHosted() });
   });
 
-  // Serve uploaded avatars
-  const avatarsDir = path.join(__dirname, '..', '..', 'data', 'avatars');
-  app.use('/api/avatars', express.static(avatarsDir));
-  // Proof photos attached to completions (random, unguessable file names, like avatars)
-  app.use('/api/proofs', express.static(path.join(__dirname, '..', '..', 'data', 'proofs')));
+  if (isHosted()) {
+    // Each family's avatars and proof photos, from its own folder (hosted/files.ts)
+    app.use('/api/files', filesRouter);
+  } else {
+    // Serve uploaded avatars
+    const avatarsDir = path.join(__dirname, '..', '..', 'data', 'avatars');
+    app.use('/api/avatars', express.static(avatarsDir));
+    // Proof photos attached to completions (random, unguessable file names, like avatars)
+    app.use('/api/proofs', express.static(path.join(__dirname, '..', '..', 'data', 'proofs')));
+  }
 
   // API routes
   app.use('/api/auth', authRoutes);
@@ -105,7 +114,8 @@ export function createApp() {
 // Start server only when run directly (not imported by tests)
 if (require.main === module || !process.env.VITEST) {
   const PORT = process.env.PORT || 3000;
-  initDatabase();
+  if (isHosted()) startHosted();
+  else initDatabase();
   const app = createApp();
 
   // Serve static frontend in production
@@ -116,7 +126,9 @@ if (require.main === module || !process.env.VITEST) {
   });
 
   app.listen(PORT, () => {
-    console.log(`TidyQuest server running on http://localhost:${PORT}`);
+    console.log(`TidyQuest server running on http://localhost:${PORT}${isHosted() ? ' (hosted mode)' : ''}`);
+    // Hosted mode runs the jobs once per family from NEW-11; until then it skips them
+    if (isHosted()) return console.warn('[hosted] Background jobs (reminders, streaks, team-ups, pauses) are not run yet in hosted mode.');
     void sendDueTaskNotificationsIfNeeded();
     void sendCoinBoostNotificationsIfNeeded();
     void runScheduledNotifications();

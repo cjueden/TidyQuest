@@ -24,13 +24,13 @@ import { tr } from '../utils/i18n';
 import { pauseTask, readPausedUntil, resumeTask } from '../utils/pause';
 import { earnShieldAt, lateStreak, nextStreak, noteBrokenStreak, settleStreak } from '../utils/streaks';
 import { baseCoinsOf, endTeamupsFor, groupTeamPending, openTeamupFor, teamShares, teamUpInfo, type Teamup } from '../utils/teamups';
+import { keepFamily } from '../hosted/context';
+import { fileUrl, uploadDir } from '../hosted/files';
 
-// Proof photos kids can attach to a completion (served at /api/proofs)
-export const proofsDir = path.join(__dirname, '..', '..', '..', 'data', 'proofs');
-if (!fs.existsSync(proofsDir)) fs.mkdirSync(proofsDir, { recursive: true });
+// Proof photos kids can attach to a completion (served at /api/proofs, or /api/files/<familyId>/proofs)
 const proofUpload = multer({
   storage: multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, proofsDir),
+    destination: (req, _file, cb) => cb(null, uploadDir('proofs', (req as AuthRequest).familyId)),
     filename: (_req, file, cb) => {
       const ext = ['.jpg', '.jpeg', '.png', '.webp', '.heic'].includes(path.extname(file.originalname).toLowerCase())
         ? path.extname(file.originalname).toLowerCase() : '.jpg';
@@ -1057,14 +1057,14 @@ router.post('/completions/reject-batch', (req: AuthRequest, res: Response) => {
 });
 
 // Attach a proof photo to a completion: the person who did it (or a parent)
-router.post('/completions/:completionId/photo', proofUpload.single('photo'), (req: AuthRequest, res: Response) => {
+router.post('/completions/:completionId/photo', keepFamily(proofUpload.single('photo')), (req: AuthRequest, res: Response) => {
   const file = (req as any).file as { filename: string; path: string } | undefined;
   const completion = db.prepare('SELECT id, userId FROM task_completions WHERE id = ?').get(req.params.completionId) as { id: number; userId: number } | undefined;
   const discard = () => { if (file) fs.rmSync(file.path, { force: true }); };
   if (!completion) { discard(); return res.status(404).json({ error: 'Completion not found' }); }
   if (completion.userId !== req.userId && !ensureAdmin(req.userId)) { discard(); return res.status(403).json({ error: 'forbidden' }); }
   if (!file) return res.status(400).json({ error: 'photo (an image file) is required' });
-  const photoUrl = `/api/proofs/${file.filename}`;
+  const photoUrl = fileUrl('proofs', file.filename);
   db.prepare('UPDATE task_completions SET photoUrl = ? WHERE id = ?').run(photoUrl, completion.id);
   res.json({ photoUrl });
 });

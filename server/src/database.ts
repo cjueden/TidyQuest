@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { suggestTaskIcon } from './utils/taskIcons';
 import { applyForkSchema } from './forkSchema';
 import { registerClockFunctions } from './utils/clock';
+import { currentFamily, isHosted } from './hosted/context';
 
 const DB_PATH = path.join(__dirname, '..', '..', 'data', 'tidyquest.db');
 
@@ -20,7 +21,9 @@ export function createDatabase(dbPath: string = DB_PATH): InstanceType<typeof Da
   return instance;
 }
 
-let _db: InstanceType<typeof Database> | null = process.env.VITEST ? null : createDatabase();
+// Hosted mode never opens this one: each request uses its family's database (hosted/context.ts), and
+// touching the database outside a family throws instead of reaching another family's data.
+let _db: InstanceType<typeof Database> | null = process.env.VITEST || isHosted() ? null : createDatabase();
 
 export function setDatabase(instance: InstanceType<typeof Database>) {
   registerClockFunctions(instance);
@@ -29,17 +32,18 @@ export function setDatabase(instance: InstanceType<typeof Database>) {
 
 /** The database in use right now (null before one is set up), for caches that belong to one database. */
 export function currentDatabase(): InstanceType<typeof Database> | null {
-  return _db;
+  return currentFamily()?.db ?? _db;
 }
 
-// Proxy so that route files importing `db` always reach the current _db instance.
-// This allows tests to swap the DB via setDatabase() without module mocking.
+// Proxy so that route files importing `db` always reach the current database: the request's family in
+// hosted mode, else _db. This allows tests to swap the DB via setDatabase() without module mocking.
 const db = new Proxy({} as InstanceType<typeof Database>, {
   get(_target, prop: string | symbol) {
-    if (!_db) throw new Error('Database not initialised — call setDatabase() first');
-    const value = (_db as any)[prop];
+    const active = currentDatabase();
+    if (!active) throw new Error(isHosted() ? 'No family for this database call (hosted mode)' : 'Database not initialised — call setDatabase() first');
+    const value = (active as any)[prop];
     if (typeof value === 'function') {
-      return value.bind(_db);
+      return value.bind(active);
     }
     return value;
   },
@@ -472,9 +476,13 @@ export function initDatabase() {
     }
   }
 
-  // Emergency admin password recovery via environment variable
+  // Emergency admin password recovery via environment variable. Not in hosted mode: every family's
+  // database opens through here, so it would reset some family's first parent. Parents use the email reset.
   const resetPassword = process.env.ADMIN_RESET_PASSWORD;
-  if (resetPassword) {
+  if (resetPassword && isHosted()) {
+    console.warn('[WARN] ADMIN_RESET_PASSWORD is ignored in hosted mode. Remove it from your environment.');
+    delete process.env.ADMIN_RESET_PASSWORD;
+  } else if (resetPassword) {
     const admin = db.prepare("SELECT id, username FROM users WHERE role = 'admin' ORDER BY id ASC LIMIT 1").get() as { id: number; username: string } | undefined;
     if (admin) {
       const hash = bcrypt.hashSync(resetPassword, 10);

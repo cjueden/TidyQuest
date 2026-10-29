@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 import type Database from 'better-sqlite3';
 import type supertest from 'supertest';
-import { createTestApp, createAdmin, createUser, loginAs } from './setup';
+import { createTestApp, createAdmin, createUser, loginAs, tokenFamily } from './setup';
 
 // NEW-8: log out everywhere
 let agent: supertest.Agent;
@@ -99,7 +99,7 @@ describe('Log out everywhere', () => {
     const admin = await createAdmin(agent);
     const { userId } = jwt.decode(admin.token) as { userId: number };
     // Re-signed with the tests' secret (setup.ts), without a version
-    const old = jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '30d' });
+    const old = jwt.sign({ userId, ...tokenFamily() }, process.env.JWT_SECRET!, { expiresIn: '30d' });
     expect((await me(old)).status).toBe(200);
     await agent.post('/api/auth/logout-others').set(auth(admin.token));
     expect((await me(old)).status).toBe(401);
