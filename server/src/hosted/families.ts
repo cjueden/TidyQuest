@@ -30,7 +30,8 @@ export const familyDir = (id: string) => path.join(dataDir(), 'families', id);
 const deletedDir = () => path.join(dataDir(), 'deleted');
 
 // Open family databases. One nobody has used for an hour is closed, so the number open follows the
-// families active right now.
+// families active right now. The background jobs use every trial and paid family's database twice a
+// minute, so those stay open; suspended and expired ones close.
 const open = new Map<string, { db: Db; lastUsed: number; lastActiveSaved: number }>();
 
 /** Makes a family: its folder, its database, its row in main.db and its family code. Tests pass an in-memory database. */
@@ -58,9 +59,10 @@ export function isLiveFamily(id: unknown): id is string {
 
 /**
  * The family's database, opened on first use (which also upgrades its schema). Null for an unknown or
- * deleted family. main.db is asked every time, so a deleted family is shut out at once.
+ * deleted family. main.db is asked every time, so a deleted family is shut out at once. Background jobs
+ * pass activity: false, so lastActiveAt still means a person used the app.
  */
-export function openFamily(id: unknown, now = Date.now()): FamilyContext | null {
+export function openFamily(id: unknown, now = Date.now(), { activity = true } = {}): FamilyContext | null {
   if (!isLiveFamily(id)) return null;
   let entry = open.get(id);
   if (!entry) {
@@ -77,7 +79,7 @@ export function openFamily(id: unknown, now = Date.now()): FamilyContext | null 
     open.set(id, entry);
   }
   entry.lastUsed = now;
-  if (now - entry.lastActiveSaved >= HOUR) {
+  if (activity && now - entry.lastActiveSaved >= HOUR) {
     entry.lastActiveSaved = now;
     mainDb().prepare('UPDATE families SET lastActiveAt = ? WHERE id = ?').run(new Date(now).toISOString(), id);
   }
@@ -143,9 +145,22 @@ export function purgeDeletedFamilies(now = new Date()): number {
   return gone.length;
 }
 
-/** Server start in hosted mode: open main.db and close idle family databases every few minutes. */
+/** Opens every family's database once, which brings its schema up to date. One that fails is logged. */
+export function upgradeAllFamilies(now = Date.now()): void {
+  const families = mainDb().prepare('SELECT id FROM families WHERE deletedAt IS NULL').all() as { id: string }[];
+  for (const { id } of families) {
+    try {
+      if (!openFamily(id, now, { activity: false })) console.error(`[hosted] Family ${id} has no database.`);
+    } catch (err) {
+      console.error(`[hosted] Upgrading family ${id}'s database failed:`, err);
+    }
+  }
+}
+
+/** Server start in hosted mode: open main.db, upgrade every family's database, and close idle ones every few minutes. */
 export function startHosted(): void {
   openMainDb();
+  upgradeAllFamilies();
   if (!process.env.PUBLIC_URL) console.warn('[hosted] Set PUBLIC_URL (like https://app.tidyquest.org): links in emails follow the request until then.');
   setInterval(() => closeIdleFamilies(), 5 * 60 * 1000).unref();
 }

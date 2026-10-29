@@ -54,7 +54,19 @@ const MAIN_TABLES: string[] = [
   )`,
 ];
 
+const MAIN_COLUMNS: string[] = [
+  // When the parents were told an expired trial is about to be deleted (NEW-11)
+  `ALTER TABLE families ADD COLUMN trialWarnedAt TEXT`,
+];
+
 export function applyMainSchema(instance: InstanceType<typeof Database>): void {
   instance.pragma('foreign_keys = ON');
   for (const sql of MAIN_TABLES) instance.exec(sql);
+  for (const sql of MAIN_COLUMNS) {
+    try {
+      instance.exec(sql);
+    } catch (e: any) {
+      if (!e.message?.includes('duplicate column')) throw e;
+    }
+  }
 }

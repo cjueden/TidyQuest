@@ -1,6 +1,6 @@
 import db from '../database';
 import { at, minuteOfDay, wall } from './clock';
-import { getNotificationTypeSettings, getNtfySettings, getTelegramSettings, sendNtfyMessageDetailed, sendTelegramMessageDetailed, type NotificationTypeSettings } from './notifications';
+import { getNotificationTypeSettings, getNtfySettings, getTelegramSettings, sendNtfyMessageDetailed, sendTelegramMessageDetailed, sendTimeout, type NotificationTypeSettings } from './notifications';
 
 /**
  * Notifications to people, not just the family channel.
@@ -57,6 +57,7 @@ async function sendHomeAssistant(service: string, message: string): Promise<{ ok
   try {
     const res = await fetch(`${url}/api/services/notify/${name}`, {
       method: 'POST',
+      signal: AbortSignal.timeout(sendTimeout()),
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'TidyQuest', message }),
     });

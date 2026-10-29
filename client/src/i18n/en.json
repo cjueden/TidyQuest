@@ -1911,7 +1911,9 @@
       "changeEmailSubject": "Confirm your new email for TidyQuest",
       "changeEmailBody": "Hi {name},\n\nOpen this link to sign in to TidyQuest with this email from now on. It works for one day:\n{link}\n\nIf you didn't ask for this, you can ignore this email.",
       "emailChangingSubject": "Your TidyQuest sign-in email is changing",
-      "emailChangingBody": "Hi {name},\n\nSomeone signed in as you asked to change your TidyQuest sign-in email to {email}. It changes once that address is confirmed.\n\nIf this wasn't you, sign in and change your password."
+      "emailChangingBody": "Hi {name},\n\nSomeone signed in as you asked to change your TidyQuest sign-in email to {email}. It changes once that address is confirmed.\n\nIf this wasn't you, sign in and change your password.",
+      "trialEndingSubject": "Your TidyQuest family will be deleted on {date}",
+      "trialEndingBody": "Hi {name},\n\nThe free trial for {family} ended on {ended}. On {date}, {family} and everything in it will be deleted: chores, history, coins and photos.\n\nTo keep using TidyQuest, choose a plan before then. To keep a copy of your data, sign in at {link} and use {export} in {settings}.\n\nIf you're done with TidyQuest, you don't need to do anything."
     },
     "hosted": {
       "emailOrUsername": "Email or username",

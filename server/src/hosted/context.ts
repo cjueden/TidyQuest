@@ -41,6 +41,19 @@ export function currentFamily(): FamilyContext | undefined {
   return undefined;
 }
 
+/**
+ * Something a background job remembers between runs, like the last minute it checked: one value per
+ * family in hosted mode, one value self-hosted.
+ */
+export function perFamily<T>(initial: T) {
+  const values = new Map<string, T>();
+  const key = () => currentFamily()?.familyId ?? '';
+  return {
+    get: (): T => (values.has(key()) ? values.get(key())! : initial),
+    set: (value: T) => { values.set(key(), value); },
+  };
+}
+
 /** The whole suite runs in hosted mode (HOSTED=1 npm test) with the tests' own code as one family. */
 export function setTestFamily(family: FamilyContext | null): void {
   testFamily = family;

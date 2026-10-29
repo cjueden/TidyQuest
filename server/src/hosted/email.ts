@@ -1,8 +1,9 @@
 import type { Request } from 'express';
 import { tr } from '../utils/i18n';
 
-// Emails in hosted mode: confirming an address, resetting a password, changing the sign-in email. Until a
-// real sender exists (NEW-15) they go to the server log, links and all, which is fine for staging only.
+// Emails in hosted mode: confirming an address, resetting a password, changing the sign-in email, a trial
+// about to be deleted. Until a real sender exists (NEW-15) they go to the server log, links and all, which
+// is fine for staging only.
 export interface Email {
   to: string;
   subject: string;
@@ -37,11 +38,11 @@ export function appLink(req: Request, pathAndQuery: string): string {
   return `${base}${pathAndQuery}`;
 }
 
-export type EmailKind = 'confirm' | 'reset' | 'change-email' | 'email-changing';
+export type EmailKind = 'confirm' | 'reset' | 'change-email' | 'email-changing' | 'trial-ending';
 
 /** One of the app's emails in the person's language: hostedEmail.<kind>Subject and <kind>Body. */
 export function writeEmail(kind: EmailKind, lang: string | null | undefined, to: string, vars: Record<string, string>): Email {
-  const key = kind === 'change-email' ? 'changeEmail' : kind === 'email-changing' ? 'emailChanging' : kind;
+  const key = kind.replace(/-(\w)/g, (_, c: string) => c.toUpperCase()); // change-email: changeEmail
   return {
     to,
     subject: tr(lang, `hostedEmail.${key}Subject`, vars),

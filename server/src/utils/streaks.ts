@@ -6,6 +6,7 @@ import { getGlobalVacation, getUserVacation, resolveVacation } from './adminHelp
 import { isFeatureOn } from './features';
 import { notifyPeople } from './notify';
 import { tr } from './i18n';
+import { perFamily } from '../hosted/context';
 
 /**
  * Streaks (days in a row with at least one chore) and streak shields (NEW-3).
@@ -152,12 +153,13 @@ export function settleStreak(userId: number, now: Date = new Date()): number {
   return missed.length;
 }
 
-let settledDay = '';
+// The last day settled, per family
+const settledDay = perFamily('');
 /** Once a day (the server's minute check): use shields for everyone who missed yesterday. */
 export function settleAllStreaks(now: Date = new Date()): void {
   const day = localDateStr(now);
-  if (day === settledDay) return;
-  settledDay = day;
+  if (day === settledDay.get()) return;
+  settledDay.set(day);
   if (!shieldsOn()) return;
   const people = db.prepare('SELECT id FROM users WHERE streakShields > 0 AND currentStreak > 0 AND lastActiveDate < ?').all(addDays(day, -1)) as { id: number }[];
   for (const p of people) settleStreak(p.id, now);

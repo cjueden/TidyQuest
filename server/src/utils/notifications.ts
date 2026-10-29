@@ -1,6 +1,7 @@
 import db from '../database';
 import { isSeasonalNow, nextDueAt, type ScheduledTask } from './schedule';
 import { dateStr, wall } from './clock';
+import { perFamily } from '../hosted/context';
 
 interface TelegramSettings {
   enabled: boolean;
@@ -91,6 +92,13 @@ function getDueIsoDay(task: ScheduledTask, now: Date): string {
   return toLocalIsoDay(nextDueAt(task, now) ?? now);
 }
 
+// No send (Telegram, ntfy, Home Assistant) waits longer than this, so a slow server can't hold up the
+// background jobs of everyone else
+let sendTimeoutMs = 10_000;
+export const sendTimeout = () => sendTimeoutMs;
+/** Tests: a shorter time limit (call with no argument to restore). */
+export function setSendTimeout(ms = 10_000) { sendTimeoutMs = ms; }
+
 export async function sendTelegramMessageDetailed(message: string, options: SendTelegramMessageOptions = {}): Promise<TelegramSendResult> {
   const cfg = getTelegramSettings();
   const botToken = options.botToken?.trim() || cfg.botToken;
@@ -110,6 +118,7 @@ export async function sendTelegramMessageDetailed(message: string, options: Send
   try {
     const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
+      signal: AbortSignal.timeout(sendTimeout()),
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: chatId,
@@ -185,6 +194,7 @@ export async function sendNtfyMessageDetailed(message: string, options: SendNtfy
 
     const response = await fetch(`${serverUrl}/${topic}`, {
       method: 'POST',
+      signal: AbortSignal.timeout(sendTimeout()),
       headers,
       body: message,
     });
@@ -217,7 +227,10 @@ export async function sendNotification(message: string): Promise<{ telegram?: bo
   return results;
 }
 
-let lastCheckedMinute: string | null = null;
+// The last minute the "due today" check ran, per family
+const lastCheckedMinute = perFamily<string | null>(null);
+// A late run (many families, a slow send) still sends "due today" within this long of the set time
+const DUE_WINDOW_MIN = 90;
 
 export function isAnyProviderEnabled(): boolean {
   if (getSetting('notificationsEnabled') !== '1') return false;
@@ -226,7 +239,7 @@ export function isAnyProviderEnabled(): boolean {
   return (tg.enabled && !!tg.botToken && !!tg.chatId) || (ntfy.enabled && !!ntfy.topic);
 }
 
-/** "Due today" at the set time, to each task's people (utils/notifyMessages.ts). Once per task per day. */
+/** "Due today" at the set time (or a little after, if the run is late), to each task's people (utils/notifyMessages.ts). Once per task per day. */
 export async function sendDueTaskNotificationsIfNeeded(now: Date = new Date()): Promise<void> {
   if (getSetting('notificationsEnabled') !== '1') return;
   if (!isNotificationTypeEnabled('taskDue')) return;
@@ -234,11 +247,13 @@ export async function sendDueTaskNotificationsIfNeeded(now: Date = new Date()): 
   const w = wall(now);
   const nowHm = `${String(w.hours).padStart(2, '0')}:${String(w.minutes).padStart(2, '0')}`;
   const currentMinute = `${toLocalIsoDay(now)} ${nowHm}`;
-  if (currentMinute === lastCheckedMinute) return;
-  lastCheckedMinute = currentMinute;
+  if (currentMinute === lastCheckedMinute.get()) return;
+  lastCheckedMinute.set(currentMinute);
 
   const notificationTime = normalizeNotificationTime(getSetting('notificationTime') || getSetting('telegramNotificationTime'));
-  if (nowHm !== notificationTime) return;
+  const [hours, minutes] = notificationTime.split(':').map(Number);
+  const late = w.hours * 60 + w.minutes - (hours * 60 + minutes);
+  if (late < 0 || late >= DUE_WINDOW_MIN) return;
 
   const today = toLocalIsoDay(now);
   const tasks = db.prepare(

@@ -1911,7 +1911,9 @@
       "changeEmailSubject": "Bevestig je nieuwe e-mail voor TidyQuest",
       "changeEmailBody": "Hoi {name},\n\nOpen deze link om voortaan met dit e-mailadres in te loggen bij TidyQuest. Hij werkt een dag lang:\n{link}\n\nHeb je hier niet om gevraagd? Dan kun je deze e-mail negeren.",
       "emailChangingSubject": "Je TidyQuest-inlogmail verandert",
-      "emailChangingBody": "Hoi {name},\n\nIemand die als jou is ingelogd, wil je TidyQuest-inlogmail veranderen in {email}. Die verandert zodra dat adres is bevestigd.\n\nWas jij dit niet? Log dan in en verander je wachtwoord."
+      "emailChangingBody": "Hoi {name},\n\nIemand die als jou is ingelogd, wil je TidyQuest-inlogmail veranderen in {email}. Die verandert zodra dat adres is bevestigd.\n\nWas jij dit niet? Log dan in en verander je wachtwoord.",
+      "trialEndingSubject": "Je TidyQuest-gezin wordt op {date} verwijderd",
+      "trialEndingBody": "Hoi {name},\n\nDe gratis proefperiode van {family} is op {ended} afgelopen. Op {date} worden {family} en alles erin verwijderd: klusjes, geschiedenis, munten en foto's.\n\nWil je TidyQuest blijven gebruiken? Kies dan vóór die datum een abonnement. Wil je een kopie van je gegevens bewaren? Log in op {link} en gebruik {export} in {settings}.\n\nStop je met TidyQuest, dan hoef je niets te doen."
     },
     "hosted": {
       "emailOrUsername": "E-mail of gebruikersnaam",
