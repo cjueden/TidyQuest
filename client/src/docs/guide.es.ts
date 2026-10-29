@@ -83,6 +83,16 @@ export const GUIDE_ES: GuideSection[] = [
         'Ajustes → Miembros de la familia → Gestionar miembro → Cerrar sesión en todos los dispositivos: cierra la sesión de esa persona en todas partes, por ejemplo cuando se pierde una tableta. Vuelve a entrar con su contraseña.',
         'Una contraseña nueva también cierra la sesión de la persona en todas partes. Si cambias la tuya en Perfil, sigues conectado en ese dispositivo; cuando un padre o una madre restablece la contraseña de un niño, la tableta del niño también se desconecta y necesita la nueva.',
       ] },
+      { h: 'En tidyquest.org: iniciar sesión' },
+      { ul: [
+        'Esta parte solo existe en tidyquest.org (alojado). Un servidor en casa no tiene código de familia ni correo de inicio de sesión.',
+        'Los padres inician sesión con su correo y su contraseña. Los demás, con el código de familia, su usuario y su contraseña (los padres también pueden).',
+        'Ajustes → 🔑 Código de familia muestra el código (como sunny-otter-42), el enlace de la familia y un código QR. Abre el enlace o escanea el código en el móvil o la tableta de un niño: el dispositivo recuerda la familia y solo tiene que escribir su usuario y contraseña. Las mayúsculas, los espacios y los guiones del código dan igual.',
+        'Código nuevo da a la familia un código distinto. El código y el enlace antiguos dejan de funcionar; nadie pierde la sesión.',
+        'Ajustes → ✉️ Correo de inicio de sesión: Cambiar correo envía un enlace a la dirección nueva, y el cambio se hace al abrirlo. Otro padre o madre puede usar Añadir correo para iniciar sesión con el suyo.',
+        'Al registrarte enviamos un enlace para confirmar tu dirección. Una familia que no confirma el correo de un padre o una madre en 30 días solo puede confirmarlo o descargar sus datos hasta que lo haga.',
+        '¿Olvidaste la contraseña? en la pantalla de inicio de sesión envía a un padre o una madre un enlace que funciona una vez, durante una hora. Los niños y adolescentes piden a sus padres que pongan una nueva en Ajustes → Miembros de la familia.',
+      ] },
     ],
   },
   {
@@ -468,6 +478,18 @@ export const GUIDE_ES: GuideSection[] = [
           'Un padre o una madre puede poner una contraseña nueva en Ajustes → Miembros de la familia.',
           '¿Ningún padre ni madre puede iniciar sesión? Quien gestiona el servidor puede restablecer la contraseña del primer padre o madre con ADMIN_RESET_PASSWORD (README, "Admin Password Recovery"). "¿Olvidaste la contraseña?" en la pantalla de inicio de sesión dice lo mismo.',
           'Tras importar una copia de seguridad, quien ya tenía una cuenta en este servidor conserva su contraseña. Quien es nuevo en este servidor necesita que un padre o una madre le ponga una en Miembros de la familia.',
+        ] },
+        { q: 'Un niño no puede iniciar sesión en tidyquest.org', a: [
+          'Revisa el código en Ajustes → 🔑 Código de familia en el dispositivo de un padre o una madre. Tras Código nuevo, el antiguo deja de funcionar: en la pantalla de inicio de sesión toca Cambiar junto al código y escribe el nuevo.',
+          'Los niños escriben su usuario, no un correo. Los padres pueden usar su correo o el código de familia con su usuario.',
+        ] },
+        { q: 'No llegó el correo de confirmación o de contraseña', a: [
+          'Mira en la carpeta de spam. Ajustes → ✉️ Correo de inicio de sesión → Enviarlo de nuevo manda un enlace de confirmación nuevo (el anterior deja de funcionar).',
+          'Un enlace de contraseña funciona una hora y una sola vez; pide otro con ¿Olvidaste la contraseña? en la pantalla de inicio de sesión.',
+          '¿Escribiste mal la dirección? Ajustes → ✉️ Correo de inicio de sesión → Cambiar correo.',
+        ] },
+        { q: 'Aparece «Confirma tu correo para seguir usando TidyQuest»', a: [
+          'Tu familia tenía 30 días para confirmar el correo de un padre o una madre. Uno de ellos abre el enlace que enviamos o toca Enviarlo de nuevo (o Cambiar correo si la dirección estaba mal). No se pierde nada, y Descargar nuestros datos sigue funcionando.',
         ] },
         { q: 'Se cerró mi sesión en todos los dispositivos', a: [
           'Un padre o una madre cambió tu contraseña o usó Cerrar sesión en todos los dispositivos, o tú cambiaste tu contraseña o usaste Cerrar sesión en los demás dispositivos en otro dispositivo. Vuelve a iniciar sesión con tu contraseña actual.',

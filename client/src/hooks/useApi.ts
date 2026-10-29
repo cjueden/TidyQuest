@@ -1,4 +1,6 @@
 import type { Outfit } from '../components/mascot/MascotCard';
+import type { HostedAccount } from '../utils/hosted';
+import type { User } from './useAuth';
 const API_BASE = '/api';
 
 export interface RewardPot {
@@ -287,6 +289,9 @@ export interface BoardData {
   trophies: { weeks: Array<{ weekStart: string; userIds: number[]; coins: number }>; wins: Record<number, number> };
 }
 
+/** Self-hosted: username. Hosted: a parent's email, or the family code and username. */
+export type LoginDetails = { password: string; username?: string; email?: string; familyCode?: string };
+
 function getToken(): string | null {
   return localStorage.getItem('tidyquest_token');
 }
@@ -306,7 +311,9 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     headers,
   });
 
-  if (res.status === 401) {
+  // A signed-in request that's turned away means the login ended. Without a token (logging in, the
+  // sign-up and email-link pages) the page shows the error itself.
+  if (res.status === 401 && token) {
     localStorage.removeItem('tidyquest_token');
     window.location.href = '/login';
     throw new Error('Unauthorized');
@@ -326,8 +333,24 @@ export const api = {
   // Auth
   register: (data: { username: string; password: string; displayName: string; avatarColor?: string; language?: string; timeZone?: string }) =>
     apiFetch<{ token: string; user: any }>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
-  login: (data: { username: string; password: string }) =>
+  login: (data: LoginDetails) =>
     apiFetch<{ token: string; user: any }>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+  // Hosted mode (tidyquest.org)
+  hostedConfig: () =>
+    apiFetch<{ turnstileSiteKey: string | null; termsUrl: string | null; privacyUrl: string | null }>('/hosted/config'),
+  signUp: (data: { familyName: string; parentName: string; email: string; password: string; timeZone: string; language: string; captchaToken?: string; acceptTerms?: boolean }) =>
+    apiFetch<{ token: string; user: User }>('/hosted/signup', { method: 'POST', body: JSON.stringify(data) }),
+  forgotPassword: (email: string) =>
+    apiFetch<{ ok: boolean }>('/hosted/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (token: string, password: string) =>
+    apiFetch<{ token: string; user: User }>('/hosted/reset-password', { method: 'POST', body: JSON.stringify({ token, password }) }),
+  confirmEmail: (token: string) =>
+    apiFetch<{ ok: boolean; email: string }>('/hosted/confirm-email', { method: 'POST', body: JSON.stringify({ token }) }),
+  hostedAccount: () => apiFetch<HostedAccount>('/hosted/account'),
+  resendConfirmation: () => apiFetch<{ ok: boolean; email: string }>('/hosted/resend-confirmation', { method: 'POST' }),
+  changeEmail: (email: string, password: string) =>
+    apiFetch<{ ok: boolean; email: string }>('/hosted/change-email', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  newFamilyCode: () => apiFetch<{ familyCode: string; familyLink: string }>('/hosted/family-code', { method: 'POST' }),
   me: () => apiFetch<any>('/auth/me'),
 
   // Dashboard

@@ -4,14 +4,16 @@ import bcrypt from 'bcryptjs';
 import db from '../database';
 import { AuthRequest, authMiddleware, generateToken, revokeTokens } from '../middleware/auth';
 import { canonicalZone } from '../utils/clock';
-import { isHosted } from '../hosted/context';
-import { familyFromRequest } from '../hosted/middleware';
+import { isHosted, runInFamily } from '../hosted/context';
+import { openFamily } from '../hosted/families';
+import { familyIdByCode, codeKey } from '../hosted/familyCode';
+import { accountByEmail, cleanEmail } from '../hosted/accounts';
 
 // In-memory limits for auth endpoints (they reset on restart). The address is req.ip: the connection's own,
 // or the visitor's when TRUST_PROXY names the reverse proxy in front (utils/proxy.ts).
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
 const loginFailures = new Map<string, { count: number; resetAt: number }>();
-const clientIp = (req: AuthRequest) => req.ip || req.socket?.remoteAddress || 'unknown';
+export const clientIp = (req: AuthRequest) => req.ip || req.socket?.remoteAddress || 'unknown';
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const RATE_LIMIT_MAX = 20; // registrations, and failed logins, per address
 const USER_FAIL_MAX = 10; // failed logins per username, from anywhere
@@ -32,14 +34,15 @@ export function resetLoginLimits() {
   loginFailures.clear();
 }
 
-function checkRateLimit(ip: string): boolean {
+/** Counts one try for this key (an address, or a purpose and an address); false once it's had `max` in 15 minutes. */
+export function checkRateLimit(key: string, max = RATE_LIMIT_MAX): boolean {
   const now = Date.now();
-  const entry = loginAttempts.get(ip);
+  const entry = loginAttempts.get(key);
   if (!entry || entry.resetAt < now) {
-    loginAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    loginAttempts.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
     return true;
   }
-  if (entry.count >= RATE_LIMIT_MAX) return false;
+  if (entry.count >= max) return false;
   entry.count++;
   return true;
 }
@@ -102,44 +105,73 @@ router.post('/register', (req: AuthRequest, res: Response) => {
   res.status(201).json({ token, user });
 });
 
-router.get('/registration-status', familyFromRequest, (_req: AuthRequest, res: Response) => {
+router.get('/registration-status', (_req: AuthRequest, res: Response) => {
+  // Hosted families start on the sign-up page, never here
+  if (isHosted()) return res.json({ registrationEnabled: false });
   const row = db.prepare("SELECT value FROM app_settings WHERE key = 'registrationEnabled'").get() as { value: string } | undefined;
   const registrationEnabled = row ? row.value !== '0' : true;
   res.json({ registrationEnabled });
 });
 
-router.get('/avatars', familyFromRequest, (_req: AuthRequest, res: Response) => {
+router.get('/avatars', (_req: AuthRequest, res: Response) => {
+  // Hosted mode shows nobody before sign-in: anyone with the family link would see the kids' names and faces
+  if (isHosted()) return res.json([]);
   const users = db.prepare(
     'SELECT username, displayName, avatarColor, avatarType, avatarPreset, avatarPhotoUrl FROM users ORDER BY displayName'
   ).all();
   res.json(users);
 });
 
-router.post('/login', familyFromRequest, (req: AuthRequest, res: Response) => {
-  const { username, password } = req.body;
+// Compared against when there's nobody to check, so a wrong family or email takes as long as a wrong password
+let dummyHash: string | null = null;
+const passwordMatches = (user: { passwordHash: string } | undefined, password: string) =>
+  bcrypt.compareSync(password, user?.passwordHash ?? (dummyHash ??= bcrypt.hashSync('no one has this password', 10))) && !!user;
 
-  if (!username || !password) {
+router.post('/login', (req: AuthRequest, res: Response) => {
+  const { username, password, email, familyCode } = req.body;
+  // Hosted mode: parents sign in with their email; anyone can with the family code and their username
+  const byEmail = isHosted() && typeof email === 'string' && email.trim() !== '';
+
+  if (!(byEmail || username) || !password) {
     return res.status(400).json({ error: 'username and password are required' });
   }
 
-  // Failed tries count per address and per username, so changing addresses doesn't help a guesser
+  // Failed tries count per address and per login name, so changing addresses doesn't help a guesser
+  const name = byEmail ? email.trim().toLowerCase()
+    : `${isHosted() ? `${codeKey(familyCode)}/` : ''}${String(username).toLowerCase()}`;
   const ipKey = `ip:${clientIp(req)}`;
-  const userKey = `user:${String(username).toLowerCase()}`;
-  const who = JSON.stringify(String(username).slice(0, 64));
+  const userKey = `user:${name}`;
+  const who = JSON.stringify(name.slice(0, 64));
   if (failuresOf(ipKey) >= RATE_LIMIT_MAX || failuresOf(userKey) >= USER_FAIL_MAX) {
     console.warn(`[auth] login blocked for ${who} from ${clientIp(req)}: too many failed tries`);
     return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
   }
 
-  const user = db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').get(username) as any;
-  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
-    addFailure(ipKey);
-    addFailure(userKey);
-    console.warn(`[auth] failed login for ${who} from ${clientIp(req)}`);
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-  loginFailures.delete(userKey);
+  const signIn = (user: any) => {
+    if (!passwordMatches(user, password)) {
+      addFailure(ipKey);
+      addFailure(userKey);
+      console.warn(`[auth] failed login for ${who} from ${clientIp(req)}`);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    loginFailures.delete(userKey);
+    sendLogin(res, user);
+  };
+  if (!isHosted()) return signIn(db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').get(username));
 
+  // Hosted: the email or the family code finds the family, then the person is looked up in its database.
+  // A wrong code answers like a wrong password, so codes can't be tried out on their own.
+  const account = byEmail ? accountByEmail(cleanEmail(email) ?? '') : undefined;
+  const family = openFamily(byEmail ? account?.familyId : familyIdByCode(familyCode));
+  if (!family) return signIn(undefined);
+  req.familyId = family.familyId;
+  runInFamily(family, () => signIn(account
+    ? db.prepare("SELECT * FROM users WHERE id = ? AND role = 'admin'").get(account.userId)
+    : db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').get(username)));
+});
+
+/** The answer to a login (and a sign-up or password reset): a token and the person, with their points. */
+export function sendLogin(res: Response, user: any) {
   const token = generateToken(user.id);
   const { passwordHash, ...safeUser } = user;
   
@@ -148,8 +180,7 @@ router.post('/login', familyFromRequest, (req: AuthRequest, res: Response) => {
   ).get(user.id) as any;
   safeUser.points = pointsRow?.points ?? 0;
   res.json({ token, user: safeUser });
-
-});
+}
 
 
 router.get('/me', authMiddleware, (req: AuthRequest, res: Response) => {

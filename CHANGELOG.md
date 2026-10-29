@@ -14,6 +14,19 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 - Groundwork for the hosted service (tidyquest.org): with the new `HOSTED=1` setting, one server can keep many
   families, each with its own database and photo folder, and a family can never reach another's data. It isn't
   usable yet (sign-up and family logins come next). Without `HOSTED=1` nothing changes for self-hosted installs.
+- Hosted mode (`HOSTED=1`) gets sign-up and its own logins. A new family signs up with a family name, the parent's
+  name, email and password (time zone from the browser), and can play right away. Parents sign in with their email;
+  kids and teens with the family code (like `sunny-otter-42`), their username and password. Settings shows the
+  code, the family link and a QR code to open on a kid's device, which then remembers the family, plus "New code".
+  The login page lists nobody in hosted mode. Parents confirm their email with a link (after 30 days unconfirmed,
+  only confirming and downloading the family's data work), can reset a forgotten password by email, and can change
+  their sign-in email. Emails go to the server log until a real sender is added. Optional settings:
+  `PUBLIC_URL` (the address in emailed links), `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (a CAPTCHA on
+  sign-up), `TERMS_URL` and `PRIVACY_URL` (an "I agree" box on sign-up).
+
+### Fixed
+
+- A wrong password on the login screen now says so, in your language, instead of reloading the page.
 
 ## v0.13.0 (2026-10-29)
 

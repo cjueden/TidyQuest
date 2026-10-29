@@ -5,6 +5,7 @@ import type Database from 'better-sqlite3';
 import { createDatabase, initDatabase } from '../database';
 import { registerClockFunctions } from '../utils/clock';
 import { FamilyContext, runInFamily } from './context';
+import { newFamilyCode } from './familyCode';
 import { dataDir, mainDb, openMainDb } from './mainDb';
 
 type Db = InstanceType<typeof Database>;
@@ -32,7 +33,7 @@ const deletedDir = () => path.join(dataDir(), 'deleted');
 // families active right now.
 const open = new Map<string, { db: Db; lastUsed: number; lastActiveSaved: number }>();
 
-/** Makes a family: its folder, its database and its row in main.db. Tests pass an in-memory database. */
+/** Makes a family: its folder, its database, its row in main.db and its family code. Tests pass an in-memory database. */
 export function createFamily(name: string, opts: { db?: Db; now?: Date } = {}): string {
   const now = opts.now ?? new Date();
   let id = newFamilyId();
@@ -45,6 +46,7 @@ export function createFamily(name: string, opts: { db?: Db; now?: Date } = {}): 
   open.set(id, { db, lastUsed: now.getTime(), lastActiveSaved: now.getTime() });
   mainDb().prepare('INSERT INTO families (id, name, status, trialEndsAt, createdAt, lastActiveAt) VALUES (?, ?, ?, ?, ?, ?)')
     .run(id, name, 'trial', new Date(now.getTime() + TRIAL_DAYS * DAY).toISOString(), now.toISOString(), now.toISOString());
+  newFamilyCode(id);
   return id;
 }
 
@@ -121,7 +123,7 @@ export function deleteFamily(id: string, now = new Date()): boolean {
   main.transaction(() => {
     main.prepare('DELETE FROM email_tokens WHERE familyId = ?').run(id);
     main.prepare('DELETE FROM accounts WHERE familyId = ?').run(id);
-    main.prepare("UPDATE families SET status = 'deleted', code = NULL, deletedAt = ? WHERE id = ?").run(now.toISOString(), id);
+    main.prepare("UPDATE families SET status = 'deleted', code = NULL, codeKey = NULL, deletedAt = ? WHERE id = ?").run(now.toISOString(), id);
   })();
   return true;
 }
@@ -144,5 +146,6 @@ export function purgeDeletedFamilies(now = new Date()): number {
 /** Server start in hosted mode: open main.db and close idle family databases every few minutes. */
 export function startHosted(): void {
   openMainDb();
+  if (!process.env.PUBLIC_URL) console.warn('[hosted] Set PUBLIC_URL (like https://app.tidyquest.org): links in emails follow the request until then.');
   setInterval(() => closeIdleFamilies(), 5 * 60 * 1000).unref();
 }

@@ -1,5 +1,4 @@
 import Database from 'better-sqlite3';
-import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -16,9 +15,10 @@ import { applyForkSchema } from '../forkSchema';
 import { createApp } from '../index';
 import { resetLoginLimits } from '../routes/auth';
 import { at, wall } from '../utils/clock';
-import { currentFamily, isHosted, setHosted, setTestFamily } from '../hosted/context';
+import { currentFamily, isHosted, runInFamily, setHosted, setTestFamily } from '../hosted/context';
 import { closeAllFamilies, createFamily, openFamily } from '../hosted/families';
-import { setDataDir, setMainDb } from '../hosted/mainDb';
+import { mainDb, setDataDir, setMainDb } from '../hosted/mainDb';
+import { addParent } from '../hosted/signup';
 
 /**
  * Today on the family's clock, `days` later (or earlier), at a wall-clock time. Tests build "home"
@@ -99,9 +99,14 @@ export function tokenFamily() {
   return isHosted() ? { fid: currentFamily()?.familyId } : {};
 }
 
-/** Hosted mode logs in with the family (NEW-10 swaps it for the family code or a parent's email). */
+/** A family's code (hosted mode). */
+export function familyCodeOf(familyId = currentFamily()?.familyId): string {
+  return (mainDb().prepare('SELECT code FROM families WHERE id = ?').get(familyId) as { code: string }).code;
+}
+
+/** Hosted mode logs in with the family code next to the username. */
 export function familyField(familyId = currentFamily()?.familyId) {
-  return isHosted() ? { familyId } : {};
+  return isHosted() ? { familyCode: familyCodeOf(familyId) } : {};
 }
 
 function runSchema(db: InstanceType<typeof Database>) {
@@ -304,12 +309,9 @@ export async function createAdmin(
   familyId = currentFamily()?.familyId
 ) {
   if (isHosted()) {
-    // No /register in hosted mode: the family's first parent is made directly, as sign-up will
-    const family = openFamily(familyId)!;
-    const count = (family.db.prepare('SELECT COUNT(*) AS n FROM users').get() as { n: number }).n;
-    family.db.prepare('INSERT INTO users (username, displayName, passwordHash, role) VALUES (?, ?, ?, ?)')
-      .run(username, displayName, bcrypt.hashSync(password, 4), count === 0 ? 'admin' : 'member');
-    const login = await agent.post('/api/auth/login').send({ username, password, familyId });
+    // No /register in hosted mode: the family's first parent is made as sign-up makes them, with an email
+    runInFamily(openFamily(familyId)!, () => addParent({ username, displayName, password, email: `${username}@${familyId}.example` }));
+    const login = await agent.post('/api/auth/login').send({ username, password, ...familyField(familyId) });
     return { user: login.body.user, token: login.body.token as string };
   }
   const res = await agent

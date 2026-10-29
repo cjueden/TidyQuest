@@ -12,7 +12,7 @@ import { runInFamily } from '../hosted/context';
 import { closeIdleFamilies, createFamily, deleteFamily, familyDir, openFamily, purgeDeletedFamilies } from '../hosted/families';
 import { dataDir, mainDb } from '../hosted/mainDb';
 import { generateToken } from '../middleware/auth';
-import { addTestFamily, createAdmin, createTestApp, createUser } from './setup';
+import { addTestFamily, createAdmin, createTestApp, createUser, familyCodeOf, familyField } from './setup';
 
 // Hosted mode (NEW-9): many families on one server, each with its own database and folder.
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
@@ -53,19 +53,19 @@ describe('Hosted mode: which family a request belongs to', () => {
 
   it('needs a family that exists to log in, and has no registration', async () => {
     const login = (extra: object) => agent.post('/api/auth/login').send({ username: 'admin', password: 'admin123', ...extra });
-    expect((await login({})).status).toBe(404);
-    expect((await login({ familyId: 'zzzzzzzzzzzzzzzz' })).status).toBe(404);
-    expect((await login({ familyId: '../families' })).status).toBe(404);
-    expect((await login({ familyId: A })).status).toBe(200);
-    const register = await agent.post('/api/auth/register').send({ username: 'new', password: 'pass123', displayName: 'New', familyId: A });
+    expect((await login({})).status).toBe(401);
+    expect((await login({ familyId: A })).status).toBe(401);
+    expect((await login({ familyCode: '../families' })).status).toBe(401);
+    expect((await login(familyField(A))).status).toBe(200);
+    const register = await agent.post('/api/auth/register').send({ username: 'new', password: 'pass123', displayName: 'New', ...familyField(A) });
     expect(register.status).toBe(404);
   });
 
-  it('shows the login page only the family asked for', async () => {
-    expect((await agent.get('/api/auth/avatars')).status).toBe(404);
-    const list = await agent.get(`/api/auth/avatars?family=${A}`);
-    expect(list.body.map((u: { displayName: string }) => u.displayName)).toEqual(['Admin A']);
-    expect((await agent.get(`/api/auth/registration-status?family=${B}`)).status).toBe(200);
+  it('shows nobody on the login page, whatever family it names', async () => {
+    for (const query of ['', `?family=${A}`, `?familyCode=${familyCodeOf(A)}`]) {
+      expect((await agent.get(`/api/auth/avatars${query}`)).body).toEqual([]);
+      expect((await agent.get(`/api/auth/registration-status${query}`)).body).toEqual({ registrationEnabled: false });
+    }
   });
 
   it('turns away a token with no family, an unknown one, or a deleted one', async () => {

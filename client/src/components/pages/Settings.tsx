@@ -30,6 +30,8 @@ import { localeFor } from '../../utils/locale';
 import { weekdayName } from '../../utils/schedule';
 import { useWeekStart } from '../../utils/week';
 import { TimeZonePicker } from '../shared/TimeZonePicker';
+import { FamilyCodeCard, SignInEmailCard } from '../shared/HostedAccount';
+import type { HostedAccount } from '../../utils/hosted';
 import { dateStr, endOfHomeDay } from '../../utils/clock';
 
 interface FamilyUser {
@@ -110,6 +112,9 @@ interface SettingsProps {
   /** The family's time zone (dashboard timeZone) and whether a parent picked it (timeZoneSet) */
   timeZone?: { zone: string; set: boolean };
   onTimeZoneChange?: (zone: string) => Promise<void>;
+  /** Hosted mode: the family code and this person's sign-in email (null when self-hosted) */
+  hostedAccount?: HostedAccount | null;
+  onHostedChanged?: () => void;
 }
 
 const COLORS = ['#F97316', '#9B72CF', '#4AABDE', '#5CB85C', '#D4A017', '#E25A5A', '#38BDF8', '#EC4899'];
@@ -141,6 +146,8 @@ export function Settings({
   onWeekStartChange,
   timeZone,
   onTimeZoneChange,
+  hostedAccount = null,
+  onHostedChanged = () => {},
 }: SettingsProps) {
   const { t } = useTranslation(user.language);
   const weekStart = useWeekStart();
@@ -975,6 +982,8 @@ export function Settings({
               </span>
             </div>
           </div>
+          {hostedAccount?.isParent && <SignInEmailCard account={hostedAccount} language={user.language} onChanged={onHostedChanged} />}
+          {hostedAccount && isAdmin && <FamilyCodeCard account={hostedAccount} language={user.language} onChanged={onHostedChanged} />}
           {isAdmin && strictModeEnabled && <div className="settings-group-title">✅ {t('settingsGroups.approvals')}</div>}
           {isAdmin && strictModeEnabled && (
             <div className="tq-card settings-admin-card" style={{ padding: 24 }}>

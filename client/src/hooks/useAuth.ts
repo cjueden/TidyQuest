@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from './useApi';
+import { api, type LoginDetails } from './useApi';
 import { deviceZone } from '../utils/clock';
 
 export interface User {
@@ -52,8 +52,13 @@ export function useAuth() {
 
   useEffect(() => { checkAuth(); }, [checkAuth]);
 
-  const login = async (username: string, password: string) => {
-    const { token, user: userData } = await api.login({ username, password });
+  const login = async (details: LoginDetails) => {
+    const { token, user: userData } = await api.login(details);
+    signIn(token, userData);
+  };
+
+  /** Signed in by a sign-up or a password reset link */
+  const signIn = (token: string, userData: User) => {
     localStorage.setItem('tidyquest_token', token);
     setUser(userData);
   };
@@ -80,5 +85,5 @@ export function useAuth() {
     } catch { /* ignore */ }
   };
 
-  return { user, loading, login, register, logout, refreshUser };
+  return { user, loading, login, signIn, register, logout, refreshUser };
 }

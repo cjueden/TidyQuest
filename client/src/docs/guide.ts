@@ -107,6 +107,16 @@ export const GUIDE_EN: GuideSection[] = [
         'Settings → Family Members → Manage member → Log out of all devices: signs that person out everywhere, e.g. when a tablet is lost. They log back in with their password.',
         'A new password signs the person out everywhere too. Changing your own in Profile keeps you signed in on that device; when a parent resets a kid’s password, the kid’s tablet is signed out as well and needs the new one.',
       ] },
+      { h: 'On tidyquest.org: signing in' },
+      { ul: [
+        'This part is only on tidyquest.org (hosted). A home server has no family code or sign-in email.',
+        'Parents sign in with their email and password. Everyone else signs in with the family code, their username and their password (parents can too).',
+        'Settings → 🔑 Family code shows the code (like sunny-otter-42), the family link and a QR code. Open the link or scan the code on a kid’s phone or tablet: it remembers the family, so they only type their username and password. Capitals, spaces and dashes in the code don’t matter.',
+        'New code gives the family a fresh code. The old code and link stop working; everyone who’s signed in stays signed in.',
+        'Settings → ✉️ Sign-in email: Change email sends a link to the new address, and the change happens when you open it. A second parent can Add email to sign in with their own.',
+        'At sign-up we email a link to confirm your address. A family that hasn’t confirmed a parent’s email within 30 days can only confirm it or download its data until it does.',
+        'Forgot password? on the login screen emails a parent a link that works once, for one hour. Kids and teens ask a parent to set a new one in Settings → Family Members.',
+      ] },
     ],
   },
   {
@@ -492,6 +502,18 @@ export const GUIDE_EN: GuideSection[] = [
           'A parent can set a new password in Settings → Family Members.',
           'No parent can log in? Whoever runs the server can reset the first parent’s password with ADMIN_RESET_PASSWORD (README, "Admin Password Recovery"). "Forgot password?" on the login screen says the same.',
           'After importing a backup, people who already had an account on this server keep their passwords. People who are new to this server need a parent to set one in Family Members.',
+        ] },
+        { q: 'A kid can’t log in on tidyquest.org', a: [
+          'Check the family code in Settings → 🔑 Family code on a parent’s device. After New code the old one stops working: on the login screen tap Change next to the code and type the new one.',
+          'Kids type their username, not an email. Parents can use either their email or the family code with their username.',
+        ] },
+        { q: 'The confirmation or password email didn’t arrive', a: [
+          'Look in the spam folder. Settings → ✉️ Sign-in email → Send it again sends a new confirmation link (the older one stops working).',
+          'A password link works for one hour and only once; ask for a new one with Forgot password? on the login screen.',
+          'Typed the address wrong? Settings → ✉️ Sign-in email → Change email.',
+        ] },
+        { q: 'It says "Confirm your email to keep using TidyQuest"', a: [
+          'Your family had 30 days to confirm a parent’s email. A parent opens the link we sent, or taps Send it again (or Change email if the address was wrong). Nothing is lost, and Download our data still works.',
         ] },
         { q: 'I was signed out on every device', a: [
           'A parent changed your password or used Log out of all devices, or you changed your password or used Log out everywhere else on another device. Log in again with your current password.',

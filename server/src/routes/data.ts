@@ -4,6 +4,8 @@ import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
 import { BACKUP_TABLES } from '../forkSchema';
+import { isHosted } from '../hosted/context';
+import { accountUsernames, relinkAccounts } from '../hosted/accounts';
 
 const router = Router();
 router.use(authMiddleware);
@@ -97,6 +99,9 @@ router.post('/import', (req: AuthRequest, res: Response) => {
   // Logins stay as they are: anyone already here keeps their token version (NEW-8)
   const existingVersions = new Map(existing.map((u) => [u.username.toLowerCase(), u.tokenVersion]));
 
+  // Hosted mode: parents' sign-in emails follow them to their ids in the file
+  const accounts = isHosted() ? accountUsernames(req.familyId!) : [];
+
   const importData = db.transaction(() => {
     // Clear existing data, children first. Zones are only replaced when the backup has them.
     for (const { key, table } of [...TABLES].reverse()) {
@@ -148,6 +153,7 @@ router.post('/import', (req: AuthRequest, res: Response) => {
   });
 
   importData();
+  if (isHosted()) relinkAccounts(req.familyId!, accounts);
   res.json({ success: true, imported: { users: users.length, rooms: rooms.length, tasks: tasks.length, completions: completions.length } });
 });
 
