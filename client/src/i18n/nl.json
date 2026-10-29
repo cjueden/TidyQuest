@@ -143,7 +143,13 @@
       "logout": "Uitloggen",
       "themeDesc": "Jouw kleuren, op elk apparaat waarop je inlogt.",
       "holidayColors": "Feestdagkleuren",
-      "holidayColorsDesc": "Tijdens feestdagen hun kleuren gebruiken in plaats van je thema. De versiering zie je hoe dan ook."
+      "holidayColorsDesc": "Tijdens feestdagen hun kleuren gebruiken in plaats van je thema. De versiering zie je hoe dan ook.",
+      "logoutOthers": "Overal anders uitloggen",
+      "logoutOthersDesc": "Logt je uit op al je andere telefoons, tablets en computers. Hier blijf je ingelogd.",
+      "logoutOthersConfirm": "Uitloggen op alle andere apparaten? Hier blijf je ingelogd.",
+      "logoutOthersDone": "Klaar: alle andere apparaten zijn uitgelogd.",
+      "logoutOthersFailed": "Uitloggen op de andere apparaten is niet gelukt. Probeer het opnieuw.",
+      "passwordUpdatedElsewhere": "Wachtwoord veranderd. Je andere apparaten zijn uitgelogd."
     },
     "settings": {
       "title": "Instellingen",
@@ -305,7 +311,12 @@
       "timeZoneSearch": "Zoeken: stad of regio",
       "timeZoneNone": "Geen tijdzone gevonden.",
       "timeZoneNote": "Wijzigen verschuift vanaf nu wanneer elke dag begint. Gedane klusjes blijven op de dag waarop ze gedaan zijn.",
-      "timeZoneNow": "Daar nu {time}"
+      "timeZoneNow": "Daar nu {time}",
+      "logoutAllDevices": "Uitloggen op alle apparaten",
+      "logoutAllDevicesConfirm": "{name} uitloggen op alle apparaten? Om weer in te loggen is het wachtwoord nodig.",
+      "logoutAllDevicesDone": "{name} is overal uitgelogd.",
+      "logoutAllDevicesFailed": "Uitloggen is niet gelukt. Probeer het opnieuw.",
+      "passwordResetSignedOut": "Wachtwoord opnieuw ingesteld. {name} is op alle apparaten uitgelogd."
     },
     "nav": {
       "home": "Home",

@@ -74,9 +74,15 @@ export const GUIDE_FR: GuideSection[] = [
         'Le thème et les couleurs des fêtes suivent la personne sur tous ses appareils (elle peut les changer dans Profil).',
         'Vacances par membre : protège sa série et gèle la santé de ses tâches pendant son absence.',
         'Ajuster les pièces (Gérer le membre) : ajoute ou retire des pièces avec une raison. Le nombre est une variation, pas un nouveau solde : 10 ajoute 10, -10 retire 10. Fonctionne aussi pour les parents, toi compris. Détails dans « Pièces, récompenses et objectifs » → Ajuster les pièces.',
-        'Mot de passe : un parent peut en définir un nouveau si quelqu’un oublie le sien.',
+        'Mot de passe : un parent peut en définir un nouveau si quelqu’un oublie le sien. La personne est alors déconnectée de tous ses appareils et se reconnecte avec le nouveau.',
       ] },
       { tip: 'Active « Masquer aux enfants les pièces privées des autres » dans Paramètres → Général si les enfants ne doivent pas voir, par exemple, la pièce personnelle d’un parent.' },
+      { h: 'Se déconnecter partout' },
+      { ul: [
+        'Profil → Se déconnecter partout ailleurs : te déconnecte de tous tes autres téléphones, tablettes et ordinateurs, et te garde connecté sur celui-ci. Pratique après avoir utilisé l’appareil de quelqu’un d’autre, ou si quelqu’un connaît peut-être ton mot de passe.',
+        'Paramètres → Membres de la famille → Gérer le membre → Déconnecter de tous les appareils : déconnecte cette personne partout, par exemple quand une tablette est perdue. Elle se reconnecte avec son mot de passe.',
+        'Un nouveau mot de passe déconnecte aussi la personne partout. Changer le tien dans Profil te garde connecté sur cet appareil ; quand un parent réinitialise le mot de passe d’un enfant, la tablette de l’enfant est aussi déconnectée et il faut le nouveau mot de passe.',
+      ] },
     ],
   },
   {
@@ -460,6 +466,10 @@ export const GUIDE_FR: GuideSection[] = [
           'Trop de mots de passe erronés bloquent les connexions jusqu’à 15 minutes : 10 pour un compte, ou 20 depuis un appareil. Attends et réessaie ; un bon mot de passe remet à zéro le compteur du compte.',
           'Un parent peut définir un nouveau mot de passe dans Paramètres → Membres de la famille.',
           'Après l’import d’une sauvegarde, tout le monde sauf le parent qui l’a importée a besoin d’un nouveau mot de passe.',
+        ] },
+        { q: 'J’ai été déconnecté de tous mes appareils', a: [
+          'Un parent a changé ton mot de passe ou utilisé Déconnecter de tous les appareils, ou tu as changé ton mot de passe ou utilisé Se déconnecter partout ailleurs sur un autre appareil. Reconnecte-toi avec ton mot de passe actuel.',
+          'Une connexion se termine aussi d’elle-même après 30 jours sur chaque appareil.',
         ] },
         { q: 'Il est écrit « Ça n’a pas marché »', a: [
           'Le téléphone n’a pas pu joindre le serveur (pas de Wi-Fi ni de données), ou quelqu’un a changé la même chose au même moment. La page se recharge ; vérifie, puis réessaie.',

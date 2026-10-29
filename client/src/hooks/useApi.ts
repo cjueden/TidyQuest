@@ -455,8 +455,20 @@ export const api = {
     apiFetch<any>(`/users/${userId}/settings`, { method: 'PUT', body: JSON.stringify(data) }),
   updateProfile: (userId: number, data: { displayName?: string; avatarType?: string; avatarColor?: string; avatarPreset?: string | null; language?: string; birthday?: string | null; theme?: string | null; holidayColors?: boolean; homeLayout?: { order: string[]; hidden: string[] } | null }) =>
     apiFetch<any>(`/users/${userId}/profile`, { method: 'PUT', body: JSON.stringify(data) }),
-  updatePassword: (userId: number, data: { currentPassword?: string; newPassword: string }) =>
-    apiFetch<{ success: boolean }>(`/users/${userId}/password`, { method: 'PUT', body: JSON.stringify(data) }),
+  updatePassword: async (userId: number, data: { currentPassword?: string; newPassword: string }) => {
+    const res = await apiFetch<{ success: boolean; token?: string }>(`/users/${userId}/password`, { method: 'PUT', body: JSON.stringify(data) });
+    // A new password signs you out everywhere; your own change comes with a fresh login for this device (NEW-8)
+    if (res.token) localStorage.setItem('tidyquest_token', res.token);
+    return res;
+  },
+  /** Signs this person out on every other device; this one stays signed in */
+  logoutOthers: async () => {
+    const { token } = await apiFetch<{ token: string }>('/auth/logout-others', { method: 'POST' });
+    localStorage.setItem('tidyquest_token', token);
+  },
+  /** A parent signs someone out on every device */
+  logoutAllDevices: (userId: number) =>
+    apiFetch<{ success: boolean }>(`/users/${userId}/logout-all`, { method: 'POST' }),
   updateUserRole: (userId: number, role: 'admin' | 'member' | 'child') =>
     apiFetch<any>(`/users/${userId}/role`, { method: 'PUT', body: JSON.stringify({ role }) }),
   updateUserGoal: (userId: number, data: { goalCoins: number | null; goalStartAt?: string | null; goalEndAt?: string | null }) =>

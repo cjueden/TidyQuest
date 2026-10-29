@@ -16,8 +16,14 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
   browser. An existing install keeps using the server's `TZ` until a parent picks a zone, and Settings offers this
   device's zone when it's different. Changing it moves when each day starts from then on: chores already done stay
   on their days, and a weekly goal that's running moves to the new zone's week. The server no longer needs `TZ`.
+- **Log out everywhere.** Profile → "Log out everywhere else" signs you out on every other phone, tablet and
+  computer and keeps you signed in on this one. Parents can sign one person out on all their devices (Settings →
+  Family Members → Manage member → "Log out of all devices"), e.g. for a lost tablet.
 
 ### Changed
+- A new password signs that person out on every device. Changing your own keeps you signed in where you changed it;
+  when a parent resets a kid's password, the kid's tablet is signed out too and needs the new one. Logins from
+  before this version keep working until then.
 - A phone or computer in another time zone (a parent on a trip) still counts home days: today's chores, due dates,
   the Calendar, History, Insights and "Done earlier…" follow the family's zone. Coin boost start and end times are
   typed and shown in home time.
@@ -28,6 +34,7 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 - Home's "streak done today" and the earliest vacation end date no longer use the UTC date, which is already
   tomorrow on an American evening.
 - The streak check for a missed day looks at the end of the family's day, not the end of the UTC day.
+- Typing the wrong current password when changing yours no longer signs you out.
 
 ## v0.12.0 (2026-10-24)
 

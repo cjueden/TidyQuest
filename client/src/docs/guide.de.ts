@@ -74,9 +74,15 @@ export const GUIDE_DE: GuideSection[] = [
         'Design und Feiertagsfarben folgen der Person auf jedes Gerät (sie kann sie im Profil ändern).',
         'Urlaub pro Mitglied: schützt die Serie und friert die Gesundheit der Aufgaben ein, solange die Person weg ist.',
         'Münzen anpassen (Mitglied verwalten): Münzen mit einem Grund hinzufügen oder abziehen. Die Zahl ist eine Änderung, kein neues Guthaben: 10 fügt 10 hinzu, -10 zieht 10 ab. Funktioniert auch bei Eltern, dich selbst eingeschlossen. Details unter „Münzen, Belohnungen und Ziele“ → Münzen anpassen.',
-        'Passwort: Ein Elternteil kann ein neues festlegen, wenn jemand seins vergisst.',
+        'Passwort: Ein Elternteil kann ein neues festlegen, wenn jemand seins vergisst. Die Person wird dann auf allen Geräten abgemeldet und meldet sich mit dem neuen wieder an.',
       ] },
       { tip: 'Schalte „Private Räume anderer vor Kindern verbergen“ unter Einstellungen → Allgemein ein, wenn Kinder zum Beispiel das eigene Zimmer eines Elternteils nicht sehen sollen.' },
+      { h: 'Überall abmelden' },
+      { ul: [
+        'Profil → Überall sonst abmelden: meldet dich auf allen anderen Handys, Tablets und Computern ab; auf diesem bleibst du angemeldet. Praktisch, nachdem du das Gerät von jemand anderem benutzt hast oder wenn jemand dein Passwort kennen könnte.',
+        'Einstellungen → Familienmitglieder → Mitglied verwalten → Auf allen Geräten abmelden: meldet diese Person überall ab, z. B. wenn ein Tablet verloren gegangen ist. Sie meldet sich mit ihrem Passwort wieder an.',
+        'Ein neues Passwort meldet die Person ebenfalls überall ab. Änderst du dein eigenes im Profil, bleibst du auf diesem Gerät angemeldet; setzt ein Elternteil das Passwort eines Kindes zurück, wird auch das Tablet des Kindes abgemeldet und braucht das neue.',
+      ] },
     ],
   },
   {
@@ -460,6 +466,10 @@ export const GUIDE_DE: GuideSection[] = [
           'Zu viele falsche Passwörter sperren Anmeldungen für bis zu 15 Minuten: 10 bei einem Konto oder 20 von einem Gerät. Warte und versuche es erneut; ein richtiges Passwort setzt den Zähler des Kontos zurück.',
           'Ein Elternteil kann in Einstellungen → Familienmitglieder ein neues Passwort festlegen.',
           'Nach dem Import eines Backups braucht jeder außer dem Elternteil, das importiert hat, ein neues Passwort.',
+        ] },
+        { q: 'Ich wurde auf allen Geräten abgemeldet', a: [
+          'Ein Elternteil hat dein Passwort geändert oder Auf allen Geräten abmelden benutzt, oder du hast dein Passwort geändert oder Überall sonst abmelden auf einem anderen Gerät benutzt. Melde dich mit deinem aktuellen Passwort wieder an.',
+          'Eine Anmeldung endet außerdem nach 30 Tagen auf jedem Gerät von selbst.',
         ] },
         { q: 'Es erscheint „Das hat nicht geklappt“', a: [
           'Das Handy konnte den Server nicht erreichen (kein WLAN oder keine Daten), oder jemand hat im selben Moment dasselbe geändert. Die Seite lädt neu; prüfe es und versuche es dann noch einmal.',

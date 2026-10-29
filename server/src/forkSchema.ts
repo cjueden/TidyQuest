@@ -295,6 +295,10 @@ const NEW_COLUMNS: string[] = [
   // still see it greyed in its room.
   `ALTER TABLE tasks ADD COLUMN pausedAt TEXT`,
   `ALTER TABLE tasks ADD COLUMN pausedUntil TEXT`,
+  // Log out everywhere (NEW-8): login tokens carry this number and stop working once it's raised
+  // (middleware/auth.ts). Raised by "Log out everywhere else", a parent's "Log out of all devices"
+  // and every password change.
+  `ALTER TABLE users ADD COLUMN tokenVersion INTEGER NOT NULL DEFAULT 0`,
 ];
 
 /** Fork tables included in backup export/import: key in the backup file -> table. */

@@ -74,9 +74,15 @@ export const GUIDE_IT: GuideSection[] = [
         'Tema e colori delle feste seguono la persona su ogni dispositivo (li può cambiare in Profilo).',
         'Vacanza per membro: protegge la sua serie e congela la salute delle sue faccende mentre è via.',
         'Regola monete (Gestisci membro): aggiungi o togli monete con un motivo. Il numero è una variazione, non un nuovo saldo: 10 aggiunge 10, -10 ne toglie 10. Vale anche per i genitori, te compreso. Dettagli in "Monete, ricompense e obiettivi" → Regolare le monete.',
-        'Password: un genitore può impostarne una nuova se qualcuno dimentica la sua.',
+        'Password: un genitore può impostarne una nuova se qualcuno dimentica la sua. La persona viene disconnessa da tutti i dispositivi e rientra con quella nuova.',
       ] },
       { tip: 'Attiva "Nascondi ai bambini le stanze private degli altri" in Impostazioni → Generale se i bambini non devono vedere, per esempio, la stanza personale di un genitore.' },
+      { h: 'Uscire ovunque' },
+      { ul: [
+        'Profilo → Esci da tutti gli altri dispositivi: ti disconnette da tutti gli altri telefoni, tablet e computer e ti lascia connesso su questo. Utile dopo aver usato il dispositivo di qualcun altro, o se qualcuno potrebbe conoscere la tua password.',
+        'Impostazioni → Membri della famiglia → Gestisci membro → Esci da tutti i dispositivi: disconnette quella persona ovunque, per esempio quando si perde un tablet. Rientra con la sua password.',
+        'Anche una nuova password disconnette la persona ovunque. Se cambi la tua nel Profilo resti connesso su quel dispositivo; quando un genitore reimposta la password di un bambino, anche il tablet del bambino viene disconnesso e serve quella nuova.',
+      ] },
     ],
   },
   {
@@ -460,6 +466,10 @@ export const GUIDE_IT: GuideSection[] = [
           'Troppe password sbagliate bloccano gli accessi fino a 15 minuti: 10 per un account, o 20 da un dispositivo. Aspetta e riprova; una password corretta azzera il conteggio dell’account.',
           'Un genitore può impostare una nuova password in Impostazioni → Membri della famiglia.',
           'Dopo aver importato un backup, tutti tranne il genitore che l’ha importato hanno bisogno di una nuova password.',
+        ] },
+        { q: 'Sono stato disconnesso da tutti i dispositivi', a: [
+          'Un genitore ha cambiato la tua password o ha usato Esci da tutti i dispositivi, oppure hai cambiato la tua password o usato Esci da tutti gli altri dispositivi su un altro dispositivo. Accedi di nuovo con la tua password attuale.',
+          'Un accesso termina anche da solo dopo 30 giorni su ogni dispositivo.',
         ] },
         { q: 'Dice "Non ha funzionato"', a: [
           'Il telefono non è riuscito a raggiungere il server (niente Wi-Fi o dati), oppure qualcuno ha cambiato la stessa cosa nello stesso momento. La pagina si ricarica; controlla, poi riprova.',

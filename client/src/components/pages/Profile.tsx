@@ -43,6 +43,7 @@ export function Profile({ user, theme, onChangeTheme, onUnlocksChanged, onSave, 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMsg, setPasswordMsg] = useState('');
+  const [logoutOthersMsg, setLogoutOthersMsg] = useState('');
   const [uploadMsg, setUploadMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -99,11 +100,21 @@ export function Profile({ user, theme, onChangeTheme, onUnlocksChanged, onSave, 
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      setPasswordMsg(t('settings.passwordUpdated'));
+      setPasswordMsg(t('profile.passwordUpdatedElsewhere'));
     } catch (err: any) {
       setPasswordMsg(err?.message || t('settings.passwordUpdateFailed'));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleLogoutOthers = async () => {
+    if (!confirm(t('profile.logoutOthersConfirm'))) return;
+    try {
+      await api.logoutOthers();
+      setLogoutOthersMsg(t('profile.logoutOthersDone'));
+    } catch {
+      setLogoutOthersMsg(t('profile.logoutOthersFailed'));
     }
   };
 
@@ -293,6 +304,16 @@ export function Profile({ user, theme, onChangeTheme, onUnlocksChanged, onSave, 
         >
           {t('profile.logout')}
         </button>
+        <button
+          className="tq-btn tq-btn-secondary tq-btn-sm"
+          onClick={handleLogoutOthers}
+          style={{ width: '100%', fontWeight: 700, marginTop: 8 }}
+        >
+          🚪 {t('profile.logoutOthers')}
+        </button>
+        <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: logoutOthersMsg ? 700 : 600, marginTop: 4, textAlign: 'center' }}>
+          {logoutOthersMsg || t('profile.logoutOthersDesc')}
+        </div>
       </div>
       <div className="tq-card tq-card-padded" style={{ marginTop: 16, display: 'grid', gap: 8 }}>
         <h3 className="tq-card-title" style={{ margin: 0 }}>🎨 {t('settings.theme')}</h3>

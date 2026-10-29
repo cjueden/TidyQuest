@@ -74,9 +74,15 @@ export const GUIDE_ES: GuideSection[] = [
         'El tema y los colores de fiesta acompañan a la persona en todos sus dispositivos (puede cambiarlos en Perfil).',
         'Vacaciones por miembro: protege su racha y congela la salud de sus tareas mientras está fuera.',
         'Ajustar monedas (Gestionar miembro): suma o resta monedas con un motivo. El número es un cambio, no un saldo nuevo: 10 suma 10, -10 resta 10. Sirve también para padres, incluido tú. Detalles en "Monedas, recompensas y objetivos" → Ajustar monedas.',
-        'Contraseña: un padre o una madre puede poner una nueva si alguien olvida la suya.',
+        'Contraseña: un padre o una madre puede poner una nueva si alguien olvida la suya. Eso cierra la sesión de esa persona en todos sus dispositivos, y vuelve a entrar con la nueva.',
       ] },
       { tip: 'Activa "Ocultar a los niños las habitaciones privadas de otros" en Ajustes → General si los niños no deben ver, por ejemplo, la habitación de un padre o una madre.' },
+      { h: 'Cerrar sesión en todas partes' },
+      { ul: [
+        'Perfil → Cerrar sesión en los demás dispositivos: cierra tu sesión en todos tus otros teléfonos, tabletas y ordenadores, y te mantiene conectado en este. Útil después de usar el dispositivo de otra persona, o si alguien puede saber tu contraseña.',
+        'Ajustes → Miembros de la familia → Gestionar miembro → Cerrar sesión en todos los dispositivos: cierra la sesión de esa persona en todas partes, por ejemplo cuando se pierde una tableta. Vuelve a entrar con su contraseña.',
+        'Una contraseña nueva también cierra la sesión de la persona en todas partes. Si cambias la tuya en Perfil, sigues conectado en ese dispositivo; cuando un padre o una madre restablece la contraseña de un niño, la tableta del niño también se desconecta y necesita la nueva.',
+      ] },
     ],
   },
   {
@@ -460,6 +466,10 @@ export const GUIDE_ES: GuideSection[] = [
           'Demasiadas contraseñas incorrectas bloquean los inicios de sesión hasta 15 minutos: 10 en una cuenta o 20 desde un dispositivo. Espera e inténtalo de nuevo; una contraseña correcta borra el recuento de la cuenta.',
           'Un padre o una madre puede poner una contraseña nueva en Ajustes → Miembros de la familia.',
           'Tras importar una copia de seguridad, todos menos el padre o la madre que la importó necesitan una contraseña nueva.',
+        ] },
+        { q: 'Se cerró mi sesión en todos los dispositivos', a: [
+          'Un padre o una madre cambió tu contraseña o usó Cerrar sesión en todos los dispositivos, o tú cambiaste tu contraseña o usaste Cerrar sesión en los demás dispositivos en otro dispositivo. Vuelve a iniciar sesión con tu contraseña actual.',
+          'Además, una sesión termina sola a los 30 días en cada dispositivo.',
         ] },
         { q: 'Dice "No funcionó"', a: [
           'El móvil no pudo llegar al servidor (sin Wi-Fi ni datos), o alguien cambió lo mismo en el mismo momento. La página se recarga; revísala y vuelve a intentarlo.',

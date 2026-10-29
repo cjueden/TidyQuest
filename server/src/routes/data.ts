@@ -66,8 +66,9 @@ router.get('/export', (req: AuthRequest, res: Response) => {
   for (const { key, table } of TABLES) {
     out[key] = db.prepare(`SELECT * FROM ${table}`).all();
   }
-  // Password hashes never leave the server
-  out.users = (out.users as any[]).map(({ passwordHash: _omit, ...u }) => u);
+  // Password hashes never leave the server, nor login token versions (a restore must not bring back
+  // logins that were cut off)
+  out.users = (out.users as any[]).map(({ passwordHash: _omit, tokenVersion: _v, ...u }) => u);
   out.settings = db.prepare('SELECT * FROM app_settings').all();
 
   res.setHeader('Content-Disposition', 'attachment; filename=tidyquest-backup.json');
@@ -91,10 +92,10 @@ router.post('/import', (req: AuthRequest, res: Response) => {
   // who already has an account here (same username) keeps their current password; new people get
   // a random one and need a reset.
   const currentAdmin = db.prepare('SELECT id, username, passwordHash FROM users WHERE id = ?').get(req.userId) as { id: number; username: string; passwordHash: string } | undefined;
-  const existingHashes = new Map(
-    (db.prepare('SELECT username, passwordHash FROM users').all() as { username: string; passwordHash: string }[])
-      .map((u) => [u.username.toLowerCase(), u.passwordHash])
-  );
+  const existing = db.prepare('SELECT username, passwordHash, tokenVersion FROM users').all() as { username: string; passwordHash: string; tokenVersion: number }[];
+  const existingHashes = new Map(existing.map((u) => [u.username.toLowerCase(), u.passwordHash]));
+  // Logins stay as they are: anyone already here keeps their token version (NEW-8)
+  const existingVersions = new Map(existing.map((u) => [u.username.toLowerCase(), u.tokenVersion]));
 
   const importData = db.transaction(() => {
     // Clear existing data, children first. Zones are only replaced when the backup has them.
@@ -110,8 +111,8 @@ router.post('/import', (req: AuthRequest, res: Response) => {
         ? currentAdmin!.passwordHash
         : existingHashes.get(String(u.username).toLowerCase())
           ?? bcrypt.hashSync(require('crypto').randomBytes(32).toString('hex'), 10);
-      const { passwordHash: _ignored, ...rest } = u;
-      return { ...rest, passwordHash };
+      const { passwordHash: _ignored, tokenVersion: _v, ...rest } = u;
+      return { ...rest, passwordHash, tokenVersion: existingVersions.get(String(u.username).toLowerCase()) ?? 0 };
     });
     insertRows('users', usersWithHashes);
 

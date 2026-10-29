@@ -158,6 +158,7 @@ export function Settings({
   const [memberEditOpen, setMemberEditOpen] = useState<Record<number, boolean>>({});
   const [memberPassword, setMemberPassword] = useState<Record<number, string>>({});
   const [memberPasswordMsg, setMemberPasswordMsg] = useState<Record<number, string>>({});
+  const [logoutAllMsg, setLogoutAllMsg] = useState<Record<number, string>>({});
   const [memberGoals, setMemberGoals] = useState<Record<number, Array<{ id: number; title: string; goalCoins: number; rewardCoins?: number; repeatWeekly?: number; status?: string; startAt?: string | null; endAt?: string | null }>>>({});
   const [goalRepeat, setGoalRepeat] = useState<Record<number, boolean>>({});
   const [rulesOpenId, setRulesOpenId] = useState<number | null>(null);
@@ -396,9 +397,20 @@ export function Settings({
     try {
       await onChangePassword(u.id, { newPassword: pwd });
       setMemberPassword((prev) => ({ ...prev, [u.id]: '' }));
-      setMemberPasswordMsg((prev) => ({ ...prev, [u.id]: t('settings.passwordUpdated') }));
+      setMemberPasswordMsg((prev) => ({ ...prev, [u.id]: t('settings.passwordResetSignedOut').replace('{name}', u.displayName) }));
     } catch (err: any) {
       setMemberPasswordMsg((prev) => ({ ...prev, [u.id]: err?.message || t('settings.passwordUpdateFailed') }));
+    }
+  };
+
+  // NEW-8: e.g. a lost tablet; their own devices only, everyone else stays signed in
+  const handleLogoutAllDevices = async (u: FamilyUser) => {
+    if (!confirm(t('settings.logoutAllDevicesConfirm').replace('{name}', u.displayName))) return;
+    try {
+      await api.logoutAllDevices(u.id);
+      setLogoutAllMsg((prev) => ({ ...prev, [u.id]: t('settings.logoutAllDevicesDone').replace('{name}', u.displayName) }));
+    } catch {
+      setLogoutAllMsg((prev) => ({ ...prev, [u.id]: t('settings.logoutAllDevicesFailed') }));
     }
   };
 
@@ -1491,6 +1503,12 @@ export function Settings({
                     {memberPasswordMsg[u.id] && (
                       <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{memberPasswordMsg[u.id]}</div>
                     )}
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => handleLogoutAllDevices(u)}>🚪 {t('settings.logoutAllDevices')}</button>
+                      {logoutAllMsg[u.id] && (
+                        <span style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 700 }}>{logoutAllMsg[u.id]}</span>
+                      )}
+                    </div>
                   </>)}
                   {gamificationEnabled && <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('settings.coinsBalance')}: {formatCoins(u.coins)}</span>

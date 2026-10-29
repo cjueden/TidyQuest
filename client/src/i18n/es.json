@@ -143,7 +143,13 @@
       "logout": "Cerrar sesión",
       "themeDesc": "Tus colores, en cada dispositivo donde inicies sesión.",
       "holidayColors": "Colores de fiesta",
-      "holidayColorsDesc": "En las fiestas, usar sus colores en lugar de tu tema. Las decoraciones se ven igualmente."
+      "holidayColorsDesc": "En las fiestas, usar sus colores en lugar de tu tema. Las decoraciones se ven igualmente.",
+      "logoutOthers": "Cerrar sesión en los demás dispositivos",
+      "logoutOthersDesc": "Cierra tu sesión en todos tus otros teléfonos, tabletas y ordenadores. Aquí sigues conectado.",
+      "logoutOthersConfirm": "¿Cerrar sesión en todos los demás dispositivos? Aquí sigues conectado.",
+      "logoutOthersDone": "Listo: se cerró la sesión en todos los demás dispositivos.",
+      "logoutOthersFailed": "No se pudo cerrar la sesión en los otros dispositivos. Inténtalo de nuevo.",
+      "passwordUpdatedElsewhere": "Contraseña actualizada. Se cerró la sesión en tus otros dispositivos."
     },
     "settings": {
       "title": "Ajustes",
@@ -305,7 +311,12 @@
       "timeZoneSearch": "Buscar: ciudad o región",
       "timeZoneNone": "Ninguna zona coincide.",
       "timeZoneNote": "Cambiarla mueve cuándo empieza cada día a partir de ahora. Las tareas ya hechas se quedan en el día en que se hicieron.",
-      "timeZoneNow": "Allí son las {time}"
+      "timeZoneNow": "Allí son las {time}",
+      "logoutAllDevices": "Cerrar sesión en todos los dispositivos",
+      "logoutAllDevicesConfirm": "¿Cerrar la sesión de {name} en todos sus dispositivos? Necesitará su contraseña para volver a entrar.",
+      "logoutAllDevicesDone": "Se cerró la sesión de {name} en todas partes.",
+      "logoutAllDevicesFailed": "No se pudo cerrar su sesión. Inténtalo de nuevo.",
+      "passwordResetSignedOut": "Contraseña restablecida. Se cerró la sesión de {name} en todos sus dispositivos."
     },
     "nav": {
       "home": "Inicio",

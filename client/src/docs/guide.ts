@@ -98,9 +98,15 @@ export const GUIDE_EN: GuideSection[] = [
         'Theme and holiday colors follow the person to every device (they can change them in Profile).',
         'Vacation per member: protects their streak and freezes their chores’ health while away.',
         'Adjust coins (Manage member): add or take away coins with a reason. The number is a change, not a new balance: 10 adds 10, -10 takes 10 away. Works for parents too, including yourself. Details in "Coins, rewards and goals" → Adjusting coins.',
-        'Password: a parent can set a new one if someone forgets theirs.',
+        'Password: a parent can set a new one if someone forgets theirs. That signs the person out on every device, so they log in again with the new one.',
       ] },
       { tip: 'Turn on "Hide other people’s private rooms from kids" in Settings → General if kids shouldn’t see, say, a parent’s own room.' },
+      { h: 'Signing out everywhere' },
+      { ul: [
+        'Profile → Log out everywhere else: signs you out on every other phone, tablet and computer, and keeps you signed in on this one. Handy after using someone else’s device, or if someone may know your password.',
+        'Settings → Family Members → Manage member → Log out of all devices: signs that person out everywhere, e.g. when a tablet is lost. They log back in with their password.',
+        'A new password signs the person out everywhere too. Changing your own in Profile keeps you signed in on that device; when a parent resets a kid’s password, the kid’s tablet is signed out as well and needs the new one.',
+      ] },
     ],
   },
   {
@@ -484,6 +490,10 @@ export const GUIDE_EN: GuideSection[] = [
           'Too many wrong passwords block logins for up to 15 minutes: 10 for one account, or 20 from one device. Wait and try again; a correct password clears the account’s count.',
           'A parent can set a new password in Settings → Family Members.',
           'After importing a backup, everyone except the parent who imported it needs a new password.',
+        ] },
+        { q: 'I was signed out on every device', a: [
+          'A parent changed your password or used Log out of all devices, or you changed your password or used Log out everywhere else on another device. Log in again with your current password.',
+          'A login also ends by itself after 30 days on each device.',
         ] },
         { q: 'It says "That didn’t work"', a: [
           'The phone couldn’t reach the server (no Wi-Fi or data), or someone changed the same thing at the same moment. The page reloads; check it, then try again.',

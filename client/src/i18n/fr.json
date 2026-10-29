@@ -143,7 +143,13 @@
       "logout": "Se déconnecter",
       "themeDesc": "Tes couleurs, sur chaque appareil où tu te connectes.",
       "holidayColors": "Couleurs des fêtes",
-      "holidayColorsDesc": "Pendant les fêtes, utiliser leurs couleurs à la place de ton thème. Les décorations s'affichent dans tous les cas."
+      "holidayColorsDesc": "Pendant les fêtes, utiliser leurs couleurs à la place de ton thème. Les décorations s'affichent dans tous les cas.",
+      "logoutOthers": "Se déconnecter partout ailleurs",
+      "logoutOthersDesc": "Te déconnecte de tous tes autres téléphones, tablettes et ordinateurs. Tu restes connecté ici.",
+      "logoutOthersConfirm": "Se déconnecter de tous les autres appareils ? Tu restes connecté ici.",
+      "logoutOthersDone": "C'est fait : tous les autres appareils sont déconnectés.",
+      "logoutOthersFailed": "Impossible de déconnecter les autres appareils. Réessaie.",
+      "passwordUpdatedElsewhere": "Mot de passe mis à jour. Tes autres appareils sont déconnectés."
     },
     "settings": {
       "title": "Paramètres",
@@ -305,7 +311,12 @@
       "timeZoneSearch": "Rechercher : ville ou région",
       "timeZoneNone": "Aucun fuseau ne correspond.",
       "timeZoneNote": "Le changer déplace le début de chaque journée à partir de maintenant. Les tâches déjà faites restent le jour où elles ont été faites.",
-      "timeZoneNow": "{time} là-bas"
+      "timeZoneNow": "{time} là-bas",
+      "logoutAllDevices": "Déconnecter de tous les appareils",
+      "logoutAllDevicesConfirm": "Déconnecter {name} de tous ses appareils ? Il faudra son mot de passe pour se reconnecter.",
+      "logoutAllDevicesDone": "{name} est déconnecté partout.",
+      "logoutAllDevicesFailed": "Impossible de le déconnecter. Réessaie.",
+      "passwordResetSignedOut": "Mot de passe réinitialisé. {name} est déconnecté de tous ses appareils."
     },
     "nav": {
       "home": "Accueil",
