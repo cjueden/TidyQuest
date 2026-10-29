@@ -27,7 +27,7 @@ import { Register } from './components/pages/Register';
 import { SignUp } from './components/pages/SignUp';
 import { ConfirmEmail, ResetPassword } from './components/pages/EmailLinks';
 import { ConfirmEmailBanner, LockedScreen } from './components/shared/HostedAccount';
-import { takeFamilyLink, useHosted, type HostedAccount } from './utils/hosted';
+import { isShutOut, limitError, takeFamilyLink, useHosted, type HostedAccount } from './utils/hosted';
 import { Achievements } from './components/pages/Achievements';
 import { Rewards } from './components/pages/Rewards';
 import { useTranslation } from './hooks/useTranslation';
@@ -269,8 +269,10 @@ function AppContent() {
       const result = await api.completeTask(taskId, undefined, proof?.note ? { note: proof.note } : {});
       if (proof?.file && result.completionId) {
         // The chore is already recorded; a failed photo upload shouldn't undo that
-        await api.uploadCompletionPhoto(result.completionId, proof.file).catch(() => {
-          setTaskErrorMsg(t('proof.photoFailed'));
+        await api.uploadCompletionPhoto(result.completionId, proof.file).catch((err) => {
+          // Say why when it's a limit (file size, the family's photo space)
+          const why = limitError(err, t, '');
+          setTaskErrorMsg(why ? `${t('proof.photoFailed')} ${why}` : t('proof.photoFailed'));
           setTimeout(() => setTaskErrorMsg(null), 3500);
         });
       }
@@ -340,7 +342,7 @@ function AppContent() {
         await api.importData(data);
         await loadDashboard();
       } catch (err) {
-        alert(`Import failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        alert(`Import failed: ${limitError(err, t, err instanceof Error ? err.message : 'Unknown error')}`);
       }
     };
     input.click();
@@ -366,7 +368,7 @@ function AppContent() {
     return <Login onLogin={login} onSwitchToRegister={() => setAuthView('register')} hosted={!!hosted} onSignUp={() => navigate('/signup')} />;
   }
 
-  if (hostedAccount?.locked) {
+  if (isShutOut(hostedAccount)) {
     return <LockedScreen account={hostedAccount} language={user.language} onChanged={loadHostedAccount}
       onLogout={() => { logout(); setHostedAccount(null); navigate('/login', { replace: true }); }} />;
   }
@@ -559,7 +561,7 @@ function AppContent() {
           } />
 
           <Route path="/rooms/:id" element={
-            <RoomDetailWrapper rooms={rooms} roomsLoaded={roomsLoaded} strictMode={!!dashboardData?.strictMode} shieldsOn={!!dashboardData?.shields} allowOneTime={dashboardData?.features?.todos !== false} user={user} users={familySettings} coinsByEffort={coinsByEffort} gamificationEnabled={gamificationEnabled} onCompleteTask={handleCompleteTask} onRefresh={() => { refreshRooms(); loadDashboard(); }} onAchievementsUnlocked={setUnlockedAchievements} />
+            <RoomDetailWrapper rooms={rooms} roomsLoaded={roomsLoaded} strictMode={!!dashboardData?.strictMode} shieldsOn={!!dashboardData?.shields} allowOneTime={dashboardData?.features?.todos !== false} allowPhotos={dashboardData?.features?.proofPhotos !== false} user={user} users={familySettings} coinsByEffort={coinsByEffort} gamificationEnabled={gamificationEnabled} onCompleteTask={handleCompleteTask} onRefresh={() => { refreshRooms(); loadDashboard(); }} onAchievementsUnlocked={setUnlockedAchievements} />
           } />
 
           <Route path="/focus" element={
@@ -768,7 +770,7 @@ function AppContent() {
   );
 }
 
-function RoomDetailWrapper({ rooms, roomsLoaded, strictMode, shieldsOn, allowOneTime, user, users, coinsByEffort, gamificationEnabled, onCompleteTask, onRefresh, onAchievementsUnlocked }: { rooms: any[]; roomsLoaded: boolean; strictMode?: boolean; shieldsOn?: boolean; allowOneTime?: boolean; user: any; users?: any[]; coinsByEffort: Record<number, number>; gamificationEnabled: boolean; onCompleteTask: (id: number, proof?: Proof) => void; onRefresh: () => void; onAchievementsUnlocked?: (ids: string[]) => void }) {
+function RoomDetailWrapper({ rooms, roomsLoaded, strictMode, shieldsOn, allowOneTime, allowPhotos, user, users, coinsByEffort, gamificationEnabled, onCompleteTask, onRefresh, onAchievementsUnlocked }: { rooms: any[]; roomsLoaded: boolean; strictMode?: boolean; shieldsOn?: boolean; allowOneTime?: boolean; allowPhotos?: boolean; user: any; users?: any[]; coinsByEffort: Record<number, number>; gamificationEnabled: boolean; onCompleteTask: (id: number, proof?: Proof) => void; onRefresh: () => void; onAchievementsUnlocked?: (ids: string[]) => void }) {
   const navigate = useNavigate();
   const { t, roomDisplayName } = useTranslation(user?.language || 'en');
   const { id: idParam } = useParams<{ id: string }>();
@@ -795,7 +797,7 @@ function RoomDetailWrapper({ rooms, roomsLoaded, strictMode, shieldsOn, allowOne
   return (
     <>
       <PageHeader title={roomDisplayName(room.name, room.roomType)} subtitle={`${room.tasks?.length || 0} ${t('rooms.tasksTracked')}`} user={user} onCoinsClick={() => navigate('/rewards')} onStreakClick={() => navigate('/achievements')} gamificationEnabled={gamificationEnabled} shieldsOn={shieldsOn} />
-      <RoomDetail room={room} language={user?.language} isAdmin={user?.role === 'admin'} currentUserId={user?.id} currentUserRole={user?.role} users={users} coinsByEffort={coinsByEffort} onCompleteTask={onCompleteTask} onBack={() => navigate('/rooms')} onOpenRoom={(id) => navigate(`/rooms/${id}`)} allowOneTime={allowOneTime} focusTaskId={focusTaskId} strictMode={strictMode} onlyMine={user?.taskView === 'mineOnly' || !!user?.kidMode} onRefresh={onRefresh} onAchievementsUnlocked={onAchievementsUnlocked} />
+      <RoomDetail room={room} language={user?.language} isAdmin={user?.role === 'admin'} currentUserId={user?.id} currentUserRole={user?.role} users={users} coinsByEffort={coinsByEffort} onCompleteTask={onCompleteTask} onBack={() => navigate('/rooms')} onOpenRoom={(id) => navigate(`/rooms/${id}`)} allowOneTime={allowOneTime} allowPhotos={allowPhotos} focusTaskId={focusTaskId} strictMode={strictMode} onlyMine={user?.taskView === 'mineOnly' || !!user?.kidMode} onRefresh={onRefresh} onAchievementsUnlocked={onAchievementsUnlocked} />
     </>
   );
 }

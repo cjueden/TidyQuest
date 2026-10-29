@@ -51,6 +51,28 @@ export function createFamily(name: string, opts: { db?: Db; now?: Date } = {}): 
   return id;
 }
 
+/** Billing is on when a payment key is set. NEW-19 picks the company (and may rename the variable). */
+export const billingOn = () => !!process.env.PAYMENT_KEY;
+
+export type FamilyStatus = 'trial' | 'active' | 'suspended' | 'expired' | 'deleted';
+interface StatusRow { status: string; trialEndsAt: string | null; plan: string | null }
+
+/**
+ * Where a family stands: trial and active get in, suspended and expired only reach their account and
+ * export (HOSTED.md §8). A trial counts as expired once it has ended, but only with billing on: until
+ * then families never expire (decision 11).
+ */
+export function familyStatus(row: StatusRow, now = Date.now()): FamilyStatus {
+  const status = row.status as FamilyStatus;
+  if (status === 'trial' && billingOn() && !row.plan && row.trialEndsAt && Date.parse(row.trialEndsAt) <= now) return 'expired';
+  return status;
+}
+
+export function familyStatusOf(id: string, now = Date.now()): FamilyStatus {
+  const row = mainDb().prepare('SELECT status, trialEndsAt, plan FROM families WHERE id = ?').get(id) as StatusRow | undefined;
+  return row ? familyStatus(row, now) : 'deleted';
+}
+
 /** Whether this is a family that exists and isn't deleted. */
 export function isLiveFamily(id: unknown): id is string {
   if (typeof id !== 'string' || !FAMILY_ID.test(id)) return false;

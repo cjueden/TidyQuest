@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import db from '../database';
 import { currentFamily, isHosted, runInFamily } from '../hosted/context';
-import { openFamily } from '../hosted/families';
+import { familyStatusOf, openFamily } from '../hosted/families';
 import { isLocked } from '../hosted/accounts';
 
 // Security: Require JWT_SECRET in production
@@ -45,14 +45,21 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   const family = openFamily(payload.fid);
   if (!family) return res.status(401).json({ error: 'Signed out' });
   req.familyId = family.familyId;
-  // A family that hasn't confirmed a parent's email within 30 days can only confirm it and export (decision 3)
-  const lockedOut = () => isLocked(family.familyId) && !OPEN_WHEN_LOCKED.test(req.originalUrl)
-    ? res.status(403).json({ error: 'Confirm your email to keep using TidyQuest', code: 'confirm-email' })
-    : next();
-  runInFamily(family, () => checkUser(req, res, lockedOut, payload));
+  // A suspended or expired family, or one that hasn't confirmed a parent's email within 30 days (decision 3),
+  // can only see its account and export. The app shows why from /api/hosted/account.
+  const shutOut = () => {
+    if (OPEN_WHEN_LOCKED.test(req.originalUrl)) return next();
+    const status = familyStatusOf(family.familyId);
+    if (status === 'suspended') return res.status(403).json({ error: 'This family is paused', code: 'suspended' });
+    if (status === 'expired') return res.status(403).json({ error: 'The free trial has ended', code: 'expired' });
+    if (isLocked(family.familyId)) return res.status(403).json({ error: 'Confirm your email to keep using TidyQuest', code: 'confirm-email' });
+    next();
+  };
+  runInFamily(family, () => checkUser(req, res, shutOut, payload));
 }
 
-// What a locked family can still reach: its account (confirming, changing the email), its export, who's signed in
+// What a locked, suspended or expired family can still reach: its account (confirming, changing the
+// email), its export (always, ROADMAP rule 2), who's signed in
 const OPEN_WHEN_LOCKED = /^\/api\/(hosted\/|export(\?|$)|auth\/me(\?|$))/;
 
 function checkUser(req: AuthRequest, res: Response, next: NextFunction, payload: TokenPayload) {

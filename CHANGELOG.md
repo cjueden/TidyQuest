@@ -29,6 +29,15 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
   more than 30 days ago. With billing switched on (a `PAYMENT_KEY`, which comes with billing), a trial that ended
   without paying is deleted 60 days later, and its parents get an email a week before with a link to download their
   data. Without a payment key, families never expire.
+- Hosted mode (`HOSTED=1`) safety. Notifications only go through ntfy.sh and Telegram: a custom ntfy server or Home
+  Assistant is refused when saved and when sent, and dropped from an imported backup (with that server's topics, so
+  messages never land in a public ntfy.sh topic). Each family has limits, set with `MAX_PEOPLE` (15 people),
+  `MAX_IMPORT_MB` (5), `MAX_PHOTO_MB` (5) and `MAX_FILES_MB` (200 MB of avatars and photos). Login, sign-up and email
+  limits are kept in the hosted database, so a restart doesn't reset them. Security headers are on, and CORS only
+  allows the app's own address (`PUBLIC_URL`, or `CORS_ORIGIN`). A paused family, or one whose trial has ended (with
+  billing on), sees a page about it instead of the app, and parents can still download their data there.
+- A "Proof photos" switch in Settings → Features. It's on, except in hosted mode, where it starts off until a parent
+  turns it on. When it's off, kids finish a chore that waits for approval with a note only.
 
 ### Changed
 
@@ -37,10 +46,13 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 - Sending a notification gives up after 10 seconds, so an unreachable Telegram, ntfy or Home Assistant server can't
   hold up the other reminders.
 - An error in one background job is logged and the other jobs keep running (before, it could stop the server).
+- A photo, avatar or backup that's too big now gets a message that says the limit, instead of a general error.
 
 ### Fixed
 
 - A wrong password on the login screen now says so, in your language, instead of reloading the page.
+- Adding a family member that doesn't work (a username that's taken, say) now says why under the form; before,
+  nothing happened.
 
 ## v0.13.0 (2026-10-29)
 

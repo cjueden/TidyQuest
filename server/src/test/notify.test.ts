@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, HOSTED_RUN } from './setup';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { flushNotificationQueue, notifyPeople, setNotifyTransport, type Delivery } from '../utils/notify';
@@ -156,11 +156,19 @@ describe('Timed notifications', () => {
 });
 
 describe('Notification settings API', () => {
+  it.skipIf(HOSTED_RUN)('lets self-hosters use their own ntfy server (hosted mode only allows ntfy.sh)', async () => {
+    const { admin } = await family();
+    const res = await agent.put('/api/users/notifications-config').set(auth(admin.token)).send({ ntfyServerUrl: 'http://192.168.1.10:8080' });
+    expect(res.body.ntfyServerUrl).toBe('http://192.168.1.10:8080');
+  });
+
   it("lets a parent set times, quiet hours and anyone's channels; kids only their own", async () => {
     const { admin, kid } = await family();
     expect((await agent.put('/api/notify/settings').set(auth(admin.token)).send({ morningTime: '7am' })).body.error).toBe('invalid_time');
-    const s = (await agent.put('/api/notify/settings').set(auth(admin.token)).send({ morningTime: '06:45', quietStart: '21:30', quietEnd: '06:30', haUrl: 'http://ha.local:8123/', haToken: 'secret' })).body;
-    expect(s).toMatchObject({ morningTime: '06:45', quietStart: '21:30', haUrl: 'http://ha.local:8123', hasHaToken: true });
+    // Hosted mode has no Home Assistant (test/hosted-safety.test.ts)
+    const ha = HOSTED_RUN ? {} : { haUrl: 'http://ha.local:8123/', haToken: 'secret' };
+    const s = (await agent.put('/api/notify/settings').set(auth(admin.token)).send({ morningTime: '06:45', quietStart: '21:30', quietEnd: '06:30', ...ha })).body;
+    expect(s).toMatchObject({ morningTime: '06:45', quietStart: '21:30', ...(!HOSTED_RUN && { haUrl: 'http://ha.local:8123', hasHaToken: true }) });
     expect(JSON.stringify(s)).not.toContain('secret');
     expect((await agent.put('/api/notify/settings').set(auth(kid.token)).send({})).status).toBe(403);
 

@@ -117,6 +117,13 @@ export const GUIDE_EN: GuideSection[] = [
         'At sign-up we email a link to confirm your address. A family that hasn’t confirmed a parent’s email within 30 days can only confirm it or download its data until it does.',
         'Forgot password? on the login screen emails a parent a link that works once, for one hour. Kids and teens ask a parent to set a new one in Settings → Family Members.',
       ] },
+      { h: 'On tidyquest.org: limits' },
+      { ul: [
+        'A family can have up to 15 people.',
+        'A proof photo can be up to 5 MB (an avatar 2 MB), and a family has 200 MB for its photos. A backup to import can be up to 5 MB.',
+        'Proof photos start off: a parent can turn them on in Settings → Features → Proof photos.',
+        'If TidyQuest pauses a family, or its free trial ends, the app shows a page about it instead. Parents can still tap Download our data there.',
+      ] },
     ],
   },
   {
@@ -183,6 +190,7 @@ export const GUIDE_EN: GuideSection[] = [
         'Parents and members can mark a chore done for someone else ("who did it?").',
         'A mistake can be undone from Activity (parents), or with ↩️ Undo next to the chore’s "Done by" in its room (parents; it asks first, because the coins come back off). A team-up is undone for the whole team, and everyone’s coins for it are taken back. A kid can take back their own Done while it waits for approval.',
       ] },
+      { p: 'Settings → Features → Proof photos switches photos off; the 📎 button then adds a note only. On tidyquest.org photos start off, and a parent turns them on.' },
       { h: 'Logging it late' },
       { ul: [
         'Forgot to tap Done? Tap 📅 (Done earlier…) next to the chore in its room, pick the day (up to 7 days back) and tap Log it. Parents and members can pick who did it.',
@@ -330,6 +338,7 @@ export const GUIDE_EN: GuideSection[] = [
         'Private kinds (approved/turned down, summaries, nudges, cheers) only go to a person’s own channel, never the family channel.',
         'The Notification log shows what was sent, queued or failed, and why.',
       ] },
+      { p: 'On tidyquest.org, notifications go through ntfy.sh or Telegram. Your own ntfy server and Home Assistant only work on a home server.' },
     ],
   },
   {
@@ -445,6 +454,10 @@ export const GUIDE_EN: GuideSection[] = [
           'Quiet hours and school hours hold messages until they end.',
           'The Notification log shows each message and any error.',
         ] },
+        { q: 'Our own ntfy server or Home Assistant doesn’t work on tidyquest.org', a: [
+          'tidyquest.org only sends to ntfy.sh and Telegram: an address typed in could reach machines inside our network, so the server won’t call it. A home server can use both.',
+          'Importing a backup from a home server drops its Home Assistant and custom ntfy settings (with that server’s topics), so messages never land in a public ntfy.sh topic by mistake. Set up ntfy.sh or Telegram again in Settings → General → Notifications.',
+        ] },
         { q: 'Chores reset at the wrong time of day, or days and weeks are off by a few hours', a: [
           'Check Settings → General → Time zone (parents): days start at midnight there for the whole family. If it says "Not picked yet", tap Use it to take this device’s zone, or tap Change and search for yours.',
           'Changing it moves when each day starts from then on. Chores already done stay on the day they were done.',
@@ -514,6 +527,16 @@ export const GUIDE_EN: GuideSection[] = [
         ] },
         { q: 'It says "Confirm your email to keep using TidyQuest"', a: [
           'Your family had 30 days to confirm a parent’s email. A parent opens the link we sent, or taps Send it again (or Change email if the address was wrong). Nothing is lost, and Download our data still works.',
+        ] },
+        { q: 'It says the family is paused, or the free trial has ended', a: [
+          'Only on tidyquest.org. A paused family can’t use the app until TidyQuest resumes it. Nothing is lost, and a parent can still tap Download our data.',
+          'When the free trial has ended, a parent picks a plan to keep going. Until then the family’s data is kept, and Download our data still works.',
+        ] },
+        { q: 'It says a file is too big, or the family is full', a: [
+          'The message says which limit was hit. A proof photo can be up to 8 MB (5 MB on tidyquest.org), an avatar up to 2 MB, and a backup to import up to 50 MB (5 MB on tidyquest.org).',
+          'On tidyquest.org a family has 200 MB for photos. When it’s full, new photos don’t upload, but the chore still counts.',
+          'On tidyquest.org a family can have up to 15 people.',
+          'No photo field when finishing a chore with 📎? A parent switched them off in Settings → Features → Proof photos.',
         ] },
         { q: 'I was signed out on every device', a: [
           'A parent changed your password or used Log out of all devices, or you changed your password or used Log out everywhere else on another device. Log in again with your current password.',

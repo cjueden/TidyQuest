@@ -8,54 +8,12 @@ import { isHosted, runInFamily } from '../hosted/context';
 import { openFamily } from '../hosted/families';
 import { familyIdByCode, codeKey } from '../hosted/familyCode';
 import { accountByEmail, cleanEmail } from '../hosted/accounts';
+import { RATE_LIMIT_MAX, addFailure, checkRateLimit, clearFailures, failuresOf } from '../utils/throttle';
 
-// In-memory limits for auth endpoints (they reset on restart). The address is req.ip: the connection's own,
-// or the visitor's when TRUST_PROXY names the reverse proxy in front (utils/proxy.ts).
-const loginAttempts = new Map<string, { count: number; resetAt: number }>();
-const loginFailures = new Map<string, { count: number; resetAt: number }>();
+// Limits on registering and logging in, per address and per login name (utils/throttle.ts). The address is
+// req.ip: the connection's own, or the visitor's when TRUST_PROXY names the reverse proxy in front (utils/proxy.ts).
 export const clientIp = (req: AuthRequest) => req.ip || req.socket?.remoteAddress || 'unknown';
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-const RATE_LIMIT_MAX = 20; // registrations, and failed logins, per address
 const USER_FAIL_MAX = 10; // failed logins per username, from anywhere
-
-const failuresOf = (key: string) => {
-  const entry = loginFailures.get(key);
-  return entry && entry.resetAt >= Date.now() ? entry.count : 0;
-};
-function addFailure(key: string) {
-  const now = Date.now();
-  const entry = loginFailures.get(key);
-  if (!entry || entry.resetAt < now) loginFailures.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-  else entry.count++;
-}
-/** Tests start each app with clean limits */
-export function resetLoginLimits() {
-  loginAttempts.clear();
-  loginFailures.clear();
-}
-
-/** Counts one try for this key (an address, or a purpose and an address); false once it's had `max` in 15 minutes. */
-export function checkRateLimit(key: string, max = RATE_LIMIT_MAX): boolean {
-  const now = Date.now();
-  const entry = loginAttempts.get(key);
-  if (!entry || entry.resetAt < now) {
-    loginAttempts.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-  if (entry.count >= max) return false;
-  entry.count++;
-  return true;
-}
-
-// Periodically purge expired entries to prevent memory leak
-setInterval(() => {
-  const now = Date.now();
-  for (const map of [loginAttempts, loginFailures]) {
-    for (const [key, entry] of map.entries()) {
-      if (entry.resetAt < now) map.delete(key);
-    }
-  }
-}, RATE_LIMIT_WINDOW_MS);
 
 const router = Router();
 
@@ -154,7 +112,7 @@ router.post('/login', (req: AuthRequest, res: Response) => {
       console.warn(`[auth] failed login for ${who} from ${clientIp(req)}`);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    loginFailures.delete(userKey);
+    clearFailures(userKey);
     sendLogin(res, user);
   };
   if (!isHosted()) return signIn(db.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').get(username));

@@ -959,7 +959,9 @@
       "notePlaceholder": "ex. 94 % au contrôle de maths",
       "photo": "Photo (facultatif)",
       "submit": "Terminé",
-      "photoFailed": "Enregistré, mais la photo n'a pas été envoyée."
+      "photoFailed": "Enregistré, mais la photo n'a pas été envoyée.",
+      "titleNote": "Terminer avec une note",
+      "addNote": "Ajouter une note"
     },
     "rewardRules": {
       "whoCanSee": "Qui peut la voir",
@@ -1384,7 +1386,8 @@
       "kind_rescue": "Mission sauvetage",
       "kindDesc_rescue": "la tâche ×2 du jour, le matin",
       "kind_cheer": "Encouragements sur mes tâches",
-      "kind_teamup": "Invitations d'équipe"
+      "kind_teamup": "Invitations d'équipe",
+      "peopleDescHosted": "Donne à chacun son propre canal (un sujet ntfy sur son téléphone ou un chat Telegram). Sans canal, il partage le canal familial ; les messages privés (résultats, résumés, rappels) ne vont que sur son propre canal."
     },
     "todos": {
       "roomName": "À faire",
@@ -1453,7 +1456,9 @@
       "focusDesc": "Les tâches d'un enfant une à la fois, en grand, avec leurs étapes. Qui la voit se règle par personne dans Membres de la famille.",
       "shields": "🛡️ Boucliers de série",
       "shieldsDesc": "Gagnés tous les 7 jours d'affilée, ou achetés avec des pièces (2 au maximum). Un bouclier sauve la série un jour manqué.",
-      "shieldPrice": "Prix"
+      "shieldPrice": "Prix",
+      "proofPhotos": "Photos de preuve",
+      "proofPhotosDesc": "Les enfants peuvent ajouter une photo à une tâche qui attend la validation d'un parent. Désactivé : une note seulement."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1988,7 +1993,17 @@
       "errEmailTaken": "Cet e-mail a déjà une famille. Connectez-vous ou réinitialisez votre mot de passe.",
       "errBadEmail": "Cette adresse e-mail ne semble pas correcte.",
       "errWrongPassword": "Votre mot de passe n'est pas le bon.",
-      "errShortPassword": "Le mot de passe doit faire au moins 8 caractères."
+      "errShortPassword": "Le mot de passe doit faire au moins 8 caractères.",
+      "suspendedTitle": "Cette famille est en pause",
+      "suspendedText": "TidyQuest a mis en pause le compte de votre famille : l'appli ne peut pas être utilisée pour l'instant. Tes tâches et ton historique sont toujours là, et un parent peut les télécharger.",
+      "expiredTitle": "L'essai gratuit est terminé",
+      "expiredParent": "Pour continuer à utiliser TidyQuest, votre famille a besoin d'un abonnement. Tes tâches et ton historique sont conservés pour l'instant, et tu peux les télécharger.",
+      "expiredOther": "L'essai gratuit de votre famille est terminé. Demande à un parent de choisir un abonnement. Tes tâches et tes pièces sont toujours là."
+    },
+    "limits": {
+      "people": "Une famille peut compter jusqu'à {n} personnes.",
+      "tooLarge": "Ce fichier est trop gros : {n} Mo au maximum.",
+      "storageFull": "L'espace photos de votre famille est plein ({n} Mo)."
     }
   }
 }

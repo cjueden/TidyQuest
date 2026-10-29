@@ -959,7 +959,9 @@
       "notePlaceholder": "p. ej. Saqué 94 % en el examen de mates",
       "photo": "Foto (opcional)",
       "submit": "Hecho",
-      "photoFailed": "Guardado, pero la foto no se subió."
+      "photoFailed": "Guardado, pero la foto no se subió.",
+      "titleNote": "Terminar con una nota",
+      "addNote": "Añadir una nota"
     },
     "rewardRules": {
       "whoCanSee": "Quién la ve",
@@ -1384,7 +1386,8 @@
       "kind_rescue": "Misión de rescate",
       "kindDesc_rescue": "la tarea ×2 del día, por la mañana",
       "kind_cheer": "Ánimos en mis tareas",
-      "kind_teamup": "Invitaciones de equipo"
+      "kind_teamup": "Invitaciones de equipo",
+      "peopleDescHosted": "Da a cada persona su propio canal (un tema de ntfy en su teléfono o un chat de Telegram). Sin canal, comparten el canal familiar; los mensajes privados (resultados, resúmenes, avisos) solo van a su propio canal."
     },
     "todos": {
       "roomName": "Pendientes",
@@ -1453,7 +1456,9 @@
       "focusDesc": "Las tareas de un niño una a una, en grande, con sus pasos. Quién la ve se elige por persona en Miembros de la familia.",
       "shields": "🛡️ Escudos de racha",
       "shieldsDesc": "Se ganan cada 7 días seguidos o se compran con monedas (2 como máximo). Un escudo salva la racha un día que se pierde.",
-      "shieldPrice": "Precio"
+      "shieldPrice": "Precio",
+      "proofPhotos": "Fotos de prueba",
+      "proofPhotosDesc": "Los niños pueden añadir una foto a una tarea que espera la aprobación de un padre o una madre. Desactivado: solo una nota."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1988,7 +1993,17 @@
       "errEmailTaken": "Ese correo ya tiene una familia. Inicia sesión o restablece tu contraseña.",
       "errBadEmail": "Esa dirección de correo no parece correcta.",
       "errWrongPassword": "Tu contraseña no es correcta.",
-      "errShortPassword": "Las contraseñas necesitan al menos 8 caracteres."
+      "errShortPassword": "Las contraseñas necesitan al menos 8 caracteres.",
+      "suspendedTitle": "Esta familia está en pausa",
+      "suspendedText": "TidyQuest ha pausado la cuenta de tu familia, así que la app no se puede usar por ahora. Las tareas y el historial siguen aquí, y un padre o una madre puede descargarlos.",
+      "expiredTitle": "La prueba gratuita ha terminado",
+      "expiredParent": "Para seguir usando TidyQuest, tu familia necesita un plan. Las tareas y el historial se guardan por ahora, y puedes descargarlos.",
+      "expiredOther": "La prueba gratuita de tu familia ha terminado. Pide a tus padres que elijan un plan. Tus tareas y monedas siguen aquí."
+    },
+    "limits": {
+      "people": "Una familia puede tener hasta {n} personas.",
+      "tooLarge": "El archivo es demasiado grande: como máximo {n} MB.",
+      "storageFull": "El espacio para fotos de tu familia está lleno ({n} MB)."
     }
   }
 }

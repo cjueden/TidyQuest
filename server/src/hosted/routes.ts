@@ -2,13 +2,14 @@ import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import db from '../database';
 import { AuthRequest, authMiddleware, revokeTokens } from '../middleware/auth';
-import { checkRateLimit, clientIp, sendLogin } from '../routes/auth';
+import { clientIp, sendLogin } from '../routes/auth';
+import { checkRateLimit } from '../utils/throttle';
 import {
   accountByEmail, accountOf, addAccount, cleanEmail, confirmBy, createEmailToken, isLocked, markConfirmed, useEmailToken,
 } from './accounts';
 import { runInFamily } from './context';
 import { appLink, sendEmail, writeEmail } from './email';
-import { createFamily, deleteFamily, openFamily } from './families';
+import { createFamily, deleteFamily, familyStatus, openFamily } from './families';
 import { newFamilyCode } from './familyCode';
 import { mainDb } from './mainDb';
 import { addParent, captchaPasses, usernameFrom } from './signup';
@@ -167,7 +168,7 @@ const isParent = (userId?: number) =>
 /** The family's code and link, this person's sign-in email, and whether the family must still confirm one. */
 router.get('/account', (req: AuthRequest, res: Response) => {
   const familyId = req.familyId!;
-  const family = mainDb().prepare('SELECT name, code, trialEndsAt FROM families WHERE id = ?').get(familyId) as { name: string; code: string; trialEndsAt: string };
+  const family = mainDb().prepare('SELECT name, code, status, trialEndsAt, plan FROM families WHERE id = ?').get(familyId) as { name: string; code: string; status: string; trialEndsAt: string; plan: string | null };
   const account = accountOf(familyId, req.userId!);
   res.json({
     familyName: family.name,
@@ -179,6 +180,8 @@ router.get('/account', (req: AuthRequest, res: Response) => {
     emailConfirmed: !!account?.emailConfirmedAt,
     confirmBy: confirmBy(familyId)?.toISOString() ?? null,
     locked: isLocked(familyId),
+    // trial or active; suspended and expired see a page about it instead of the app
+    status: familyStatus(family),
   });
 });
 

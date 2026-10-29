@@ -6,6 +6,7 @@ import { ensureAdmin } from '../utils/adminHelpers';
 import { BACKUP_TABLES } from '../forkSchema';
 import { isHosted } from '../hosted/context';
 import { accountUsernames, relinkAccounts } from '../hosted/accounts';
+import { dropRefusedAddresses, tooManyPeople } from '../hosted/limits';
 
 const router = Router();
 router.use(authMiddleware);
@@ -89,6 +90,9 @@ router.post('/import', (req: AuthRequest, res: Response) => {
   if (!Array.isArray(users) || !Array.isArray(rooms) || !Array.isArray(tasks) || !Array.isArray(completions)) {
     return res.status(400).json({ error: 'Invalid backup format. Expected arrays: users, rooms, tasks, completions' });
   }
+  // Hosted mode: up to MAX_PEOPLE (15) in a family
+  const tooMany = tooManyPeople(users.length);
+  if (tooMany) return res.status(403).json(tooMany);
 
   // Password hashes are never accepted from a file. The importing admin keeps theirs, and anyone
   // who already has an account here (same username) keeps their current password; new people get
@@ -150,6 +154,8 @@ router.post('/import', (req: AuthRequest, res: Response) => {
       if (['users', 'zones', 'rooms', 'tasks', 'task_assignees', 'task_completions'].includes(table)) continue;
       if (Array.isArray(body[key])) insertRows(table, body[key]);
     }
+    // Hosted mode: no Home Assistant or custom ntfy server from a self-hosted backup
+    dropRefusedAddresses();
   });
 
   importData();

@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import db from '../database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { ensureAdmin } from '../utils/adminHelpers';
-import { FEATURES, HOLIDAYS, getFeatures, holidaysOff, rescueMultiplier } from '../utils/features';
+import { FEATURES, HOLIDAYS, featureDefault, getFeatures, holidaysOff, rescueMultiplier } from '../utils/features';
 import { mascotRoster, mascotSettings, saveMascot } from '../utils/mascot';
 import { TEAM_BONUSES, teamBonus } from '../utils/teamups';
 import { shieldPrice } from '../utils/streaks';
@@ -21,9 +21,9 @@ router.put('/', (req: AuthRequest, res: Response) => {
   if (incoming && typeof incoming === 'object') {
     const next = { ...getFeatures() };
     for (const f of FEATURES) if (typeof incoming[f] === 'boolean') next[f] = incoming[f];
-    // Only what's off is stored, so new extras start on
-    const off = Object.fromEntries(FEATURES.filter((f) => !next[f]).map((f) => [f, false]));
-    db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('features', ?)").run(JSON.stringify(off));
+    // Only choices that differ from the default are stored, so new extras start on
+    const changed = Object.fromEntries(FEATURES.filter((f) => next[f] !== featureDefault(f)).map((f) => [f, next[f]]));
+    db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('features', ?)").run(JSON.stringify(changed));
   }
   if (req.body?.rescueMultiplier !== undefined) {
     const m = Number(req.body.rescueMultiplier);

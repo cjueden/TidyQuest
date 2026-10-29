@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, HOSTED_RUN } from './setup';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 
@@ -14,6 +14,12 @@ const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
 const ago = (days: number) => new Date(Date.now() - days * 86400000).toISOString();
 
 describe('Settings → Features', () => {
+  it.skipIf(HOSTED_RUN)('starts with proof photos on (hosted mode starts them off)', async () => {
+    const admin = await createAdmin(agent);
+    db.prepare("DELETE FROM app_settings WHERE key = 'features'").run();
+    expect((await agent.get('/api/features').set(auth(admin.token))).body.features.proofPhotos).toBe(true);
+  });
+
   it('switches extras off for everyone, and sets the Rescue Mission multiplier', async () => {
     const admin = await createAdmin(agent);
     const kid = await createUser(agent, admin.token, { username: 'kid', displayName: 'Kid', password: 'pass123', role: 'child' });

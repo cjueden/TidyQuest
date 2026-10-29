@@ -2,7 +2,7 @@ import db from '../database';
 import { LANGUAGES, tr } from '../utils/i18n';
 import { runInFamily } from './context';
 import { sendEmail, writeEmail } from './email';
-import { deleteFamily, openFamily } from './families';
+import { billingOn, deleteFamily, openFamily } from './families';
 import { mainDb } from './mainDb';
 
 // Expired trials (HOSTED.md decision 9): a family whose trial ended and who never paid is deleted 60 days
@@ -12,8 +12,6 @@ const DAY = 24 * 60 * 60 * 1000;
 export const DELETE_AFTER_TRIAL_DAYS = 60;
 export const WARN_DAYS = 7;
 
-/** Billing is on when a payment key is set. NEW-19 picks the company (and may rename the variable). */
-export const billingOn = () => !!process.env.PAYMENT_KEY;
 
 interface EndingTrial { id: string; name: string; trialEndsAt: string; trialWarnedAt: string | null }
 

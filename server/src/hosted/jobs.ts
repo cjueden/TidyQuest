@@ -1,5 +1,5 @@
 import { currentFamily, isHosted, runInFamily } from './context';
-import { openFamily, purgeDeletedFamilies } from './families';
+import { familyStatus, openFamily, purgeDeletedFamilies } from './families';
 import { mainDb } from './mainDb';
 import { endExpiredTrials } from './trials';
 
@@ -10,7 +10,8 @@ export type Job = (now?: Date) => unknown;
 
 /** Families whose jobs run: on a trial or a paid plan. Suspended, expired and deleted ones are skipped. */
 const runningFamilies = () =>
-  (mainDb().prepare("SELECT id FROM families WHERE status IN ('trial', 'active') AND deletedAt IS NULL ORDER BY createdAt").all() as { id: string }[]).map((f) => f.id);
+  (mainDb().prepare("SELECT id, status, trialEndsAt, plan FROM families WHERE status IN ('trial', 'active') AND deletedAt IS NULL ORDER BY createdAt").all() as { id: string; status: string; trialEndsAt: string | null; plan: string | null }[])
+    .filter((f) => familyStatus(f) !== 'expired').map((f) => f.id);
 
 /** Runs job once per running family, inside its database (self-hosted: once). One family's error is logged and the rest go on. */
 export async function forEachFamily(job: () => unknown): Promise<void> {

@@ -15,9 +15,10 @@ import { realignWeeklyGoals, syncPrimaryGoal } from '../utils/goals';
 import { UNLOCKABLE_THEMES, canUse } from '../utils/unlocks';
 import { currentLocalWeek, weekStartDay } from '../utils/periods';
 import { canonicalZone, familyZone } from '../utils/clock';
-import { isHosted, keepFamily } from '../hosted/context';
+import { isHosted } from '../hosted/context';
 import { removeAccount } from '../hosted/accounts';
-import { fileUrl, uploadDir } from '../hosted/files';
+import { fileUrl, oneFile, uploadDir } from '../hosted/files';
+import { NTFY_ONLY_ERROR, filesFullError, ntfyServerAllowed, overFilesLimit, tooManyPeople } from '../hosted/limits';
 
 const router = Router();
 router.use(authMiddleware);
@@ -65,9 +66,8 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({
+const upload = oneFile('avatar', () => 2, {
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
@@ -116,6 +116,9 @@ router.post('/', (req: AuthRequest, res: Response) => {
   if (existing) {
     return res.status(409).json({ error: 'Username already taken' });
   }
+  // Hosted mode: up to MAX_PEOPLE (15) in a family
+  const tooMany = tooManyPeople((db.prepare('SELECT COUNT(*) AS n FROM users').get() as { n: number }).n + 1);
+  if (tooMany) return res.status(403).json(tooMany);
 
   const safeRole = role === 'admin' ? 'admin' : role === 'child' ? 'child' : 'member';
   const passwordHash = bcrypt.hashSync(password, 10);
@@ -188,19 +191,26 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
 });
 
 // Upload avatar photo
-router.post('/:id/avatar-upload', keepFamily(upload.single('avatar')), (req: AuthRequest, res: Response) => {
+router.post('/:id/avatar-upload', upload, (req: AuthRequest, res: Response) => {
   const userId = parseInt(req.params.id as string);
   const requester = db.prepare('SELECT id, role FROM users WHERE id = ?').get(req.userId) as any;
   const target = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId) as any;
-  if (!target) return res.status(404).json({ error: 'User not found' });
+  const discard = () => { if (req.file) fs.rmSync(req.file.path, { force: true }); };
+  if (!target) { discard(); return res.status(404).json({ error: 'User not found' }); }
   const isSelf = userId === req.userId;
   const canAdminEditOther = requester?.role === 'admin' && userId !== req.userId;
   if (!isSelf && !canAdminEditOther) {
+    discard();
     return res.status(403).json({ error: 'Cannot modify another user' });
   }
 
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
+  }
+  // Hosted mode: the family's avatars and photos have a space limit (the old avatar is kept if it's full)
+  if (overFilesLimit(req.familyId)) {
+    discard();
+    return res.status(413).json(filesFullError());
   }
 
   // Delete previous avatar file if it exists
@@ -582,6 +592,8 @@ router.put('/notifications-config', (req: AuthRequest, res: Response) => {
   if (notificationTypes !== undefined && !normalizedTypes) {
     return res.status(400).json({ error: 'notificationTypes is invalid' });
   }
+  // Hosted mode only sends to ntfy.sh (hosted/limits.ts)
+  if (ntfyServerUrl?.trim() && !ntfyServerAllowed(ntfyServerUrl.trim())) return res.status(400).json(NTFY_ONLY_ERROR);
   if (notificationsEnabled !== undefined) {
     db.prepare("UPDATE app_settings SET value = ?, updatedAt = datetime('now') WHERE key = 'notificationsEnabled'")
       .run(notificationsEnabled ? '1' : '0');

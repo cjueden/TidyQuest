@@ -93,6 +93,13 @@ export const GUIDE_NL: GuideSection[] = [
         'Bij het aanmelden sturen we een link om je adres te bevestigen. Een gezin dat binnen 30 dagen geen e-mailadres van een ouder bevestigt, kan tot dan alleen nog bevestigen of zijn gegevens downloaden.',
         'Wachtwoord vergeten? op het inlogscherm stuurt een ouder een link die één keer werkt, een uur lang. Kinderen en tieners vragen een ouder om een nieuw wachtwoord in te stellen bij Instellingen → Gezinsleden.',
       ] },
+      { h: 'Op tidyquest.org: grenzen' },
+      { ul: [
+        'Een gezin kan maximaal 15 personen hebben.',
+        'Een bewijsfoto mag maximaal 5 MB zijn (een avatar 2 MB), en een gezin heeft 200 MB voor zijn foto’s. Een back-up om te importeren mag maximaal 5 MB zijn.',
+        'Bewijsfoto’s staan eerst uit: een ouder zet ze aan in Instellingen → Functies → Bewijsfoto’s.',
+        'Als TidyQuest een gezin pauzeert, of de gratis proefperiode voorbij is, toont de app daar een pagina over. Ouders kunnen daar nog steeds op Onze gegevens downloaden tikken.',
+      ] },
     ],
   },
   {
@@ -159,6 +166,7 @@ export const GUIDE_NL: GuideSection[] = [
         'Ouders en leden kunnen een klusje voor iemand anders op klaar zetten ("wie heeft het gedaan?").',
         'Een vergissing kun je ongedaan maken via Activiteit (ouders), of met ↩️ Ongedaan naast "Gedaan door" van het klusje in de kamer (ouders; er wordt eerst gevraagd, omdat de munten er weer af gaan). Een Samen doen wordt voor het hele team ongedaan gemaakt en ieders munten daarvoor worden teruggenomen. Een kind kan zijn eigen Klaar terugnemen zolang het op goedkeuring wacht.',
       ] },
+      { p: 'Instellingen → Functies → Bewijsfoto’s zet foto’s uit; de 📎-knop voegt dan alleen een notitie toe. Op tidyquest.org staan foto’s eerst uit, en een ouder zet ze aan.' },
       { h: 'Te laat invullen' },
       { ul: [
         'Vergeten op Klaar! te tikken? Tik naast het klusje in de kamer op 📅 (Eerder gedaan…), kies de dag (tot 7 dagen terug) en tik op Invullen. Ouders en leden kunnen kiezen wie het deed.',
@@ -306,6 +314,7 @@ export const GUIDE_NL: GuideSection[] = [
         'Privésoorten (goedgekeurd/afgewezen, overzichten, duwtjes, aanmoedigingen) gaan alleen naar het eigen kanaal van een persoon, nooit naar het gezinskanaal.',
         'Het Meldingenlogboek toont wat er is verstuurd, in de wachtrij staat of mislukt is, en waarom.',
       ] },
+      { p: 'Op tidyquest.org gaan meldingen via ntfy.sh of Telegram. Een eigen ntfy-server en Home Assistant werken alleen op een server thuis.' },
     ],
   },
   {
@@ -421,6 +430,10 @@ export const GUIDE_NL: GuideSection[] = [
           'Stille uren en schooltijden houden berichten vast tot ze afgelopen zijn.',
           'Het Meldingenlogboek toont elk bericht en eventuele fouten.',
         ] },
+        { q: 'Onze eigen ntfy-server of Home Assistant werkt niet op tidyquest.org', a: [
+          'tidyquest.org stuurt alleen naar ntfy.sh en Telegram: een ingetypt adres kan machines in ons netwerk bereiken, dus de server roept het niet aan. Een server thuis kan allebei gebruiken.',
+          'Een back-up van een server thuis importeren haalt de Home Assistant- en eigen ntfy-instellingen weg (met de onderwerpen van die server), zodat berichten nooit per ongeluk in een openbaar ntfy.sh-onderwerp belanden. Stel ntfy.sh of Telegram opnieuw in via Instellingen → Algemeen → Meldingen.',
+        ] },
         { q: 'Klusjes beginnen op het verkeerde uur opnieuw, of dagen en de week lopen een paar uur fout', a: [
           'Kijk bij Instellingen → Algemeen → Tijdzone (ouders): daar beginnen de dagen om middernacht voor het hele gezin. Staat er "Nog niet gekozen", tik dan op Gebruiken om de tijdzone van dit apparaat te nemen, of tik op Wijzigen en zoek de jouwe.',
           'Wijzigen verschuift vanaf dan wanneer elke dag begint. Gedane klusjes blijven op de dag waarop ze gedaan zijn.',
@@ -490,6 +503,16 @@ export const GUIDE_NL: GuideSection[] = [
         ] },
         { q: 'Er staat "Bevestig je e-mail om TidyQuest te blijven gebruiken"', a: [
           'Je gezin had 30 dagen om het e-mailadres van een ouder te bevestigen. Een ouder opent de link die we stuurden, of tikt op Opnieuw sturen (of E-mail wijzigen als het adres niet klopte). Er gaat niets verloren, en Onze gegevens downloaden werkt nog steeds.',
+        ] },
+        { q: 'Er staat dat het gezin gepauzeerd is, of dat de gratis proefperiode voorbij is', a: [
+          'Alleen op tidyquest.org. Een gepauzeerd gezin kan de app pas weer gebruiken als TidyQuest het hervat. Er gaat niets verloren, en een ouder kan nog steeds op Onze gegevens downloaden tikken.',
+          'Is de gratis proefperiode voorbij, dan kiest een ouder een abonnement om door te gaan. Tot dan blijven de gegevens van het gezin bewaard, en Onze gegevens downloaden werkt nog steeds.',
+        ] },
+        { q: 'Er staat dat een bestand te groot is, of dat het gezin vol is', a: [
+          'De melding zegt welke grens bereikt is. Een bewijsfoto mag maximaal 8 MB zijn (5 MB op tidyquest.org), een avatar 2 MB, en een back-up om te importeren 50 MB (5 MB op tidyquest.org).',
+          'Op tidyquest.org heeft een gezin 200 MB voor foto’s. Is die vol, dan worden nieuwe foto’s niet geüpload, maar het klusje telt wel.',
+          'Op tidyquest.org kan een gezin maximaal 15 personen hebben.',
+          'Geen fotoveld bij afronden met 📎? Een ouder heeft ze uitgezet in Instellingen → Functies → Bewijsfoto’s.',
         ] },
         { q: 'Ik ben op elk apparaat uitgelogd', a: [
           'Een ouder heeft je wachtwoord veranderd of Uitloggen op alle apparaten gebruikt, of je hebt zelf je wachtwoord veranderd of Overal anders uitloggen gebruikt op een ander apparaat. Log opnieuw in met je huidige wachtwoord.',

@@ -959,7 +959,9 @@
       "notePlaceholder": "e.g. Got 94% on the math test",
       "photo": "Photo (optional)",
       "submit": "Done",
-      "photoFailed": "Saved, but the photo didn't upload."
+      "photoFailed": "Saved, but the photo didn't upload.",
+      "titleNote": "Finish with a note",
+      "addNote": "Add a note"
     },
     "rewardRules": {
       "whoCanSee": "Who can see it",
@@ -1384,7 +1386,8 @@
       "kind_rescue": "Rescue Mission",
       "kindDesc_rescue": "the day's 2× chore, in the morning",
       "kind_cheer": "Cheers on my chores",
-      "kind_teamup": "Team-up invites"
+      "kind_teamup": "Team-up invites",
+      "peopleDescHosted": "Give each person their own channel (an ntfy topic on their phone, or a Telegram chat). Without one, they share the family channel; private messages (their results, summaries, nudges) only go to their own channel."
     },
     "todos": {
       "roomName": "To-dos",
@@ -1453,7 +1456,9 @@
       "focusDesc": "A kid's chores one at a time, big, with their steps. Who sees it is set per person in Family Members.",
       "shields": "🛡️ Streak shields",
       "shieldsDesc": "Earned every 7 days in a row, or bought with coins (2 at most). A shield saves the streak on a missed day.",
-      "shieldPrice": "Price"
+      "shieldPrice": "Price",
+      "proofPhotos": "Proof photos",
+      "proofPhotosDesc": "Kids can add a photo to a chore that waits for a parent's approval. Off: a note only."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1988,7 +1993,17 @@
       "errEmailTaken": "That email already has a family. Log in, or reset your password.",
       "errBadEmail": "That email address doesn't look right.",
       "errWrongPassword": "Your password isn't right.",
-      "errShortPassword": "Passwords need at least 8 characters."
+      "errShortPassword": "Passwords need at least 8 characters.",
+      "suspendedTitle": "This family is paused",
+      "suspendedText": "TidyQuest has paused your family's account, so the app can't be used for now. Your chores and history are all still here, and a parent can download them.",
+      "expiredTitle": "Your free trial has ended",
+      "expiredParent": "To keep using TidyQuest, your family needs a plan. Your chores and history are kept for now, and you can download them.",
+      "expiredOther": "Your family's free trial has ended. Ask a parent to pick a plan. Your chores and coins are all still here."
+    },
+    "limits": {
+      "people": "A family can have up to {n} people.",
+      "tooLarge": "That file is too big: the most is {n} MB.",
+      "storageFull": "Your family's space for photos is full ({n} MB)."
     }
   }
 }

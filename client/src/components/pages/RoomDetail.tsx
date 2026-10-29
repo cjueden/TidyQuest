@@ -134,6 +134,8 @@ interface RoomDetailProps {
   onOpenRoom?: (roomId: number) => void;
   /** Offer "One time" in the task form (Settings → Features → To-dos) */
   allowOneTime?: boolean;
+  /** Settings → Features → Proof photos: kids' proof is a note only when off */
+  allowPhotos?: boolean;
   onAchievementsUnlocked?: (ids: string[]) => void;
   /** Task to scroll to and briefly highlight (from search or the task list) */
   focusTaskId?: number;
@@ -184,7 +186,7 @@ function EffortPicker({ effort, onChange }: { effort: number; onChange: (e: numb
   );
 }
 
-export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onOpenRoom, allowOneTime = true, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
+export function RoomDetail({ room, language, isAdmin, currentUserId, currentUserRole, users, coinsByEffort, onCompleteTask, onBack, onRefresh, onOpenRoom, allowOneTime = true, allowPhotos = true, onAchievementsUnlocked, focusTaskId, onlyMine, strictMode }: RoomDetailProps) {
   const { taskName: translateTask, roomDisplayName, timeAgo, t } = useTranslation(language);
   const [animatedTask, setAnimatedTask] = useState<number | null>(null);
   const timer = useChoreTimer();
@@ -1049,7 +1051,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
                       <TeamUpButton info={task.teamUp} onClick={() => setTeamPick(task)} language={language} />
                       <TakeBackButton completionId={task.myPendingId} onDone={() => onRefresh?.()} language={language} />
                       {canAddProof && !btn.disabled && !waitForTimer && (
-                        <button onClick={() => setProofTask(task)} className="tq-btn tq-btn-secondary tq-btn-sm" title={t('proof.addProof')} aria-label={t('proof.addProof')}>📎</button>
+                        <button onClick={() => setProofTask(task)} className="tq-btn tq-btn-secondary tq-btn-sm" title={t(allowPhotos ? 'proof.addProof' : 'proof.addNote')} aria-label={t(allowPhotos ? 'proof.addProof' : 'proof.addNote')}>📎</button>
                       )}
                       {btn.label !== t('app.notAssigned') && !claimedLabel(task.teamUp) && (
                         <button onClick={() => setLateTask(task)} className="tq-btn tq-btn-secondary tq-btn-sm" title={t('late.button')} aria-label={t('late.button')}>📅</button>
@@ -1343,6 +1345,7 @@ export function RoomDetail({ room, language, isAdmin, currentUserId, currentUser
       <ProofModal
         taskTitle={translateTask(proofTask.name, proofTask.translationKey)}
         language={language}
+        photos={allowPhotos}
         onClose={() => setProofTask(null)}
         onSubmit={async (proof) => { onCompleteTask(proofTask.id, proof); setProofTask(null); }}
       />

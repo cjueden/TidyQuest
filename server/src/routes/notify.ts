@@ -6,6 +6,7 @@ import { NOTIFICATION_KINDS } from '../utils/notifications';
 import { getPeople, personalChannels, sendPersonTest } from '../utils/notify';
 import { SCHEDULE_DEFAULTS } from '../utils/notifySchedule';
 import { tr } from '../utils/i18n';
+import { isHosted } from '../hosted/context';
 
 /**
  * Notification settings beyond the family channel (Settings → Notifications): times for the
@@ -53,6 +54,8 @@ router.put('/settings', (req: AuthRequest, res: Response) => {
   if (b.recapDay !== undefined && !(Number.isInteger(Number(b.recapDay)) && Number(b.recapDay) >= 0 && Number(b.recapDay) <= 6)) {
     return res.status(400).json({ error: 'invalid_day' });
   }
+  // Hosted mode has no Home Assistant: its address could be a machine inside the hosting network
+  if (isHosted() && (b.haUrl || b.haToken || b.haFamilyService)) return res.status(400).json({ error: 'ha_off' });
   if (b.haUrl) {
     try {
       if (!['http:', 'https:'].includes(new URL(String(b.haUrl)).protocol)) throw new Error('protocol');
@@ -107,6 +110,7 @@ router.put('/people/:id', (req: AuthRequest, res: Response) => {
   if (b.ntfyTopic !== undefined && clean(b.ntfyTopic) && !/^[A-Za-z0-9_-]{1,64}$/.test(clean(b.ntfyTopic))) return res.status(400).json({ error: 'invalid_topic' });
   if (b.telegramChatId !== undefined && clean(b.telegramChatId) && !/^-?\d{1,20}$|^@[A-Za-z0-9_]{4,64}$/.test(clean(b.telegramChatId))) return res.status(400).json({ error: 'invalid_chat' });
   if (b.haNotifyService !== undefined && clean(b.haNotifyService) && !/^(notify\.)?[a-z0-9_]+$/.test(clean(b.haNotifyService))) return res.status(400).json({ error: 'invalid_service' });
+  if (isHosted() && clean(b.haNotifyService)) return res.status(400).json({ error: 'ha_off' });
   const updates: Record<string, string | null> = {};
   for (const key of ['ntfyTopic', 'telegramChatId', 'haNotifyService']) if (b[key] !== undefined) updates[key] = clean(b[key]) || null;
   if (b.prefs && typeof b.prefs === 'object') {

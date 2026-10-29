@@ -40,18 +40,24 @@ import { startHosted } from './hosted/families';
 import { startJobs } from './hosted/jobs';
 import { filesRouter } from './hosted/files';
 import hostedRoutes from './hosted/routes';
+import { hostedCorsOrigin, securityHeaders } from './hosted/headers';
+import { limits } from './hosted/limits';
 
 export function createApp() {
   const app = express();
   app.set('trust proxy', trustProxySetting());
   if (isHosted()) app.use(countRequests);
   app.use(proxyHint);
+  // Hosted mode: security headers (helmet), and CORS only for the app's own address
+  if (isHosted()) app.use(securityHeaders());
 
   // CORS: allow only in dev or via explicit env var (in production, frontend is served from same origin)
-  const corsOrigin = process.env.CORS_ORIGIN || (process.env.NODE_ENV !== 'production' ? true : false);
+  const corsOrigin = isHosted() ? hostedCorsOrigin() : process.env.CORS_ORIGIN || (process.env.NODE_ENV !== 'production' ? true : false);
   app.use(cors({ origin: corsOrigin }));
 
-  app.use(express.json({ limit: '50mb' }));
+  // The biggest body is an import: 50 MB self-hosted, 5 MB in hosted mode (MAX_IMPORT_MB)
+  const bodyMb = isHosted() ? limits().importMb : 50;
+  app.use(express.json({ limit: `${bodyMb}mb` }));
 
   // Prevent browser caching of API responses
   app.use('/api', (_req, res, next) => {
@@ -110,6 +116,12 @@ export function createApp() {
   // 404 handler for unknown API routes
   app.use('/api/*', (_req, res) => {
     res.status(404).json({ error: 'API endpoint not found' });
+  });
+
+  // A body over the limit (an import, mostly) answers in JSON, so the app can say so
+  app.use((err: { type?: string }, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (err?.type !== 'entity.too.large') return next(err);
+    res.status(413).json({ error: `That file is too big (the limit is ${bodyMb} MB)`, code: 'too-large', limit: bodyMb });
   });
 
   return app;
