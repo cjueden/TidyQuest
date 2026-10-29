@@ -143,7 +143,13 @@
       "logout": "Log out",
       "themeDesc": "Your colors, on every device you sign in on.",
       "holidayColors": "Holiday colors",
-      "holidayColorsDesc": "During holidays, use the holiday's colors instead of your theme. Decorations show either way."
+      "holidayColorsDesc": "During holidays, use the holiday's colors instead of your theme. Decorations show either way.",
+      "logoutOthers": "Log out everywhere else",
+      "logoutOthersDesc": "Signs you out on every other phone, tablet and computer. You stay signed in here.",
+      "logoutOthersConfirm": "Sign out on every other device? You stay signed in here.",
+      "logoutOthersDone": "Done: every other device is signed out.",
+      "logoutOthersFailed": "Couldn't sign out the other devices. Try again.",
+      "passwordUpdatedElsewhere": "Password updated. Your other devices are signed out."
     },
     "settings": {
       "title": "Settings",
@@ -305,7 +311,12 @@
       "timeZoneSearch": "Search: city or region",
       "timeZoneNone": "No zone matches.",
       "timeZoneNote": "Changing it moves when each day starts from now on. Chores already done stay on the day they were done.",
-      "timeZoneNow": "{time} there now"
+      "timeZoneNow": "{time} there now",
+      "logoutAllDevices": "Log out of all devices",
+      "logoutAllDevicesConfirm": "Sign {name} out on every device? They'll need their password to sign back in.",
+      "logoutAllDevicesDone": "{name} is signed out everywhere.",
+      "logoutAllDevicesFailed": "Couldn't sign them out. Try again.",
+      "passwordResetSignedOut": "Password reset. {name} is signed out on every device."
     },
     "nav": {
       "home": "Home",

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import db from '../database';
 
 // Security: Require JWT_SECRET in production
 if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
@@ -26,15 +27,29 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   }
 
   const token = header.slice(7);
+  let payload: { userId: number; v?: number };
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as { userId: number };
-    req.userId = payload.userId;
-    next();
+    payload = jwt.verify(token, JWT_SECRET) as { userId: number; v?: number };
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }
+  // Turn away a removed person, or a token from before their last "log out everywhere" or password
+  // change. Tokens made before NEW-8 have no version and count as 0.
+  const row = db.prepare('SELECT tokenVersion FROM users WHERE id = ?').get(payload.userId) as { tokenVersion: number } | undefined;
+  if (!row || (payload.v ?? 0) !== row.tokenVersion) {
+    return res.status(401).json({ error: 'Signed out' });
+  }
+  req.userId = payload.userId;
+  next();
 }
 
+/** A login token for this person, carrying their current token version. */
 export function generateToken(userId: number): string {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '30d' });
+  const row = db.prepare('SELECT tokenVersion FROM users WHERE id = ?').get(userId) as { tokenVersion: number } | undefined;
+  return jwt.sign({ userId, v: row?.tokenVersion ?? 0 }, JWT_SECRET, { expiresIn: '30d' });
+}
+
+/** Logs this person out on every device: their existing tokens stop working. */
+export function revokeTokens(userId: number): void {
+  db.prepare('UPDATE users SET tokenVersion = tokenVersion + 1 WHERE id = ?').run(userId);
 }

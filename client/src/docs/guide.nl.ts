@@ -74,9 +74,15 @@ export const GUIDE_NL: GuideSection[] = [
         'Thema en feestdagkleuren volgen de persoon naar elk apparaat (ze kunnen die aanpassen in Profiel).',
         'Vakantie per gezinslid: beschermt de streak en bevriest de gezondheid van de klusjes zolang iemand weg is.',
         'Munten aanpassen (Gezinslid beheren): munten erbij of eraf halen, met een reden. Het getal is een verandering, geen nieuw saldo: 10 voegt 10 toe, -10 haalt er 10 af. Werkt ook voor ouders, jezelf inbegrepen. Details in "Munten, beloningen en doelen" → Munten aanpassen.',
-        'Wachtwoord: een ouder kan een nieuw wachtwoord instellen als iemand het vergeten is.',
+        'Wachtwoord: een ouder kan een nieuw wachtwoord instellen als iemand het vergeten is. Diegene wordt dan op elk apparaat uitgelogd en logt weer in met het nieuwe.',
       ] },
       { tip: 'Zet "Privékamers van anderen verbergen voor kinderen" aan in Instellingen → Algemeen als kinderen bijvoorbeeld de eigen kamer van een ouder niet mogen zien.' },
+      { h: 'Overal uitloggen' },
+      { ul: [
+        'Profiel → Overal anders uitloggen: logt je uit op al je andere telefoons, tablets en computers; op deze blijf je ingelogd. Handig nadat je het apparaat van iemand anders hebt gebruikt, of als iemand je wachtwoord misschien kent.',
+        'Instellingen → Gezinsleden → Gezinslid beheren → Uitloggen op alle apparaten: logt die persoon overal uit, bijvoorbeeld als een tablet kwijt is. Diegene logt weer in met het eigen wachtwoord.',
+        'Een nieuw wachtwoord logt de persoon ook overal uit. Verander je je eigen wachtwoord in Profiel, dan blijf je op dat apparaat ingelogd; zet een ouder het wachtwoord van een kind opnieuw in, dan wordt ook de tablet van het kind uitgelogd en is het nieuwe nodig.',
+      ] },
     ],
   },
   {
@@ -460,6 +466,10 @@ export const GUIDE_NL: GuideSection[] = [
           'Te veel foute wachtwoorden blokkeren inloggen tot 15 minuten: 10 voor één account of 20 vanaf één apparaat. Wacht en probeer opnieuw; een juist wachtwoord zet de teller van het account terug.',
           'Een ouder kan een nieuw wachtwoord instellen in Instellingen → Gezinsleden.',
           'Na het importeren van een back-up heeft iedereen behalve de ouder die importeerde een nieuw wachtwoord nodig.',
+        ] },
+        { q: 'Ik ben op elk apparaat uitgelogd', a: [
+          'Een ouder heeft je wachtwoord veranderd of Uitloggen op alle apparaten gebruikt, of je hebt zelf je wachtwoord veranderd of Overal anders uitloggen gebruikt op een ander apparaat. Log opnieuw in met je huidige wachtwoord.',
+          'Een login stopt ook vanzelf na 30 dagen op elk apparaat.',
         ] },
         { q: 'Er staat "Dat lukte niet"', a: [
           'De telefoon kon de server niet bereiken (geen wifi of data), of iemand veranderde op hetzelfde moment hetzelfde. De pagina laadt opnieuw; controleer het en probeer het nog eens.',

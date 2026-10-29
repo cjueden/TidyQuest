@@ -143,7 +143,13 @@
       "logout": "Abmelden",
       "themeDesc": "Deine Farben, auf jedem Gerät, auf dem du dich anmeldest.",
       "holidayColors": "Feiertagsfarben",
-      "holidayColorsDesc": "An Feiertagen deren Farben statt deines Themes verwenden. Die Deko erscheint so oder so."
+      "holidayColorsDesc": "An Feiertagen deren Farben statt deines Themes verwenden. Die Deko erscheint so oder so.",
+      "logoutOthers": "Überall sonst abmelden",
+      "logoutOthersDesc": "Meldet dich auf allen anderen Handys, Tablets und Computern ab. Hier bleibst du angemeldet.",
+      "logoutOthersConfirm": "Auf allen anderen Geräten abmelden? Hier bleibst du angemeldet.",
+      "logoutOthersDone": "Erledigt: Alle anderen Geräte sind abgemeldet.",
+      "logoutOthersFailed": "Die anderen Geräte konnten nicht abgemeldet werden. Versuch es noch einmal.",
+      "passwordUpdatedElsewhere": "Passwort aktualisiert. Deine anderen Geräte sind abgemeldet."
     },
     "settings": {
       "title": "Einstellungen",
@@ -305,7 +311,12 @@
       "timeZoneSearch": "Suchen: Stadt oder Region",
       "timeZoneNone": "Keine Zeitzone passt.",
       "timeZoneNote": "Eine Änderung verschiebt ab jetzt, wann jeder Tag beginnt. Erledigte Aufgaben bleiben an dem Tag, an dem sie erledigt wurden.",
-      "timeZoneNow": "Dort jetzt {time}"
+      "timeZoneNow": "Dort jetzt {time}",
+      "logoutAllDevices": "Auf allen Geräten abmelden",
+      "logoutAllDevicesConfirm": "{name} auf allen Geräten abmelden? Zum erneuten Anmelden wird das Passwort gebraucht.",
+      "logoutAllDevicesDone": "{name} ist überall abgemeldet.",
+      "logoutAllDevicesFailed": "Abmelden hat nicht geklappt. Versuch es noch einmal.",
+      "passwordResetSignedOut": "Passwort zurückgesetzt. {name} ist auf allen Geräten abgemeldet."
     },
     "nav": {
       "home": "Startseite",

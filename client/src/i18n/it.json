@@ -143,7 +143,13 @@
       "logout": "Esci",
       "themeDesc": "I tuoi colori, su ogni dispositivo dove accedi.",
       "holidayColors": "Colori delle feste",
-      "holidayColorsDesc": "Durante le feste, usa i loro colori al posto del tuo tema. Le decorazioni si vedono comunque."
+      "holidayColorsDesc": "Durante le feste, usa i loro colori al posto del tuo tema. Le decorazioni si vedono comunque.",
+      "logoutOthers": "Esci da tutti gli altri dispositivi",
+      "logoutOthersDesc": "Ti disconnette da tutti gli altri telefoni, tablet e computer. Qui resti connesso.",
+      "logoutOthersConfirm": "Uscire da tutti gli altri dispositivi? Qui resti connesso.",
+      "logoutOthersDone": "Fatto: tutti gli altri dispositivi sono disconnessi.",
+      "logoutOthersFailed": "Impossibile disconnettere gli altri dispositivi. Riprova.",
+      "passwordUpdatedElsewhere": "Password aggiornata. Gli altri tuoi dispositivi sono disconnessi."
     },
     "settings": {
       "title": "Impostazioni",
@@ -305,7 +311,12 @@
       "timeZoneSearch": "Cerca: città o regione",
       "timeZoneNone": "Nessun fuso corrisponde.",
       "timeZoneNote": "Cambiarlo sposta l'inizio di ogni giorno da adesso in poi. Le faccende già fatte restano nel giorno in cui sono state fatte.",
-      "timeZoneNow": "Lì sono le {time}"
+      "timeZoneNow": "Lì sono le {time}",
+      "logoutAllDevices": "Esci da tutti i dispositivi",
+      "logoutAllDevicesConfirm": "Disconnettere {name} da tutti i dispositivi? Servirà la sua password per rientrare.",
+      "logoutAllDevicesDone": "{name} è stato disconnesso ovunque.",
+      "logoutAllDevicesFailed": "Impossibile disconnetterlo. Riprova.",
+      "passwordResetSignedOut": "Password reimpostata. {name} è disconnesso da tutti i dispositivi."
     },
     "nav": {
       "home": "Home",

@@ -6,7 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import bcrypt from 'bcryptjs';
 import db from '../database';
-import { AuthRequest, authMiddleware } from '../middleware/auth';
+import { AuthRequest, authMiddleware, generateToken, revokeTokens } from '../middleware/auth';
 import { DEFAULT_COINS_BY_EFFORT, normalizeCoinsByEffortConfig } from '../utils/health';
 import { notifyCoinsAdjusted } from '../utils/notifyMessages';
 import { NOTIFICATION_KINDS, NotificationTypeSettings, sendTelegramMessageDetailed, sendNtfyMessageDetailed } from '../utils/notifications';
@@ -243,13 +243,26 @@ router.put('/:id/password', (req: AuthRequest, res: Response) => {
     if (!currentPassword) {
       return res.status(400).json({ error: 'currentPassword is required' });
     }
+    // Not 401: the app treats a 401 as "signed out" and would drop this device's login
     if (!bcrypt.compareSync(currentPassword, target.passwordHash)) {
-      return res.status(401).json({ error: 'Current password is incorrect' });
+      return res.status(403).json({ error: 'Current password is incorrect' });
     }
   }
 
   const hash = bcrypt.hashSync(newPassword, 10);
   db.prepare('UPDATE users SET passwordHash = ? WHERE id = ?').run(hash, userId);
+  // A new password logs the person out everywhere; someone changing their own stays signed in here
+  revokeTokens(userId);
+  res.json(isSelf ? { success: true, token: generateToken(userId) } : { success: true });
+});
+
+// A parent logs someone out on every device, e.g. a lost tablet (NEW-8). Their own: "Log out everywhere else"
+router.post('/:id/logout-all', (req: AuthRequest, res: Response) => {
+  if (!ensureAdmin(req.userId)) return res.status(403).json({ error: 'Admin only' });
+  const targetId = parseInt(req.params.id as string);
+  if (targetId === req.userId) return res.status(400).json({ error: 'Use Log out everywhere else in your profile' });
+  if (!db.prepare('SELECT id FROM users WHERE id = ?').get(targetId)) return res.status(404).json({ error: 'User not found' });
+  revokeTokens(targetId);
   res.json({ success: true });
 });
 

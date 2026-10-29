@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { parseHomeLayout } from '../utils/homeLayout';
 import bcrypt from 'bcryptjs';
 import db from '../database';
-import { AuthRequest, authMiddleware, generateToken } from '../middleware/auth';
+import { AuthRequest, authMiddleware, generateToken, revokeTokens } from '../middleware/auth';
 import { canonicalZone } from '../utils/clock';
 
 // In-memory limits for auth endpoints (they reset on restart). The address is req.ip: the connection's own,
@@ -161,6 +161,12 @@ router.get('/me', authMiddleware, (req: AuthRequest, res: Response) => {
   user.points = pointsRow?.points ?? 0;
   user.homeLayout = parseHomeLayout(user.homeLayout);
   res.json(user);
+});
+
+// "Log out everywhere else" (NEW-8): every other device's login stops working; this one gets a fresh token
+router.post('/logout-others', authMiddleware, (req: AuthRequest, res: Response) => {
+  revokeTokens(req.userId!);
+  res.json({ token: generateToken(req.userId!) });
 });
 
 export default router;
