@@ -40,6 +40,7 @@ import { startHosted } from './hosted/families';
 import { startJobs } from './hosted/jobs';
 import { filesRouter } from './hosted/files';
 import hostedRoutes from './hosted/routes';
+import operatorRoutes, { operatorFromEnv } from './hosted/operator';
 import { hostedCorsOrigin, securityHeaders } from './hosted/headers';
 import { limits } from './hosted/limits';
 
@@ -89,6 +90,8 @@ export function createApp() {
   app.use('/api/auth', authRoutes);
   // Sign-up, parents' emails and the family code (hosted mode only)
   if (isHosted()) app.use('/api/hosted', hostedRoutes);
+  // The operator page, for the people running the server (hosted mode only)
+  if (isHosted()) app.use('/api/operator', operatorRoutes);
   app.use('/api/rooms', roomsRoutes);
   app.use('/api/zones', zonesRoutes);
   app.use('/api', tasksRoutes);
@@ -130,8 +133,10 @@ export function createApp() {
 // Start server only when run directly (not imported by tests)
 if (require.main === module || !process.env.VITEST) {
   const PORT = process.env.PORT || 3000;
-  if (isHosted()) startHosted();
-  else initDatabase();
+  if (isHosted()) {
+    startHosted();
+    operatorFromEnv();
+  } else initDatabase();
   const app = createApp();
 
   // Serve static frontend in production

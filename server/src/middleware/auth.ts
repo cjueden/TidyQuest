@@ -25,7 +25,7 @@ export interface AuthRequest extends Request {
   familyId?: string;
 }
 
-type TokenPayload = { userId: number; v?: number; fid?: string };
+type TokenPayload = { userId: number; v?: number; fid?: string; aud?: unknown };
 
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
@@ -40,6 +40,8 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }
+  // An operator-page token (it has an audience) never opens a family
+  if (payload.aud !== undefined) return res.status(401).json({ error: 'Invalid token' });
   if (!isHosted()) return checkUser(req, res, next, payload);
   // Hosted mode: the token names the family. The rest of the request runs with that family's database.
   const family = openFamily(payload.fid);
@@ -83,4 +85,21 @@ export function generateToken(userId: number): string {
 /** Logs this person out on every device: their existing tokens stop working. */
 export function revokeTokens(userId: number): void {
   db.prepare('UPDATE users SET tokenVersion = tokenVersion + 1 WHERE id = ?').run(userId);
+}
+
+// Operator-page tokens (hosted/operator.ts) are marked with their own audience and last 12 hours. The
+// family routes refuse them above, and the operator routes refuse every token without it.
+const OPERATOR_AUDIENCE = 'operator';
+export type OperatorTokenPayload = { op: number; v: number };
+
+export function signOperatorToken(payload: OperatorTokenPayload): string {
+  return jwt.sign(payload, JWT_SECRET, { audience: OPERATOR_AUDIENCE, expiresIn: '12h' });
+}
+
+export function verifyOperatorToken(token: string): OperatorTokenPayload | null {
+  try {
+    return jwt.verify(token, JWT_SECRET, { audience: OPERATOR_AUDIENCE }) as OperatorTokenPayload;
+  } catch {
+    return null;
+  }
 }

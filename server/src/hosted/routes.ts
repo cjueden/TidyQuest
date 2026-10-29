@@ -34,7 +34,7 @@ router.get('/config', (_req, res: Response) => {
   });
 });
 
-function sendConfirmation(req: AuthRequest, p: { familyId: string; userId: number; email: string; name: string; language: string }) {
+export function sendConfirmation(req: AuthRequest, p: { familyId: string; userId: number; email: string; name: string; language: string }) {
   const token = createEmailToken({ kind: 'confirm', familyId: p.familyId, userId: p.userId, email: p.email, newEmail: null });
   void sendEmail(writeEmail('confirm', p.language, p.email, { name: p.name, link: appLink(req, `/confirm-email?token=${token}`) }));
 }
