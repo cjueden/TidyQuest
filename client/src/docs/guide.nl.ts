@@ -83,6 +83,16 @@ export const GUIDE_NL: GuideSection[] = [
         'Instellingen → Gezinsleden → Gezinslid beheren → Uitloggen op alle apparaten: logt die persoon overal uit, bijvoorbeeld als een tablet kwijt is. Diegene logt weer in met het eigen wachtwoord.',
         'Een nieuw wachtwoord logt de persoon ook overal uit. Verander je je eigen wachtwoord in Profiel, dan blijf je op dat apparaat ingelogd; zet een ouder het wachtwoord van een kind opnieuw in, dan wordt ook de tablet van het kind uitgelogd en is het nieuwe nodig.',
       ] },
+      { h: 'Op tidyquest.org: inloggen' },
+      { ul: [
+        'Dit deel bestaat alleen op tidyquest.org (gehost). Een server thuis heeft geen gezinscode en geen inlogmail.',
+        'Ouders loggen in met hun e-mail en wachtwoord. Alle anderen met de gezinscode, hun gebruikersnaam en hun wachtwoord (ouders kunnen dat ook).',
+        'Instellingen → 🔑 Gezinscode toont de code (zoals sunny-otter-42), de gezinslink en een QR-code. Open de link of scan de code op de telefoon of tablet van een kind: het apparaat onthoudt het gezin, dus het kind typt alleen gebruikersnaam en wachtwoord. Hoofdletters, spaties en streepjes in de code maken niet uit.',
+        'Nieuwe code geeft het gezin een nieuwe code. De oude code en link werken dan niet meer; wie ingelogd is, blijft ingelogd.',
+        'Instellingen → ✉️ Inlogmail: E-mail wijzigen stuurt een link naar het nieuwe adres, en de wijziging gaat in zodra je hem opent. Een tweede ouder kan met E-mail toevoegen een eigen adres instellen.',
+        'Bij het aanmelden sturen we een link om je adres te bevestigen. Een gezin dat binnen 30 dagen geen e-mailadres van een ouder bevestigt, kan tot dan alleen nog bevestigen of zijn gegevens downloaden.',
+        'Wachtwoord vergeten? op het inlogscherm stuurt een ouder een link die één keer werkt, een uur lang. Kinderen en tieners vragen een ouder om een nieuw wachtwoord in te stellen bij Instellingen → Gezinsleden.',
+      ] },
     ],
   },
   {
@@ -468,6 +478,18 @@ export const GUIDE_NL: GuideSection[] = [
           'Een ouder kan een nieuw wachtwoord instellen in Instellingen → Gezinsleden.',
           'Kan geen enkele ouder inloggen? Wie de server beheert, kan het wachtwoord van de eerste ouder resetten met ADMIN_RESET_PASSWORD (README, "Admin Password Recovery"). "Wachtwoord vergeten?" op het inlogscherm zegt hetzelfde.',
           'Na het importeren van een back-up houdt iedereen die al een account op deze server had het eigen wachtwoord. Wie nieuw is op deze server heeft een wachtwoord nodig dat een ouder instelt bij Gezinsleden.',
+        ] },
+        { q: 'Een kind kan niet inloggen op tidyquest.org', a: [
+          'Controleer de code bij Instellingen → 🔑 Gezinscode op het apparaat van een ouder. Na Nieuwe code werkt de oude niet meer: tik op het inlogscherm op Wijzigen naast de code en typ de nieuwe.',
+          'Kinderen typen hun gebruikersnaam, geen e-mail. Ouders kunnen hun e-mail gebruiken, of de gezinscode met hun gebruikersnaam.',
+        ] },
+        { q: 'De bevestigings- of wachtwoordmail kwam niet aan', a: [
+          'Kijk in je spammap. Instellingen → ✉️ Inlogmail → Opnieuw sturen stuurt een nieuwe bevestigingslink (de oude werkt dan niet meer).',
+          'Een wachtwoordlink werkt een uur lang en maar één keer; vraag een nieuwe aan met Wachtwoord vergeten? op het inlogscherm.',
+          'Adres verkeerd getypt? Instellingen → ✉️ Inlogmail → E-mail wijzigen.',
+        ] },
+        { q: 'Er staat "Bevestig je e-mail om TidyQuest te blijven gebruiken"', a: [
+          'Je gezin had 30 dagen om het e-mailadres van een ouder te bevestigen. Een ouder opent de link die we stuurden, of tikt op Opnieuw sturen (of E-mail wijzigen als het adres niet klopte). Er gaat niets verloren, en Onze gegevens downloaden werkt nog steeds.',
         ] },
         { q: 'Ik ben op elk apparaat uitgelogd', a: [
           'Een ouder heeft je wachtwoord veranderd of Uitloggen op alle apparaten gebruikt, of je hebt zelf je wachtwoord veranderd of Overal anders uitloggen gebruikt op een ander apparaat. Log opnieuw in met je huidige wachtwoord.',

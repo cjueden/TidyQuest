@@ -38,6 +38,7 @@ import insightsRoutes from './routes/insights';
 import { countRequests, isHosted } from './hosted/context';
 import { startHosted } from './hosted/families';
 import { filesRouter } from './hosted/files';
+import hostedRoutes from './hosted/routes';
 
 export function createApp() {
   const app = express();
@@ -79,6 +80,8 @@ export function createApp() {
 
   // API routes
   app.use('/api/auth', authRoutes);
+  // Sign-up, parents' emails and the family code (hosted mode only)
+  if (isHosted()) app.use('/api/hosted', hostedRoutes);
   app.use('/api/rooms', roomsRoutes);
   app.use('/api/zones', zonesRoutes);
   app.use('/api', tasksRoutes);

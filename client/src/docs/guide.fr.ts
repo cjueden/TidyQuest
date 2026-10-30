@@ -83,6 +83,16 @@ export const GUIDE_FR: GuideSection[] = [
         'Paramètres → Membres de la famille → Gérer le membre → Déconnecter de tous les appareils : déconnecte cette personne partout, par exemple quand une tablette est perdue. Elle se reconnecte avec son mot de passe.',
         'Un nouveau mot de passe déconnecte aussi la personne partout. Changer le tien dans Profil te garde connecté sur cet appareil ; quand un parent réinitialise le mot de passe d’un enfant, la tablette de l’enfant est aussi déconnectée et il faut le nouveau mot de passe.',
       ] },
+      { h: 'Sur tidyquest.org : se connecter' },
+      { ul: [
+        'Cette partie n’existe que sur tidyquest.org (hébergé). Un serveur à la maison n’a ni code de famille ni e-mail de connexion.',
+        'Les parents se connectent avec leur e-mail et leur mot de passe. Les autres se connectent avec le code de la famille, leur nom d’utilisateur et leur mot de passe (les parents aussi, s’ils veulent).',
+        'Paramètres → 🔑 Code de la famille affiche le code (comme sunny-otter-42), le lien de la famille et un QR code. Ouvrez le lien ou scannez le code sur le téléphone ou la tablette d’un enfant : l’appareil retient la famille, il ne reste qu’à taper le nom d’utilisateur et le mot de passe. Majuscules, espaces et tirets dans le code n’ont pas d’importance.',
+        'Nouveau code donne un nouveau code à la famille. L’ancien code et l’ancien lien ne marchent plus ; personne n’est déconnecté.',
+        'Paramètres → ✉️ E-mail de connexion : Changer d’e-mail envoie un lien à la nouvelle adresse, et le changement se fait quand vous l’ouvrez. Un deuxième parent peut Ajouter un e-mail pour se connecter avec le sien.',
+        'À l’inscription, nous envoyons un lien pour confirmer votre adresse. Une famille qui n’a pas confirmé l’e-mail d’un parent en 30 jours peut seulement le confirmer ou télécharger ses données, jusqu’à ce qu’elle le fasse.',
+        'Mot de passe oublié ? sur l’écran de connexion envoie à un parent un lien qui fonctionne une fois, pendant une heure. Les enfants et les ados demandent à un parent d’en choisir un nouveau dans Paramètres → Membres de la famille.',
+      ] },
     ],
   },
   {
@@ -468,6 +478,18 @@ export const GUIDE_FR: GuideSection[] = [
           'Un parent peut définir un nouveau mot de passe dans Paramètres → Membres de la famille.',
           'Aucun parent ne peut se connecter ? La personne qui gère le serveur peut réinitialiser le mot de passe du premier parent avec ADMIN_RESET_PASSWORD (README, « Admin Password Recovery »). « Mot de passe oublié ? » sur l’écran de connexion dit la même chose.',
           'Après l’import d’une sauvegarde, les personnes qui avaient déjà un compte sur ce serveur gardent leur mot de passe. Les personnes nouvelles sur ce serveur ont besoin qu’un parent leur en définisse un dans Membres de la famille.',
+        ] },
+        { q: 'Un enfant n’arrive pas à se connecter sur tidyquest.org', a: [
+          'Vérifiez le code dans Paramètres → 🔑 Code de la famille sur l’appareil d’un parent. Après Nouveau code, l’ancien ne marche plus : sur l’écran de connexion, touchez Changer à côté du code et tapez le nouveau.',
+          'Les enfants tapent leur nom d’utilisateur, pas un e-mail. Les parents peuvent utiliser leur e-mail ou le code de la famille avec leur nom d’utilisateur.',
+        ] },
+        { q: 'L’e-mail de confirmation ou de mot de passe n’est pas arrivé', a: [
+          'Regardez dans les spams. Paramètres → ✉️ E-mail de connexion → Renvoyer envoie un nouveau lien de confirmation (l’ancien ne marche plus).',
+          'Un lien de mot de passe fonctionne une heure et une seule fois ; demandez-en un nouveau avec Mot de passe oublié ? sur l’écran de connexion.',
+          'Adresse mal tapée ? Paramètres → ✉️ E-mail de connexion → Changer d’e-mail.',
+        ] },
+        { q: 'Le message « Confirmez votre e-mail pour continuer à utiliser TidyQuest » s’affiche', a: [
+          'Votre famille avait 30 jours pour confirmer l’e-mail d’un parent. Un parent ouvre le lien envoyé, ou touche Renvoyer (ou Changer d’e-mail si l’adresse était fausse). Rien n’est perdu, et Télécharger nos données fonctionne toujours.',
         ] },
         { q: 'J’ai été déconnecté de tous mes appareils', a: [
           'Un parent a changé ton mot de passe ou utilisé Déconnecter de tous les appareils, ou tu as changé ton mot de passe ou utilisé Se déconnecter partout ailleurs sur un autre appareil. Reconnecte-toi avec ton mot de passe actuel.',

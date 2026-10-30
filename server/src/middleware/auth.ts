@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import db from '../database';
 import { currentFamily, isHosted, runInFamily } from '../hosted/context';
 import { openFamily } from '../hosted/families';
+import { isLocked } from '../hosted/accounts';
 
 // Security: Require JWT_SECRET in production
 if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
@@ -44,8 +45,15 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   const family = openFamily(payload.fid);
   if (!family) return res.status(401).json({ error: 'Signed out' });
   req.familyId = family.familyId;
-  runInFamily(family, () => checkUser(req, res, next, payload));
+  // A family that hasn't confirmed a parent's email within 30 days can only confirm it and export (decision 3)
+  const lockedOut = () => isLocked(family.familyId) && !OPEN_WHEN_LOCKED.test(req.originalUrl)
+    ? res.status(403).json({ error: 'Confirm your email to keep using TidyQuest', code: 'confirm-email' })
+    : next();
+  runInFamily(family, () => checkUser(req, res, lockedOut, payload));
 }
+
+// What a locked family can still reach: its account (confirming, changing the email), its export, who's signed in
+const OPEN_WHEN_LOCKED = /^\/api\/(hosted\/|export(\?|$)|auth\/me(\?|$))/;
 
 function checkUser(req: AuthRequest, res: Response, next: NextFunction, payload: TokenPayload) {
   // Turn away a removed person, or a token from before their last "log out everywhere" or password

@@ -83,6 +83,16 @@ export const GUIDE_DE: GuideSection[] = [
         'Einstellungen → Familienmitglieder → Mitglied verwalten → Auf allen Geräten abmelden: meldet diese Person überall ab, z. B. wenn ein Tablet verloren gegangen ist. Sie meldet sich mit ihrem Passwort wieder an.',
         'Ein neues Passwort meldet die Person ebenfalls überall ab. Änderst du dein eigenes im Profil, bleibst du auf diesem Gerät angemeldet; setzt ein Elternteil das Passwort eines Kindes zurück, wird auch das Tablet des Kindes abgemeldet und braucht das neue.',
       ] },
+      { h: 'Auf tidyquest.org: anmelden' },
+      { ul: [
+        'Diesen Teil gibt es nur auf tidyquest.org (gehostet). Ein Server zu Hause hat keinen Familiencode und keine Anmelde-E-Mail.',
+        'Eltern melden sich mit ihrer E-Mail und ihrem Passwort an. Alle anderen mit dem Familiencode, ihrem Benutzernamen und ihrem Passwort (Eltern können das auch).',
+        'Einstellungen → 🔑 Familiencode zeigt den Code (z. B. sunny-otter-42), den Familienlink und einen QR-Code. Öffne den Link oder scanne den Code auf dem Handy oder Tablet eines Kindes: Das Gerät merkt sich die Familie, dann tippt es nur noch Benutzername und Passwort. Groß- und Kleinschreibung, Leerzeichen und Bindestriche im Code sind egal.',
+        'Neuer Code gibt der Familie einen frischen Code. Der alte Code und Link funktionieren nicht mehr; wer angemeldet ist, bleibt angemeldet.',
+        'Einstellungen → ✉️ Anmelde-E-Mail: E-Mail ändern schickt einen Link an die neue Adresse, und die Änderung gilt, sobald du ihn öffnest. Ein zweites Elternteil kann mit E-Mail hinzufügen eine eigene eintragen.',
+        'Bei der Anmeldung schicken wir einen Link, um deine Adresse zu bestätigen. Eine Familie, die die E-Mail eines Elternteils nicht innerhalb von 30 Tagen bestätigt, kann bis dahin nur noch bestätigen oder ihre Daten herunterladen.',
+        'Passwort vergessen? auf dem Anmeldebildschirm schickt einem Elternteil einen Link, der einmal und eine Stunde lang funktioniert. Kinder und Teens bitten ein Elternteil, in Einstellungen → Familienmitglieder ein neues festzulegen.',
+      ] },
     ],
   },
   {
@@ -468,6 +478,18 @@ export const GUIDE_DE: GuideSection[] = [
           'Ein Elternteil kann in Einstellungen → Familienmitglieder ein neues Passwort festlegen.',
           'Kein Elternteil kann sich anmelden? Wer den Server betreibt, kann das Passwort des ersten Elternteils mit ADMIN_RESET_PASSWORD zurücksetzen (README, „Admin Password Recovery“). „Passwort vergessen?“ auf der Anmeldeseite sagt dasselbe.',
           'Nach dem Import eines Backups behalten alle, die auf diesem Server schon ein Konto hatten, ihr Passwort. Wer neu auf diesem Server ist, braucht ein Passwort, das ein Elternteil unter Familienmitglieder festlegt.',
+        ] },
+        { q: 'Ein Kind kann sich auf tidyquest.org nicht anmelden', a: [
+          'Prüfe den Code in Einstellungen → 🔑 Familiencode auf dem Gerät eines Elternteils. Nach Neuer Code funktioniert der alte nicht mehr: Tippe auf dem Anmeldebildschirm neben dem Code auf Ändern und gib den neuen ein.',
+          'Kinder tippen ihren Benutzernamen, keine E-Mail. Eltern können ihre E-Mail oder den Familiencode mit ihrem Benutzernamen nutzen.',
+        ] },
+        { q: 'Die Bestätigungs- oder Passwort-E-Mail kam nicht an', a: [
+          'Schau im Spam-Ordner nach. Einstellungen → ✉️ Anmelde-E-Mail → Erneut senden schickt einen neuen Bestätigungslink (der alte funktioniert dann nicht mehr).',
+          'Ein Passwort-Link funktioniert eine Stunde lang und nur einmal; fordere mit Passwort vergessen? auf dem Anmeldebildschirm einen neuen an.',
+          'Adresse falsch eingegeben? Einstellungen → ✉️ Anmelde-E-Mail → E-Mail ändern.',
+        ] },
+        { q: 'Es steht „Bestätige deine E-Mail, um TidyQuest weiter zu nutzen“ da', a: [
+          'Deine Familie hatte 30 Tage Zeit, die E-Mail eines Elternteils zu bestätigen. Ein Elternteil öffnet den Link, den wir geschickt haben, oder tippt auf Erneut senden (oder E-Mail ändern, wenn die Adresse falsch war). Nichts geht verloren, und Unsere Daten herunterladen funktioniert weiterhin.',
         ] },
         { q: 'Ich wurde auf allen Geräten abgemeldet', a: [
           'Ein Elternteil hat dein Passwort geändert oder Auf allen Geräten abmelden benutzt, oder du hast dein Passwort geändert oder Überall sonst abmelden auf einem anderen Gerät benutzt. Melde dich mit deinem aktuellen Passwort wieder an.',

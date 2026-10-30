@@ -83,6 +83,16 @@ export const GUIDE_IT: GuideSection[] = [
         'Impostazioni → Membri della famiglia → Gestisci membro → Esci da tutti i dispositivi: disconnette quella persona ovunque, per esempio quando si perde un tablet. Rientra con la sua password.',
         'Anche una nuova password disconnette la persona ovunque. Se cambi la tua nel Profilo resti connesso su quel dispositivo; quando un genitore reimposta la password di un bambino, anche il tablet del bambino viene disconnesso e serve quella nuova.',
       ] },
+      { h: 'Su tidyquest.org: accedere' },
+      { ul: [
+        'Questa parte esiste solo su tidyquest.org (ospitato). Un server di casa non ha codice famiglia né email di accesso.',
+        'I genitori accedono con la loro email e la loro password. Tutti gli altri con il codice famiglia, il loro username e la loro password (anche i genitori possono farlo).',
+        'Impostazioni → 🔑 Codice famiglia mostra il codice (tipo sunny-otter-42), il link della famiglia e un codice QR. Apri il link o scansiona il codice sul telefono o tablet di un bambino: il dispositivo ricorda la famiglia, così basta scrivere username e password. Maiuscole, spazi e trattini nel codice non contano.',
+        'Nuovo codice dà alla famiglia un codice nuovo. Il vecchio codice e il vecchio link smettono di funzionare; nessuno viene disconnesso.',
+        'Impostazioni → ✉️ Email di accesso: Cambia email invia un link al nuovo indirizzo, e il cambio avviene quando lo apri. Un secondo genitore può usare Aggiungi email per accedere con la sua.',
+        'All’iscrizione inviamo un link per confermare il tuo indirizzo. Una famiglia che non conferma l’email di un genitore entro 30 giorni può solo confermarla o scaricare i suoi dati finché non lo fa.',
+        'Password dimenticata? nella schermata di accesso invia a un genitore un link che funziona una volta, per un’ora. Bambini e ragazzi chiedono a un genitore di impostarne una nuova in Impostazioni → Membri della famiglia.',
+      ] },
     ],
   },
   {
@@ -468,6 +478,18 @@ export const GUIDE_IT: GuideSection[] = [
           'Un genitore può impostare una nuova password in Impostazioni → Membri della famiglia.',
           'Nessun genitore riesce ad accedere? Chi gestisce il server può reimpostare la password del primo genitore con ADMIN_RESET_PASSWORD (README, "Admin Password Recovery"). "Password dimenticata?" nella schermata di accesso dice lo stesso.',
           'Dopo aver importato un backup, chi aveva già un account su questo server mantiene la sua password. Chi è nuovo su questo server ha bisogno che un genitore gliene imposti una in Membri della famiglia.',
+        ] },
+        { q: 'Un bambino non riesce ad accedere su tidyquest.org', a: [
+          'Controlla il codice in Impostazioni → 🔑 Codice famiglia sul dispositivo di un genitore. Dopo Nuovo codice il vecchio non funziona più: nella schermata di accesso tocca Cambia accanto al codice e scrivi quello nuovo.',
+          'I bambini scrivono il loro username, non un’email. I genitori possono usare la loro email o il codice famiglia con il loro username.',
+        ] },
+        { q: 'L’email di conferma o della password non è arrivata', a: [
+          'Guarda nella cartella spam. Impostazioni → ✉️ Email di accesso → Invia di nuovo manda un nuovo link di conferma (quello vecchio smette di funzionare).',
+          'Un link per la password funziona per un’ora e una sola volta; chiedine un altro con Password dimenticata? nella schermata di accesso.',
+          'Indirizzo scritto male? Impostazioni → ✉️ Email di accesso → Cambia email.',
+        ] },
+        { q: 'Compare «Conferma la tua email per continuare a usare TidyQuest»', a: [
+          'La tua famiglia aveva 30 giorni per confermare l’email di un genitore. Un genitore apre il link che abbiamo inviato, o tocca Invia di nuovo (o Cambia email se l’indirizzo era sbagliato). Non si perde nulla, e Scarica i nostri dati funziona ancora.',
         ] },
         { q: 'Sono stato disconnesso da tutti i dispositivi', a: [
           'Un genitore ha cambiato la tua password o ha usato Esci da tutti i dispositivi, oppure hai cambiato la tua password o usato Esci da tutti gli altri dispositivi su un altro dispositivo. Accedi di nuovo con la tua password attuale.',

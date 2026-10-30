@@ -15,7 +15,8 @@ import { realignWeeklyGoals, syncPrimaryGoal } from '../utils/goals';
 import { UNLOCKABLE_THEMES, canUse } from '../utils/unlocks';
 import { currentLocalWeek, weekStartDay } from '../utils/periods';
 import { canonicalZone, familyZone } from '../utils/clock';
-import { keepFamily } from '../hosted/context';
+import { isHosted, keepFamily } from '../hosted/context';
+import { removeAccount } from '../hosted/accounts';
 import { fileUrl, uploadDir } from '../hosted/files';
 
 const router = Router();
@@ -700,6 +701,8 @@ router.delete('/:id', (req: AuthRequest, res: Response) => {
   }
 
   db.prepare('DELETE FROM users WHERE id = ?').run(targetId);
+  // Hosted mode: their sign-in email goes with them
+  if (isHosted()) removeAccount(req.familyId!, targetId);
   res.json({ success: true });
 });
 

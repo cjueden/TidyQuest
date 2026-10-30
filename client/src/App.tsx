@@ -24,6 +24,10 @@ import { Profile } from './components/pages/Profile';
 import { Guide } from './components/pages/Guide';
 import { Login } from './components/pages/Login';
 import { Register } from './components/pages/Register';
+import { SignUp } from './components/pages/SignUp';
+import { ConfirmEmail, ResetPassword } from './components/pages/EmailLinks';
+import { ConfirmEmailBanner, LockedScreen } from './components/shared/HostedAccount';
+import { takeFamilyLink, useHosted, type HostedAccount } from './utils/hosted';
 import { Achievements } from './components/pages/Achievements';
 import { Rewards } from './components/pages/Rewards';
 import { useTranslation } from './hooks/useTranslation';
@@ -37,8 +41,20 @@ import { setFamilyZone } from './utils/clock';
 const NO_COSMETICS: Record<number, Cosmetic> = {};
 import { SeasonGreeting, SeasonParticles, SeasonStrip } from './components/shared/SeasonalDecor';
 
+// Opened through a family link (app.tidyquest.org/<code>): this device remembers the family
+takeFamilyLink();
+
 function AppContent() {
-  const { user, loading, login, register, logout, refreshUser } = useAuth();
+  const { user, loading, login, signIn, register, logout, refreshUser } = useAuth();
+  const hosted = useHosted();
+  // Hosted mode: the family code, this person's sign-in email, and whether the family is locked
+  const [hostedAccount, setHostedAccount] = useState<HostedAccount | null>(null);
+  const loadHostedAccount = useCallback(() => {
+    api.hostedAccount().then(setHostedAccount).catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (hosted && user?.id) loadHostedAccount();
+  }, [hosted, user?.id, loadHostedAccount]);
   const browserLang = typeof navigator !== 'undefined' ? navigator.language.slice(0, 2) : 'en';
   // Always call useTranslation unconditionally (React hooks rule) — use user's language if known, else browser lang
   const { t, roomDisplayName } = useTranslation(user?.language ?? browserLang);
@@ -330,7 +346,7 @@ function AppContent() {
     input.click();
   };
 
-  if (loading) {
+  if (loading || (!user && hosted === null)) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--warm-bg)' }}>
         <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--warm-text-light)' }}>{t('common.loading')}...</div>
@@ -338,11 +354,21 @@ function AppContent() {
     );
   }
 
+  // The links in hosted mode's emails
+  if (location.pathname === '/confirm-email') return <ConfirmEmail signedIn={!!user} />;
+  if (location.pathname === '/reset-password') return <ResetPassword onSignedIn={signIn} />;
+
   if (!user) {
+    if (hosted && location.pathname === '/signup') return <SignUp onSignedIn={signIn} />;
     if (authView === 'register') {
       return <Register onRegister={register} onSwitchToLogin={() => setAuthView('login')} />;
     }
-    return <Login onLogin={login} onSwitchToRegister={() => setAuthView('register')} />;
+    return <Login onLogin={login} onSwitchToRegister={() => setAuthView('register')} hosted={!!hosted} onSignUp={() => navigate('/signup')} />;
+  }
+
+  if (hostedAccount?.locked) {
+    return <LockedScreen account={hostedAccount} language={user.language} onChanged={loadHostedAccount}
+      onLogout={() => { logout(); setHostedAccount(null); navigate('/login', { replace: true }); }} />;
   }
 
   const today = new Date().toLocaleDateString(localeFor(user.language), { weekday: 'long', month: 'long', day: 'numeric' });
@@ -465,6 +491,7 @@ function AppContent() {
 
       <main style={{ marginLeft: sidebarCollapsed ? 60 : 240, flex: 1, padding: '28px 36px', maxWidth: 1320, backgroundColor: 'var(--warm-bg)', transition: 'margin-left 0.3s ease' }} className={`main-content${user.kidMode ? ' kid-mode' : ''}`}>
         <ChoreTimerBar language={user.language} />
+        {hostedAccount && <ConfirmEmailBanner account={hostedAccount} language={user.language} onChanged={loadHostedAccount} />}
         {season && <SeasonStrip season={season} previewing={!!seasonPreview} language={user.language} />}
         <Routes>
           <Route path="/" element={
@@ -673,6 +700,8 @@ function AppContent() {
                 }}
                 onExport={handleExport}
                 onImport={handleImport}
+                hostedAccount={hostedAccount}
+                onHostedChanged={loadHostedAccount}
                 rooms={rooms}
                 onDataChanged={() => { refreshRooms(); loadDashboard(); }}
                 onAdjustCoins={async (userId: number, amount: number, reason?: string) => {

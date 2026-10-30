@@ -3,11 +3,13 @@ import type Database from 'better-sqlite3';
 // main.db in hosted mode: which families exist and the few things that live outside a family's own
 // database. Like forkSchema.ts: only add tables and columns, never change or drop them.
 const MAIN_TABLES: string[] = [
-  // status: trial, active, suspended, expired or deleted. code: the family code kids log in with (NEW-10).
+  // status: trial, active, suspended, expired or deleted. code: the family code kids log in with, as shown
+  // (sunny-otter-42); codeKey: the same with only letters and digits, which logins look up (NEW-10).
   `CREATE TABLE IF NOT EXISTS families (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    code TEXT UNIQUE,
+    code TEXT,
+    codeKey TEXT UNIQUE,
     status TEXT NOT NULL DEFAULT 'trial',
     plan TEXT,
     trialEndsAt TEXT,
