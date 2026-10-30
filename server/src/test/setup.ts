@@ -1,5 +1,10 @@
 import Database from 'better-sqlite3';
+import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import supertest from 'supertest';
+import { afterAll } from 'vitest';
 
 // Must set JWT_SECRET before any imports that reference it
 process.env.JWT_SECRET = 'test-secret-key-for-vitest';
@@ -11,6 +16,9 @@ import { applyForkSchema } from '../forkSchema';
 import { createApp } from '../index';
 import { resetLoginLimits } from '../routes/auth';
 import { at, wall } from '../utils/clock';
+import { currentFamily, isHosted, setHosted, setTestFamily } from '../hosted/context';
+import { closeAllFamilies, createFamily, openFamily } from '../hosted/families';
+import { setDataDir, setMainDb } from '../hosted/mainDb';
 
 /**
  * Today on the family's clock, `days` later (or earlier), at a wall-clock time. Tests build "home"
@@ -22,7 +30,52 @@ export function homeToday(days = 0, hours = 0, minutes = 0, seconds = 0, ms = 0)
   return at(w.year, w.month, w.date + days, hours, minutes, seconds, ms);
 }
 
-export function createTestApp() {
+/**
+ * A fresh app and database. HOSTED=1 npm test runs the whole suite in hosted mode, with the tests' own
+ * code (and their logins) as family A. createTestApp({ hosted: true }) makes a hosted server with family A
+ * and no default family: those tests name the family (addTestFamily, runInFamily).
+ */
+export function createTestApp(opts: { hosted?: boolean } = {}) {
+  const db = newTestDatabase();
+  let familyId: string | undefined;
+  if (opts.hosted || process.env.HOSTED === '1') {
+    startTestHosting();
+    familyId = createFamily('Family A', { db });
+    setTestFamily(opts.hosted ? null : { familyId, db });
+  } else {
+    // Swap the global singleton so all routes use this DB
+    setDatabase(db);
+  }
+
+  const app = createApp();
+  const agent = supertest(app);
+  resetLoginLimits();
+
+  return { agent, db, app, familyId };
+}
+
+/** Another family on a hosted test server. */
+export function addTestFamily(name = 'Family B') {
+  const db = newTestDatabase();
+  return { familyId: createFamily(name, { db }), db };
+}
+
+// Hosted test servers keep their family folders in a temporary folder, removed when the file is done
+const hostingDirs: string[] = [];
+afterAll(() => {
+  for (const dir of hostingDirs.splice(0)) fs.rmSync(dir, { recursive: true, force: true });
+});
+
+function startTestHosting() {
+  setHosted(true);
+  closeAllFamilies();
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tidyquest-hosted-'));
+  hostingDirs.push(dir);
+  setDataDir(dir);
+  setMainDb(new Database(':memory:'));
+}
+
+function newTestDatabase() {
   // Fresh in-memory DB for each test suite
   const db = new Database(':memory:');
   db.pragma('journal_mode = WAL');
@@ -35,15 +88,20 @@ export function createTestApp() {
   db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('features', ?)").run(JSON.stringify({ rescue: false }));
   // TEST_TIME_ZONE=Pacific/Auckland runs the suite with the family in another zone than the server's TZ
   if (process.env.TEST_TIME_ZONE) db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('timeZone', ?)").run(process.env.TEST_TIME_ZONE);
+  return db;
+}
 
-  // Swap the global singleton so all routes use this DB
-  setDatabase(db);
+/** The run with HOSTED=1: tests of self-hosted-only routes (/register) skip it. */
+export const HOSTED_RUN = process.env.HOSTED === '1';
 
-  const app = createApp();
-  const agent = supertest(app);
-  resetLoginLimits();
+/** A token's family in hosted mode, for tests that sign their own tokens. */
+export function tokenFamily() {
+  return isHosted() ? { fid: currentFamily()?.familyId } : {};
+}
 
-  return { agent, db, app };
+/** Hosted mode logs in with the family (NEW-10 swaps it for the family code or a parent's email). */
+export function familyField(familyId = currentFamily()?.familyId) {
+  return isHosted() ? { familyId } : {};
 }
 
 function runSchema(db: InstanceType<typeof Database>) {
@@ -242,8 +300,18 @@ export async function createAdmin(
   agent: supertest.Agent,
   username = 'admin',
   password = 'admin123',
-  displayName = 'Admin'
+  displayName = 'Admin',
+  familyId = currentFamily()?.familyId
 ) {
+  if (isHosted()) {
+    // No /register in hosted mode: the family's first parent is made directly, as sign-up will
+    const family = openFamily(familyId)!;
+    const count = (family.db.prepare('SELECT COUNT(*) AS n FROM users').get() as { n: number }).n;
+    family.db.prepare('INSERT INTO users (username, displayName, passwordHash, role) VALUES (?, ?, ?, ?)')
+      .run(username, displayName, bcrypt.hashSync(password, 4), count === 0 ? 'admin' : 'member');
+    const login = await agent.post('/api/auth/login').send({ username, password, familyId });
+    return { user: login.body.user, token: login.body.token as string };
+  }
   const res = await agent
     .post('/api/auth/register')
     .send({ username, password, displayName });
@@ -254,7 +322,7 @@ export async function createAdmin(
 export async function createUser(
   agent: supertest.Agent,
   adminToken: string,
-  opts: { username: string; displayName: string; password: string; role?: string }
+  opts: { username: string; displayName: string; password: string; role?: string; familyId?: string }
 ) {
   // Create via admin endpoint — pass role directly (POST /api/users supports it)
   const res = await agent
@@ -272,7 +340,7 @@ export async function createUser(
   // Login to get token
   const loginRes = await agent
     .post('/api/auth/login')
-    .send({ username: opts.username, password: opts.password });
+    .send({ username: opts.username, password: opts.password, ...familyField(opts.familyId) });
 
   return { user: loginRes.body.user, token: loginRes.body.token };
 }
@@ -280,10 +348,11 @@ export async function createUser(
 export async function loginAs(
   agent: supertest.Agent,
   username: string,
-  password: string
+  password: string,
+  familyId?: string
 ) {
   const res = await agent
     .post('/api/auth/login')
-    .send({ username, password });
+    .send({ username, password, ...familyField(familyId) });
   return res.body.token as string;
 }

@@ -9,6 +9,12 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+### Added
+
+- Groundwork for the hosted service (tidyquest.org): with the new `HOSTED=1` setting, one server can keep many
+  families, each with its own database and photo folder, and a family can never reach another's data. It isn't
+  usable yet (sign-up and family logins come next). Without `HOSTED=1` nothing changes for self-hosted installs.
+
 ## v0.13.0 (2026-10-29)
 
 ### Added

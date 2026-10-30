@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp, createAdmin, createUser } from './setup';
+import { createTestApp, createAdmin, createUser, HOSTED_RUN } from './setup';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
 import { at, familyZone, serverZone } from '../utils/clock';
@@ -26,14 +26,15 @@ const LA = 'America/Los_Angeles';
 const setZone = (tz: string) => db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('timeZone', ?)").run(tz);
 
 describe('Time zone setting', () => {
-  it("saves the first parent's browser zone, and only theirs", async () => {
+  // Hosted mode has no /register: NEW-10's sign-up takes the browser's zone
+  it.skipIf(HOSTED_RUN)("saves the first parent's browser zone, and only theirs", async () => {
     await agent.post('/api/auth/register').send({ username: 'mom', password: 'pass123', displayName: 'Mom', timeZone: AKL }).expect(201);
     expect(familyZone()).toBe(AKL);
     await agent.post('/api/auth/register').send({ username: 'kid', password: 'pass123', displayName: 'Kid', timeZone: LA }).expect(201);
     expect(familyZone()).toBe(AKL);
   });
 
-  it('ignores a zone the server does not know on sign-up', async () => {
+  it.skipIf(HOSTED_RUN)('ignores a zone the server does not know on sign-up', async () => {
     await agent.post('/api/auth/register').send({ username: 'mom', password: 'pass123', displayName: 'Mom', timeZone: 'Nowhere/Land' }).expect(201);
     expect(familyZone()).toBe(serverZone());
   });

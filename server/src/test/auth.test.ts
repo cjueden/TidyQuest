@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestApp, createAdmin } from './setup';
+import { createTestApp, createAdmin, familyField, HOSTED_RUN } from './setup';
 import type supertest from 'supertest';
 
 let agent: supertest.Agent;
@@ -14,7 +14,7 @@ describe('Auth routes', () => {
 
     const res = await agent
       .post('/api/auth/login')
-      .send({ username: 'admin', password: 'admin123' });
+      .send({ username: 'admin', password: 'admin123', ...familyField() });
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('token');
@@ -27,7 +27,7 @@ describe('Auth routes', () => {
 
     const res = await agent
       .post('/api/auth/login')
-      .send({ username: 'admin', password: 'wrong-password' });
+      .send({ username: 'admin', password: 'wrong-password', ...familyField() });
 
     expect(res.status).toBe(401);
   });
@@ -53,7 +53,8 @@ describe('Auth routes', () => {
     expect(res.status).toBe(401);
   });
 
-  it('POST /api/auth/register — when registration disabled → 403', async () => {
+  // Hosted mode has no /register: families start on the sign-up page (NEW-10)
+  it.skipIf(HOSTED_RUN)('POST /api/auth/register — when registration disabled → 403', async () => {
     const { token } = await createAdmin(agent, 'admin', 'admin123', 'Admin');
 
     // Disable registration

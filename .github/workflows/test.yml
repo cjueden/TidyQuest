@@ -41,3 +41,11 @@ jobs:
         env:
           TZ: UTC
           TEST_TIME_ZONE: Pacific/Auckland
+
+      # Hosted mode (HOSTED=1): many families on one server. The whole suite runs as one family, every
+      # request through its family's database, and test/hosted.test.ts checks families stay apart
+      - name: Run tests in hosted mode
+        working-directory: server
+        run: npm test
+        env:
+          HOSTED: '1'

@@ -15,6 +15,8 @@ import { realignWeeklyGoals, syncPrimaryGoal } from '../utils/goals';
 import { UNLOCKABLE_THEMES, canUse } from '../utils/unlocks';
 import { currentLocalWeek, weekStartDay } from '../utils/periods';
 import { canonicalZone, familyZone } from '../utils/clock';
+import { keepFamily } from '../hosted/context';
+import { fileUrl, uploadDir } from '../hosted/files';
 
 const router = Router();
 router.use(authMiddleware);
@@ -49,14 +51,9 @@ function readNotificationTypesSetting(): NotificationTypeSettings {
   }
 }
 
-// Setup multer for avatar uploads
-const avatarsDir = path.join(__dirname, '..', '..', '..', 'data', 'avatars');
-if (!fs.existsSync(avatarsDir)) {
-  fs.mkdirSync(avatarsDir, { recursive: true });
-}
-
+// Setup multer for avatar uploads (data/avatars, or the family's folder in hosted mode)
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, avatarsDir),
+  destination: (req, _file, cb) => cb(null, uploadDir('avatars', (req as AuthRequest).familyId)),
   filename: (req, _file, cb) => {
     const ALLOWED_EXTS = ['.jpg', '.jpeg', '.png', '.webp'];
     const rawExt = path.extname(_file.originalname).toLowerCase();
@@ -190,7 +187,7 @@ router.put('/:id/profile', (req: AuthRequest, res: Response) => {
 });
 
 // Upload avatar photo
-router.post('/:id/avatar-upload', upload.single('avatar'), (req: AuthRequest, res: Response) => {
+router.post('/:id/avatar-upload', keepFamily(upload.single('avatar')), (req: AuthRequest, res: Response) => {
   const userId = parseInt(req.params.id as string);
   const requester = db.prepare('SELECT id, role FROM users WHERE id = ?').get(req.userId) as any;
   const target = db.prepare('SELECT id, role FROM users WHERE id = ?').get(userId) as any;
@@ -209,11 +206,11 @@ router.post('/:id/avatar-upload', upload.single('avatar'), (req: AuthRequest, re
   const prev = db.prepare('SELECT avatarPhotoUrl FROM users WHERE id = ?').get(userId) as any;
   if (prev?.avatarPhotoUrl) {
     const oldFilename = path.basename(prev.avatarPhotoUrl);
-    const oldPath = path.join(avatarsDir, oldFilename);
+    const oldPath = path.join(uploadDir('avatars'), oldFilename);
     try { fs.unlinkSync(oldPath); } catch { /* file may already be gone */ }
   }
 
-  const photoUrl = `/api/avatars/${req.file.filename}`;
+  const photoUrl = fileUrl('avatars', req.file.filename);
   db.prepare('UPDATE users SET avatarType = ?, avatarPhotoUrl = ? WHERE id = ?')
     .run('photo', photoUrl, userId);
 

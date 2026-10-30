@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import db from '../database';
+import { currentFamily, isHosted, runInFamily } from '../hosted/context';
+import { openFamily } from '../hosted/families';
 
 // Security: Require JWT_SECRET in production
 if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
@@ -18,7 +20,11 @@ const JWT_SECRET: string = process.env.JWT_SECRET || (() => {
 
 export interface AuthRequest extends Request {
   userId?: number;
+  /** Hosted mode: the family this request belongs to. */
+  familyId?: string;
 }
+
+type TokenPayload = { userId: number; v?: number; fid?: string };
 
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
@@ -27,12 +33,21 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   }
 
   const token = header.slice(7);
-  let payload: { userId: number; v?: number };
+  let payload: TokenPayload;
   try {
-    payload = jwt.verify(token, JWT_SECRET) as { userId: number; v?: number };
+    payload = jwt.verify(token, JWT_SECRET) as TokenPayload;
   } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }
+  if (!isHosted()) return checkUser(req, res, next, payload);
+  // Hosted mode: the token names the family. The rest of the request runs with that family's database.
+  const family = openFamily(payload.fid);
+  if (!family) return res.status(401).json({ error: 'Signed out' });
+  req.familyId = family.familyId;
+  runInFamily(family, () => checkUser(req, res, next, payload));
+}
+
+function checkUser(req: AuthRequest, res: Response, next: NextFunction, payload: TokenPayload) {
   // Turn away a removed person, or a token from before their last "log out everywhere" or password
   // change. Tokens made before NEW-8 have no version and count as 0.
   const row = db.prepare('SELECT tokenVersion FROM users WHERE id = ?').get(payload.userId) as { tokenVersion: number } | undefined;
@@ -46,7 +61,8 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
 /** A login token for this person, carrying their current token version. */
 export function generateToken(userId: number): string {
   const row = db.prepare('SELECT tokenVersion FROM users WHERE id = ?').get(userId) as { tokenVersion: number } | undefined;
-  return jwt.sign({ userId, v: row?.tokenVersion ?? 0 }, JWT_SECRET, { expiresIn: '30d' });
+  const fid = isHosted() ? currentFamily()?.familyId : undefined;
+  return jwt.sign({ userId, v: row?.tokenVersion ?? 0, ...(fid && { fid }) }, JWT_SECRET, { expiresIn: '30d' });
 }
 
 /** Logs this person out on every device: their existing tokens stop working. */
