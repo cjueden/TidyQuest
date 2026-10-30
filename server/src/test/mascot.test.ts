@@ -3,7 +3,7 @@ import { createTestApp, createAdmin, createUser } from './setup';
 import { dateStr } from '../utils/clock';
 import type supertest from 'supertest';
 import type Database from 'better-sqlite3';
-import { mascotFor, moodFor, tummy } from '../utils/mascot';
+import { mascotFor, moodFor, treatAt, tummy } from '../utils/mascot';
 
 let agent: supertest.Agent;
 let db: InstanceType<typeof Database>;
@@ -60,6 +60,36 @@ describe('House mascot', () => {
     db.prepare('DELETE FROM task_completions').run();
     done(1, 7); done(1, 7); done(1, 7); // one team-up, three people
     expect(tummy(now)).toBe(3); // 5%, minus an hour of draining
+  });
+
+  it('cheers only for chores of 3★ effort or more; smaller ones still fill the tummy (ENH-12)', async () => {
+    const admin = await createAdmin(agent);
+    const kid = await createUser(agent, admin.token, { username: 'kid', displayName: 'Kid', password: 'pass123', role: 'child' });
+    const room = (await agent.post('/api/rooms').set(auth(admin.token)).send({ name: 'Yard', roomType: 'other' })).body.id;
+    const chore = async (name: string, effort: number) => (await agent.post(`/api/rooms/${room}/tasks`).set(auth(admin.token)).send({ name, effort, onDemand: true })).body.id;
+    const bed = await chore('Make your bed', 2);
+    const lawn = await chore('Mow the lawn', 3);
+    const mascot = async () => (await agent.get('/api/dashboard').set(auth(kid.token))).body.mascot;
+
+    await agent.post(`/api/tasks/${bed}/complete`).set(auth(kid.token)).expect(200);
+    expect(await mascot()).toMatchObject({ tummy: 5, treatAt: null });
+
+    // Waiting for a parent doesn't count yet; the cheer comes with the approval
+    await agent.put('/api/users/strict-mode-config').set(auth(admin.token)).send({ strictMode: true }).expect(200);
+    const id = (await agent.post(`/api/tasks/${lawn}/complete`).set(auth(kid.token))).body.completionId;
+    expect((await mascot()).treatAt).toBeNull();
+    await agent.post(`/api/completions/${id}/approve`).set(auth(admin.token)).expect(200);
+    const approvedAt = (db.prepare('SELECT approvedAt FROM task_completions WHERE id = ?').get(id) as { approvedAt: string }).approvedAt;
+    expect(await mascot()).toMatchObject({ tummy: 10, treatAt: approvedAt });
+
+    // A team-up is one treat and one helping
+    const later = new Date(Date.now() + 60000).toISOString();
+    for (const userId of [admin.user.id, kid.user.id]) {
+      db.prepare("INSERT INTO task_completions (taskId, userId, completedAt, coinsEarned, status, approvedAt, teamupId) VALUES (?, ?, ?, 1, 'approved', ?, 9)")
+        .run(lawn, userId, new Date().toISOString(), later);
+    }
+    expect(treatAt()).toBe(later);
+    expect(tummy()).toBe(15);
   });
 
   it('sells accessories that go on right away for everyone, and only the buyer or a parent can take them off', async () => {

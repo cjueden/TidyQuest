@@ -163,6 +163,7 @@ export const GUIDE_ES: GuideSection[] = [
       { h: 'Terminar una tarea' },
       { ul: [
         'Pulsa Hecho en Inicio, en la habitación o en la página Tareas. El botón 📎 añade una nota o una foto como prueba.',
+        'Cuando un padre o una madre la aprueba, la nota y la foto se quedan con la tarea en Actividad (pulsa la foto para verla en grande). Los padres ven las de todos; los demás, solo las suyas. Deshacer o rechazar la tarea borra su foto.',
         'Los padres y miembros pueden marcar una tarea como hecha por otra persona ("¿quién la hizo?").',
         'Un error se puede deshacer desde Actividad (padres), o con ↩️ Deshacer junto al "Hecho por" de la tarea en su habitación (padres; pregunta antes, porque las monedas se devuelven). Una tarea En equipo se deshace para todo el equipo y se retiran las monedas de todos. Un niño puede deshacer su propio Hecho mientras espera aprobación.',
       ] },
@@ -274,7 +275,7 @@ export const GUIDE_ES: GuideSection[] = [
         'En equipo: 🤝 en una tarea de 6 o más monedas invita a una persona o a cualquiera. En cuanto alguien se une, la tarea es del equipo ese día. Cualquiera de los dos pulsa Hecho; las monedas se reparten a partes iguales más un bonus de equipo (10, 20 o 30%). Un padre o una madre con un niño es ayudante y el niño se queda con todas las monedas. Nunca en la habitación de alguien, ni en tareas de una sola persona o de rotación. ¿No te apetece? "No, gracias" rechaza una invitación: una invitación solo para ti termina y quien la hizo se entera, así que puede pedírselo a otra persona; una invitación para cualquiera simplemente desaparece para ti. Quien lo empezó puede "Cancelar el equipo" (termina para todos); cualquier otro puede Salir.',
         'Mascota de la casa: una de 8 criaturas, que se elige y se nombra aquí. Crece con las monedas de la familia ganadas mientras es la mascota activa (eclosiona a las 500, luego a las 2.000, 5.000 y 10.000), su ánimo sigue la salud de la casa y reacciona a los cumpleaños, al objetivo familiar y a la Misión de rescate.',
         'Cambiar de mascota: elegir una criatura que no has tenido empieza como un huevo nuevo. Cada criatura conserva su propio crecimiento, nombre y atuendo, así que al volver a la anterior vuelve tal como estaba. La barriguita y la hora de dormir son compartidas.',
-        'Jugar con la mascota: púlsala para ver una reacción. Su barriguita 🍪 se llena un 5% con cada tarea (En equipo cuenta una vez) y se vacía en 2 días; cuando está baja, solo dice que tiene hambre. "¿Qué hago?" sugiere una tarea que puedes hacer ahora mismo. Añade un ánimo 🐾 a cada tarea terminada. Duerme durante la hora de dormir de la familia (se fija bajo la mascota en Funciones, de 9 pm a 7 am por defecto).',
+        'Jugar con la mascota: púlsala para ver una reacción. Su barriguita 🍪 se llena un 5% con cada tarea (En equipo cuenta una vez) y se vacía en 2 días. Solo celebra con una 🍪 y un salto las tareas más grandes (esfuerzo de 3★ o más); las pequeñas la llenan sin hacer ruido; cuando está baja, solo dice que tiene hambre. "¿Qué hago?" sugiere una tarea que puedes hacer ahora mismo. Añade un ánimo 🐾 a cada tarea terminada. Duerme durante la hora de dormir de la familia (se fija bajo la mascota en Funciones, de 9 pm a 7 am por defecto).',
         'Tienda de la mascota (con su propio interruptor): cualquiera puede comprarle un accesorio por 1 a 5 monedas. Hay un único atuendo compartido y no hay armario: un artículo nuevo se pone al instante para todos y sustituye lo que hubiera en ese sitio (cabeza, cara, cuello o espalda). Quien compró un artículo, o un padre o una madre, puede quitarlo gratis. Las compras aparecen en Actividad. La tienda abre cuando la mascota eclosiona. Al desactivar la tienda se ocultan ella y el atuendo.',
         'Decoración de temporada: Halloween en octubre, Acción de Gracias en noviembre, Navidad en diciembre: colores, adornos, una cuenta atrás y un disfraz para la mascota. Cada fiesta tiene su propio interruptor y un botón de Vista previa.',
       ] },
@@ -473,6 +474,10 @@ export const GUIDE_ES: GuideSection[] = [
         { q: 'La mascota está dormida, o dice que tiene hambre', a: [
           'Duerme durante la hora de dormir de la familia (Ajustes → Funciones, bajo la mascota), según el reloj de cada dispositivo.',
           'Tener hambre significa menos tareas en los últimos dos días; cada tarea llena un poco su barriguita. El hambre nunca afecta a nada más.',
+        ] },
+        { q: 'La mascota no celebró una tarea', a: [
+          'Solo celebra (🍪 y un salto) las tareas más grandes, de esfuerzo 3★ o más, y una tarea en espera solo cuando se aprueba. Las tareas pequeñas llenan igual su barriguita, sin hacer ruido.',
+          'Cada dispositivo muestra la celebración una vez: un teléfono que ya la vio no la repite.',
         ] },
         { q: 'No hay adornos ni colores de fiesta', a: [
           'Ajustes → Funciones → Decoración de temporada, y el interruptor de esa fiesta, deben estar activados. Sigue la fecha del dispositivo.',

@@ -24,6 +24,8 @@ export interface MascotData {
   birthdayName: string | null;
   /** 0–100: each chore fills 5%, empty after 2 days without chores */
   tummy: number;
+  /** When the last chore of 3★ effort or more was approved (only those make it cheer) */
+  treatAt: string | null;
   bedtimeFrom: string;
   bedtimeTo: string;
   /** null when the shop is switched off */
@@ -115,10 +117,11 @@ export function MascotCard({ m, costume, language, suggestions = [], userId, isP
   const [tap, setTap] = useState<{ line: string; n: number } | null>(null);
   const [suggestIdx, setSuggestIdx] = useState<number | null>(null);
   const [shopOpen, setShopOpen] = useState(false);
-  // It just ate: the tummy went up since you last looked (kept on this device)
-  const [lastTummy] = useState(() => { try { return Number(localStorage.getItem('tidyquest_mascot_tummy') ?? m.tummy); } catch { return m.tummy; } });
-  useEffect(() => { try { localStorage.setItem('tidyquest_mascot_tummy', String(m.tummy)); } catch { /* private mode */ } }, [m.tummy]);
-  const fed = m.tummy > lastTummy;
+  // It just had a treat: a bigger chore (3★ or more) was done since you last looked (kept on this device).
+  // Smaller chores fill the tummy quietly.
+  const [lastTreat] = useState(() => { try { return localStorage.getItem('tidyquest_mascot_treat') ?? m.treatAt; } catch { return m.treatAt; } });
+  useEffect(() => { try { if (m.treatAt) localStorage.setItem('tidyquest_mascot_treat', m.treatAt); } catch { /* private mode */ } }, [m.treatAt]);
+  const fed = !!m.treatAt && (!lastTreat || m.treatAt > lastTreat);
 
   const onTap = () => {
     const line = asleep ? t('mascot.sleepTap') : t(`mascot.tap${Math.floor(Math.random() * TAP_LINES) + 1}`);
@@ -144,7 +147,9 @@ export function MascotCard({ m, costume, language, suggestions = [], userId, isP
     <div className="tq-card tq-card-padded mascot-card" style={{ gridColumn: '1 / -1', display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
       <button type="button" className={motion} key={tap?.n ?? 0} onClick={onTap} aria-label={t('mascot.tapLabel').replace('{name}', m.name)}
         style={{ position: 'relative', flexShrink: 0, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-        <MascotPicture m={m} costume={costume} asleep={asleep} outfit={m.outfit} />
+        <span className={fed && !asleep ? 'mascot-cheer' : undefined} style={{ display: 'block' }}>
+          <MascotPicture m={m} costume={costume} asleep={asleep} outfit={m.outfit} />
+        </span>
         {asleep && <span className="mascot-zzz" aria-hidden="true">💤</span>}
         {m.event && !asleep && <span className="mascot-confetti" aria-hidden="true">🎉</span>}
         {fed && !asleep && <span className="mascot-fed" aria-hidden="true">🍪</span>}

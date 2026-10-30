@@ -30,7 +30,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
   if (q) { where.push("t.name LIKE ? ESCAPE '\\'"); params.push(`%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`); }
 
   const rawHistory = db.prepare(`
-    SELECT tc.id, tc.completedAt, tc.coinsEarned, tc.taskId, tc.approvalNote, tc.teamupId, tc.loggedAt,
+    SELECT tc.id, tc.completedAt, tc.coinsEarned, tc.taskId, tc.approvalNote, tc.teamupId, tc.loggedAt, tc.note, tc.photoUrl,
            t.name as taskName, t.translationKey, t.roomId, t.assignmentMode,
            r.name as roomName, r.roomType,
            u.id as userId, u.displayName, u.avatarColor, u.avatarType, u.avatarPreset, u.avatarPhotoUrl
@@ -60,8 +60,12 @@ router.get('/', (req: AuthRequest, res: Response) => {
         r.assignmentMode === 'shared' && !r.teamupId
       ));
 
+      // The proof is on whoever tapped Done
+      const proof = partners.find((p: any) => p.photoUrl || p.note) ?? row;
       grouped.push({
         ...row,
+        note: proof.note,
+        photoUrl: proof.photoUrl,
         coinsEarned: partners.reduce((s: number, p: any) => s + p.coinsEarned, 0),
         participants: partners.map((p: any) => ({
           id: p.userId, displayName: p.displayName, avatarColor: p.avatarColor,
@@ -79,9 +83,17 @@ router.get('/', (req: AuthRequest, res: Response) => {
     ? grouped.filter((h) => h.userId === filterUserId || h.participants?.some((p: any) => p.id === filterUserId))
     : grouped;
 
+  // Proof photos and notes: parents see everyone's; others only their own (photos of kids aren't for
+  // the whole family)
+  const viewerIsAdmin = ensureAdmin(req.userId);
+  for (const h of filtered) {
+    if (viewerIsAdmin || h.userId === req.userId || h.participants?.some((p: any) => p.id === req.userId)) continue;
+    h.note = null;
+    h.photoUrl = null;
+  }
+
   // Coin adjustments by a parent, merged in by date. Parents see everyone's; others only their own.
   // They belong to no room, so a room filter leaves them out.
-  const viewerIsAdmin = ensureAdmin(req.userId);
   let adjustments: any[] = [];
   if (!filterRoomId && (viewerIsAdmin || !filterUserId || filterUserId === req.userId)) {
     const aWhere: string[] = [];

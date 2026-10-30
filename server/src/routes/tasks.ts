@@ -26,7 +26,7 @@ import { pauseTask, readPausedUntil, resumeTask } from '../utils/pause';
 import { earnShieldAt, lateStreak, nextStreak, noteBrokenStreak, settleStreak } from '../utils/streaks';
 import { baseCoinsOf, endTeamupsFor, groupTeamPending, openTeamupFor, teamShares, teamUpInfo, type Teamup } from '../utils/teamups';
 import { isHosted } from '../hosted/context';
-import { fileUrl, oneFile, uploadDir } from '../hosted/files';
+import { fileUrl, oneFile, removeFile, uploadDir } from '../hosted/files';
 import { filesFullError, limits, overFilesLimit } from '../hosted/limits';
 
 // Proof photos kids can attach to a completion (served at /api/proofs, or /api/files/<familyId>/proofs).
@@ -205,7 +205,13 @@ function completeAsTeam(task: any, team: Teamup, tapperId: number, tapperIsAdult
   return { coinsEarned: earned.get(tapperId) ?? 0, health: 100, pendingApproval: false, newAchievements, newAchievementInfo: badgeInfo(tapperId, newAchievements), completionId: ids[0], rescued, team: true };
 }
 
-/** Reject one waiting completion (it's removed; no coins). Returns an error code or null. */
+/** Deleting completions deletes their proof photos too (call it just before the DELETE) */
+function removeProofPhotos(where: string, ...params: unknown[]) {
+  const rows = db.prepare(`SELECT photoUrl FROM task_completions WHERE photoUrl IS NOT NULL AND ${where}`).all(...params) as { photoUrl: string }[];
+  for (const r of rows) removeFile('proofs', r.photoUrl);
+}
+
+/** Reject one waiting completion (it's removed with its photo; no coins). Returns an error code or null. */
 function rejectPendingCompletion(completionId: number, adminId?: number, reason: string | null = null): string | null {
   const completion = db.prepare('SELECT c.id, c.status, c.userId, c.teamupId, t.name AS taskName FROM task_completions c LEFT JOIN tasks t ON t.id = c.taskId WHERE c.id = ?')
     .get(completionId) as { id: number; status: string; userId: number; teamupId: number | null; taskName: string | null } | undefined;
@@ -215,12 +221,14 @@ function rejectPendingCompletion(completionId: number, adminId?: number, reason:
   if (completion.teamupId) {
     const team = db.prepare("SELECT id, userId FROM task_completions WHERE teamupId = ? AND status = 'pending' AND id != ?").all(completion.teamupId, completion.id) as { id: number; userId: number }[];
     for (const other of team) {
+      removeProofPhotos('id = ?', other.id);
       db.prepare('DELETE FROM task_completions WHERE id = ?').run(other.id);
       releaseRescue(other.id);
       if (adminId) void notifyChoreRejected(other.userId, adminId, completion.taskName ?? '', reason);
     }
     db.prepare("UPDATE teamups SET status = 'open' WHERE id = ?").run(completion.teamupId);
   }
+  removeProofPhotos('id = ?', completion.id);
   db.prepare('DELETE FROM task_completions WHERE id = ?').run(completion.id);
   releaseRescue(completion.id); // a rejected Rescue Mission is open again
   if (adminId) void notifyChoreRejected(completion.userId, adminId, completion.taskName ?? '', reason);
@@ -713,6 +721,7 @@ router.post('/tasks/:id/reset', (req: AuthRequest, res: Response) => {
     }
   }
 
+  removeProofPhotos(`taskId = ? AND ${daySql('completedAt')} = ${daySql('?')}`, task.id, now);
   db.prepare(
     `DELETE FROM task_completions WHERE taskId = ? AND ${daySql('completedAt')} = ${daySql('?')}`
   ).run(task.id, now);
@@ -1073,6 +1082,7 @@ router.post('/completions/:completionId/photo', proofPhotosOn, proofUpload, (req
   // Hosted mode: the family's avatars and photos have a space limit
   if (overFilesLimit(req.familyId)) { discard(); return res.status(413).json(filesFullError()); }
   const photoUrl = fileUrl('proofs', file.filename);
+  removeProofPhotos('id = ?', completion.id); // a new photo replaces the old one
   db.prepare('UPDATE task_completions SET photoUrl = ? WHERE id = ?').run(photoUrl, completion.id);
   res.json({ photoUrl });
 });
@@ -1144,7 +1154,8 @@ router.delete('/completions/:completionId', (req: AuthRequest, res: Response) =>
         db.prepare('UPDATE users SET coins = MAX(0, coins - ?) WHERE id = ?').run(row.coinsEarned, row.userId);
         coinsDeducted += row.coinsEarned;
       }
-      // Delete the completion record (an undone Rescue Mission is open again)
+      // Delete the completion record and its photo (an undone Rescue Mission is open again)
+      removeProofPhotos('id = ?', row.id);
       db.prepare('DELETE FROM task_completions WHERE id = ?').run(row.id);
       releaseRescue(row.id);
     }

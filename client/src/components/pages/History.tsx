@@ -20,6 +20,25 @@ function rangeStart(range: Range, weekStart: number): Date | null {
   return null;
 }
 
+/** A kid's proof on a chore: a small photo (tap for full size) and their note. A photo that won't load is left out. */
+function Proof({ note, photoUrl, label }: { note?: string | null; photoUrl?: string | null; label: string }) {
+  const [broken, setBroken] = useState(false);
+  const photo = photoUrl && !broken;
+  if (!photo && !note) return null;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, minWidth: 0 }}>
+      {photo && (
+        <a href={photoUrl} target="_blank" rel="noreferrer" title={label} style={{ position: 'relative', flexShrink: 0, display: 'block' }}>
+          <img src={photoUrl} alt={label} loading="lazy" onError={() => setBroken(true)}
+            style={{ display: 'block', width: 44, height: 44, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--warm-border)' }} />
+          <span aria-hidden="true" style={{ position: 'absolute', right: -5, bottom: -5, fontSize: 12 }}>📎</span>
+        </a>
+      )}
+      {note && <span style={{ fontSize: 12, color: 'var(--warm-text-secondary)', fontWeight: 600, overflowWrap: 'anywhere', minWidth: 0 }}>“{note}”</span>}
+    </div>
+  );
+}
+
 interface HistoryProps {
   language?: string;
   isAdmin?: boolean;
@@ -127,7 +146,7 @@ export function History({ language, isAdmin, users = [], rooms = [], userId, mas
                   <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>
                     {roomDisplayName(p.roomName, p.roomType || '')} · {timeAgo(p.completedAt)} · {t('app.waitingForApproval')}
                   </div>
-                  {p.note && <div style={{ fontSize: 11, color: 'var(--warm-text-secondary)', fontWeight: 600, overflowWrap: 'anywhere' }}>“{p.note}”</div>}
+                  <Proof note={p.note} photoUrl={p.photoUrl} label={t('approvals.proofPhoto')} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 800, color: 'var(--warm-text-light)' }}>+{p.coinsEarned} <CoinIcon /></div>
               </div>
@@ -216,6 +235,7 @@ export function History({ language, isAdmin, users = [], rooms = [], userId, mas
                     <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('history.by')} {byName}{!isDuo && <> <UserTitle userId={h.userId} language={language} style={{ fontSize: 10 }} /></>}</div>
                     <div className="history-mobile-meta">{roomDisplayName(h.roomName, h.roomType || '')} · {timeAgo(h.completedAt)}</div>
                     {h.loggedAt && <div style={{ fontSize: 11, color: 'var(--warm-text-muted)', fontWeight: 700, marginTop: 2 }}>🕘 {t('late.tag')}</div>}
+                    <Proof note={h.note} photoUrl={h.photoUrl} label={t('approvals.proofPhoto')} />
                     {h.approvalNote && <div style={{ fontSize: 12, color: 'var(--warm-text-secondary)', fontWeight: 600, marginTop: 2, overflowWrap: 'anywhere' }}>💬 “{h.approvalNote}”</div>}
                     {h.cheers && (
                       <CheerBar completionId={h.id} cheers={h.cheers} language={language} mascotName={mascotName}

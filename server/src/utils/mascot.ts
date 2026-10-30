@@ -127,6 +127,7 @@ export function mascotFor(opts: { houseHealth: number; rooms: Array<{ id: number
     event: birthday ? 'birthday' : goalWon ? 'teamGoal' : opts.rescueDone ? 'rescue' : null,
     birthdayName: birthday,
     tummy: tummy(now),
+    treatAt: treatAt(now),
     // The shop and the shared outfit (Settings → Features → Mascot shop)
     shop: isFeatureOn('mascotShop') ? SHOP : null,
     outfit: isFeatureOn('mascotShop') ? mascotOutfit() : {},
@@ -154,6 +155,17 @@ export function tummy(now: Date = new Date()): number {
     at = t;
   }
   return Math.round(Math.max(0, level - (now.getTime() - at) * DRAIN_PER_MS));
+}
+
+/**
+ * It cheers (🍪 and a hop) only for bigger chores, effort 3★ or more; smaller ones fill the tummy quietly.
+ * treatAt is when the last one was approved: the card cheers when it moved on since that device last looked.
+ */
+export const TREAT_EFFORT = 3;
+export function treatAt(now: Date = new Date()): string | null {
+  const since = new Date(now.getTime() - 7 * 24 * 3600000).toISOString();
+  return (db.prepare(`SELECT MAX(tc.approvedAt) AS at FROM task_completions tc JOIN tasks t ON t.id = tc.taskId
+    WHERE tc.status = 'approved' AND tc.completedAt >= ? AND t.effort >= ?`).get(since, TREAT_EFFORT) as { at: string | null }).at;
 }
 
 /** The accessory shop: 1–5 coins each, one item per spot. The crown stays a free Legendary reward. */

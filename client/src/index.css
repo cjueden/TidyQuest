@@ -905,6 +905,8 @@ html[data-season] .main-content {
 .mascot-droop { animation: mascotDroop 4s ease-in-out infinite alternate; transform-origin: 50% 100%; }
 .mascot-party { animation: mascotBounce 0.9s ease-in-out infinite; transform-origin: 50% 100%; }
 .mascot-hop { animation: mascotHop 0.6s ease-out; transform-origin: 50% 100%; }
+/* A treat (a bigger chore): two happy hops while the 🍪 drops in */
+.mascot-cheer { animation: mascotHop 0.6s ease-out 0.9s 2; transform-origin: 50% 100%; }
 .mascot-spin { animation: mascotSpin 0.7s ease-in-out; transform-origin: 50% 60%; }
 .mascot-sleep { animation: mascotBreathe 3.6s ease-in-out infinite; transform-origin: 50% 100%; }
 .mascot-zzz { position: absolute; top: -4px; right: 0; font-size: 22px; animation: mascotFloat 2.4s ease-in-out infinite; }
@@ -924,7 +926,7 @@ html[data-season] .main-content {
 @media (prefers-reduced-motion: reduce) {
   .season-particles, .tq-confetti { display: none; }
   .season-strip span, .mascot-bounce, .mascot-sway, .mascot-droop, .mascot-party, .mascot-confetti,
-  .mascot-hop, .mascot-spin, .mascot-sleep, .mascot-zzz, .mascot-fed { animation: none; }
+  .mascot-hop, .mascot-cheer, .mascot-spin, .mascot-sleep, .mascot-zzz, .mascot-fed { animation: none; }
   .mascot-fed { display: none; }
 }
 

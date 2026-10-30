@@ -163,6 +163,7 @@ export const GUIDE_NL: GuideSection[] = [
       { h: 'Een klusje afronden' },
       { ul: [
         'Tik op Klaar! op Home, in de kamer of op de pagina Klusjes. Met de 📎-knop voeg je een notitie of foto toe als bewijs.',
+        'Als een ouder het goedkeurt, blijven de notitie en foto bij het klusje in Activiteit (tik op de foto om hem groot te zien). Ouders zien die van iedereen, de anderen alleen hun eigen. Ongedaan maken of afwijzen van het klusje verwijdert de foto.',
         'Ouders en leden kunnen een klusje voor iemand anders op klaar zetten ("wie heeft het gedaan?").',
         'Een vergissing kun je ongedaan maken via Activiteit (ouders), of met ↩️ Ongedaan naast "Gedaan door" van het klusje in de kamer (ouders; er wordt eerst gevraagd, omdat de munten er weer af gaan). Een Samen doen wordt voor het hele team ongedaan gemaakt en ieders munten daarvoor worden teruggenomen. Een kind kan zijn eigen Klaar terugnemen zolang het op goedkeuring wacht.',
       ] },
@@ -274,7 +275,7 @@ export const GUIDE_NL: GuideSection[] = [
         'Samen doen: 🤝 bij een klusje van 6 of meer munten nodigt één persoon of iedereen uit. Zodra iemand meedoet is het klusje die dag van het team. Een van beide tikt op Klaar!; de munten worden gelijk verdeeld plus een teambonus (10, 20 of 30%). Een ouder met een kind is een helper en het kind houdt alle munten. Nooit bij iemands eigen kamer, klusjes voor één persoon of klusjes die om de beurt gaan. Geen zin? Met "Nee, bedankt" wijs je een uitnodiging af: een uitnodiging alleen voor jou vervalt en wie hem stuurde hoort dat, zodat diegene iemand anders kan vragen; een uitnodiging voor iedereen verdwijnt alleen voor jou. Wie het gestart heeft kan "Samen doen afblazen" (het stopt voor iedereen); anderen kunnen Stoppen.',
         'Huismascotte: een van de 8 wezentjes, hier gekozen en een naam gegeven. Het groeit mee met de gezinsmunten die verdiend worden zolang het de actieve mascotte is (komt uit bij 500, daarna 2.000, 5.000 en 10.000), de stemming volgt de huisgezondheid en het reageert op verjaardagen, het gezinsdoel en de Reddingsmissie.',
         'Van mascotte wisselen: kies je een wezentje dat je nog niet had, dan begint het als nieuw ei. Elk wezentje houdt zijn eigen groei, naam en outfit, dus terugwisselen brengt het precies terug zoals het was. Het buikje en de bedtijd worden gedeeld.',
-        'Spelen met de mascotte: tik erop voor een reactie. Het 🍪-buikje vult zich 5% bij elk klusje (Samen doen telt één keer) en loopt in 2 dagen leeg; als het laag is zegt de mascotte gewoon dat hij honger heeft. "Wat zal ik doen?" stelt een klusje voor dat je nu kunt doen. Bij elk afgerond klusje komt een 🐾-aanmoediging. Tijdens de bedtijd van het gezin slaapt de mascotte (in te stellen onder de mascotte bij Functies, standaard 21.00 tot 7.00 uur).',
+        'Spelen met de mascotte: tik erop voor een reactie. Het 🍪-buikje vult zich 5% bij elk klusje (Samen doen telt één keer) en loopt in 2 dagen leeg. Alleen bij grotere klusjes (moeite 3★ of meer) juicht de mascotte met een 🍪 en een sprongetje; kleinere vullen het buikje stilletjes; als het laag is zegt de mascotte gewoon dat hij honger heeft. "Wat zal ik doen?" stelt een klusje voor dat je nu kunt doen. Bij elk afgerond klusje komt een 🐾-aanmoediging. Tijdens de bedtijd van het gezin slaapt de mascotte (in te stellen onder de mascotte bij Functies, standaard 21.00 tot 7.00 uur).',
         'Mascottewinkel (eigen schakelaar): iedereen kan een accessoire voor de mascotte kopen voor 1 tot 5 munten. Er is één gedeelde outfit en geen kledingkast: een nieuw item gaat meteen aan voor iedereen en vervangt wat er op die plek zat (hoofd, gezicht, nek of rug). Wie een item kocht, of een ouder, kan het gratis uitdoen. Aankopen staan in Activiteit. De winkel gaat open zodra de mascotte uitkomt. Als je de winkel uitzet, verdwijnen de winkel en de outfit.',
         'Feestdagenlook: Halloween in oktober, Thanksgiving in november, Kerst in december: kleuren, versieringen, een aftelling en een kostuum voor de mascotte. Elke feestdag heeft een eigen schakelaar en een knop Voorbeeld.',
       ] },
@@ -473,6 +474,10 @@ export const GUIDE_NL: GuideSection[] = [
         { q: 'De mascotte slaapt, of zegt dat hij honger heeft', a: [
           'Hij slaapt tijdens de bedtijd van het gezin (Instellingen → Functies, onder de mascotte), volgens de klok van elk apparaat.',
           'Honger betekent minder klusjes in de laatste dagen; elk klusje vult het buikje een beetje. Honger heeft nooit invloed op iets anders.',
+        ] },
+        { q: 'De mascotte juichte niet bij een klusje', a: [
+          'Hij juicht (🍪 en een sprongetje) alleen bij grotere klusjes, moeite 3★ of meer, en bij een wachtend klusje pas als het is goedgekeurd. Kleinere klusjes vullen het buikje toch, alleen stilletjes.',
+          'Elk apparaat laat het juichen één keer zien: een telefoon die het al liet zien, juicht niet nog eens.',
         ] },
         { q: 'Geen feestdagversieringen of -kleuren', a: [
           'Instellingen → Functies → Feestdagenlook en de eigen schakelaar van die feestdag moeten aan staan. Het volgt de datum van het apparaat.',

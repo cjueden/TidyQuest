@@ -17,7 +17,7 @@ import { currentLocalWeek, weekStartDay } from '../utils/periods';
 import { canonicalZone, familyZone } from '../utils/clock';
 import { isHosted } from '../hosted/context';
 import { removeAccount } from '../hosted/accounts';
-import { fileUrl, oneFile, uploadDir } from '../hosted/files';
+import { fileUrl, oneFile, removeFile, uploadDir } from '../hosted/files';
 import { NTFY_ONLY_ERROR, filesFullError, ntfyServerAllowed, overFilesLimit, tooManyPeople } from '../hosted/limits';
 
 const router = Router();
@@ -712,7 +712,10 @@ router.delete('/:id', (req: AuthRequest, res: Response) => {
     }
   }
 
+  // Their completions go with them, and so do the proof photos on them
+  const photos = db.prepare('SELECT photoUrl FROM task_completions WHERE userId = ? AND photoUrl IS NOT NULL').all(targetId) as { photoUrl: string }[];
   db.prepare('DELETE FROM users WHERE id = ?').run(targetId);
+  for (const p of photos) removeFile('proofs', p.photoUrl);
   // Hosted mode: their sign-in email goes with them
   if (isHosted()) removeAccount(req.familyId!, targetId);
   res.json({ success: true });

@@ -57,6 +57,50 @@ describe('Proof with a completion', () => {
   });
 });
 
+describe('Proof after approval (ENH-11)', () => {
+  const photo = async (token: string, id: number) =>
+    (await agent.post(`/api/completions/${id}/photo`).set(auth(token)).attach('photo', PNG, { filename: 'card.png', contentType: 'image/png' })).body.photoUrl as string;
+  const fileOf = (url: string) => path.join(uploadDir('proofs'), path.basename(url));
+
+  it('keeps the photo and note in Activity for parents and the kid who did it, not for others', async () => {
+    const { admin, kidA, kidB, task } = await family();
+    const id = (await agent.post(`/api/tasks/${task}/complete`).set(auth(kidA.token)).send({ note: 'Math test, 94%' })).body.completionId as number;
+    const url = await photo(kidA.token, id);
+    await agent.post(`/api/completions/${id}/approve`).set(auth(admin.token)).expect(200);
+
+    const entry = async (token: string) => ((await agent.get('/api/history').set(auth(token))).body.history as any[]).find((h) => h.id === id);
+    expect(await entry(admin.token)).toMatchObject({ note: 'Math test, 94%', photoUrl: url });
+    expect(await entry(kidA.token)).toMatchObject({ note: 'Math test, 94%', photoUrl: url });
+    expect(await entry(kidB.token)).toMatchObject({ note: null, photoUrl: null });
+    expect(fs.existsSync(fileOf(url))).toBe(true);
+    fs.rmSync(fileOf(url), { force: true });
+  });
+
+  it('deletes the photo file when the completion goes (taken back, rejected, replaced, person deleted)', async () => {
+    const { admin, kidA, task } = await family();
+    const done = async () => (await agent.post(`/api/tasks/${task}/complete`).set(auth(kidA.token))).body.completionId as number;
+
+    const takenBack = await done();
+    const first = await photo(kidA.token, takenBack);
+    await agent.delete(`/api/completions/${takenBack}`).set(auth(kidA.token)).expect(200);
+    expect(fs.existsSync(fileOf(first))).toBe(false);
+
+    const rejected = await done();
+    const second = await photo(kidA.token, rejected);
+    await agent.delete(`/api/completions/${rejected}/reject`).set(auth(admin.token)).expect(200);
+    expect(fs.existsSync(fileOf(second))).toBe(false);
+
+    const kept = await done();
+    const old = await photo(kidA.token, kept);
+    const replaced = await photo(kidA.token, kept);
+    expect(fs.existsSync(fileOf(old))).toBe(false);
+    expect(fs.existsSync(fileOf(replaced))).toBe(true);
+
+    await agent.delete(`/api/users/${kidA.user.id}`).set(auth(admin.token)).expect(200);
+    expect(fs.existsSync(fileOf(replaced))).toBe(false);
+  });
+});
+
 describe('Approving several at once', () => {
   it('approves the chosen ones, pays each, and skips ones already handled', async () => {
     const { admin, kidA, task } = await family();
