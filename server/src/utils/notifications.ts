@@ -2,6 +2,7 @@ import db from '../database';
 import { isSeasonalNow, nextDueAt, type ScheduledTask } from './schedule';
 import { dateStr, wall } from './clock';
 import { perFamily } from '../hosted/context';
+import { ntfyServerAllowed } from '../hosted/limits';
 
 interface TelegramSettings {
   enabled: boolean;
@@ -184,6 +185,8 @@ export async function sendNtfyMessageDetailed(message: string, options: SendNtfy
     if (!['http:', 'https:'].includes(parsed.protocol)) {
       return { ok: false, error: 'ntfy server URL must use http or https.' };
     }
+    // Hosted mode only sends to ntfy.sh (hosted/limits.ts)
+    if (!ntfyServerAllowed(parsed.href)) return { ok: false, error: 'Only ntfy.sh can be used on this server.' };
   } catch {
     return { ok: false, error: 'Invalid ntfy server URL.' };
   }

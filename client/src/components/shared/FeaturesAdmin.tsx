@@ -7,7 +7,7 @@ import { SEASONS, setSeasonPreview, useSeasonPreview } from '../../utils/seasons
 import { CREATURE_IDS, CREATURES, type CreatureId } from '../mascot/MascotArt';
 import { MascotPicture } from '../mascot/MascotCard';
 
-const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'shields', 'cheers', 'teamups', 'mascot', 'mascotShop', 'focus', 'seasonal'];
+const ORDER: Array<keyof FeatureFlags> = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'shields', 'cheers', 'teamups', 'mascot', 'mascotShop', 'focus', 'proofPhotos', 'seasonal'];
 const MULTIPLIERS = [1.5, 2, 3];
 const SHIELD_PRICES = [10, 15, 20, 25, 30, 40, 50, 75, 100];
 

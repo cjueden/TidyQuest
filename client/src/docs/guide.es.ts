@@ -93,6 +93,13 @@ export const GUIDE_ES: GuideSection[] = [
         'Al registrarte enviamos un enlace para confirmar tu dirección. Una familia que no confirma el correo de un padre o una madre en 30 días solo puede confirmarlo o descargar sus datos hasta que lo haga.',
         '¿Olvidaste la contraseña? en la pantalla de inicio de sesión envía a un padre o una madre un enlace que funciona una vez, durante una hora. Los niños y adolescentes piden a sus padres que pongan una nueva en Ajustes → Miembros de la familia.',
       ] },
+      { h: 'En tidyquest.org: límites' },
+      { ul: [
+        'Una familia puede tener hasta 15 personas.',
+        'Una foto de prueba puede ocupar hasta 5 MB (un avatar 2 MB), y una familia tiene 200 MB para sus fotos. Una copia de seguridad para importar puede ocupar hasta 5 MB.',
+        'Las fotos de prueba empiezan desactivadas: un padre o una madre puede activarlas en Ajustes → Funciones → Fotos de prueba.',
+        'Si TidyQuest pausa una familia, o termina su prueba gratuita, la app muestra una página que lo explica. Los padres pueden seguir pulsando Descargar nuestros datos ahí.',
+      ] },
     ],
   },
   {
@@ -159,6 +166,7 @@ export const GUIDE_ES: GuideSection[] = [
         'Los padres y miembros pueden marcar una tarea como hecha por otra persona ("¿quién la hizo?").',
         'Un error se puede deshacer desde Actividad (padres), o con ↩️ Deshacer junto al "Hecho por" de la tarea en su habitación (padres; pregunta antes, porque las monedas se devuelven). Una tarea En equipo se deshace para todo el equipo y se retiran las monedas de todos. Un niño puede deshacer su propio Hecho mientras espera aprobación.',
       ] },
+      { p: 'Ajustes → Funciones → Fotos de prueba desactiva las fotos; el botón 📎 entonces solo añade una nota. En tidyquest.org las fotos empiezan desactivadas, y un padre o una madre las activa.' },
       { h: 'Apuntarlo tarde' },
       { ul: [
         '¿Se te olvidó tocar Hecho? Toca 📅 (Hecho antes…) junto a la tarea en su habitación, elige el día (hasta 7 días atrás) y toca Apuntar. Los padres y los miembros pueden elegir quién lo hizo.',
@@ -306,6 +314,7 @@ export const GUIDE_ES: GuideSection[] = [
         'Los tipos privados (aprobada o rechazada, resúmenes, avisos, ánimos) solo van al canal propio de la persona, nunca al canal familiar.',
         'El Registro de notificaciones muestra lo que se envió, quedó en cola o falló, y por qué.',
       ] },
+      { p: 'En tidyquest.org, las notificaciones van por ntfy.sh o Telegram. Tu propio servidor ntfy y Home Assistant solo funcionan en un servidor en casa.' },
     ],
   },
   {
@@ -421,6 +430,10 @@ export const GUIDE_ES: GuideSection[] = [
           'Las horas de silencio y el horario escolar retienen los mensajes hasta que terminan.',
           'El Registro de notificaciones muestra cada mensaje y cualquier error.',
         ] },
+        { q: 'Nuestro servidor ntfy o Home Assistant no funciona en tidyquest.org', a: [
+          'tidyquest.org solo envía a ntfy.sh y Telegram: una dirección escrita podría llegar a máquinas de nuestra red, así que el servidor no la llama. Un servidor en casa puede usar ambos.',
+          'Al importar una copia de seguridad de un servidor en casa se quitan sus ajustes de Home Assistant y de ntfy propio (con los temas de ese servidor), para que los mensajes nunca acaben por error en un tema público de ntfy.sh. Configura de nuevo ntfy.sh o Telegram en Ajustes → General → Notificaciones.',
+        ] },
         { q: 'Las tareas se reinician a una hora equivocada, o los días y la semana van desfasados unas horas', a: [
           'Mira Ajustes → General → Zona horaria (padres): ahí los días empiezan a medianoche para toda la familia. Si pone "Aún sin elegir", toca Usarla para tomar la zona de este dispositivo, o toca Cambiar y busca la tuya.',
           'Cambiarla mueve cuándo empieza cada día a partir de entonces. Las tareas ya hechas se quedan en el día en que se hicieron.',
@@ -490,6 +503,16 @@ export const GUIDE_ES: GuideSection[] = [
         ] },
         { q: 'Aparece «Confirma tu correo para seguir usando TidyQuest»', a: [
           'Tu familia tenía 30 días para confirmar el correo de un padre o una madre. Uno de ellos abre el enlace que enviamos o toca Enviarlo de nuevo (o Cambiar correo si la dirección estaba mal). No se pierde nada, y Descargar nuestros datos sigue funcionando.',
+        ] },
+        { q: 'Dice que la familia está en pausa, o que la prueba gratuita ha terminado', a: [
+          'Solo en tidyquest.org. Una familia en pausa no puede usar la app hasta que TidyQuest la reanude. No se pierde nada, y un padre o una madre puede seguir pulsando Descargar nuestros datos.',
+          'Cuando la prueba gratuita ha terminado, un padre o una madre elige un plan para seguir. Mientras tanto se guardan los datos de la familia, y Descargar nuestros datos sigue funcionando.',
+        ] },
+        { q: 'Dice que un archivo es demasiado grande, o que la familia está llena', a: [
+          'El mensaje dice qué límite se alcanzó. Una foto de prueba puede ocupar hasta 8 MB (5 MB en tidyquest.org), un avatar 2 MB, y una copia de seguridad para importar 50 MB (5 MB en tidyquest.org).',
+          'En tidyquest.org una familia tiene 200 MB para fotos. Cuando se llena, las fotos nuevas no se suben, pero la tarea cuenta igual.',
+          'En tidyquest.org una familia puede tener hasta 15 personas.',
+          '¿No hay campo de foto al terminar una tarea con 📎? Un padre o una madre las desactivó en Ajustes → Funciones → Fotos de prueba.',
         ] },
         { q: 'Se cerró mi sesión en todos los dispositivos', a: [
           'Un padre o una madre cambió tu contraseña o usó Cerrar sesión en todos los dispositivos, o tú cambiaste tu contraseña o usaste Cerrar sesión en los demás dispositivos en otro dispositivo. Vuelve a iniciar sesión con tu contraseña actual.',

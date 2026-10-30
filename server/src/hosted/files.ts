@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { Router } from 'express';
-import { currentFamily, isHosted } from './context';
+import { Router, type RequestHandler } from 'express';
+import multer from 'multer';
+import { currentFamily, isHosted, keepFamily } from './context';
 import { dataDir } from './mainDb';
 import { familyDir, isLiveFamily } from './families';
 
@@ -26,6 +27,31 @@ export function uploadDir(kind: FileKind, familyId?: string): string {
 /** The link saved for an uploaded file. */
 export function fileUrl(kind: FileKind, name: string, familyId?: string): string {
   return isHosted() ? `/api/files/${familyOf(familyId)}/${kind}/${name}` : `/api/${kind}/${name}`;
+}
+
+/**
+ * Takes one uploaded file (multer) inside the request's family. One over limitMb answers 413 with the
+ * limit, so the app can say how big a file may be.
+ */
+export function oneFile(field: string, limitMb: () => number, options: Omit<multer.Options, 'limits'>): RequestHandler {
+  return keepFamily((req, res, next) => {
+    const limit = limitMb();
+    multer({ ...options, limits: { fileSize: limit * 1024 * 1024 } }).single(field)(req, res, (err?: unknown) => {
+      if ((err as { code?: string } | undefined)?.code !== 'LIMIT_FILE_SIZE') return next(err);
+      res.status(413).json({ error: `That file is too big (the limit is ${limit} MB)`, code: 'too-large', limit });
+    });
+  });
+}
+
+/** Bytes of avatars and proof photos in the family's folder (hosted mode). */
+export function filesBytes(familyId: string): number {
+  let total = 0;
+  for (const kind of ['avatars', 'proofs']) {
+    const dir = path.join(familyDir(familyId), kind);
+    if (!fs.existsSync(dir)) continue;
+    for (const name of fs.readdirSync(dir)) total += fs.statSync(path.join(dir, name), { throwIfNoEntry: false })?.size ?? 0;
+  }
+  return total;
 }
 
 const FILE_NAME = /^[A-Za-z0-9_-]+\.[A-Za-z0-9]+$/;

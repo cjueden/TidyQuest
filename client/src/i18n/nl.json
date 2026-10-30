@@ -959,7 +959,9 @@
       "notePlaceholder": "bijv. 94% voor de wiskundetoets",
       "photo": "Foto (optioneel)",
       "submit": "Klaar",
-      "photoFailed": "Opgeslagen, maar de foto is niet geüpload."
+      "photoFailed": "Opgeslagen, maar de foto is niet geüpload.",
+      "titleNote": "Afronden met een notitie",
+      "addNote": "Notitie toevoegen"
     },
     "rewardRules": {
       "whoCanSee": "Wie ziet het",
@@ -1384,7 +1386,8 @@
       "kind_rescue": "Reddingsmissie",
       "kindDesc_rescue": "de 2×-taak van de dag, 's ochtends",
       "kind_cheer": "Aanmoedigingen op mijn klusjes",
-      "kind_teamup": "Uitnodigingen om samen te doen"
+      "kind_teamup": "Uitnodigingen om samen te doen",
+      "peopleDescHosted": "Geef iedereen een eigen kanaal (een ntfy-onderwerp op de telefoon of een Telegram-chat). Zonder eigen kanaal delen ze het gezinskanaal; privéberichten (resultaten, samenvattingen, duwtjes) gaan alleen naar het eigen kanaal."
     },
     "todos": {
       "roomName": "To-do's",
@@ -1453,7 +1456,9 @@
       "focusDesc": "De klusjes van een kind één voor één, groot, met de stappen erbij. Wie het ziet stel je per persoon in bij Gezinsleden.",
       "shields": "🛡️ Reeksschilden",
       "shieldsDesc": "Verdiend na elke 7 dagen op rij, of gekocht met munten (hooguit 2). Een schild redt de reeks op een gemiste dag.",
-      "shieldPrice": "Prijs"
+      "shieldPrice": "Prijs",
+      "proofPhotos": "Bewijsfoto's",
+      "proofPhotosDesc": "Kinderen kunnen een foto toevoegen aan een klusje dat wacht op goedkeuring van een ouder. Uit: alleen een notitie."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1988,7 +1993,17 @@
       "errEmailTaken": "Dat e-mailadres heeft al een gezin. Log in, of stel je wachtwoord opnieuw in.",
       "errBadEmail": "Dat e-mailadres lijkt niet te kloppen.",
       "errWrongPassword": "Je wachtwoord klopt niet.",
-      "errShortPassword": "Wachtwoorden hebben minstens 8 tekens nodig."
+      "errShortPassword": "Wachtwoorden hebben minstens 8 tekens nodig.",
+      "suspendedTitle": "Dit gezin staat op pauze",
+      "suspendedText": "TidyQuest heeft het account van je gezin gepauzeerd, dus de app is nu niet te gebruiken. Klusjes en geschiedenis staan er nog allemaal, en een ouder kan ze downloaden.",
+      "expiredTitle": "De gratis proefperiode is voorbij",
+      "expiredParent": "Om TidyQuest te blijven gebruiken, heeft je gezin een abonnement nodig. Klusjes en geschiedenis blijven voorlopig bewaard, en je kunt ze downloaden.",
+      "expiredOther": "De gratis proefperiode van je gezin is voorbij. Vraag een ouder een abonnement te kiezen. Je klusjes en munten staan er nog allemaal."
+    },
+    "limits": {
+      "people": "Een gezin kan maximaal {n} personen hebben.",
+      "tooLarge": "Dat bestand is te groot: maximaal {n} MB.",
+      "storageFull": "De ruimte voor foto's van je gezin is vol ({n} MB)."
     }
   }
 }

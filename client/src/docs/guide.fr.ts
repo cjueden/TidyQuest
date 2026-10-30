@@ -93,6 +93,13 @@ export const GUIDE_FR: GuideSection[] = [
         'À l’inscription, nous envoyons un lien pour confirmer votre adresse. Une famille qui n’a pas confirmé l’e-mail d’un parent en 30 jours peut seulement le confirmer ou télécharger ses données, jusqu’à ce qu’elle le fasse.',
         'Mot de passe oublié ? sur l’écran de connexion envoie à un parent un lien qui fonctionne une fois, pendant une heure. Les enfants et les ados demandent à un parent d’en choisir un nouveau dans Paramètres → Membres de la famille.',
       ] },
+      { h: 'Sur tidyquest.org : limites' },
+      { ul: [
+        'Une famille peut compter jusqu’à 15 personnes.',
+        'Une photo de preuve peut faire jusqu’à 5 Mo (un avatar 2 Mo), et une famille a 200 Mo pour ses photos. Une sauvegarde à importer peut faire jusqu’à 5 Mo.',
+        'Les photos de preuve sont désactivées au départ : un parent peut les activer dans Paramètres → Fonctionnalités → Photos de preuve.',
+        'Si TidyQuest met une famille en pause, ou si son essai gratuit se termine, l’appli affiche une page qui l’explique. Les parents peuvent toujours y toucher Télécharger nos données.',
+      ] },
     ],
   },
   {
@@ -159,6 +166,7 @@ export const GUIDE_FR: GuideSection[] = [
         'Les parents et les membres peuvent marquer une tâche comme faite pour quelqu’un d’autre (« qui l’a faite ? »).',
         'Une erreur peut être annulée depuis Activité (parents), ou avec ↩️ Annuler à côté du « Fait par » de la tâche dans sa pièce (parents ; l’appli demande d’abord, car les pièces sont reprises). Une tâche en équipe est annulée pour toute l’équipe, et les pièces de chacun sont reprises. Un enfant peut annuler son propre Fait tant qu’il attend la validation.',
       ] },
+      { p: 'Paramètres → Fonctionnalités → Photos de preuve désactive les photos ; le bouton 📎 n’ajoute alors qu’une note. Sur tidyquest.org, les photos sont désactivées au départ et un parent les active.' },
       { h: 'Noter en retard' },
       { ul: [
         'Oublié d’appuyer sur Fait ? Appuyez sur 📅 (Fait plus tôt…) à côté de la tâche dans sa pièce, choisissez le jour (jusqu’à 7 jours en arrière) puis Noter. Les parents et les membres peuvent choisir qui l’a fait.',
@@ -306,6 +314,7 @@ export const GUIDE_FR: GuideSection[] = [
         'Les types privés (validé/refusé, résumés, rappels, encouragements) vont seulement au canal personnel de la personne, jamais au canal familial.',
         'Le Journal des notifications montre ce qui a été envoyé, mis en attente ou échoué, et pourquoi.',
       ] },
+      { p: 'Sur tidyquest.org, les notifications passent par ntfy.sh ou Telegram. Ton propre serveur ntfy et Home Assistant ne marchent que sur un serveur à la maison.' },
     ],
   },
   {
@@ -421,6 +430,10 @@ export const GUIDE_FR: GuideSection[] = [
           'Les heures calmes et les heures d’école retiennent les messages jusqu’à leur fin.',
           'Le Journal des notifications montre chaque message et toute erreur.',
         ] },
+        { q: 'Notre serveur ntfy ou Home Assistant ne marche pas sur tidyquest.org', a: [
+          'tidyquest.org n’envoie que vers ntfy.sh et Telegram : une adresse saisie pourrait atteindre des machines de notre réseau, donc le serveur ne l’appelle pas. Un serveur à la maison peut utiliser les deux.',
+          'Importer une sauvegarde d’un serveur à la maison retire ses réglages Home Assistant et ntfy personnalisés (avec les sujets de ce serveur), pour que les messages n’arrivent jamais par erreur dans un sujet public de ntfy.sh. Configure à nouveau ntfy.sh ou Telegram dans Paramètres → Général → Notifications.',
+        ] },
         { q: 'Les tâches repartent à la mauvaise heure, ou les jours et la semaine sont décalés de quelques heures', a: [
           'Vérifie Paramètres → Général → Fuseau horaire (parents) : les journées y commencent à minuit pour toute la famille. S’il est écrit « Pas encore choisi », touche « L\'utiliser » pour prendre le fuseau de cet appareil, ou touche Changer et cherche le tien.',
           'Le changer déplace le début de chaque journée à partir de ce moment. Les tâches déjà faites restent le jour où elles ont été faites.',
@@ -490,6 +503,16 @@ export const GUIDE_FR: GuideSection[] = [
         ] },
         { q: 'Le message « Confirmez votre e-mail pour continuer à utiliser TidyQuest » s’affiche', a: [
           'Votre famille avait 30 jours pour confirmer l’e-mail d’un parent. Un parent ouvre le lien envoyé, ou touche Renvoyer (ou Changer d’e-mail si l’adresse était fausse). Rien n’est perdu, et Télécharger nos données fonctionne toujours.',
+        ] },
+        { q: 'Il est écrit que la famille est en pause, ou que l’essai gratuit est terminé', a: [
+          'Seulement sur tidyquest.org. Une famille en pause ne peut pas utiliser l’appli tant que TidyQuest ne la réactive pas. Rien n’est perdu, et un parent peut toujours toucher Télécharger nos données.',
+          'Quand l’essai gratuit est terminé, un parent choisit un abonnement pour continuer. En attendant, les données de la famille sont conservées et Télécharger nos données marche toujours.',
+        ] },
+        { q: 'Il est écrit qu’un fichier est trop gros, ou que la famille est pleine', a: [
+          'Le message dit quelle limite est atteinte. Une photo de preuve peut faire jusqu’à 8 Mo (5 Mo sur tidyquest.org), un avatar 2 Mo, et une sauvegarde à importer 50 Mo (5 Mo sur tidyquest.org).',
+          'Sur tidyquest.org, une famille a 200 Mo pour ses photos. Quand c’est plein, les nouvelles photos ne s’envoient pas, mais la tâche compte quand même.',
+          'Sur tidyquest.org, une famille peut compter jusqu’à 15 personnes.',
+          'Pas de champ photo en terminant une tâche avec 📎 ? Un parent les a désactivées dans Paramètres → Fonctionnalités → Photos de preuve.',
         ] },
         { q: 'J’ai été déconnecté de tous mes appareils', a: [
           'Un parent a changé ton mot de passe ou utilisé Déconnecter de tous les appareils, ou tu as changé ton mot de passe ou utilisé Se déconnecter partout ailleurs sur un autre appareil. Reconnecte-toi avec ton mot de passe actuel.',

@@ -1,19 +1,23 @@
 import db from '../database';
+import { isHosted } from '../hosted/context';
 
 /**
- * Optional extras a family can switch off (Settings → Features). All on by default; stored as JSON
- * {feature: false} in app_settings 'features'.
+ * Optional extras a family can switch off (Settings → Features). On by default; stored as JSON in
+ * app_settings 'features', only where a family's choice differs from the default.
  */
-export const FEATURES = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'seasonal', 'cheers', 'mascot', 'teamups', 'mascotShop', 'focus', 'shields'] as const;
+export const FEATURES = ['rescue', 'usual', 'forgot', 'todos', 'boardAwards', 'levels', 'nextBadge', 'seasonal', 'cheers', 'mascot', 'teamups', 'mascotShop', 'focus', 'shields', 'proofPhotos'] as const;
 export type Feature = typeof FEATURES[number];
+
+/** Proof photos start off in hosted mode until the lawyer signs off on kids' photos (ROADMAP decision 7). */
+export const featureDefault = (f: Feature) => !(f === 'proofPhotos' && isHosted());
 
 export function getFeatures(): Record<Feature, boolean> {
   let stored: Partial<Record<Feature, boolean>> = {};
   try {
     const raw = (db.prepare("SELECT value FROM app_settings WHERE key = 'features'").get() as { value: string } | undefined)?.value;
     if (raw) stored = JSON.parse(raw);
-  } catch { /* fall back to all on */ }
-  return Object.fromEntries(FEATURES.map((f) => [f, stored[f] !== false])) as Record<Feature, boolean>;
+  } catch { /* fall back to the defaults */ }
+  return Object.fromEntries(FEATURES.map((f) => [f, typeof stored[f] === 'boolean' ? stored[f] : featureDefault(f)])) as Record<Feature, boolean>;
 }
 
 export const isFeatureOn = (f: Feature) => getFeatures()[f];

@@ -31,7 +31,7 @@ import { weekdayName } from '../../utils/schedule';
 import { useWeekStart } from '../../utils/week';
 import { TimeZonePicker } from '../shared/TimeZonePicker';
 import { FamilyCodeCard, SignInEmailCard } from '../shared/HostedAccount';
-import type { HostedAccount } from '../../utils/hosted';
+import { limitError, useHosted, type HostedAccount } from '../../utils/hosted';
 import { dateStr, endOfHomeDay } from '../../utils/clock';
 
 interface FamilyUser {
@@ -157,7 +157,10 @@ export function Settings({
   const cosmetics = useContext(CosmeticsContext);
   const navigate = useNavigate();
   const isAdmin = user.role === 'admin';
+  // Hosted mode only sends to ntfy.sh and Telegram
+  const hosted = useHosted();
   const [showAddMember, setShowAddMember] = useState(false);
+  const [addMemberError, setAddMemberError] = useState('');
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberUsername, setNewMemberUsername] = useState('');
   const [newMemberPassword, setNewMemberPassword] = useState('');
@@ -351,6 +354,7 @@ export function Settings({
 
   const resetMemberForm = () => {
     setShowAddMember(false);
+    setAddMemberError('');
     setNewMemberName('');
     setNewMemberUsername('');
     setNewMemberPassword('');
@@ -372,12 +376,19 @@ export function Settings({
 
   const handleAddMember = async () => {
     if (!newMemberName.trim() || !newMemberUsername.trim() || !newMemberPassword.trim()) return;
-    await onAddMember({
-      displayName: newMemberName.trim(),
-      username: newMemberUsername.trim(),
-      password: newMemberPassword,
-      role: 'child',
-    });
+    setAddMemberError('');
+    try {
+      await onAddMember({
+        displayName: newMemberName.trim(),
+        username: newMemberUsername.trim(),
+        password: newMemberPassword,
+        role: 'child',
+      });
+    } catch (err) {
+      // A taken username, or hosted mode's limit on people
+      setAddMemberError(limitError(err, t, (err as Error)?.message || t('common.actionFailed')));
+      return;
+    }
     resetMemberForm();
   };
 
@@ -733,10 +744,12 @@ export function Settings({
                       </div>
                       {ntfyEnabled && (
                         <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
-                          <div style={{ display: 'grid', gap: 4 }}>
-                            <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.ntfyServerUrl')}</label>
-                            <input className="tq-input" value={ntfyServerUrl} onChange={(e) => setNtfyServerUrl(e.target.value)} placeholder="https://ntfy.sh" />
-                          </div>
+                          {!hosted && (
+                            <div style={{ display: 'grid', gap: 4 }}>
+                              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.ntfyServerUrl')}</label>
+                              <input className="tq-input" value={ntfyServerUrl} onChange={(e) => setNtfyServerUrl(e.target.value)} placeholder="https://ntfy.sh" />
+                            </div>
+                          )}
                           <div style={{ display: 'grid', gap: 4 }}>
                             <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' }}>{t('settings.ntfyTopic')}</label>
                             <input className="tq-input" value={ntfyTopic} onChange={(e) => setNtfyTopic(e.target.value)} placeholder={t('settings.ntfyTopicPlaceholder')} />
@@ -1333,6 +1346,7 @@ export function Settings({
               <button className="tq-btn tq-btn-secondary tq-btn-sm" onClick={resetMemberForm}>{t('common.cancel')}</button>
               <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={handleAddMember}>{t('settings.create')}</button>
             </div>
+            {addMemberError && <div role="alert" style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: 'var(--warm-danger)' }}>{addMemberError}</div>}
           </div>
         )}
         <div className="family-members-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>

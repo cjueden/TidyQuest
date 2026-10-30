@@ -3,6 +3,7 @@ import { UserAvatar } from '../shared/UserAvatar';
 import { AVATAR_PRESETS, AvatarPresetIcon } from '../icons/AvatarPresets';
 import { GlobeIcon } from '../icons/UIIcons';
 import { api } from '../../hooks/useApi';
+import { limitError } from '../../utils/hosted';
 import { useTranslation } from '../../hooks/useTranslation';
 import { MyNotifications } from '../shared/MyNotifications';
 import { ThemePicker } from '../shared/ThemePicker';
@@ -81,7 +82,7 @@ export function Profile({ user, theme, onChangeTheme, onUnlocksChanged, onSave, 
       setUploadMsg('');
       onSave();
     } catch (err: any) {
-      setUploadMsg(err?.message || t('profile.uploadFailed'));
+      setUploadMsg(limitError(err, t, err?.message || t('profile.uploadFailed')));
     } finally {
       setSaving(false);
     }

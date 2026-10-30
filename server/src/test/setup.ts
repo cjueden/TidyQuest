@@ -13,7 +13,7 @@ process.env.VITEST = 'true';
 import { setDatabase } from '../database';
 import { applyForkSchema } from '../forkSchema';
 import { createApp } from '../index';
-import { resetLoginLimits } from '../routes/auth';
+import { resetLoginLimits } from '../utils/throttle';
 import { at, wall } from '../utils/clock';
 import { currentFamily, isHosted, runInFamily, setHosted, setTestFamily } from '../hosted/context';
 import { closeAllFamilies, createFamily, openFamily } from '../hosted/families';
@@ -84,8 +84,9 @@ function newTestDatabase() {
   // Initialize schema
   runSchema(db);
   applyForkSchema(db);
-  // The Rescue Mission doubles the coins of a long-overdue chore; tests about it turn it on themselves
-  db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('features', ?)").run(JSON.stringify({ rescue: false }));
+  // The Rescue Mission doubles the coins of a long-overdue chore; tests about it turn it on themselves.
+  // Proof photos start off in hosted mode; the suite's photo tests run in both.
+  db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('features', ?)").run(JSON.stringify({ rescue: false, proofPhotos: true }));
   // TEST_TIME_ZONE=Pacific/Auckland runs the suite with the family in another zone than the server's TZ
   if (process.env.TEST_TIME_ZONE) db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('timeZone', ?)").run(process.env.TEST_TIME_ZONE);
   return db;

@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { api, type NotifyPerson, type NotifySettings, type NotifyKind } from '../../hooks/useApi';
 import { useTranslation } from '../../hooks/useTranslation';
 import { localeFor } from '../../utils/locale';
+import { useHosted } from '../../utils/hosted';
 
 const KINDS: NotifyKind[] = ['taskDue', 'reminder', 'outcome', 'summary', 'nudge', 'achievementUnlocked', 'choreApproval', 'rewardRequest', 'coinBoost', 'cheer', 'teamup'];
 const label: CSSProperties = { fontSize: 11, fontWeight: 700, color: 'var(--warm-text-muted)' };
@@ -15,6 +16,8 @@ const errorText = (err: unknown, t: (k: string) => string) => {
 /** When the summaries go out, quiet and school hours, and Home Assistant. */
 export function NotifyScheduleAdmin({ language }: { language?: string }) {
   const { t } = useTranslation(language);
+  // Hosted mode has no Home Assistant: the server won't call addresses inside its own network
+  const hosted = useHosted();
   const [s, setS] = useState<NotifySettings | null>(null);
   const [haToken, setHaToken] = useState('');
   const [message, setMessage] = useState('');
@@ -63,13 +66,13 @@ export function NotifyScheduleAdmin({ language }: { language?: string }) {
         </label>
         <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-light)' }}>{t('notifyAdmin.quietDesc')}</div>
       </div>
-      <div style={box}>
+      {!hosted && <div style={box}>
         <div style={{ ...label, fontSize: 12 }}>🏠 Home Assistant</div>
         <input className="tq-input" value={s.haUrl} placeholder="http://homeassistant.local:8123" onChange={(e) => set({ haUrl: e.target.value })} aria-label={t('notifyAdmin.haUrl')} />
         <input type="password" className="tq-input" value={haToken} placeholder={s.hasHaToken ? t('notifyAdmin.haTokenSaved') : t('notifyAdmin.haToken')} onChange={(e) => setHaToken(e.target.value)} aria-label={t('notifyAdmin.haToken')} />
         <input className="tq-input" value={s.haFamilyService} placeholder={t('notifyAdmin.haFamilyService')} onChange={(e) => set({ haFamilyService: e.target.value })} aria-label={t('notifyAdmin.haFamilyService')} />
         <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--warm-text-light)' }}>{t('notifyAdmin.haDesc')}</div>
-      </div>
+      </div>}
       <div style={row}>
         <button className="tq-btn tq-btn-primary tq-btn-sm" onClick={save}>{t('common.save')}</button>
         {message && <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--warm-accent)' }}>{message}</span>}
@@ -81,6 +84,7 @@ export function NotifyScheduleAdmin({ language }: { language?: string }) {
 /** One person's own channels and the kinds of messages they get. Also used on the Profile page. */
 export function PersonNotify({ person, language, onSaved }: { person: NotifyPerson; language?: string; onSaved?: (p: NotifyPerson) => void }) {
   const { t } = useTranslation(language);
+  const hosted = useHosted();
   const [p, setP] = useState(person);
   const [message, setMessage] = useState('');
   const save = async () => {
@@ -108,7 +112,7 @@ export function PersonNotify({ person, language, onSaved }: { person: NotifyPers
         ['ntfyTopic', 'ntfy', 'notifyAdmin.ntfyTopic'],
         ['telegramChatId', 'Telegram', 'notifyAdmin.telegramChat'],
         ['haNotifyService', 'Home Assistant', 'notifyAdmin.haService'],
-      ] as const).map(([field, name, hint]) => (
+      ] as const).filter(([field]) => !(hosted && field === 'haNotifyService')).map(([field, name, hint]) => (
         <label key={field} style={{ display: 'grid', gap: 3 }}>
           <span style={label}>{name}</span>
           <input className="tq-input" value={p[field]} placeholder={t(hint)} onChange={(e) => setP({ ...p, [field]: e.target.value })} />
@@ -137,10 +141,11 @@ export function PeopleNotifyAdmin({ language }: { language?: string }) {
   const { t } = useTranslation(language);
   const [people, setPeople] = useState<NotifyPerson[]>([]);
   const [open, setOpen] = useState<number | null>(null);
+  const hosted = useHosted();
   useEffect(() => { api.getNotifyPeople().then(setPeople).catch(() => setPeople([])); }, []);
   return (
     <div style={{ display: 'grid', gap: 8 }}>
-      <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t('notifyAdmin.peopleDesc')}</div>
+      <div style={{ fontSize: 11, color: 'var(--warm-text-light)', fontWeight: 600 }}>{t(hosted ? 'notifyAdmin.peopleDescHosted' : 'notifyAdmin.peopleDesc')}</div>
       {people.map((p) => (
         <div key={p.id} style={box}>
           <button onClick={() => setOpen(open === p.id ? null : p.id)} style={{ ...row, justifyContent: 'space-between', background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'Nunito', color: 'inherit', width: '100%' }}>

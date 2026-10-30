@@ -5,7 +5,8 @@ import { localeFor } from '../../utils/locale';
 import { hostedError, type HostedAccount } from '../../utils/hosted';
 
 // Hosted mode's parts of the signed-in app: the family code and link (Settings), the parent's sign-in
-// email (Settings), the confirm-email banner and the screen a family sees once its 30 days are up.
+// email (Settings), the confirm-email banner, and the screen a family sees once its 30 days are up, or
+// when it's paused or its trial has ended.
 
 const muted: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: 'var(--warm-text-light)', margin: 0, lineHeight: 1.5 };
 
@@ -169,7 +170,10 @@ export function ConfirmEmailBanner({ account, language, onChanged }: { account: 
   );
 }
 
-/** Instead of the app, once a family's 30 days to confirm an email are up: confirm, export, or log out. */
+/**
+ * Instead of the app, for a family that's paused, whose trial has ended, or whose 30 days to confirm an
+ * email are up (confirm here). Parents can always export; everyone can log out.
+ */
 export function LockedScreen({ account, language, onChanged, onLogout }: { account: HostedAccount; language: string; onChanged: () => void; onLogout: () => void }) {
   const { t } = useTranslation(language);
   const exportData = async () => {
@@ -185,17 +189,39 @@ export function LockedScreen({ account, language, onChanged, onLogout }: { accou
       alert((err as Error)?.message || t('common.actionFailed'));
     }
   };
+  // Paused or trial ended; otherwise the email still needs confirming
+  const closed = account.status === 'suspended' || account.status === 'expired';
+  const heading = (icon: string, key: string) => (
+    <h1 style={{ fontSize: 20, fontWeight: 900, color: 'var(--warm-text)', margin: 0 }}>{icon} {t(key)}</h1>
+  );
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--warm-bg)', padding: '24px 0' }}>
       <div className="tq-card" style={{ padding: 28, width: 440, maxWidth: 'calc(100vw - 24px)', display: 'grid', gap: 12 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 900, color: 'var(--warm-text)', margin: 0 }}>📧 {t('hosted.lockedTitle')}</h1>
-        {account.isParent && account.email ? (
+        {account.status === 'suspended' && (
           <>
-            <p style={muted}>{t('hosted.lockedParent').replace('{email}', account.email)}</p>
-            <EmailControls account={account} language={language} onChanged={onChanged} />
+            {heading('⏸️', 'hosted.suspendedTitle')}
+            <p style={muted}>{t('hosted.suspendedText')}</p>
           </>
-        ) : (
-          <p style={muted}>{t('hosted.lockedOther')}</p>
+        )}
+        {/* Billing (NEW-19) adds picking a plan here */}
+        {account.status === 'expired' && (
+          <>
+            {heading('⏳', 'hosted.expiredTitle')}
+            <p style={muted}>{t(account.isParent ? 'hosted.expiredParent' : 'hosted.expiredOther')}</p>
+          </>
+        )}
+        {!closed && (
+          <>
+            {heading('📧', 'hosted.lockedTitle')}
+            {account.isParent && account.email ? (
+              <>
+                <p style={muted}>{t('hosted.lockedParent').replace('{email}', account.email)}</p>
+                <EmailControls account={account} language={language} onChanged={onChanged} />
+              </>
+            ) : (
+              <p style={muted}>{t('hosted.lockedOther')}</p>
+            )}
+          </>
         )}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', borderTop: '1px solid var(--warm-border)', paddingTop: 12 }}>
           {account.isParent && <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" onClick={exportData}>{t('hosted.exportData')}</button>}

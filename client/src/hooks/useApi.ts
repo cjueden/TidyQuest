@@ -176,6 +176,7 @@ export interface FeatureFlags {
   mascotShop: boolean;
   focus: boolean;
   shields: boolean;
+  proofPhotos: boolean;
 }
 
 /** Team-ups on a chore in a list: can you start one, and has a team claimed it today? */
@@ -329,6 +330,12 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   return res.json();
 }
 
+/** A failed upload's error, with the server's answer (its code and limit) as err.body. */
+async function uploadError(res: Response): Promise<Error> {
+  const body = await res.json().catch(() => ({ error: 'Upload failed' }));
+  return Object.assign(new Error(body.error || 'Upload failed'), { body });
+}
+
 export const api = {
   // Auth
   register: (data: { username: string; password: string; displayName: string; avatarColor?: string; language?: string; timeZone?: string }) =>
@@ -409,10 +416,7 @@ export const api = {
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       body: formData,
     });
-    if (!res.ok) {
-      const error = await res.json().catch(() => ({ error: 'Upload failed' }));
-      throw new Error(error.error || 'Upload failed');
-    }
+    if (!res.ok) throw await uploadError(res);
     return res.json() as Promise<{ photoUrl: string }>;
   },
   getOverdueTasks: () =>
@@ -518,10 +522,7 @@ export const api = {
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       body: formData,
     });
-    if (!res.ok) {
-      const error = await res.json().catch(() => ({ error: 'Upload failed' }));
-      throw new Error(error.error || 'Upload failed');
-    }
+    if (!res.ok) throw await uploadError(res);
     return res.json();
   },
 

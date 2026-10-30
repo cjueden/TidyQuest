@@ -959,7 +959,9 @@
       "notePlaceholder": "z. B. 94 % in der Mathearbeit",
       "photo": "Foto (optional)",
       "submit": "Fertig",
-      "photoFailed": "Gespeichert, aber das Foto wurde nicht hochgeladen."
+      "photoFailed": "Gespeichert, aber das Foto wurde nicht hochgeladen.",
+      "titleNote": "Mit Notiz abschließen",
+      "addNote": "Notiz hinzufügen"
     },
     "rewardRules": {
       "whoCanSee": "Wer sie sieht",
@@ -1384,7 +1386,8 @@
       "kind_rescue": "Rettungsmission",
       "kindDesc_rescue": "die 2×-Aufgabe des Tages, morgens",
       "kind_cheer": "Anfeuerungen für meine Aufgaben",
-      "kind_teamup": "Team-Einladungen"
+      "kind_teamup": "Team-Einladungen",
+      "peopleDescHosted": "Gib jeder Person einen eigenen Kanal (ein ntfy-Thema auf dem Handy oder einen Telegram-Chat). Ohne eigenen Kanal teilen sie den Familienkanal; private Nachrichten (Ergebnisse, Zusammenfassungen, Erinnerungen) gehen nur an den eigenen Kanal."
     },
     "todos": {
       "roomName": "Erledigen",
@@ -1453,7 +1456,9 @@
       "focusDesc": "Die Aufgaben eines Kindes eine nach der anderen, groß, mit ihren Schritten. Wer es sieht, stellst du pro Person bei Familienmitglieder ein.",
       "shields": "🛡️ Serienschilde",
       "shieldsDesc": "Alle 7 Tage am Stück verdient oder mit Münzen gekauft (höchstens 2). Ein Schild rettet die Serie an einem verpassten Tag.",
-      "shieldPrice": "Preis"
+      "shieldPrice": "Preis",
+      "proofPhotos": "Beweisfotos",
+      "proofPhotosDesc": "Kinder können ein Foto zu einer Aufgabe hinzufügen, die auf die Freigabe eines Elternteils wartet. Aus: nur eine Notiz."
     },
     "seasons": {
       "halloween": "Halloween",
@@ -1988,7 +1993,17 @@
       "errEmailTaken": "Diese E-Mail hat schon eine Familie. Melde dich an oder setze dein Passwort zurück.",
       "errBadEmail": "Diese E-Mail-Adresse sieht nicht richtig aus.",
       "errWrongPassword": "Dein Passwort stimmt nicht.",
-      "errShortPassword": "Passwörter brauchen mindestens 8 Zeichen."
+      "errShortPassword": "Passwörter brauchen mindestens 8 Zeichen.",
+      "suspendedTitle": "Diese Familie ist pausiert",
+      "suspendedText": "TidyQuest hat das Konto deiner Familie pausiert, die App ist im Moment nicht nutzbar. Aufgaben und Verlauf sind alle noch da, und ein Elternteil kann sie herunterladen.",
+      "expiredTitle": "Die kostenlose Testphase ist vorbei",
+      "expiredParent": "Um TidyQuest weiter zu nutzen, braucht deine Familie ein Abo. Aufgaben und Verlauf bleiben vorerst erhalten, und du kannst sie herunterladen.",
+      "expiredOther": "Die kostenlose Testphase deiner Familie ist vorbei. Bitte deine Eltern, ein Abo auszuwählen. Deine Aufgaben und Münzen sind alle noch da."
+    },
+    "limits": {
+      "people": "Eine Familie kann bis zu {n} Personen haben.",
+      "tooLarge": "Die Datei ist zu groß: höchstens {n} MB.",
+      "storageFull": "Der Platz für Fotos deiner Familie ist voll ({n} MB)."
     }
   }
 }

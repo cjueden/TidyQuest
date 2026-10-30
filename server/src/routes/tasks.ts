@@ -21,14 +21,17 @@ import { countInPeriod, parseRepeatLimit, repeatLimitOf } from '../utils/repeatL
 import { boostMultiplierFor } from '../utils/boosts';
 import { trashTask } from '../utils/trash';
 import { tr } from '../utils/i18n';
+import { isFeatureOn } from '../utils/features';
 import { pauseTask, readPausedUntil, resumeTask } from '../utils/pause';
 import { earnShieldAt, lateStreak, nextStreak, noteBrokenStreak, settleStreak } from '../utils/streaks';
 import { baseCoinsOf, endTeamupsFor, groupTeamPending, openTeamupFor, teamShares, teamUpInfo, type Teamup } from '../utils/teamups';
-import { keepFamily } from '../hosted/context';
-import { fileUrl, uploadDir } from '../hosted/files';
+import { isHosted } from '../hosted/context';
+import { fileUrl, oneFile, uploadDir } from '../hosted/files';
+import { filesFullError, limits, overFilesLimit } from '../hosted/limits';
 
-// Proof photos kids can attach to a completion (served at /api/proofs, or /api/files/<familyId>/proofs)
-const proofUpload = multer({
+// Proof photos kids can attach to a completion (served at /api/proofs, or /api/files/<familyId>/proofs).
+// Up to 8 MB; hosted mode's limit is MAX_PHOTO_MB (5).
+const proofUpload = oneFile('photo', () => (isHosted() ? limits().photoMb : 8), {
   storage: multer.diskStorage({
     destination: (req, _file, cb) => cb(null, uploadDir('proofs', (req as AuthRequest).familyId)),
     filename: (_req, file, cb) => {
@@ -37,7 +40,6 @@ const proofUpload = multer({
       cb(null, `proof-${crypto.randomBytes(12).toString('hex')}${ext}`);
     },
   }),
-  limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
 });
 
@@ -1057,13 +1059,19 @@ router.post('/completions/reject-batch', (req: AuthRequest, res: Response) => {
 });
 
 // Attach a proof photo to a completion: the person who did it (or a parent)
-router.post('/completions/:completionId/photo', keepFamily(proofUpload.single('photo')), (req: AuthRequest, res: Response) => {
+// Settings → Features can switch photos off (they start off in hosted mode): the file isn't even read then
+const proofPhotosOn = (_req: AuthRequest, res: Response, next: () => void) =>
+  isFeatureOn('proofPhotos') ? next() : res.status(403).json({ error: 'Proof photos are switched off', code: 'proof-photos-off' });
+
+router.post('/completions/:completionId/photo', proofPhotosOn, proofUpload, (req: AuthRequest, res: Response) => {
   const file = (req as any).file as { filename: string; path: string } | undefined;
   const completion = db.prepare('SELECT id, userId FROM task_completions WHERE id = ?').get(req.params.completionId) as { id: number; userId: number } | undefined;
   const discard = () => { if (file) fs.rmSync(file.path, { force: true }); };
   if (!completion) { discard(); return res.status(404).json({ error: 'Completion not found' }); }
   if (completion.userId !== req.userId && !ensureAdmin(req.userId)) { discard(); return res.status(403).json({ error: 'forbidden' }); }
   if (!file) return res.status(400).json({ error: 'photo (an image file) is required' });
+  // Hosted mode: the family's avatars and photos have a space limit
+  if (overFilesLimit(req.familyId)) { discard(); return res.status(413).json(filesFullError()); }
   const photoUrl = fileUrl('proofs', file.filename);
   db.prepare('UPDATE task_completions SET photoUrl = ? WHERE id = ?').run(photoUrl, completion.id);
   res.json({ photoUrl });

@@ -333,9 +333,11 @@ const Dashboard: React.FC<DashboardProps> = ({
   // Strict Mode: kids can finish a chore with a note or photo for the parent who approves it
   const [proofQuest, setProofQuest] = useState<Quest | null>(null);
   const canAddProof = !!data.strictMode && currentUser.role === 'child';
+  const proofPhotos = data.features?.proofPhotos !== false;
+  const proofLabel = t(proofPhotos ? 'proof.addProof' : 'proof.addNote');
   const proofButton = (q: Quest, enabled: boolean) => canAddProof && enabled ? (
     <button onClick={(e) => { e.stopPropagation(); setProofQuest(q); }} className="tq-btn tq-btn-secondary"
-      title={t('proof.addProof')} aria-label={t('proof.addProof')} style={{ padding: '8px 10px', fontSize: 14 }}>📎</button>
+      title={proofLabel} aria-label={proofLabel} style={{ padding: '8px 10px', fontSize: 14 }}>📎</button>
   ) : null;
   const pendingCompletions = data.pendingCompletions ?? [];
   const filterQuests = (quests: Quest[]) => {
@@ -1481,6 +1483,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       <ProofModal
         taskTitle={taskName(proofQuest.name, proofQuest.translationKey)}
         language={language}
+        photos={proofPhotos}
         onClose={() => setProofQuest(null)}
         onSubmit={async (proof) => { onCompleteTask(proofQuest.id, proof); setProofQuest(null); }}
       />

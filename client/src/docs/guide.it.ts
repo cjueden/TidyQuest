@@ -93,6 +93,13 @@ export const GUIDE_IT: GuideSection[] = [
         'All’iscrizione inviamo un link per confermare il tuo indirizzo. Una famiglia che non conferma l’email di un genitore entro 30 giorni può solo confermarla o scaricare i suoi dati finché non lo fa.',
         'Password dimenticata? nella schermata di accesso invia a un genitore un link che funziona una volta, per un’ora. Bambini e ragazzi chiedono a un genitore di impostarne una nuova in Impostazioni → Membri della famiglia.',
       ] },
+      { h: 'Su tidyquest.org: limiti' },
+      { ul: [
+        'Una famiglia può avere fino a 15 persone.',
+        'Una foto di prova può pesare fino a 5 MB (un avatar 2 MB), e una famiglia ha 200 MB per le sue foto. Un backup da importare può pesare fino a 5 MB.',
+        'Le foto di prova partono spente: un genitore può attivarle in Impostazioni → Funzioni → Foto di prova.',
+        'Se TidyQuest mette in pausa una famiglia, o finisce la sua prova gratuita, l’app mostra una pagina che lo spiega. I genitori possono comunque toccare Scarica i nostri dati.',
+      ] },
     ],
   },
   {
@@ -159,6 +166,7 @@ export const GUIDE_IT: GuideSection[] = [
         'Genitori e membri possono segnare una faccenda come fatta per qualcun altro ("chi l’ha fatta?").',
         'Un errore si può annullare da Attività (genitori), oppure con ↩️ Annulla accanto a "Fatto da" della faccenda nella sua stanza (genitori; chiede conferma, perché le monete vengono tolte). Una squadra viene annullata per tutta la squadra e le monete di tutti per quella faccenda vengono riprese. Un bambino può ritirare il proprio Fatto finché aspetta l’approvazione.',
       ] },
+      { p: 'Impostazioni → Funzioni → Foto di prova spegne le foto; il pulsante 📎 aggiunge allora solo una nota. Su tidyquest.org le foto partono spente, e un genitore le attiva.' },
       { h: 'Segnarla in ritardo' },
       { ul: [
         'Hai dimenticato di toccare Fatto? Tocca 📅 (Fatto prima…) accanto alla faccenda nella sua stanza, scegli il giorno (fino a 7 giorni fa) e tocca Segna. Genitori e membri possono scegliere chi l’ha fatta.',
@@ -306,6 +314,7 @@ export const GUIDE_IT: GuideSection[] = [
         'I tipi privati (approvato/rifiutato, riepiloghi, promemoria, tifo) vanno solo al canale personale di una persona, mai al canale di famiglia.',
         'Il Registro notifiche mostra cosa è stato inviato, messo in coda o fallito, e perché.',
       ] },
+      { p: 'Su tidyquest.org le notifiche passano da ntfy.sh o Telegram. Un tuo server ntfy e Home Assistant funzionano solo su un server di casa.' },
     ],
   },
   {
@@ -421,6 +430,10 @@ export const GUIDE_IT: GuideSection[] = [
           'Le ore di silenzio e l’orario scolastico trattengono i messaggi fino alla fine.',
           'Il Registro notifiche mostra ogni messaggio ed eventuali errori.',
         ] },
+        { q: 'Il nostro server ntfy o Home Assistant non funziona su tidyquest.org', a: [
+          'tidyquest.org invia solo a ntfy.sh e Telegram: un indirizzo inserito potrebbe raggiungere macchine della nostra rete, quindi il server non lo chiama. Un server di casa può usarli entrambi.',
+          'Importare un backup da un server di casa toglie le impostazioni di Home Assistant e del server ntfy personale (con i suoi argomenti), così i messaggi non finiscono mai per errore in un argomento pubblico di ntfy.sh. Configura di nuovo ntfy.sh o Telegram in Impostazioni → Generale → Notifiche.',
+        ] },
         { q: 'Le faccende ripartono all’ora sbagliata, o i giorni e la settimana sono sfasati di qualche ora', a: [
           'Controlla Impostazioni → Generale → Fuso orario (genitori): lì i giorni iniziano a mezzanotte per tutta la famiglia. Se c’è scritto "Non ancora scelto", tocca Usalo per prendere il fuso di questo dispositivo, oppure tocca Cambia e cerca il tuo.',
           'Cambiarlo sposta l’inizio di ogni giorno da quel momento in poi. Le faccende già fatte restano nel giorno in cui sono state fatte.',
@@ -490,6 +503,16 @@ export const GUIDE_IT: GuideSection[] = [
         ] },
         { q: 'Compare «Conferma la tua email per continuare a usare TidyQuest»', a: [
           'La tua famiglia aveva 30 giorni per confermare l’email di un genitore. Un genitore apre il link che abbiamo inviato, o tocca Invia di nuovo (o Cambia email se l’indirizzo era sbagliato). Non si perde nulla, e Scarica i nostri dati funziona ancora.',
+        ] },
+        { q: 'Dice che la famiglia è in pausa, o che la prova gratuita è finita', a: [
+          'Solo su tidyquest.org. Una famiglia in pausa non può usare l’app finché TidyQuest non la riattiva. Non si perde nulla, e un genitore può comunque toccare Scarica i nostri dati.',
+          'Quando la prova gratuita è finita, un genitore sceglie un piano per continuare. Nel frattempo i dati della famiglia restano conservati, e Scarica i nostri dati funziona ancora.',
+        ] },
+        { q: 'Dice che un file è troppo grande, o che la famiglia è piena', a: [
+          'Il messaggio dice quale limite è stato raggiunto. Una foto di prova può pesare fino a 8 MB (5 MB su tidyquest.org), un avatar 2 MB, e un backup da importare 50 MB (5 MB su tidyquest.org).',
+          'Su tidyquest.org una famiglia ha 200 MB per le foto. Quando è pieno, le nuove foto non si caricano, ma la faccenda conta lo stesso.',
+          'Su tidyquest.org una famiglia può avere fino a 15 persone.',
+          'Nessun campo foto quando concludi una faccenda con 📎? Un genitore le ha spente in Impostazioni → Funzioni → Foto di prova.',
         ] },
         { q: 'Sono stato disconnesso da tutti i dispositivi', a: [
           'Un genitore ha cambiato la tua password o ha usato Esci da tutti i dispositivi, oppure hai cambiato la tua password o usato Esci da tutti gli altri dispositivi su un altro dispositivo. Accedi di nuovo con la tua password attuale.',

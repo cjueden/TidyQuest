@@ -70,7 +70,13 @@ export interface HostedAccount {
   /** When the family gets locked if no parent confirms an email; null once one has */
   confirmBy: string | null;
   locked: boolean;
+  /** trial or active; suspended and expired families see a screen about it instead of the app */
+  status: 'trial' | 'active' | 'suspended' | 'expired';
 }
+
+/** Whether the app gives way to the LockedScreen: the family is locked, paused, or its trial has ended. */
+export const isShutOut = (account: HostedAccount | null): account is HostedAccount =>
+  !!account && (account.locked || account.status === 'suspended' || account.status === 'expired');
 
 /** The server's error code (link-expired, email-taken…) as a message in the page's language. */
 export function hostedError(err: unknown, t: (key: string) => string, fallback: string): string {
@@ -84,4 +90,11 @@ export function hostedError(err: unknown, t: (key: string) => string, fallback: 
     captcha: 'hosted.captchaNeeded',
   };
   return code && keys[code] ? t(keys[code]) : fallback;
+}
+
+/** A limit the server answered with (people, file size, photo space) in the page's language; else the fallback. */
+export function limitError(err: unknown, t: (key: string) => string, fallback: string): string {
+  const body = (err as { body?: { code?: string; limit?: number } })?.body;
+  const keys: Record<string, string> = { 'people-limit': 'limits.people', 'too-large': 'limits.tooLarge', 'storage-full': 'limits.storageFull' };
+  return body?.code && keys[body.code] ? t(keys[body.code]).replace('{n}', String(body.limit ?? '')) : fallback;
 }

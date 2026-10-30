@@ -1,4 +1,5 @@
 import db from '../database';
+import { isHosted } from '../hosted/context';
 import { at, minuteOfDay, wall } from './clock';
 import { getNotificationTypeSettings, getNtfySettings, getTelegramSettings, sendNtfyMessageDetailed, sendTelegramMessageDetailed, sendTimeout, type NotificationTypeSettings } from './notifications';
 
@@ -43,7 +44,12 @@ function haSettings() {
   return { url: getSetting('haUrl').replace(/\/+$/, ''), token: getSetting('haToken'), familyService: getSetting('haFamilyService') };
 }
 
+/** Home Assistant is set up (never in hosted mode: see sendHomeAssistant). */
+const haReady = () => !isHosted() && !!haSettings().url && !!haSettings().token;
+
 async function sendHomeAssistant(service: string, message: string): Promise<{ ok: boolean; error?: string }> {
+  // Hosted mode never calls an address a family typed: it could be a machine inside the hosting network
+  if (isHosted()) return { ok: false, error: 'Home Assistant is not available on this server.' };
   const { url, token } = haSettings();
   if (!url || !token) return { ok: false, error: 'Home Assistant URL or token is missing.' };
   // Only a plain service name (notify.<service>), and http(s) URLs: no request smuggling
@@ -90,7 +96,7 @@ export function personalChannels(p: Person): Array<{ channel: Channel; target: s
   const out: Array<{ channel: Channel; target: string }> = [];
   if (p.ntfyTopic) out.push({ channel: 'ntfy', target: p.ntfyTopic });
   if (p.telegramChatId && getTelegramSettings().botToken) out.push({ channel: 'telegram', target: p.telegramChatId });
-  if (p.haNotifyService && haSettings().url && haSettings().token) out.push({ channel: 'ha', target: p.haNotifyService });
+  if (p.haNotifyService && haReady()) out.push({ channel: 'ha', target: p.haNotifyService });
   return out;
 }
 
@@ -101,8 +107,7 @@ export function familyChannels(): Array<{ channel: Channel; target: string }> {
   if (tg.enabled && tg.botToken && tg.chatId) out.push({ channel: 'telegram', target: tg.chatId });
   const ntfy = getNtfySettings();
   if (ntfy.enabled && ntfy.topic) out.push({ channel: 'ntfy', target: ntfy.topic });
-  const ha = haSettings();
-  if (ha.url && ha.token && ha.familyService) out.push({ channel: 'ha', target: ha.familyService });
+  if (haReady() && haSettings().familyService) out.push({ channel: 'ha', target: haSettings().familyService });
   return out;
 }
 

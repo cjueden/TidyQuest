@@ -93,6 +93,13 @@ export const GUIDE_DE: GuideSection[] = [
         'Bei der Anmeldung schicken wir einen Link, um deine Adresse zu bestätigen. Eine Familie, die die E-Mail eines Elternteils nicht innerhalb von 30 Tagen bestätigt, kann bis dahin nur noch bestätigen oder ihre Daten herunterladen.',
         'Passwort vergessen? auf dem Anmeldebildschirm schickt einem Elternteil einen Link, der einmal und eine Stunde lang funktioniert. Kinder und Teens bitten ein Elternteil, in Einstellungen → Familienmitglieder ein neues festzulegen.',
       ] },
+      { h: 'Auf tidyquest.org: Grenzen' },
+      { ul: [
+        'Eine Familie kann bis zu 15 Personen haben.',
+        'Ein Beweisfoto darf bis zu 5 MB groß sein (ein Avatar 2 MB), und eine Familie hat 200 MB für ihre Fotos. Eine Sicherung zum Importieren darf bis zu 5 MB groß sein.',
+        'Beweisfotos sind am Anfang aus: Ein Elternteil kann sie unter Einstellungen → Funktionen → Beweisfotos einschalten.',
+        'Wenn TidyQuest eine Familie pausiert oder ihre kostenlose Testphase endet, zeigt die App stattdessen eine Seite dazu. Eltern können dort weiterhin auf Unsere Daten herunterladen tippen.',
+      ] },
     ],
   },
   {
@@ -159,6 +166,7 @@ export const GUIDE_DE: GuideSection[] = [
         'Eltern und Mitglieder können eine Aufgabe für jemand anderen als erledigt markieren („Wer hat es gemacht?“).',
         'Ein Fehler lässt sich unter Aktivität rückgängig machen (Eltern) oder mit ↩️ Rückgängig neben „Erledigt von“ der Aufgabe in ihrem Raum (Eltern; es fragt vorher nach, weil die Münzen wieder abgezogen werden). Ein Teamwork wird für das ganze Team rückgängig gemacht, und die Münzen aller dafür werden zurückgenommen. Ein Kind kann sein eigenes Erledigt zurücknehmen, solange es auf Freigabe wartet.',
       ] },
+      { p: 'Einstellungen → Funktionen → Beweisfotos schaltet Fotos aus; der 📎-Knopf fügt dann nur eine Notiz hinzu. Auf tidyquest.org sind Fotos am Anfang aus, und ein Elternteil schaltet sie ein.' },
       { h: 'Nachtragen' },
       { ul: [
         'Vergessen, auf Erledigt zu tippen? Tippe im Raum neben der Aufgabe auf 📅 (Früher erledigt…), wähle den Tag (bis zu 7 Tage zurück) und tippe auf Eintragen. Eltern und Mitglieder können wählen, wer es gemacht hat.',
@@ -306,6 +314,7 @@ export const GUIDE_DE: GuideSection[] = [
         'Private Arten (freigegeben/abgelehnt, Zusammenfassungen, Hinweise, Anfeuern) gehen nur an den eigenen Kanal einer Person, nie an den Familienkanal.',
         'Das Benachrichtigungsprotokoll zeigt, was gesendet, eingereiht oder fehlgeschlagen ist, und warum.',
       ] },
+      { p: 'Auf tidyquest.org laufen Benachrichtigungen über ntfy.sh oder Telegram. Ein eigener ntfy-Server und Home Assistant funktionieren nur auf einem Server zu Hause.' },
     ],
   },
   {
@@ -421,6 +430,10 @@ export const GUIDE_DE: GuideSection[] = [
           'Ruhezeiten und Schulzeiten halten Nachrichten zurück, bis sie enden.',
           'Das Benachrichtigungsprotokoll zeigt jede Nachricht und jeden Fehler.',
         ] },
+        { q: 'Unser eigener ntfy-Server oder Home Assistant funktioniert auf tidyquest.org nicht', a: [
+          'tidyquest.org sendet nur an ntfy.sh und Telegram: Eine eingegebene Adresse könnte Rechner in unserem Netz erreichen, deshalb ruft der Server sie nicht auf. Ein Server zu Hause kann beides nutzen.',
+          'Beim Import einer Sicherung von einem Server zu Hause fallen Home Assistant und ein eigener ntfy-Server weg (mit dessen Themen), damit Nachrichten nie aus Versehen in einem öffentlichen ntfy.sh-Thema landen. Richte ntfy.sh oder Telegram unter Einstellungen → Allgemein → Benachrichtigungen neu ein.',
+        ] },
         { q: 'Aufgaben starten zur falschen Uhrzeit neu, oder Tage und Wochen sind um ein paar Stunden verschoben', a: [
           'Prüfe Einstellungen → Allgemein → Zeitzone (Eltern): Dort beginnen die Tage für die ganze Familie um Mitternacht. Steht dort „Noch nicht gewählt“, tippe auf Übernehmen, um die Zeitzone dieses Geräts zu nehmen, oder tippe auf Ändern und suche deine.',
           'Eine Änderung verschiebt ab dann, wann jeder Tag beginnt. Erledigte Aufgaben bleiben an dem Tag, an dem sie erledigt wurden.',
@@ -490,6 +503,16 @@ export const GUIDE_DE: GuideSection[] = [
         ] },
         { q: 'Es steht „Bestätige deine E-Mail, um TidyQuest weiter zu nutzen“ da', a: [
           'Deine Familie hatte 30 Tage Zeit, die E-Mail eines Elternteils zu bestätigen. Ein Elternteil öffnet den Link, den wir geschickt haben, oder tippt auf Erneut senden (oder E-Mail ändern, wenn die Adresse falsch war). Nichts geht verloren, und Unsere Daten herunterladen funktioniert weiterhin.',
+        ] },
+        { q: 'Es heißt, die Familie ist pausiert oder die kostenlose Testphase ist vorbei', a: [
+          'Nur auf tidyquest.org. Eine pausierte Familie kann die App erst wieder nutzen, wenn TidyQuest sie fortsetzt. Nichts geht verloren, und ein Elternteil kann weiterhin auf Unsere Daten herunterladen tippen.',
+          'Ist die kostenlose Testphase vorbei, wählt ein Elternteil ein Abo, um weiterzumachen. Bis dahin bleiben die Daten der Familie erhalten, und Unsere Daten herunterladen funktioniert weiter.',
+        ] },
+        { q: 'Es heißt, eine Datei ist zu groß oder die Familie ist voll', a: [
+          'Die Meldung sagt, welche Grenze erreicht ist. Ein Beweisfoto darf bis zu 8 MB groß sein (5 MB auf tidyquest.org), ein Avatar 2 MB und eine Sicherung zum Importieren 50 MB (5 MB auf tidyquest.org).',
+          'Auf tidyquest.org hat eine Familie 200 MB für Fotos. Ist der Platz voll, werden neue Fotos nicht hochgeladen, aber die Aufgabe zählt trotzdem.',
+          'Auf tidyquest.org kann eine Familie bis zu 15 Personen haben.',
+          'Kein Fotofeld beim Abschließen mit 📎? Ein Elternteil hat sie unter Einstellungen → Funktionen → Beweisfotos ausgeschaltet.',
         ] },
         { q: 'Ich wurde auf allen Geräten abgemeldet', a: [
           'Ein Elternteil hat dein Passwort geändert oder Auf allen Geräten abmelden benutzt, oder du hast dein Passwort geändert oder Überall sonst abmelden auf einem anderen Gerät benutzt. Melde dich mit deinem aktuellen Passwort wieder an.',
