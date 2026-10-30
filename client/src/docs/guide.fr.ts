@@ -512,6 +512,7 @@ export const GUIDE_FR: GuideSection[] = [
           'Le message dit quelle limite est atteinte. Une photo de preuve peut faire jusqu’à 8 Mo (5 Mo sur tidyquest.org), un avatar 2 Mo, et une sauvegarde à importer 50 Mo (5 Mo sur tidyquest.org).',
           'Sur tidyquest.org, une famille a 200 Mo pour ses photos. Quand c’est plein, les nouvelles photos ne s’envoient pas, mais la tâche compte quand même.',
           'Sur tidyquest.org, une famille peut compter jusqu’à 15 personnes.',
+          'Le téléphone réduit les grandes photos avant de les envoyer. Si une photo ne s’envoie toujours pas après Fait, la tâche compte quand même : le message reste jusqu’à ce que tu le fermes et, tant que la tâche attend un parent, Réessayer renvoie la photo.',
           'Pas de champ photo en terminant une tâche avec 📎 ? Un parent les a désactivées dans Paramètres → Fonctionnalités → Photos de preuve.',
         ] },
         { q: 'J’ai été déconnecté de tous mes appareils', a: [

@@ -1,5 +1,6 @@
 import type { Outfit } from '../components/mascot/MascotCard';
 import type { HostedAccount } from '../utils/hosted';
+import { AVATAR_PHOTO, PROOF_PHOTO, shrinkPhoto } from '../utils/photos';
 import type { User } from './useAuth';
 const API_BASE = '/api';
 
@@ -410,7 +411,7 @@ export const api = {
   uploadCompletionPhoto: async (completionId: number, file: File) => {
     const token = getToken();
     const formData = new FormData();
-    formData.append('photo', file);
+    formData.append('photo', await shrinkPhoto(file, PROOF_PHOTO));
     const res = await fetch(`${API_BASE}/completions/${completionId}/photo`, {
       method: 'POST',
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
@@ -516,7 +517,7 @@ export const api = {
   uploadAvatar: async (userId: number, file: File) => {
     const token = getToken();
     const formData = new FormData();
-    formData.append('avatar', file);
+    formData.append('avatar', await shrinkPhoto(file, AVATAR_PHOTO));
     const res = await fetch(`${API_BASE}/users/${userId}/avatar-upload`, {
       method: 'POST',
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},

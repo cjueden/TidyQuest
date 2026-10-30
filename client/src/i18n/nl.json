@@ -135,7 +135,6 @@
       "photoMode": "Foto",
       "uploadPhoto": "Foto uploaden",
       "photoUploaded": "Foto geüpload!",
-      "fileTooLarge": "Foto is te groot (max 2 MB)",
       "uploadFailed": "Lukt mislukt, probeer het nog eens",
       "language": "Taal",
       "save": "Opslaan",
@@ -959,9 +958,11 @@
       "notePlaceholder": "bijv. 94% voor de wiskundetoets",
       "photo": "Foto (optioneel)",
       "submit": "Klaar",
-      "photoFailed": "Opgeslagen, maar de foto is niet geüpload.",
+      "photoFailed": "De klus is opgeslagen, maar de foto is niet geüpload.",
       "titleNote": "Afronden met een notitie",
-      "addNote": "Notitie toevoegen"
+      "addNote": "Notitie toevoegen",
+      "tryAgain": "Opnieuw proberen",
+      "photoUploaded": "Foto geüpload."
     },
     "rewardRules": {
       "whoCanSee": "Wie ziet het",

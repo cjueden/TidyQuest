@@ -72,6 +72,12 @@ const message = (err: unknown) => (err instanceof Error ? err.message : 'Request
 
 const muted: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: 'var(--warm-text-light)' };
 const line: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: 'var(--warm-text-secondary)', marginTop: 6 };
+const okLine: React.CSSProperties = { ...line, color: 'var(--warm-streak-text)' };
+const failedLine: React.CSSProperties = { ...line, color: 'var(--warm-danger)' };
+
+/** The last action's message, also shown on its family's card (the top of the page can be off-screen). */
+interface CardResult { id: string; name: string; index: number; text: string; failed: boolean }
+type Act = (path: string, body: object, done: string) => Promise<boolean>;
 
 export default function OperatorPage() {
   const hosted = useHosted();
@@ -140,6 +146,7 @@ function Families({ token, onToken, onSignedOut }: { token: string; onToken: (to
   const [reload, setReload] = useState(0);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  const [result, setResult] = useState<CardResult | null>(null);
   const [changingPassword, setChangingPassword] = useState(false);
 
   const failed = (err: unknown) => {
@@ -173,7 +180,7 @@ function Families({ token, onToken, onSignedOut }: { token: string; onToken: (to
   }, [token, search, status, reload]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // A new search or filter also clears the last action's message
-  const restart = () => { setShown(PAGE); setNotice(''); setError(''); };
+  const restart = () => { setShown(PAGE); setNotice(''); setError(''); setResult(null); };
   const pick = (next: Status | null) => { setStatus(next); restart(); };
   const showMore = () => {
     if (!list) return;
@@ -183,19 +190,38 @@ function Families({ token, onToken, onSignedOut }: { token: string; onToken: (to
     }, failed);
   };
 
-  const act = async (path: string, body: object, done: string) => {
+  const act = async (f: Family, index: number, path: string, body: object, done: string) => {
     setError('');
     setNotice('');
+    setResult(null);
+    const card = { id: f.id, name: f.name, index };
     try {
       await call(path, token, body);
       setNotice(done);
+      setResult({ ...card, text: done, failed: false });
       setReload((n) => n + 1);
       return true;
     } catch (err) {
       failed(err);
+      if (!(err instanceof SignedOut)) setResult({ ...card, text: message(err), failed: true });
       return false;
     }
   };
+
+  // A family that left this list (deleted, or no longer matching the filter) keeps a note in its place
+  const departed = list && result && !result.failed && !list.families.some((f) => f.id === result.id) ? result : null;
+  const cards = list ? list.families.map((f, i) => (
+    <FamilyCard key={f.id} family={f} list={list} result={result?.id === f.id ? result : null}
+      onAct={(path, body, done) => act(f, i, path, body, done)} />
+  )) : [];
+  if (departed) {
+    cards.splice(Math.min(departed.index, cards.length), 0, (
+      <div key={`departed-${departed.id}`} style={{ padding: '10px 14px', borderRadius: 14, border: '1.5px dashed var(--warm-border)' }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--warm-text-muted)', overflowWrap: 'anywhere' }}>{departed.name}</div>
+        <div style={okLine}>{departed.text}</div>
+      </div>
+    ));
+  }
 
   const signOutEverywhere = () => {
     call('/logout', token, {}).catch(() => {}).finally(onSignedOut);
@@ -241,8 +267,8 @@ function Families({ token, onToken, onSignedOut }: { token: string; onToken: (to
         <input className="tq-input" type="search" value={query} onChange={(e) => { setQuery(e.target.value); restart(); }}
           placeholder="Search: family name, family code or email" aria-label="Search families" style={{ marginTop: 12 }} />
 
-        {notice && <div role="status" style={{ ...line, color: 'var(--warm-streak-text)', marginTop: 12 }}>{notice}</div>}
-        {error && <div role="alert" style={{ ...line, color: 'var(--warm-danger)', marginTop: 12 }}>{error}</div>}
+        {notice && <div role="status" style={{ ...okLine, marginTop: 12 }}>{notice}</div>}
+        {error && <div role="alert" style={{ ...failedLine, marginTop: 12 }}>{error}</div>}
 
         {list && (
           <>
@@ -250,7 +276,7 @@ function Families({ token, onToken, onSignedOut }: { token: string; onToken: (to
               {list.found === 0 ? 'No families found.' : `Showing ${list.families.length} of ${list.found}`}
             </div>
             <div style={{ display: 'grid', gap: 10 }}>
-              {list.families.map((f) => <FamilyCard key={f.id} family={f} list={list} onAct={act} />)}
+              {cards}
             </div>
             {list.families.length < list.found && (
               <div style={{ textAlign: 'center', marginTop: 14 }}>
@@ -264,10 +290,11 @@ function Families({ token, onToken, onSignedOut }: { token: string; onToken: (to
   );
 }
 
-function FamilyCard({ family: f, list, onAct }: {
+function FamilyCard({ family: f, list, result, onAct }: {
   family: Family;
   list: FamilyList & { now: number };
-  onAct: (path: string, body: object, done: string) => Promise<boolean>;
+  result: CardResult | null;
+  onAct: Act;
 }) {
   const [deleting, setDeleting] = useState(false);
   const [typed, setTyped] = useState('');
@@ -339,16 +366,21 @@ function FamilyCard({ family: f, list, onAct }: {
           <div style={{ ...line, marginTop: 0, color: 'var(--warm-danger)' }}>
             Type <b>{f.name}</b> to delete this family. Everyone in it is signed out, and its folder is removed for good after {list.keepDeletedDays} days.
           </div>
-          <input className="tq-input" value={typed} onChange={(e) => setTyped(e.target.value)} aria-label="Family name" style={{ marginTop: 8 }} />
+          <label style={{ display: 'block', marginTop: 8 }}>
+            <span style={{ ...muted, display: 'block', marginBottom: 4 }}>Family name, to confirm</span>
+            <input className="tq-input" value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={f.name}
+              autoComplete="off" spellCheck={false} />
+          </label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
             <button type="button" className="tq-btn tq-btn-primary tq-btn-sm" disabled={!nameMatches} onClick={() => void remove()}
-              style={{ background: 'var(--warm-danger)', borderColor: 'var(--warm-danger)' }}>
+              style={{ background: 'var(--warm-danger)', borderColor: 'var(--warm-danger)', opacity: nameMatches ? 1 : 0.5 }}>
               Delete for good
             </button>
             <button type="button" className="tq-btn tq-btn-secondary tq-btn-sm" onClick={() => { setDeleting(false); setTyped(''); }}>Cancel</button>
           </div>
         </div>
       )}
+      {result && <div style={result.failed ? failedLine : okLine}>{result.text}</div>}
     </div>
   );
 }

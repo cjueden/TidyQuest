@@ -135,7 +135,6 @@
       "photoMode": "Foto",
       "uploadPhoto": "Foto hochladen",
       "photoUploaded": "Foto hochgeladen",
-      "fileTooLarge": "Datei zu groß (max. 2 MB)",
       "uploadFailed": "Upload fehlgeschlagen, bitte erneut versuchen",
       "language": "Sprache",
       "save": "Speichern",
@@ -959,9 +958,11 @@
       "notePlaceholder": "z. B. 94 % in der Mathearbeit",
       "photo": "Foto (optional)",
       "submit": "Fertig",
-      "photoFailed": "Gespeichert, aber das Foto wurde nicht hochgeladen.",
+      "photoFailed": "Die Aufgabe ist eingetragen, aber ihr Foto wurde nicht hochgeladen.",
       "titleNote": "Mit Notiz abschließen",
-      "addNote": "Notiz hinzufügen"
+      "addNote": "Notiz hinzufügen",
+      "tryAgain": "Nochmal versuchen",
+      "photoUploaded": "Foto hochgeladen."
     },
     "rewardRules": {
       "whoCanSee": "Wer sie sieht",

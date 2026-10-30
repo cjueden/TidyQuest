@@ -512,6 +512,7 @@ export const GUIDE_DE: GuideSection[] = [
           'Die Meldung sagt, welche Grenze erreicht ist. Ein Beweisfoto darf bis zu 8 MB groß sein (5 MB auf tidyquest.org), ein Avatar 2 MB und eine Sicherung zum Importieren 50 MB (5 MB auf tidyquest.org).',
           'Auf tidyquest.org hat eine Familie 200 MB für Fotos. Ist der Platz voll, werden neue Fotos nicht hochgeladen, aber die Aufgabe zählt trotzdem.',
           'Auf tidyquest.org kann eine Familie bis zu 15 Personen haben.',
+          'Große Fotos verkleinert das Handy vor dem Hochladen. Wird ein Foto nach Erledigt dennoch nicht hochgeladen, zählt die Aufgabe trotzdem: Die Meldung bleibt, bis du sie schließt, und solange die Aufgabe auf ein Elternteil wartet, schickt Nochmal versuchen das Foto erneut.',
           'Kein Fotofeld beim Abschließen mit 📎? Ein Elternteil hat sie unter Einstellungen → Funktionen → Beweisfotos ausgeschaltet.',
         ] },
         { q: 'Ich wurde auf allen Geräten abgemeldet', a: [

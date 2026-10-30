@@ -135,7 +135,6 @@
       "photoMode": "Foto",
       "uploadPhoto": "Subir foto",
       "photoUploaded": "Foto subida",
-      "fileTooLarge": "Archivo demasiado grande (máx. 2 MB)",
       "uploadFailed": "Error al subir, inténtalo de nuevo",
       "language": "Idioma",
       "save": "Guardar",
@@ -959,9 +958,11 @@
       "notePlaceholder": "p. ej. Saqué 94 % en el examen de mates",
       "photo": "Foto (opcional)",
       "submit": "Hecho",
-      "photoFailed": "Guardado, pero la foto no se subió.",
+      "photoFailed": "La tarea quedó registrada, pero su foto no se subió.",
       "titleNote": "Terminar con una nota",
-      "addNote": "Añadir una nota"
+      "addNote": "Añadir una nota",
+      "tryAgain": "Reintentar",
+      "photoUploaded": "Foto subida."
     },
     "rewardRules": {
       "whoCanSee": "Quién la ve",

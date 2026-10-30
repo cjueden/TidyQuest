@@ -512,6 +512,7 @@ export const GUIDE_IT: GuideSection[] = [
           'Il messaggio dice quale limite è stato raggiunto. Una foto di prova può pesare fino a 8 MB (5 MB su tidyquest.org), un avatar 2 MB, e un backup da importare 50 MB (5 MB su tidyquest.org).',
           'Su tidyquest.org una famiglia ha 200 MB per le foto. Quando è pieno, le nuove foto non si caricano, ma la faccenda conta lo stesso.',
           'Su tidyquest.org una famiglia può avere fino a 15 persone.',
+          'Il telefono rimpicciolisce le foto grandi prima di caricarle. Se una foto non si carica lo stesso dopo Fatto, la faccenda conta comunque: il messaggio resta finché non lo chiudi e, finché la faccenda aspetta un genitore, Riprova invia di nuovo la foto.',
           'Nessun campo foto quando concludi una faccenda con 📎? Un genitore le ha spente in Impostazioni → Funzioni → Foto di prova.',
         ] },
         { q: 'Sono stato disconnesso da tutti i dispositivi', a: [

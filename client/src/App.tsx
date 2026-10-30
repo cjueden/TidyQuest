@@ -9,6 +9,7 @@ import { ChoreTimerBar, ChoreTimerProvider } from './components/shared/ChoreTime
 import { SearchOverlay } from './components/shared/SearchOverlay';
 import { SearchContext } from './components/shared/searchContext';
 import type { Proof } from './components/shared/ProofModal';
+import { PhotoFailedNote, type PhotoProblem } from './components/shared/PhotoFailedNote';
 import { AchievementUnlockToast } from './components/ui/AchievementUnlockToast';
 import Dashboard from './components/pages/Dashboard';
 import { Focus, type FocusData } from './components/pages/Focus';
@@ -95,6 +96,7 @@ function AppContent() {
   const [gamificationEnabled, setGamificationEnabled] = useState(true);
   const [confetti, setConfetti] = useState(false);
   const [taskErrorMsg, setTaskErrorMsg] = useState<string | null>(null);
+  const [photoProblem, setPhotoProblem] = useState<PhotoProblem | null>(null);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   // Names for the pop-up from the completion itself (parent-made and secret badges aren't in the page data yet)
   const [unlockedInfo, setUnlockedInfo] = useState<Array<{ id: string; titleKey: string | null; title: string | null }>>([]);
@@ -268,12 +270,14 @@ function AppContent() {
     try {
       const result = await api.completeTask(taskId, undefined, proof?.note ? { note: proof.note } : {});
       if (proof?.file && result.completionId) {
+        const { file } = proof;
+        const { completionId } = result;
         // The chore is already recorded; a failed photo upload shouldn't undo that
-        await api.uploadCompletionPhoto(result.completionId, proof.file).catch((err) => {
-          // Say why when it's a limit (file size, the family's photo space)
+        await api.uploadCompletionPhoto(completionId, file).catch((err) => {
+          // Say why when it's a limit (file size, the family's photo space); otherwise the same photo can go
+          // again while a parent still has to look at the chore
           const why = limitError(err, t, '');
-          setTaskErrorMsg(why ? `${t('proof.photoFailed')} ${why}` : t('proof.photoFailed'));
-          setTimeout(() => setTaskErrorMsg(null), 3500);
+          setPhotoProblem({ completionId, file, why, canRetry: !why && !!result.pendingApproval });
         });
       }
       if (result.pendingApproval) {
@@ -452,6 +456,11 @@ function AppContent() {
         }}>
           {taskErrorMsg}
         </div>
+      )}
+
+      {photoProblem && (
+        <PhotoFailedNote key={photoProblem.completionId} problem={photoProblem} language={user?.language}
+          onClose={() => setPhotoProblem((p) => (p === photoProblem ? null : p))} />
       )}
 
       {/* Mobile hamburger menu */}

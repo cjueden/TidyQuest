@@ -118,8 +118,13 @@ export function AdminCompleteModal({ task, allUsers, language, onConfirm, onClos
               const alreadyDone = completedUserIds.includes(user.id);
               const isSelected = selected.includes(user.id);
               return (
-                <label
+                // The whole card picks the person; the circle or tick box only shows the state.
+                <div
                   key={user.id}
+                  role={isSharedOrCustom ? 'checkbox' : 'radio'}
+                  aria-checked={isSelected || alreadyDone}
+                  aria-disabled={alreadyDone || undefined}
+                  tabIndex={alreadyDone ? -1 : 0}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 12,
                     padding: '10px 14px', borderRadius: 14,
@@ -130,6 +135,11 @@ export function AdminCompleteModal({ task, allUsers, language, onConfirm, onClos
                     transition: 'all 0.15s ease',
                   }}
                   onClick={() => !alreadyDone && toggleUser(user.id)}
+                  onKeyDown={e => {
+                    if (alreadyDone || (e.key !== 'Enter' && e.key !== ' ')) return;
+                    e.preventDefault();
+                    toggleUser(user.id);
+                  }}
                 >
                   {isSharedOrCustom ? (
                     <input
@@ -137,14 +147,18 @@ export function AdminCompleteModal({ task, allUsers, language, onConfirm, onClos
                       checked={isSelected || alreadyDone}
                       readOnly
                       disabled={alreadyDone}
-                      style={{ accentColor: 'var(--warm-accent)', width: 16, height: 16, cursor: alreadyDone ? 'default' : 'pointer' }}
+                      tabIndex={-1}
+                      aria-hidden
+                      style={{ accentColor: 'var(--warm-accent)', width: 16, height: 16, pointerEvents: 'none' }}
                     />
                   ) : (
                     <input
                       type="radio"
                       checked={isSelected}
                       readOnly
-                      style={{ accentColor: 'var(--warm-accent)', width: 16, height: 16, cursor: 'pointer' }}
+                      tabIndex={-1}
+                      aria-hidden
+                      style={{ accentColor: 'var(--warm-accent)', width: 16, height: 16, pointerEvents: 'none' }}
                     />
                   )}
                   <div
@@ -176,7 +190,7 @@ export function AdminCompleteModal({ task, allUsers, language, onConfirm, onClos
                       </div>
                     )}
                   </div>
-                </label>
+                </div>
               );
             })}
           </div>
