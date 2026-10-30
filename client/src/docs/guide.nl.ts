@@ -522,6 +522,7 @@ export const GUIDE_NL: GuideSection[] = [
         ] },
         { q: 'Ik ben op elk apparaat uitgelogd', a: [
           'Een ouder heeft je wachtwoord veranderd of Uitloggen op alle apparaten gebruikt, of je hebt zelf je wachtwoord veranderd of Overal anders uitloggen gebruikt op een ander apparaat. Log opnieuw in met je huidige wachtwoord.',
+          'Eerste ouder: wie de server beheert, heeft je wachtwoord daar misschien gereset (ADMIN_RESET_PASSWORD). Vraag om het nieuwe.',
           'Een login stopt ook vanzelf na 30 dagen op elk apparaat.',
         ] },
         { q: 'Er staat "Dat lukte niet"', a: [

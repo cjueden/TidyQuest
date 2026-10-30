@@ -302,7 +302,7 @@ If an admin forgets their password:
    environment:
      - ADMIN_RESET_PASSWORD=your-new-password
    ```
-2. Restart the container — the first admin's password is reset
+2. Restart the container — the first admin's password is reset, and they're signed out on every device (phones and computers already logged in as them have to log in again with the new password)
 3. **Remove the variable immediately** and restart again
 
 ---

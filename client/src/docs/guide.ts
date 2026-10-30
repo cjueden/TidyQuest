@@ -546,6 +546,7 @@ export const GUIDE_EN: GuideSection[] = [
         ] },
         { q: 'I was signed out on every device', a: [
           'A parent changed your password or used Log out of all devices, or you changed your password or used Log out everywhere else on another device. Log in again with your current password.',
+          'First parent: whoever runs the server may have reset your password there (ADMIN_RESET_PASSWORD). Ask them for the new one.',
           'A login also ends by itself after 30 days on each device.',
         ] },
         { q: 'It says "That didn’t work"', a: [
