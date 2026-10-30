@@ -238,7 +238,9 @@ router.get('/', (req: AuthRequest, res: Response) => {
     WHERE tc.status = 'approved'
     ORDER BY tc.completedAt DESC
     LIMIT 5
-  `).all();
+  `).all() as any[];
+  // Proof photos and notes are only for parents and whoever did the chore (as in Activity)
+  for (const a of recentActivity) if (user.role !== 'admin' && a.userId !== user.id) { a.note = null; a.photoUrl = null; }
 
   function getGoalCoinsWithinPeriod(targetUser: any): number {
     if (!targetUser.goalStartAt && !targetUser.goalEndAt) return targetUser.coins;

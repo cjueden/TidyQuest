@@ -163,6 +163,7 @@ export const GUIDE_DE: GuideSection[] = [
       { h: 'Eine Aufgabe abschließen' },
       { ul: [
         'Tippe auf Erledigt auf der Startseite, im Raum oder auf der Seite Aufgaben. Mit dem 📎-Knopf fügst du eine Notiz oder ein Foto als Beweis hinzu.',
+        'Nach der Freigabe durch ein Elternteil bleiben Notiz und Foto bei der Aufgabe unter Aktivität (tippe auf das Foto, um es groß zu sehen). Eltern sehen die von allen, alle anderen nur ihre eigenen. Wird die Aufgabe rückgängig gemacht oder abgelehnt, wird ihr Foto gelöscht.',
         'Eltern und Mitglieder können eine Aufgabe für jemand anderen als erledigt markieren („Wer hat es gemacht?“).',
         'Ein Fehler lässt sich unter Aktivität rückgängig machen (Eltern) oder mit ↩️ Rückgängig neben „Erledigt von“ der Aufgabe in ihrem Raum (Eltern; es fragt vorher nach, weil die Münzen wieder abgezogen werden). Ein Teamwork wird für das ganze Team rückgängig gemacht, und die Münzen aller dafür werden zurückgenommen. Ein Kind kann sein eigenes Erledigt zurücknehmen, solange es auf Freigabe wartet.',
       ] },
@@ -274,7 +275,7 @@ export const GUIDE_DE: GuideSection[] = [
         'Teamwork: 🤝 bei einer Aufgabe, die 6 oder mehr Münzen wert ist, lädt eine Person oder jeden ein. Sobald jemand mitmacht, gehört die Aufgabe für den Tag dem Team. Eine der beiden Personen tippt auf Erledigt; die Münzen werden gleichmäßig plus ein Teambonus (10, 20 oder 30 %) aufgeteilt. Ein Elternteil mit einem Kind ist Helfer, und das Kind behält alle Münzen. Nie bei dem eigenen Raum einer Person, bei Aufgaben für eine Person oder bei Aufgaben mit Rotation. Keine Lust? „Nein danke“ lehnt eine Einladung ab: Eine Einladung nur für dich endet, und die Person, die gefragt hat, erfährt davon und kann jemand anderen fragen; eine Einladung für alle verschwindet nur für dich. Wer es gestartet hat, kann „Teamwork absagen“ (es endet für alle); alle anderen können Aussteigen.',
         'Haus-Maskottchen: eines von 8 Wesen, hier ausgewählt und benannt. Es wächst mit den verdienten Familienmünzen, solange es das aktive Maskottchen ist (schlüpft bei 500, dann bei 2.000, 5.000 und 10.000), seine Stimmung folgt der Hausgesundheit, und es reagiert auf Geburtstage, das Familienziel und die Rettungsmission.',
         'Maskottchen wechseln: Wählst du ein Wesen, das du noch nicht hattest, beginnt es als neues Ei. Jedes Wesen behält sein eigenes Wachstum, seinen Namen und sein Outfit, sodass ein Zurückwechseln es genau so zurückbringt, wie es war. Bauch und Schlafenszeit sind gemeinsam.',
-        'Mit dem Maskottchen spielen: Tippe darauf für eine Reaktion. Sein 🍪-Bauch füllt sich mit jeder Aufgabe um 5 % (ein Teamwork zählt einmal) und leert sich über 2 Tage; ist er niedrig, sagt es einfach, dass es Hunger hat. „Was soll ich tun?“ schlägt eine Aufgabe vor, die du jetzt gleich machen kannst. Es fügt jeder erledigten Aufgabe ein 🐾-Anfeuern hinzu. Es schläft während der Schlafenszeit der Familie (unter dem Maskottchen in Funktionen einstellbar, standardmäßig 21 bis 7 Uhr).',
+        'Mit dem Maskottchen spielen: Tippe darauf für eine Reaktion. Sein 🍪-Bauch füllt sich mit jeder Aufgabe um 5 % (ein Teamwork zählt einmal) und leert sich über 2 Tage. Mit einem 🍪 und einem Hüpfer jubelt es nur bei größeren Aufgaben (Aufwand ab 3★); kleinere füllen ihn still; ist er niedrig, sagt es einfach, dass es Hunger hat. „Was soll ich tun?“ schlägt eine Aufgabe vor, die du jetzt gleich machen kannst. Es fügt jeder erledigten Aufgabe ein 🐾-Anfeuern hinzu. Es schläft während der Schlafenszeit der Familie (unter dem Maskottchen in Funktionen einstellbar, standardmäßig 21 bis 7 Uhr).',
         'Maskottchen-Laden (eigener Schalter): Jeder kann ihm ein Accessoire für 1 bis 5 Münzen kaufen. Es gibt ein gemeinsames Outfit und keinen Schrank: Ein neues Teil wird sofort für alle angezogen und ersetzt, was an dieser Stelle war (Kopf, Gesicht, Hals oder Rücken). Wer ein Teil gekauft hat, oder ein Elternteil, kann es kostenlos ausziehen. Käufe erscheinen unter Aktivität. Der Laden öffnet, sobald das Maskottchen geschlüpft ist. Schaltest du den Laden aus, sind er und das Outfit verborgen.',
         'Festtags-Look: Halloween im Oktober, Thanksgiving im November, Weihnachten im Dezember: Farben, Dekoration, ein Countdown und ein Kostüm für das Maskottchen. Jeder Feiertag hat einen eigenen Schalter und einen Vorschau-Knopf.',
       ] },
@@ -473,6 +474,10 @@ export const GUIDE_DE: GuideSection[] = [
         { q: 'Das Maskottchen schläft oder sagt, dass es Hunger hat', a: [
           'Es schläft während der Schlafenszeit der Familie (Einstellungen → Funktionen, unter dem Maskottchen), nach der Uhr des jeweiligen Geräts.',
           'Hunger heißt, dass in den letzten paar Tagen weniger Aufgaben gemacht wurden; jede Aufgabe füllt den Bauch ein wenig. Hunger hat nie Auswirkungen auf etwas anderes.',
+        ] },
+        { q: 'Das Maskottchen hat bei einer Aufgabe nicht gejubelt', a: [
+          'Es jubelt (🍪 und ein Hüpfer) nur bei größeren Aufgaben mit Aufwand ab 3★, und bei einer wartenden Aufgabe erst nach der Freigabe. Kleinere Aufgaben füllen seinen Bauch trotzdem, nur still.',
+          'Jedes Gerät zeigt den Jubel einmal: Ein Handy, das ihn schon gezeigt hat, jubelt nicht noch mal.',
         ] },
         { q: 'Keine Feiertagsdekoration oder -farben', a: [
           'Einstellungen → Funktionen → Festtags-Look und der eigene Schalter dieses Feiertags müssen eingeschaltet sein. Es richtet sich nach dem Datum des Geräts.',

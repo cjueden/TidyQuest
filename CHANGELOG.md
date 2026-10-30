@@ -9,6 +9,23 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+### Added
+
+- A kid's proof photo and note now stay with the chore in Activity after a parent approves it: a small photo
+  (tap it for full size) and the note under the chore's name. Parents see everyone's; everyone else sees only
+  their own.
+
+### Changed
+
+- The house mascot only cheers (🍪 and a little hop) for bigger chores, 3★ effort or more, so "Make your bed" no
+  longer gets the same party as "Mow the lawn". Smaller chores still fill its tummy, quietly.
+
+### Fixed
+
+- Proof photos no longer pile up in the family's photo space: undoing or rejecting a chore, marking a chore not
+  done, replacing a photo, or deleting a person now deletes the photo file too.
+- Home's data no longer includes other people's proof notes and photos for anyone but parents.
+
 ## v0.14.1 (2026-10-29)
 
 ### Changed

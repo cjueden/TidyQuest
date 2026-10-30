@@ -187,6 +187,7 @@ export const GUIDE_EN: GuideSection[] = [
       { h: 'Finishing a chore' },
       { ul: [
         'Tap Done on Home, in the room, or on the Tasks page. The 📎 button adds a note or photo as proof.',
+        'After a parent approves, the note and photo stay with the chore in Activity (tap the photo to see it full size). Parents see everyone’s; everyone else sees only their own. Undoing or rejecting the chore deletes its photo.',
         'Parents and members can mark a chore done for someone else ("who did it?").',
         'A mistake can be undone from Activity (parents), or with ↩️ Undo next to the chore’s "Done by" in its room (parents; it asks first, because the coins come back off). A team-up is undone for the whole team, and everyone’s coins for it are taken back. A kid can take back their own Done while it waits for approval.',
       ] },
@@ -298,7 +299,7 @@ export const GUIDE_EN: GuideSection[] = [
         'Team-ups: 🤝 on a chore worth 6 or more coins invites one person or anyone. Once someone joins, the chore is the team’s for the day. Either one taps Done; coins split evenly plus a team bonus (10, 20 or 30%). A parent with a kid is a helper and the kid keeps all the coins. Never on someone’s own room, one-person or rotating chores. Not up for it? "No thanks" turns an invite down: an invite just for you ends and the person who asked hears about it, so they can ask someone else; an invite for anyone just disappears for you. The person who started it can "Call off team-up" (it ends for everyone); anyone else can Leave.',
         'House mascot: one of 8 creatures, picked and named here. It grows with the family coins earned while it’s the active mascot (hatches at 500, then 2,000, 5,000 and 10,000), its mood follows house health, and it reacts to birthdays, the family goal and the Rescue Mission.',
         'Swapping mascots: picking a creature you haven’t had starts it as a new egg. Each creature keeps its own growth, name and outfit, so switching back brings it back exactly as it was. The tummy and bedtime are shared.',
-        'Playing with the mascot: tap it for a reaction. Its 🍪 tummy fills 5% with every chore (a team-up counts once) and empties over 2 days; when it’s low it just says it’s hungry. "What should I do?" suggests a chore you can do right now. It adds a 🐾 cheer to every finished chore. It sleeps during the family bedtime (set under the mascot in Features, 9 pm to 7 am by default).',
+        'Playing with the mascot: tap it for a reaction. Its 🍪 tummy fills 5% with every chore (a team-up counts once) and empties over 2 days. It cheers with a 🍪 and a hop only for bigger chores (3★ effort or more); smaller ones fill it quietly; when it’s low it just says it’s hungry. "What should I do?" suggests a chore you can do right now. It adds a 🐾 cheer to every finished chore. It sleeps during the family bedtime (set under the mascot in Features, 9 pm to 7 am by default).',
         'Mascot shop (its own switch): anyone can buy it an accessory for 1 to 5 coins. There’s one shared outfit and no closet: a new item goes on right away for everyone and replaces whatever was in that spot (head, face, neck or back). Whoever bought an item, or a parent, can take it off for free. Purchases show in Activity. The shop opens once the mascot hatches. Turning the shop off hides it and the outfit.',
         'Seasonal styling: Halloween in October, Thanksgiving in November, Christmas in December: colors, decorations, a countdown and a costume for the mascot. Each holiday has its own switch and a Preview button.',
       ] },
@@ -497,6 +498,10 @@ export const GUIDE_EN: GuideSection[] = [
         { q: 'The mascot is asleep, or says it’s hungry', a: [
           'It sleeps during the family bedtime (Settings → Features, under the mascot), by each device’s clock.',
           'Hungry means fewer chores in the last couple of days; every chore fills its tummy a little. Hunger never affects anything else.',
+        ] },
+        { q: 'The mascot didn’t cheer for a chore', a: [
+          'It cheers (🍪 and a hop) only for bigger chores, 3★ effort or more, and only once a waiting chore is approved. Smaller chores still fill its tummy, quietly.',
+          'Each device shows the cheer once: a phone that already saw it won’t cheer again.',
         ] },
         { q: 'No holiday decorations or colors', a: [
           'Settings → Features → Seasonal styling, and that holiday’s own switch, must be on. It follows the device’s date.',

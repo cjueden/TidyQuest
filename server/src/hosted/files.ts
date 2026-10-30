@@ -56,6 +56,13 @@ export function filesBytes(familyId: string): number {
 
 const FILE_NAME = /^[A-Za-z0-9_-]+\.[A-Za-z0-9]+$/;
 
+/** Delete an uploaded file by its saved link, so photos of deleted completions don't use up the family's space. */
+export function removeFile(kind: FileKind, url: string | null | undefined): void {
+  const name = url?.slice(url.lastIndexOf('/') + 1) ?? '';
+  // Only ever a plain name in this family's own folder
+  if (FILE_NAME.test(name)) fs.rmSync(path.join(uploadDir(kind), name), { force: true });
+}
+
 /** Hosted mode: /api/files/<familyId>/<avatars|proofs>/<name>. */
 export const filesRouter = Router();
 

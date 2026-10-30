@@ -163,6 +163,7 @@ export const GUIDE_FR: GuideSection[] = [
       { h: 'Terminer une tâche' },
       { ul: [
         'Appuie sur Fait sur Accueil, dans la pièce, ou sur la page Tâches. Le bouton 📎 ajoute une note ou une photo comme preuve.',
+        'Après l’approbation d’un parent, la note et la photo restent avec la tâche dans Activité (appuie sur la photo pour la voir en grand). Les parents voient celles de tout le monde ; les autres, seulement les leurs. Annuler ou refuser la tâche supprime sa photo.',
         'Les parents et les membres peuvent marquer une tâche comme faite pour quelqu’un d’autre (« qui l’a faite ? »).',
         'Une erreur peut être annulée depuis Activité (parents), ou avec ↩️ Annuler à côté du « Fait par » de la tâche dans sa pièce (parents ; l’appli demande d’abord, car les pièces sont reprises). Une tâche en équipe est annulée pour toute l’équipe, et les pièces de chacun sont reprises. Un enfant peut annuler son propre Fait tant qu’il attend la validation.',
       ] },
@@ -274,7 +275,7 @@ export const GUIDE_FR: GuideSection[] = [
         'En équipe : 🤝 sur une tâche qui vaut 6 pièces ou plus invite une personne ou n’importe qui. Dès que quelqu’un se joint, la tâche est celle de l’équipe pour la journée. L’un ou l’autre appuie sur Fait ; les pièces sont partagées à parts égales plus un bonus d’équipe (10, 20 ou 30 %). Un parent avec un enfant est un assistant et l’enfant garde toutes les pièces. Jamais pour la pièce de quelqu’un, ni pour les tâches d’une seule personne ou en rotation. Pas envie ? « Non merci » refuse une invitation : une invitation rien que pour toi se termine et la personne qui l’a lancée est prévenue, pour qu’elle puisse demander à quelqu’un d’autre ; une invitation ouverte à tous disparaît simplement pour toi. La personne qui l’a lancée peut « Annuler l’équipe » (elle se termine pour tout le monde) ; les autres peuvent Quitter.',
         'Mascotte de la maison : l’une de 8 créatures, choisie et nommée ici. Elle grandit avec les pièces de la famille gagnées tant qu’elle est la mascotte active (elle éclôt à 500, puis 2 000, 5 000 et 10 000), son humeur suit la santé de la maison, et elle réagit aux anniversaires, à l’objectif familial et à la Mission sauvetage.',
         'Changer de mascotte : choisir une créature que tu n’as jamais eue la fait démarrer comme un nouvel œuf. Chaque créature garde sa propre croissance, son nom et sa tenue, donc revenir à elle la retrouve exactement comme elle était. Le ventre et l’heure du coucher sont partagés.',
-        'Jouer avec la mascotte : appuie dessus pour une réaction. Son ventre 🍪 se remplit de 5 % à chaque tâche (une tâche en équipe compte une fois) et se vide en 2 jours ; quand il est bas, elle dit juste qu’elle a faim. « Que faire ? » suggère une tâche que tu peux faire tout de suite. Elle ajoute un 🐾 d’encouragement à chaque tâche terminée. Elle dort pendant l’heure du coucher de la famille (réglée sous la mascotte dans Fonctionnalités, de 21 h à 7 h par défaut).',
+        'Jouer avec la mascotte : appuie dessus pour une réaction. Son ventre 🍪 se remplit de 5 % à chaque tâche (une tâche en équipe compte une fois) et se vide en 2 jours. Elle ne fait la fête avec un 🍪 et un saut que pour les tâches plus grosses (effort de 3★ ou plus) ; les petites le remplissent sans bruit ; quand il est bas, elle dit juste qu’elle a faim. « Que faire ? » suggère une tâche que tu peux faire tout de suite. Elle ajoute un 🐾 d’encouragement à chaque tâche terminée. Elle dort pendant l’heure du coucher de la famille (réglée sous la mascotte dans Fonctionnalités, de 21 h à 7 h par défaut).',
         'Boutique de la mascotte (son propre interrupteur) : chacun peut lui acheter un accessoire de 1 à 5 pièces. Il y a une seule tenue partagée et pas de placard : un nouvel objet se met aussitôt pour tout le monde et remplace ce qui était à cet endroit (tête, visage, cou ou dos). Celui qui a acheté un objet, ou un parent, peut l’enlever gratuitement. Les achats apparaissent dans Activité. La boutique ouvre quand la mascotte éclôt. Désactiver la boutique la cache, ainsi que la tenue.',
         'Décor de saison : Halloween en octobre, Thanksgiving en novembre, Noël en décembre : couleurs, décorations, un compte à rebours et un costume pour la mascotte. Chaque fête a son propre interrupteur et un bouton Aperçu.',
       ] },
@@ -473,6 +474,10 @@ export const GUIDE_FR: GuideSection[] = [
         { q: 'La mascotte dort, ou dit qu’elle a faim', a: [
           'Elle dort pendant l’heure du coucher de la famille (Paramètres → Fonctionnalités, sous la mascotte), selon l’horloge de chaque appareil.',
           'Avoir faim veut dire moins de tâches ces deux derniers jours ; chaque tâche remplit un peu son ventre. La faim n’affecte jamais rien d’autre.',
+        ] },
+        { q: 'La mascotte n’a pas fait la fête pour une tâche', a: [
+          'Elle ne fait la fête (🍪 et un saut) que pour les tâches plus grosses, effort de 3★ ou plus, et seulement une fois qu’une tâche en attente est approuvée. Les petites tâches remplissent quand même son ventre, sans bruit.',
+          'Chaque appareil montre la fête une fois : un téléphone qui l’a déjà vue ne la refait pas.',
         ] },
         { q: 'Pas de décorations ni de couleurs de fête', a: [
           'Paramètres → Fonctionnalités → Décor de saison, et l’interrupteur de cette fête, doivent être activés. Cela suit la date de l’appareil.',

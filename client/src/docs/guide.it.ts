@@ -163,6 +163,7 @@ export const GUIDE_IT: GuideSection[] = [
       { h: 'Finire una faccenda' },
       { ul: [
         'Tocca Fatto nella Home, nella stanza o nella pagina Compiti. Il pulsante 📎 aggiunge una nota o una foto come prova.',
+        'Dopo l’approvazione di un genitore, la nota e la foto restano con la faccenda in Attività (tocca la foto per vederla in grande). I genitori vedono quelle di tutti; gli altri solo le proprie. Annullare o rifiutare la faccenda cancella la sua foto.',
         'Genitori e membri possono segnare una faccenda come fatta per qualcun altro ("chi l’ha fatta?").',
         'Un errore si può annullare da Attività (genitori), oppure con ↩️ Annulla accanto a "Fatto da" della faccenda nella sua stanza (genitori; chiede conferma, perché le monete vengono tolte). Una squadra viene annullata per tutta la squadra e le monete di tutti per quella faccenda vengono riprese. Un bambino può ritirare il proprio Fatto finché aspetta l’approvazione.',
       ] },
@@ -274,7 +275,7 @@ export const GUIDE_IT: GuideSection[] = [
         'Squadre: 🤝 su una faccenda da 6 o più monete invita una persona o chiunque. Quando qualcuno si unisce, la faccenda è della squadra per quel giorno. Uno dei due tocca Fatto; le monete si dividono in parti uguali più un bonus di squadra (10, 20 o 30%). Un genitore con un bambino è un aiutante e il bambino tiene tutte le monete. Mai su una stanza personale, né su faccende per una sola persona o a rotazione. Non ti va? "No, grazie" rifiuta un invito: un invito solo per te finisce e chi l’ha fatto lo viene a sapere, così può chiedere a un altro; un invito per chiunque sparisce solo per te. Chi l’ha avviata può usare "Annulla la squadra" (finisce per tutti); chiunque altro può Uscire.',
         'Mascotte di casa: una di 8 creature, scelta e battezzata qui. Cresce con le monete di famiglia guadagnate mentre è la mascotte attiva (si schiude a 500, poi 2.000, 5.000 e 10.000), il suo umore segue la salute della casa e reagisce a compleanni, obiettivo di famiglia e Missione di salvataggio.',
         'Cambiare mascotte: scegliere una creatura che non hai mai avuto la fa partire come un uovo nuovo. Ogni creatura mantiene la sua crescita, il suo nome e il suo vestito, quindi tornare indietro la riporta esattamente com’era. La pancia e l’ora della nanna sono condivise.',
-        'Giocare con la mascotte: toccala per una reazione. La sua pancia 🍪 si riempie del 5% a ogni faccenda (una squadra conta una volta) e si svuota in 2 giorni; quando è vuota dice solo che ha fame. "Cosa faccio?" suggerisce una faccenda che puoi fare subito. Aggiunge un 🐾 di tifo a ogni faccenda finita. Dorme durante la nanna della famiglia (si imposta sotto la mascotte in Funzioni, dalle 21 alle 7 di base).',
+        'Giocare con la mascotte: toccala per una reazione. La sua pancia 🍪 si riempie del 5% a ogni faccenda (una squadra conta una volta) e si svuota in 2 giorni. Festeggia con un 🍪 e un saltello solo le faccende più grandi (sforzo da 3★ in su); quelle piccole la riempiono in silenzio; quando è vuota dice solo che ha fame. "Cosa faccio?" suggerisce una faccenda che puoi fare subito. Aggiunge un 🐾 di tifo a ogni faccenda finita. Dorme durante la nanna della famiglia (si imposta sotto la mascotte in Funzioni, dalle 21 alle 7 di base).',
         'Negozio della mascotte (con il suo interruttore): chiunque può comprarle un accessorio da 1 a 5 monete. C’è un solo vestito condiviso e nessun armadio: un nuovo oggetto si indossa subito per tutti e sostituisce quello che c’era in quel punto (testa, viso, collo o schiena). Chi ha comprato un oggetto, o un genitore, può toglierlo gratis. Gli acquisti compaiono in Attività. Il negozio apre quando la mascotte si schiude. Spegnere il negozio nasconde negozio e vestito.',
         'Stile delle feste: Halloween a ottobre, Ringraziamento a novembre, Natale a dicembre: colori, decorazioni, un conto alla rovescia e un costume per la mascotte. Ogni festa ha il suo interruttore e un pulsante Anteprima.',
       ] },
@@ -473,6 +474,10 @@ export const GUIDE_IT: GuideSection[] = [
         { q: 'La mascotte dorme, o dice di avere fame', a: [
           'Dorme durante la nanna della famiglia (Impostazioni → Funzioni, sotto la mascotte), secondo l’orologio di ogni dispositivo.',
           'Avere fame significa meno faccende negli ultimi due giorni; ogni faccenda riempie un po’ la sua pancia. La fame non influisce su nient’altro.',
+        ] },
+        { q: 'La mascotte non ha festeggiato una faccenda', a: [
+          'Festeggia (🍪 e un saltello) solo le faccende più grandi, con sforzo da 3★ in su, e una faccenda in attesa solo quando viene approvata. Quelle piccole riempiono comunque la sua pancia, in silenzio.',
+          'Ogni dispositivo mostra la festa una volta: un telefono che l’ha già vista non la ripete.',
         ] },
         { q: 'Nessuna decorazione o colore delle feste', a: [
           'Impostazioni → Funzioni → Stile delle feste, e l’interruttore di quella festa, devono essere attivi. Segue la data del dispositivo.',
