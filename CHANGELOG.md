@@ -36,6 +36,15 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
   limits are kept in the hosted database, so a restart doesn't reset them. Security headers are on, and CORS only
   allows the app's own address (`PUBLIC_URL`, or `CORS_ORIGIN`). A paused family, or one whose trial has ended (with
   billing on), sees a page about it instead of the app, and parents can still download their data there.
+- An operator page for hosted mode (`HOSTED=1`) at `/operator`, for the people running the server. It has its own
+  accounts and sign-in: a family's login can't open it, and an operator's login can't open a family. It lists each
+  family (newest activity first, 50 at a time) with its family code, when it was made and last used, how many people
+  it has, the space its photos and data take, its status, plan and parents' emails, and finds a family by name, code
+  or email. It can pause and resume a family, delete one (type its name to confirm; the folder is kept 30 days), and
+  resend a parent's confirmation email. It never shows what's inside a family. `OPERATOR_EMAIL` and
+  `OPERATOR_PASSWORD` (12 characters or more) make the first account at startup; the same settings with a new
+  password are the way back in after a forgotten one. Take the password out of the settings after signing in. The
+  page is in English only.
 - A "Proof photos" switch in Settings → Features. It's on, except in hosted mode, where it starts off until a parent
   turns it on. When it's off, kids finish a chore that waits for approval with a note only.
 
