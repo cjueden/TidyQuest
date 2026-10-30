@@ -9,6 +9,8 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+## v0.14.0 (2026-10-29)
+
 ### Added
 
 - Groundwork for the hosted service (tidyquest.org): with the new `HOSTED=1` setting, one server can keep many
