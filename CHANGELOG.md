@@ -9,6 +9,8 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+## v0.14.1 (2026-10-29)
+
 ### Changed
 
 - Proof photos and profile photos are made smaller on the phone before they upload (about 1600 pixels on the long
