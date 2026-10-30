@@ -1911,7 +1911,9 @@
       "changeEmailSubject": "Conferma la tua nuova email per TidyQuest",
       "changeEmailBody": "Ciao {name},\n\napri questo link per accedere a TidyQuest con questa email d'ora in poi. Funziona per un giorno:\n{link}\n\nSe non l'hai chiesto tu, puoi ignorare questa email.",
       "emailChangingSubject": "La tua email di accesso a TidyQuest sta cambiando",
-      "emailChangingBody": "Ciao {name},\n\nqualcuno che ha effettuato l'accesso con il tuo account ha chiesto di cambiare la tua email di accesso a TidyQuest in {email}. Cambierà quando quell'indirizzo sarà confermato.\n\nSe non sei stato tu, accedi e cambia la password."
+      "emailChangingBody": "Ciao {name},\n\nqualcuno che ha effettuato l'accesso con il tuo account ha chiesto di cambiare la tua email di accesso a TidyQuest in {email}. Cambierà quando quell'indirizzo sarà confermato.\n\nSe non sei stato tu, accedi e cambia la password.",
+      "trialEndingSubject": "La tua famiglia TidyQuest sarà eliminata il {date}",
+      "trialEndingBody": "Ciao {name},\n\nla prova gratuita di {family} è terminata il {ended}. Il {date}, {family} e tutto il suo contenuto saranno eliminati: faccende, cronologia, monete e foto.\n\nPer continuare a usare TidyQuest, scegli un piano entro quella data. Per tenere una copia dei tuoi dati, accedi su {link} e usa {export} in {settings}.\n\nSe hai finito con TidyQuest, non devi fare nulla."
     },
     "hosted": {
       "emailOrUsername": "Email o username",

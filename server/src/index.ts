@@ -37,6 +37,7 @@ import { resumeDuePauses } from './utils/pause';
 import insightsRoutes from './routes/insights';
 import { countRequests, isHosted } from './hosted/context';
 import { startHosted } from './hosted/families';
+import { startJobs } from './hosted/jobs';
 import { filesRouter } from './hosted/files';
 import hostedRoutes from './hosted/routes';
 
@@ -130,23 +131,15 @@ if (require.main === module || !process.env.VITEST) {
 
   app.listen(PORT, () => {
     console.log(`TidyQuest server running on http://localhost:${PORT}${isHosted() ? ' (hosted mode)' : ''}`);
-    // Hosted mode runs the jobs once per family from NEW-11; until then it skips them
-    if (isHosted()) return console.warn('[hosted] Background jobs (reminders, streaks, team-ups, pauses) are not run yet in hosted mode.');
-    void sendDueTaskNotificationsIfNeeded();
-    void sendCoinBoostNotificationsIfNeeded();
-    void runScheduledNotifications();
-    closeOldTeamups();
-    settleAllStreaks();
-    snapshotOverdueChores();
-    resumeDuePauses();
-    setInterval(() => {
-      void sendDueTaskNotificationsIfNeeded();
-      void sendCoinBoostNotificationsIfNeeded();
-      void runScheduledNotifications();
-      closeOldTeamups();
-      settleAllStreaks();
-      snapshotOverdueChores();
-      resumeDuePauses();
-    }, 30000);
+    // Every 30 seconds, for each family (hosted/jobs.ts)
+    startJobs([
+      sendDueTaskNotificationsIfNeeded,
+      sendCoinBoostNotificationsIfNeeded,
+      runScheduledNotifications,
+      closeOldTeamups,
+      settleAllStreaks,
+      snapshotOverdueChores,
+      resumeDuePauses,
+    ]);
   });
 }

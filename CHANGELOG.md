@@ -23,6 +23,20 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
   their sign-in email. Emails go to the server log until a real sender is added. Optional settings:
   `PUBLIC_URL` (the address in emailed links), `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (a CAPTCHA on
   sign-up), `TERMS_URL` and `PRIVACY_URL` (an "I agree" box on sign-up).
+- Hosted mode runs the background jobs (reminders, coin boosts, scheduled notifications, team-ups, streak shields,
+  overdue counts and the end of pauses) for every family on a trial or a paid plan, one family at a time, each in its
+  own database. An error in one family is logged and the others carry on. Once a day it removes families deleted
+  more than 30 days ago. With billing switched on (a `PAYMENT_KEY`, which comes with billing), a trial that ended
+  without paying is deleted 60 days later, and its parents get an email a week before with a link to download their
+  data. Without a payment key, families never expire.
+
+### Changed
+
+- "Due today" reminders still go out when the server is busy or restarts around the set time, up to 90 minutes
+  late, instead of being skipped for the day.
+- Sending a notification gives up after 10 seconds, so an unreachable Telegram, ntfy or Home Assistant server can't
+  hold up the other reminders.
+- An error in one background job is logged and the other jobs keep running (before, it could stop the server).
 
 ### Fixed
 
