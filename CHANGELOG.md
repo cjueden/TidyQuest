@@ -25,6 +25,8 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 - Proof photos no longer pile up in the family's photo space: undoing or rejecting a chore, marking a chore not
   done, replacing a photo, or deleting a person now deletes the photo file too.
 - Home's data no longer includes other people's proof notes and photos for anyone but parents.
+- Resetting the first parent's password on the server (ADMIN_RESET_PASSWORD) now signs them out on every
+  device, like any other new password. Before, phones and computers already logged in kept working.
 
 ## v0.14.1 (2026-10-29)
 

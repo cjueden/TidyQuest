@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import jwt from 'jsonwebtoken';
 import type Database from 'better-sqlite3';
 import type supertest from 'supertest';
-import { createTestApp, createAdmin, createUser, loginAs, tokenFamily } from './setup';
+import { initDatabase } from '../database';
+import { createTestApp, createAdmin, createUser, loginAs, tokenFamily, HOSTED_RUN } from './setup';
 
 // NEW-8: log out everywhere
 let agent: supertest.Agent;
@@ -86,6 +87,27 @@ describe('Log out everywhere', () => {
     expect((await me(kid.token)).status).toBe(401);
     expect((await me(admin.token)).status).toBe(200);
     expect((await me(await loginAs(agent, 'kid', 'kid2'))).status).toBe(200);
+  });
+
+  // BUG-12. Hosted mode ignores ADMIN_RESET_PASSWORD (hosted.test.ts)
+  it.skipIf(HOSTED_RUN)('the server-side password reset (ADMIN_RESET_PASSWORD) logs the first parent out everywhere', async () => {
+    const admin = await createAdmin(agent);
+    const mom = await createUser(agent, admin.token, { username: 'mom', displayName: 'Mom', password: 'mom1', role: 'admin' });
+    const kid = await createUser(agent, admin.token, { username: 'kid', displayName: 'Kid', password: 'kid1' });
+    const versions = () => db.prepare('SELECT id, tokenVersion FROM users ORDER BY id').all() as { id: number; tokenVersion: number }[];
+    const before = versions();
+
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    process.env.ADMIN_RESET_PASSWORD = 'reset1234';
+    initDatabase();
+    log.mockRestore();
+
+    expect(process.env.ADMIN_RESET_PASSWORD).toBeUndefined();
+    expect(versions()).toEqual(before.map(u => ({ ...u, tokenVersion: u.tokenVersion + (u.id === admin.user.id ? 1 : 0) })));
+    expect((await me(admin.token)).status).toBe(401);
+    expect((await me(mom.token)).status).toBe(200);
+    expect((await me(kid.token)).status).toBe(200);
+    expect((await me(await loginAs(agent, 'admin', 'reset1234'))).status).toBe(200);
   });
 
   it("a removed person's login stops working", async () => {

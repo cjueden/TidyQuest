@@ -522,6 +522,7 @@ export const GUIDE_DE: GuideSection[] = [
         ] },
         { q: 'Ich wurde auf allen Geräten abgemeldet', a: [
           'Ein Elternteil hat dein Passwort geändert oder Auf allen Geräten abmelden benutzt, oder du hast dein Passwort geändert oder Überall sonst abmelden auf einem anderen Gerät benutzt. Melde dich mit deinem aktuellen Passwort wieder an.',
+          'Erster Elternteil: Wer den Server betreibt, hat dein Passwort vielleicht dort zurückgesetzt (ADMIN_RESET_PASSWORD). Frag nach dem neuen.',
           'Eine Anmeldung endet außerdem nach 30 Tagen auf jedem Gerät von selbst.',
         ] },
         { q: 'Es erscheint „Das hat nicht geklappt“', a: [

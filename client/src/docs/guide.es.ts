@@ -522,6 +522,7 @@ export const GUIDE_ES: GuideSection[] = [
         ] },
         { q: 'Se cerró mi sesión en todos los dispositivos', a: [
           'Un padre o una madre cambió tu contraseña o usó Cerrar sesión en todos los dispositivos, o tú cambiaste tu contraseña o usaste Cerrar sesión en los demás dispositivos en otro dispositivo. Vuelve a iniciar sesión con tu contraseña actual.',
+          'Primer padre o madre: quien gestiona el servidor puede haber restablecido tu contraseña allí (ADMIN_RESET_PASSWORD). Pídele la nueva.',
           'Además, una sesión termina sola a los 30 días en cada dispositivo.',
         ] },
         { q: 'Dice "No funcionó"', a: [

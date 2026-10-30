@@ -522,6 +522,7 @@ export const GUIDE_FR: GuideSection[] = [
         ] },
         { q: 'J’ai été déconnecté de tous mes appareils', a: [
           'Un parent a changé ton mot de passe ou utilisé Déconnecter de tous les appareils, ou tu as changé ton mot de passe ou utilisé Se déconnecter partout ailleurs sur un autre appareil. Reconnecte-toi avec ton mot de passe actuel.',
+          'Premier parent : la personne qui gère le serveur a peut-être réinitialisé ton mot de passe sur le serveur (ADMIN_RESET_PASSWORD). Demande-lui le nouveau.',
           'Une connexion se termine aussi d’elle-même après 30 jours sur chaque appareil.',
         ] },
         { q: 'Il est écrit « Ça n’a pas marché »', a: [

@@ -486,8 +486,10 @@ export function initDatabase() {
     const admin = db.prepare("SELECT id, username FROM users WHERE role = 'admin' ORDER BY id ASC LIMIT 1").get() as { id: number; username: string } | undefined;
     if (admin) {
       const hash = bcrypt.hashSync(resetPassword, 10);
-      db.prepare('UPDATE users SET passwordHash = ? WHERE id = ?').run(hash, admin.id);
-      console.log(`[RECOVERY] Password reset for admin "${admin.username}". Remove ADMIN_RESET_PASSWORD from your environment now.`);
+      // Also signs them out on every device, like any other new password (revokeTokens in middleware/auth.ts,
+      // which imports this file)
+      db.prepare('UPDATE users SET passwordHash = ?, tokenVersion = tokenVersion + 1 WHERE id = ?').run(hash, admin.id);
+      console.log(`[RECOVERY] Password reset for admin "${admin.username}". They are signed out on every device. Remove ADMIN_RESET_PASSWORD from your environment now.`);
     }
     // Clear from process memory to prevent re-use on hot-reload and reduce exposure
     delete process.env.ADMIN_RESET_PASSWORD;

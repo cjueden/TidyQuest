@@ -522,6 +522,7 @@ export const GUIDE_IT: GuideSection[] = [
         ] },
         { q: 'Sono stato disconnesso da tutti i dispositivi', a: [
           'Un genitore ha cambiato la tua password o ha usato Esci da tutti i dispositivi, oppure hai cambiato la tua password o usato Esci da tutti gli altri dispositivi su un altro dispositivo. Accedi di nuovo con la tua password attuale.',
+          'Primo genitore: chi gestisce il server potrebbe aver reimpostato la tua password lì (ADMIN_RESET_PASSWORD). Chiedigli quella nuova.',
           'Un accesso termina anche da solo dopo 30 giorni su ogni dispositivo.',
         ] },
         { q: 'Dice "Non ha funzionato"', a: [
