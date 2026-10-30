@@ -9,6 +9,8 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+## v0.14.2 (2026-10-30)
+
 ### Added
 
 - A kid's proof photo and note now stay with the chore in Activity after a parent approves it: a small photo
