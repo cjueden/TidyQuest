@@ -512,6 +512,7 @@ export const GUIDE_NL: GuideSection[] = [
           'De melding zegt welke grens bereikt is. Een bewijsfoto mag maximaal 8 MB zijn (5 MB op tidyquest.org), een avatar 2 MB, en een back-up om te importeren 50 MB (5 MB op tidyquest.org).',
           'Op tidyquest.org heeft een gezin 200 MB voor foto’s. Is die vol, dan worden nieuwe foto’s niet geüpload, maar het klusje telt wel.',
           'Op tidyquest.org kan een gezin maximaal 15 personen hebben.',
+          'Grote foto’s maakt de telefoon eerst kleiner. Wordt een foto na Klaar! toch niet geüpload, dan telt het klusje wel: de melding blijft staan tot je hem sluit, en zolang het klusje op een ouder wacht, stuurt Opnieuw proberen de foto nog een keer.',
           'Geen fotoveld bij afronden met 📎? Een ouder heeft ze uitgezet in Instellingen → Functies → Bewijsfoto’s.',
         ] },
         { q: 'Ik ben op elk apparaat uitgelogd', a: [

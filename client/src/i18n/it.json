@@ -135,7 +135,6 @@
       "photoMode": "Foto",
       "uploadPhoto": "Carica foto",
       "photoUploaded": "Foto caricata",
-      "fileTooLarge": "File troppo grande (max 2 MB)",
       "uploadFailed": "Caricamento fallito, riprova",
       "language": "Lingua",
       "save": "Salva",
@@ -959,9 +958,11 @@
       "notePlaceholder": "es. 94% nella verifica di matematica",
       "photo": "Foto (facoltativa)",
       "submit": "Fatto",
-      "photoFailed": "Salvato, ma la foto non è stata caricata.",
+      "photoFailed": "La faccenda è stata registrata, ma la foto non è stata caricata.",
       "titleNote": "Concludi con una nota",
-      "addNote": "Aggiungi una nota"
+      "addNote": "Aggiungi una nota",
+      "tryAgain": "Riprova",
+      "photoUploaded": "Foto caricata."
     },
     "rewardRules": {
       "whoCanSee": "Chi la vede",

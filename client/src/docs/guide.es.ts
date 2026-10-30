@@ -512,6 +512,7 @@ export const GUIDE_ES: GuideSection[] = [
           'El mensaje dice qué límite se alcanzó. Una foto de prueba puede ocupar hasta 8 MB (5 MB en tidyquest.org), un avatar 2 MB, y una copia de seguridad para importar 50 MB (5 MB en tidyquest.org).',
           'En tidyquest.org una familia tiene 200 MB para fotos. Cuando se llena, las fotos nuevas no se suben, pero la tarea cuenta igual.',
           'En tidyquest.org una familia puede tener hasta 15 personas.',
+          'El móvil reduce las fotos grandes antes de subirlas. Si aun así una foto no se sube después de Hecho, la tarea cuenta igual: el mensaje se queda hasta que lo cierres y, mientras la tarea espera a un padre o una madre, Reintentar vuelve a enviar la foto.',
           '¿No hay campo de foto al terminar una tarea con 📎? Un padre o una madre las desactivó en Ajustes → Funciones → Fotos de prueba.',
         ] },
         { q: 'Se cerró mi sesión en todos los dispositivos', a: [

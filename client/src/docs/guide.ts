@@ -536,6 +536,7 @@ export const GUIDE_EN: GuideSection[] = [
           'The message says which limit was hit. A proof photo can be up to 8 MB (5 MB on tidyquest.org), an avatar up to 2 MB, and a backup to import up to 50 MB (5 MB on tidyquest.org).',
           'On tidyquest.org a family has 200 MB for photos. When it’s full, new photos don’t upload, but the chore still counts.',
           'On tidyquest.org a family can have up to 15 people.',
+          'Phones make big photos smaller before they upload. If a photo still doesn’t upload after Done, the chore counts anyway: the message stays until you close it, and while the chore waits for a parent, Try again sends the photo again.',
           'No photo field when finishing a chore with 📎? A parent switched them off in Settings → Features → Proof photos.',
         ] },
         { q: 'I was signed out on every device', a: [

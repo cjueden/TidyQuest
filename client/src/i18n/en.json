@@ -135,7 +135,6 @@
       "photoMode": "Photo",
       "uploadPhoto": "Upload Photo",
       "photoUploaded": "Photo uploaded",
-      "fileTooLarge": "File too large (max 2 MB)",
       "uploadFailed": "Upload failed, please try again",
       "language": "Language",
       "save": "Save",
@@ -959,9 +958,11 @@
       "notePlaceholder": "e.g. Got 94% on the math test",
       "photo": "Photo (optional)",
       "submit": "Done",
-      "photoFailed": "Saved, but the photo didn't upload.",
+      "photoFailed": "The chore was recorded, but its photo didn't upload.",
       "titleNote": "Finish with a note",
-      "addNote": "Add a note"
+      "addNote": "Add a note",
+      "tryAgain": "Try again",
+      "photoUploaded": "Photo uploaded."
     },
     "rewardRules": {
       "whoCanSee": "Who can see it",

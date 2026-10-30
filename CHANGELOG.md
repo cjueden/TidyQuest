@@ -9,6 +9,25 @@ upstream TidyQuest's: see [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Unreleased
 
+### Changed
+
+- Proof photos and profile photos are made smaller on the phone before they upload (about 1600 pixels on the long
+  side for proof photos), so big camera photos no longer fail for being over the size limit, and they take less of
+  a family's photo space. Photos the browser can't read, and small ones, go up as they are.
+- When a proof photo doesn't upload after Done, the message now stays until you close it, says the chore was still
+  recorded and why the photo failed when that's known (too big, or the family's photo space is full), and has a
+  "Try again" button while the chore waits for a parent's approval. Before, it vanished after a few seconds, and a
+  "Waiting for approval" message could replace it straight away.
+- Operator page (hosted): the box for deleting a family is labelled "Family name, to confirm" and shows the
+  family's name as a grey hint, and "Delete for good" looks switched off until the name matches. What happened
+  ("Deleted …" or an error) also shows on the family's card, or in its place once it leaves the list, not only at
+  the top of the page.
+
+### Fixed
+
+- "Who completed this task?": tapping a person's name or picture now picks them. Before, only the small circle or
+  tick box worked, because a tap on the rest of the card picked and unpicked them at once.
+
 ## v0.14.0 (2026-10-29)
 
 ### Added

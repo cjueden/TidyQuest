@@ -70,10 +70,7 @@ export function Profile({ user, theme, onChangeTheme, onUnlocksChanged, onSave, 
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadMsg('');
-    if (file.size > 2 * 1024 * 1024) {
-      setUploadMsg(t('profile.fileTooLarge'));
-      return;
-    }
+    // Big photos are scaled down before uploading; the server says if one is still too big
     setSaving(true);
     try {
       const result = await api.uploadAvatar(user.id, file);
